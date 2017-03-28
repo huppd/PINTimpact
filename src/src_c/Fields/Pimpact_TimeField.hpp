@@ -154,7 +154,7 @@ public:
 	/// \brief <tt>mv := alpha*a + beta*b</tt>
 	void add( Scalar alpha, const FieldT& a, Scalar beta, const FieldT& b, const B& wb=B::Y ) {
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).add( alpha, a(i), beta, b(i), wb );
 		changed();
 	}
@@ -168,7 +168,7 @@ public:
 	/// \return Reference to this object
 	void abs( const FieldT& y) {
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).abs( y(i) );
 		changed();
 	}
@@ -181,7 +181,7 @@ public:
 	/// \return Reference to this object
 	void reciprocal( const FieldT& y){
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).reciprocal( y(i) );
 		changed();
 	}
@@ -193,7 +193,7 @@ public:
 	/// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
 	void scale( const Scalar& alpha, const B& wB=B::Y ) {
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).scale( alpha, wB );
 		changed();
 	}
@@ -205,7 +205,7 @@ public:
 	/// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
 	void scale( const FieldT& y) {
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).scale( y(i) );
 		changed();
 	}
@@ -218,7 +218,7 @@ public:
 
 		Scalar b = 0.;
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			b+= at(i).dotLoc( A(i) );
 
 		return( b );
@@ -236,7 +236,7 @@ public:
 
 		Scalar normvec = 0.;
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			normvec = 
 				( (Belos::InfNorm==type)?
 				std::max( at(i).normLoc(type), normvec ) :
@@ -272,7 +272,7 @@ public:
 
 		Scalar nor = Teuchos::ScalarTraits<Scalar>::zero();
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			nor+= at(i).norm( weights(i) );
 
 		return( nor );
@@ -294,7 +294,7 @@ public:
 	/// assign (deep copy) A into mv.
 	TimeField& operator=( const TimeField& a ) {
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i) = a(i);
 		changed();
 
@@ -305,7 +305,7 @@ public:
 	/// \brief Replace the vectors with a random vectors.
 	void random(bool useSeed = false, int seed = 1) {
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).random();
 		changed();
 	}
@@ -314,21 +314,21 @@ public:
 	/// \brief \f[ *this = \alpha \f]
 	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).init(alpha,wB);
 		changed();
 	}
 
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).extrapolateBC( trans );
 		changed();
 	}
 
 	void level() const {
 
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).level();
 		changed();
 	}
@@ -336,14 +336,14 @@ public:
 
 	/// \param os
 	void print( std::ostream& os=std::cout ) const {
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).print( os );
 	}
 
 
 
 	void write( int count=0 ) const {
-		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			at(i).write(count++ + space()->getShift(3) );
 	}
 
@@ -382,11 +382,11 @@ public:
 				Ordinal lengthL = transL * at(0).getStorageSize();
 				Ordinal lengthU = transU * at(0).getStorageSize();
 
-				Scalar* ghostUR = at( space()->begin(F::S,3)-transU).getRawPtr();
-				Scalar* ghostLR = at( space()->end(F::S,3)  +transL).getRawPtr();
+				Scalar* ghostUR = at( space()->si(F::S,3)-transU).getRawPtr();
+				Scalar* ghostLR = at( space()->ei(F::S,3)  +transL).getRawPtr();
 
-				Scalar* ghostUS = at(space()->end(F::S,3)  ).getRawPtr();
-				Scalar* ghostLS = at(space()->begin(F::S,3)).getRawPtr();
+				Scalar* ghostUS = at(space()->ei(F::S,3)  ).getRawPtr();
+				Scalar* ghostLS = at(space()->si(F::S,3)).getRawPtr();
 
 				if( transL>0 ) MPI_Irecv( ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
 				if( transU>0 ) MPI_Irecv( ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
@@ -399,17 +399,17 @@ public:
 
 				// depends on if field from sender was exchanged, so to be sure
 				at( 0                    ).changed();
-				at( space()->end(F::S,3) ).changed();
+				at( space()->ei(F::S,3) ).changed();
 
 			}
 			else {
 				if( std::abs( space()->bl(3) )>0 ) {
-					*mfs_[space()->begin(F::S,3)-1] = *mfs_[space()->end(F::S,3)-1];
-					at(space()->begin(F::S,3)-1).changed();
+					*mfs_[space()->si(F::S,3)-1] = *mfs_[space()->ei(F::S,3)-1];
+					at(space()->si(F::S,3)-1).changed();
 				}
 				if( std::abs( space()->bu(3) )>0 ) {
-					*mfs_[space()->end(F::S,3)] = *mfs_[space()->begin(F::S,3)];
-					at(space()->end(F::S,3)).changed();
+					*mfs_[space()->ei(F::S,3)] = *mfs_[space()->si(F::S,3)];
+					at(space()->ei(F::S,3)).changed();
 				}
 			}
 		}
@@ -469,11 +469,11 @@ initVectorTimeField(
 	S pi = 4.*std::atan(1.);
 
 	S nt = space->nGlo(3);
-	S offset = space->getShift(3) - space->begin(F::S,3);
+	S offset = space->getShift(3) - space->si(F::S,3);
 
 	bool notImplemented = true;
 	TEUCHOS_TEST_FOR_EXCEPT( notImplemented );
-	//for( O i=space->begin(F::S,3); i<=space->end(F::S,3); ++i )
+	//for( O i=space->si(F::S,3); i<=space->ei(F::S,3); ++i )
 		//switch( flowType ) {
 			//case Zero2DFlow:
 				//field(i)->initField( ZeroFlow );

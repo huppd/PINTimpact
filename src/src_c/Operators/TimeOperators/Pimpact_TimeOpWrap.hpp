@@ -51,19 +51,19 @@ public:
 			typename OperatorT::RangeFieldT temp( space() );
 
       x.exchange();
-      for( int i=0; i <=space()->end(F::S,3); ++i ) {
+      for( int i=0; i <=space()->ei(F::S,3); ++i ) {
 
         op_->apply( x(i), temp );
 
-        if( i>=space()->begin(F::S,3) )
+        if( i>=space()->si(F::S,3) )
           y(i).add( 1., y(i), 0.5, temp );
 
-        if( i+1<=space()->end(F::S,3) )
+        if( i+1<=space()->ei(F::S,3) )
           y(i+1).add( 0., y(i+1), 0.5, temp );
       }
     }
     else{
-      for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
+      for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
         op_->apply( x(i) , y(i) );
     }
     y.changed();

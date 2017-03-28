@@ -126,16 +126,17 @@ public:
 	}
 
 
+	/// \brief MultiField helper (useful for MH ops)
 	void apply( const MF& rhs, MF& y, const Add& add=Add::N  ) const {
 
 		if( levelRHS_ ) { rhs.level(); }
 		if( initZero_ ) { y.init( ); }
 		if( nullspaceOrtho_ ) {
 			for( int i=0; i<rhs.getNumberVecs(); ++i ) {
-				ST bla = -nullspace_->dot( rhs.getField(i) );
-				if( 0==space()->rankST() ) std::cout << getLabel()<< ": nullspace contributtion[" << i<< "]: " << std::abs(bla)  << "\n";
-				if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() )
-					const_cast<MF&>(rhs).getField(i).add( 1., rhs.getField(i), bla, *nullspace_ );
+				//ST bla = -nullspace_->dot( rhs.getField(i) );
+				//if( 0==space()->rankST() ) std::cout << getLabel()<< ": nullspace contributtion[" << i<< "]: " << std::abs(bla)  << "\n";
+				//if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() )
+					//const_cast<MF&>(rhs).getField(i).add( 1., rhs.getField(i), bla, *nullspace_ );
 				projector_( const_cast<RangeFieldT&>(rhs.getField(i)) );
 			}
 			if( 0==space()->rankST() ) std::cout << "\n";
@@ -152,6 +153,7 @@ public:
 
 		if( debug_ && Belos::ReturnType::Unconverged==succes ) {
 			rhs.write();
+			y.write(100);
 			assert( Belos::ReturnType::Converged==succes );
 			//TEUCHOS_TEST_FOR_EXCEPT( false );
 			//TEUCHOS_TEST_FOR_EXCEPT( true );
@@ -240,12 +242,12 @@ public:
 
 
 
-/// \relates InverseOp
-template<class OpT>
-Teuchos::RCP< InverseOp<OpT> >
-createInverseOp( const Teuchos::RCP<OpT>& op ) {
-	return( Teuchos::rcp( new InverseOp<OpT>( op ) ) );
-}
+///// \relates InverseOp
+//template<class OpT>
+//Teuchos::RCP< InverseOp<OpT> >
+//createInverseOp( const Teuchos::RCP<OpT>& op ) {
+	//return( Teuchos::rcp( new InverseOp<OpT>( op ) ) );
+//}
 
 
 /// \relates InverseOp
@@ -258,6 +260,15 @@ createInverseOp(
 	return( Teuchos::rcp( new InverseOp<OpT>( op, pl ) ) );
 }
 
+/// \relates InverseOp
+template< template<class> class  ProjectorT, class OpT  >
+Teuchos::RCP< InverseOp<OpT,ProjectorT> >
+createInverseOp(
+		const Teuchos::RCP<OpT>& op,
+		const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
+
+	return( Teuchos::rcp( new InverseOp<OpT,ProjectorT>( op, pl ) ) );
+}
 
 } // end of namespace Pimpact
 

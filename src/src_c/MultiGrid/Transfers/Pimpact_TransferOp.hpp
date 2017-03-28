@@ -62,9 +62,9 @@ public:
     for( int i=0; i<SpaceT::sdim; ++i )
       assert( x.space()->nLoc(i) == y.space()->nLoc(i) );
 
-		for( Ordinal k=x.space()->begin(fType,Z,B::Y); k<=x.space()->end(fType,Z,B::Y); ++k )
-			for( Ordinal j=x.space()->begin(fType,Y,B::Y); j<=x.space()->end(fType,Y,B::Y); ++j )
-				for( Ordinal i=x.space()->begin(fType,X,B::Y); i<=x.space()->end(fType,X,B::Y); ++i )
+		for( Ordinal k=x.space()->si(fType,Z,B::Y); k<=x.space()->ei(fType,Z,B::Y); ++k )
+			for( Ordinal j=x.space()->si(fType,Y,B::Y); j<=x.space()->ei(fType,Y,B::Y); ++j )
+				for( Ordinal i=x.space()->si(fType,X,B::Y); i<=x.space()->ei(fType,X,B::Y); ++i )
 					y(i,j,k) = x(i,j,k);
 
     y.changed();

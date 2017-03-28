@@ -54,7 +54,7 @@ protected:
 		if( 0<spaceC()->getBCLocal()->getBCL(dir) )
 			i = std::max( 0, i );
 		if( 0<spaceC()->getBCLocal()->getBCU(dir) )
-			i = std::min( spaceF()->end(F::S,dir)-1, i );
+			i = std::min( spaceF()->ei(F::S,dir)-1, i );
 		return( i );
 	}
 
@@ -155,11 +155,11 @@ public:
 			case( F::U ) :
 				{ 
 					if( 2==ST::sdim ) {
-						for( Ordinal kk=spaceC()->begin(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+						for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
 							Ordinal k = kk;
-							for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+							for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
 								Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
-								for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+								for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
 									Ordinal i = getIF(X,ii);
 
 									y(ii,jj,kk) = 0.;
@@ -173,11 +173,11 @@ public:
 						}
 					}
 					else {
-						for( Ordinal kk=spaceC()->begin(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+						for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
 							Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
-							for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+							for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
 								Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
-								for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+								for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
 									Ordinal i = getIF(X,ii);
 
 									y(ii,jj,kk) = 0.;
@@ -197,11 +197,11 @@ public:
 				{
 
 					if( 2==ST::sdim ) {
-						for( Ordinal kk=spaceC()->begin(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+						for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
 							Ordinal k = kk;
-							for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+							for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
 								Ordinal j = getIF(Y,jj);
-								for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+								for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
 									Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
 
 									y(ii,jj,kk) = 0.;
@@ -215,11 +215,11 @@ public:
 						}
 					}
 					else {
-						for( Ordinal kk=spaceC()->begin(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+						for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
 							Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
-							for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+							for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
 								Ordinal j = getIF(Y,jj);
-								for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+								for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
 									Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
 
 									y(ii,jj,kk) = 0.;
@@ -238,11 +238,11 @@ public:
 			case( F::W ) :
 				{ 
 					
-					for( Ordinal kk=spaceC()->begin(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+					for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
 						Ordinal k = getIF(Z,kk);
-						for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+						for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
 							Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
-							for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+							for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
 								Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
 
 								y(ii,jj,kk) = 0.;

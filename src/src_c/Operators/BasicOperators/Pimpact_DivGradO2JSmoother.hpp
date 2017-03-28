@@ -82,15 +82,15 @@ public:
       y.exchange();
 
 			if( 3==SpaceT::sdim )
-				for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-					for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-						for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+				for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+					for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+						for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 							temp(i,j,k) = innerStenc3D( b, y, i,j,k);
 						}
 			else
-				for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-					for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-						for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+				for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+					for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+						for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 							temp(i,j,k) = innerStenc2D( b, y, i,j,k);
 						}
 			
@@ -98,15 +98,15 @@ public:
 			temp.exchange();
 
 			if( 3==SpaceT::sdim )
-				for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-					for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-						for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+				for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+					for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+						for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 							y(i,j,k) = innerStenc3D( b, temp, i,j,k);
 						}
 			else
-				for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-					for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-						for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+				for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+					for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+						for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 							y(i,j,k) = innerStenc2D( b, temp, i,j,k);
 						}
 
@@ -138,12 +138,12 @@ protected:
 	constexpr Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
-		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
-		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
-		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(F::S,Z) ) ||
-		           (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(F::S,Z) ) ;
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
+		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
+		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
+		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
+		           (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
 		const Scalar& eps = 0.1;
 
@@ -163,10 +163,10 @@ protected:
 	constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
-		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
-		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
+		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
+		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
 		const Scalar& eps = 0.1;
 

@@ -49,7 +49,7 @@ public:
 		MDomainFT mx( space(), 0 );
 		MRanageFT my( space(), 0 );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 			// making x 
 			mx.push_back(
 					Teuchos::rcpFromRef(
@@ -65,7 +65,7 @@ public:
 			my.push_back( Teuchos::rcpFromRef(y.getSField(i)) );
 		}
 
-		if( 0==space()->begin(F::U,3) ) {
+		if( 0==space()->si(F::U,3) ) {
 			mx.push_back(
 					Teuchos::rcpFromRef(
 						const_cast<typename DomainFieldT::InnerFieldT&>(

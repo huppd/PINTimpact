@@ -432,10 +432,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 
 	auto field = Pimpact::createMultiHarmonic<FType>( space, true );
 
-	if( space->begin(Pimpact::F::U,3)<=0 )
+	if( space->si(Pimpact::F::U,3)<=0 )
 		field->get0Field().init( 1. );
 
-	for( OT i=std::max(space->begin(Pimpact::F::U,3),1); i<=space->end(Pimpact::F::U,3); ++i )
+	for( OT i=std::max(space->si(Pimpact::F::U,3),1); i<=space->ei(Pimpact::F::U,3); ++i )
 		field->getField(i).init( i+1. );
 
 	field->changed();

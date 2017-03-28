@@ -26,6 +26,7 @@
 #include "Pimpact_AnalysisTools.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
+#include "Pimpact_DivGradProjector.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
 #include "Pimpact_ModeNonlinearOp.hpp"
@@ -384,26 +385,9 @@ int main( int argi, char** argv ) {
 						opS2V->getOperatorPtr() );
 
 			auto divGradInv2 =
-				Pimpact::createInverseOp( 
+				Pimpact::createInverseOp<Pimpact::DGProjector>( 
 						divGradOp,
 						Teuchos::sublist( pl, "DivGrad") );
-
-			////--- nullspace 
-			if( pl->sublist("DivGrad").get<bool>("nullspace ortho",true) ) {
-				auto nullspace = x->getField(0).getSField().get0Field().clone();
-				auto zeros = nullspace->clone();
-
-				Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;
-
-				compNullspace.computeNullSpace( divGradOp->getDivOp(), *nullspace );
-
-				//nullspace->write(888);
-				//auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
-				//nullspace->print( *out );
-
-				divGradInv2->setNullspace( nullspace );
-			}
-			//// --- end nullspace
 
 			std::string divGradScalString =
 				pl->sublist("DivGrad").get<std::string>("scaling","none");
@@ -470,7 +454,7 @@ int main( int argi, char** argv ) {
 
 			auto invTriangOp =
 				Pimpact::createInverseTriangularOp(
-						 opV2Vinv,
+						opV2Vinv,
 						opS2V,
 						opS2Sinv );
 

@@ -171,9 +171,9 @@ public:
 			db[dir] = ( b.space()->nLoc(dir)-1 )/( space()->nLoc(dir)-1 );
 		}
 
-		for( Ordinal k=space()->begin(fType_,Z,wb); k<=space()->end(fType_,Z,wb); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,wb); j<=space()->end(fType_,Y,wb); ++j )
-				for( Ordinal i=space()->begin(fType_,X,wb); i<=space()->end(fType_,X,wb); ++i )
+		for( Ordinal k=space()->si(fType_,Z,wb); k<=space()->ei(fType_,Z,wb); ++k )
+			for( Ordinal j=space()->si(fType_,Y,wb); j<=space()->ei(fType_,Y,wb); ++j )
+				for( Ordinal i=space()->si(fType_,X,wb); i<=space()->ei(fType_,X,wb); ++i )
 					at(i,j,k) = alpha*a.at( (i-1)*da[0]+1, (j-1)*da[1]+1,(k-1)*da[2]+1 )
 						         + beta*b.at( (i-1)*db[0]+1, (j-1)*db[1]+1,(k-1)*db[2]+1 );
 
@@ -192,9 +192,9 @@ public:
 		for( int dir=0; dir<3; ++dir )
 			assert( space()->nLoc(dir)==y.space()->nLoc(dir) );
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 					at(i,j,k) = std::fabs( y.at(i,j,k) );
 
 		changed();
@@ -215,9 +215,9 @@ public:
 		}
 #endif
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 					at(i,j,k) = Teuchos::ScalarTraits<ST>::one()/ y.at(i,j,k);
 
     changed();
@@ -227,9 +227,9 @@ public:
   /// \brief Scale each element of the vector with \c alpha.
 	void scale( const ST& alpha, const B& wB=B::Y ) {
 
-		for( Ordinal k=space()->begin(fType_,Z,wB); k<=space()->end(fType_,Z,wB); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,wB); j<=space()->end(fType_,Y,wB); ++j )
-				for( Ordinal i=space()->begin(fType_,X,wB); i<=space()->end(fType_,X,wB); ++i )
+		for( Ordinal k=space()->si(fType_,Z,wB); k<=space()->ei(fType_,Z,wB); ++k )
+			for( Ordinal j=space()->si(fType_,Y,wB); j<=space()->ei(fType_,Y,wB); ++j )
+				for( Ordinal i=space()->si(fType_,X,wB); i<=space()->ei(fType_,X,wB); ++i )
 					at(i,j,k) *= alpha;
 
 		changed();
@@ -249,9 +249,9 @@ public:
 		}
 #endif
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 					at(i,j,k) *= y.at(i,j,k);
 		changed();
 	}
@@ -272,9 +272,9 @@ public:
 
 		ST b = Teuchos::ScalarTraits<ST>::zero();
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 					b += at(i,j,k)*y.at(i,j,k);
 
 		return( b );
@@ -290,9 +290,9 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 					normvec += std::fabs( at(i,j,k) );
 
     return( normvec );
@@ -303,9 +303,9 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 					normvec += std::pow( at(i,j,k), 2 );
 
     return( normvec );
@@ -316,9 +316,9 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 					normvec = std::fmax( std::fabs(at(i,j,k)), normvec );
 
     return( normvec );
@@ -366,9 +366,9 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 					normvec += at(i,j,k)*at(i,j,k)*weights.at(i,j,k)*weights.at(i,j,k);
 
     return( normvec );
@@ -415,15 +415,15 @@ public:
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis( -0.5, 0.5 );
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 					at(i,j,k) = dis(gen);
 
 		if( !space()->getProcGrid()->participating() )
-			for( Ordinal k=space()->begin(fType_,Z,B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-				for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
-					for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i )
+			for( Ordinal k=space()->si(fType_,Z,B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+				for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j )
+					for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i )
 						at(i,j,k) = Teuchos::ScalarTraits<ST>::zero();
 		changed();
   }
@@ -441,15 +441,15 @@ public:
 			exchangedState_[Z] = true;
 		}
 		else{
-			for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-				for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-					for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+			for( Ordinal k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+				for( Ordinal j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+					for( Ordinal i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
 						at(i,j,k) = alpha;
 
 			if( !space()->getProcGrid()->participating() )
-				for( Ordinal k=space()->begin(fType_,Z,B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-					for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
-						for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i )
+				for( Ordinal k=space()->si(fType_,Z,B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+					for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j )
+						for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i )
 							at(i,j,k) = Teuchos::ScalarTraits<ST>::zero();
 			changed();
 		}
@@ -497,9 +497,9 @@ public:
 
 		const B& bY = B::Y;
 
-		for( Ordinal k=space()->begin(fType_,Z,bY); k<=space()->end(fType_,Z,bY); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bY); j<=space()->end(fType_,Y,bY); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bY); i<=space()->end(fType_,X,bY); ++i ) {
+		for( Ordinal k=space()->si(fType_,Z,bY); k<=space()->ei(fType_,Z,bY); ++k )
+			for( Ordinal j=space()->si(fType_,Y,bY); j<=space()->ei(fType_,Y,bY); ++j )
+				for( Ordinal i=space()->si(fType_,X,bY); i<=space()->ei(fType_,X,bY); ++i ) {
 					if( Add::Y==add )
 						at(i,j,k) += func(
 								( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
@@ -677,18 +677,18 @@ public:
 				switch( fType_ ) {
 					case( F::U ):  {
 						if( space()->getBCLocal()->getBCL(X) > 0 ) {
-							Ordinal i = space()->begin(fType_,X,B::Y);
-							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-								for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j ) {
+							Ordinal i = space()->si(fType_,X,B::Y);
+							for( Ordinal k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+								for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j ) {
 									at(i,j,k) = 0.;
 									for( Ordinal ii=0; ii<=space()->du(X); ++ii )
 										at(i,j,k) -= at(1+ii,j,k)*space()->getInterpolateV2S()->getC(X,1,ii)/space()->getInterpolateV2S()->getC(X,1,-1);
 								}
 						}
 						if( space()->getBCLocal()->getBCU(X) > 0 ) {
-							Ordinal i = space()->end(fType_,X,B::Y);
-							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-								for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j ) {
+							Ordinal i = space()->ei(fType_,X,B::Y);
+							for( Ordinal k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+								for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j ) {
 									at(i,j,k) = 0.;
 									for( Ordinal ii=space()->dl(X); ii<=-1; ++ii )
 										at(i,j,k) -= space()->getInterpolateV2S()->getC(X,i,ii)*at(i+ii,j,k)/space()->getInterpolateV2S()->getC(X,i,0);
@@ -698,18 +698,18 @@ public:
 					}
 					case( F::V ) : {
 						if( space()->getBCLocal()->getBCL(Y) > 0 ) {
-							Ordinal j = space()->begin(fType_,Y,B::Y);
-							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-								for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i ) {
+							Ordinal j = space()->si(fType_,Y,B::Y);
+							for( Ordinal k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+								for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) = 0.;
 									for( Ordinal jj=0; jj<=space()->du(Y); ++jj )
 										at(i,j,k) -= at(i,1+jj,k)*space()->getInterpolateV2S()->getC(Y,1,jj)/space()->getInterpolateV2S()->getC(Y,1,-1);  
 								}
 						}
 						if( space()->getBCLocal()->getBCU(Y) > 0 ) {
-							Ordinal j = space()->end(fType_,Y,B::Y);
-							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-								for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i ) {
+							Ordinal j = space()->ei(fType_,Y,B::Y);
+							for( Ordinal k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+								for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) = 0.;
 									for( Ordinal jj=space()->dl(Y); jj<=-1; ++jj )
 										at(i,j,k) -= space()->getInterpolateV2S()->getC(Y,j,jj)*at(i,j+jj,k)/space()->getInterpolateV2S()->getC(Y,j,0);
@@ -719,18 +719,18 @@ public:
 					}
 					case( F::W ) : {
 						if( space()->getBCLocal()->getBCL(Z) > 0 ) {
-							Ordinal k = space()->begin(fType_,Z,B::Y);
-							for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
-								for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i ) {
+							Ordinal k = space()->si(fType_,Z,B::Y);
+							for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j )
+								for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) = 0.;
 									for( Ordinal kk=0; kk<=space()->du(Z); ++kk )
 										at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,1,kk)*at(i,j,1+kk)/space()->getInterpolateV2S()->getC(Z,1,-1);  
 								}
 						}
 						if( space()->getBCLocal()->getBCU(Z) > 0 ) {
-							Ordinal k = space()->end(fType_,Z,B::Y);
-							for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
-								for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i ) {
+							Ordinal k = space()->ei(fType_,Z,B::Y);
+							for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j )
+								for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) = 0.;
 									for( Ordinal kk=space()->dl(Z); kk<=-1; ++kk )
 										at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,k,kk)*at(i,j,k+kk)/space()->getInterpolateV2S()->getC(Z,k,0);
@@ -748,18 +748,18 @@ public:
 				switch( fType_ ) {
 					case( F::U ) : {
 						if( space()->getBCLocal()->getBCL(X) > 0 ) {
-							Ordinal i = space()->begin(fType_,X,B::Y);
-							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-								for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j ) {
+							Ordinal i = space()->si(fType_,X,B::Y);
+							for( Ordinal k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+								for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j ) {
 									for( Ordinal ii=0; ii<=space()->du(X); ++ii )
 										at(i+ii+1,j,k) -= at(i,j,k)*space()->getInterpolateV2S()->getC(X,1,ii)/space()->getInterpolateV2S()->getC(X,1,-1);  
 									at(i,j,k) = 0.;
 								}
 						}
 						if( space()->getBCLocal()->getBCU(X) > 0 ) {
-							Ordinal i = space()->end(fType_,X,B::Y);
-							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-								for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j ) {
+							Ordinal i = space()->ei(fType_,X,B::Y);
+							for( Ordinal k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+								for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j ) {
 									for( Ordinal ii=space()->dl(X); ii<=-1; ++ii )
 										at(i+ii,j,k) -= space()->getInterpolateV2S()->getC(X,i,ii)*at(i,j,k)/space()->getInterpolateV2S()->getC(X,i,0); 
 									at(i,j,k) = 0.;
@@ -769,18 +769,18 @@ public:
 					}
 					case( F::V ) : {
 						if( space()->getBCLocal()->getBCL(Y) > 0 ) {
-							Ordinal j = space()->begin(fType_,Y,B::Y);
-							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-								for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i ) {
+							Ordinal j = space()->si(fType_,Y,B::Y);
+							for( Ordinal k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+								for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									for( Ordinal jj=0; jj<=space()->du(Y); ++jj )
 										at(i,j+jj+1,k) -= at(i,j,k)*space()->getInterpolateV2S()->getC(Y,1,jj)/space()->getInterpolateV2S()->getC(Y,1,-1);  
 									at(i,j,k) = 0.;
 								}
 						}
 						if( space()->getBCLocal()->getBCU(Y) > 0 ) {
-							Ordinal j = space()->end(fType_,Y,B::Y);
-							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-								for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i ) {
+							Ordinal j = space()->ei(fType_,Y,B::Y);
+							for( Ordinal k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+								for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									for( Ordinal jj=space()->dl(Y); jj<=-1; ++jj )
 										at(i,j+jj,k) -= space()->getInterpolateV2S()->getC(Y,j,jj)*at(i,j,k)/space()->getInterpolateV2S()->getC(Y,j,0); 
 									at(i,j,k) = 0.;
@@ -790,9 +790,9 @@ public:
 					}
 					case( F::W ) : {
 						if( space()->getBCLocal()->getBCL(Z) > 0 ) {
-							Ordinal k = space()->begin(fType_,Z,B::Y);
-							for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
-								for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i ) {
+							Ordinal k = space()->si(fType_,Z,B::Y);
+							for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j )
+								for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) /= space()->getInterpolateV2S()->getC(Z,1,-1);
 									for( Ordinal kk=0; kk<=space()->du(Z); ++kk )
 										at(i,j,k+kk+1) -= space()->getInterpolateV2S()->getC(Z,1,kk)*at(i,j,k);  
@@ -800,9 +800,9 @@ public:
 								}
 						}
 						if( space()->getBCLocal()->getBCU(Z) > 0 ) {
-							Ordinal k = space()->end(fType_,Z,B::Y);
-							for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
-								for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i ) {
+							Ordinal k = space()->ei(fType_,Z,B::Y);
+							for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j )
+								for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) /= space()->getInterpolateV2S()->getC(Z,k,0);
 									for( Ordinal kk=space()->dl(Z); kk<=-1; ++kk )
 										at(i,j,k+kk) -= space()->getInterpolateV2S()->getC(Z,k,kk)*at(i,j,k); 
@@ -826,17 +826,17 @@ public:
 
 			ST pre0 = Teuchos::ScalarTraits<ST>::zero();
 
-			for( Ordinal k=space()->begin(fType_,Z); k<=space()->end(fType_,Z); ++k )
-				for( Ordinal j=space()->begin(fType_,Y); j<=space()->end(fType_,Y); ++j )
-					for( Ordinal i=space()->begin(fType_,X); i<=space()->end(fType_,X); ++i )
+			for( Ordinal k=space()->si(fType_,Z); k<=space()->ei(fType_,Z); ++k )
+				for( Ordinal j=space()->si(fType_,Y); j<=space()->ei(fType_,Y); ++j )
+					for( Ordinal i=space()->si(fType_,X); i<=space()->ei(fType_,X); ++i )
 						pre0 += at(i,j,k);
 
 			pre0 = this->reduce( space()->comm(), pre0 );
 			pre0 /= static_cast<ST>( getLength() );
 
-			for( Ordinal k=space()->begin(fType_,Z); k<=space()->end(fType_,Z); ++k )
-				for( Ordinal j=space()->begin(fType_,Y); j<=space()->end(fType_,Y); ++j )
-					for( Ordinal i=space()->begin(fType_,X); i<=space()->end(fType_,X); ++i )
+			for( Ordinal k=space()->si(fType_,Z); k<=space()->ei(fType_,Z); ++k )
+				for( Ordinal j=space()->si(fType_,Y); j<=space()->ei(fType_,Y); ++j )
+					for( Ordinal i=space()->si(fType_,X); i<=space()->ei(fType_,X); ++i )
 						const_cast<ScalarField*>(this)->at(i,j,k) -= pre0;
 		}
 	}
@@ -856,9 +856,9 @@ public:
 		for(int i=0; i<3; ++i)
 			cw[i] = space()->nLoc(i) + space()->bu(i) - space()->bl(i) + 1;
 
-		for( Ordinal k=space()->begin(fType_,Z,B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
-				for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i )
+		for( Ordinal k=space()->si(fType_,Z,B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
+			for( Ordinal j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j )
+				for( Ordinal i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i )
 					out << i << "\t" << j << "\t" << k << "\t" << at(i,j,k) << "\n";
   }
 

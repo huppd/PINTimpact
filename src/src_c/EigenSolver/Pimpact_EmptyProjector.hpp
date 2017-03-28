@@ -19,6 +19,7 @@ public:
 
 }; // end of class EmptyProjector 
 
+
 } // end of namespace Pimpact
 
 

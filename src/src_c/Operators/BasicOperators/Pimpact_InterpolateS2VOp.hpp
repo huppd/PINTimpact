@@ -92,9 +92,9 @@ public:
 
 		x.exchange(m);
 		//
-		for( Ordinal k=space()->begin(field,Z,B::Y); k<=space()->end(field,Z,B::Y); ++k )
-			for( Ordinal j=space()->begin(field,Y,B::Y); j<=space()->end(field,Y,B::Y); ++j )
-				for( Ordinal i=space()->begin(field,X,B::Y); i<=space()->end(field,X,B::Y); ++i ) {
+		for( Ordinal k=space()->si(field,Z,B::Y); k<=space()->ei(field,Z,B::Y); ++k )
+			for( Ordinal j=space()->si(field,Y,B::Y); j<=space()->ei(field,Y,B::Y); ++j )
+				for( Ordinal i=space()->si(field,X,B::Y); i<=space()->ei(field,X,B::Y); ++i ) {
 					if( Add::N==add ) y(i,j,k) = 0.;
 					for( int ii = space_->gl(m); ii<=space_->gu(m); ++ii ) {
 						if( F::U==field ) {

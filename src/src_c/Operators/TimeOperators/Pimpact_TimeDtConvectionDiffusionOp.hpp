@@ -65,8 +65,8 @@ public:
 
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 		
-		Ordinal sInd = space()->begin(F::S,3);
-		Ordinal eInd = space()->end(F::S,3);
+		Ordinal sInd = space()->si(F::S,3);
+		Ordinal eInd = space()->ei(F::S,3);
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 

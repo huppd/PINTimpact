@@ -116,7 +116,7 @@ public:
 			xu.exchange();
 			//		xp->exchange();
 
-			for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i ) {
+			for( Ordinal i=space()->si(F::S,3); i<space()->ei(F::S,3); ++i ) {
 				xu(i-1).exchange();
 				xu(i).exchange();
 				xp(i).exchange();
@@ -178,7 +178,7 @@ public:
 					yp.getRawPtr(),
 					direction_flag);
 
-			for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i ) {
+			for( Ordinal i=space()->si(F::S,3); i<space()->ei(F::S,3); ++i ) {
 				yu(i).changed();
 				yp(i).changed();
 			} 

@@ -48,11 +48,11 @@ public:
 		if (d > 1)
 			op_->apply( x(0), temp );
 
-		for( Ordinal i=spaceF()->begin(F::S,3); i<spaceF()->end(F::S,3); ++i )  {
+		for( Ordinal i=spaceF()->si(F::S,3); i<spaceF()->ei(F::S,3); ++i )  {
 
-			if ( (i-spaceF()->begin(F::S,3))%d==0 ) {
+			if ( (i-spaceF()->si(F::S,3))%d==0 ) {
 
-				Ordinal iC = (i-spaceF()->begin(F::S,3))/d + spaceC()->begin(F::S,3);
+				Ordinal iC = (i-spaceF()->si(F::S,3))/d + spaceC()->si(F::S,3);
 				op_->apply( x(i), y(iC) );
 
 				if (d > 1)
@@ -60,7 +60,7 @@ public:
 			}
 			else if (d > 1) {
 				op_->apply( x(i), temp );
-				Ordinal iC = (i-spaceF()->begin(F::S,3) - 1)/d + spaceC()->begin(F::S,3);		
+				Ordinal iC = (i-spaceF()->si(F::S,3) - 1)/d + spaceC()->si(F::S,3);		
 				y(iC).add( 1., y(iC), 0.25, temp );
 			}
 		}

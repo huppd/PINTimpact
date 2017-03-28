@@ -576,9 +576,9 @@ TEUCHOS_UNIT_TEST( MaatrixTest, DivGradOp2M ) {
 
 	if( write ) diag.write(999);
 
-	OT nxS = space->end(Pimpact::F::S,Pimpact::X) - space->begin(Pimpact::F::S,Pimpact::X) + 1;
-	OT nyS = space->end(Pimpact::F::S,Pimpact::Y) - space->begin(Pimpact::F::S,Pimpact::Y) + 1;
-	OT nzS = space->end(Pimpact::F::S,Pimpact::Z) - space->begin(Pimpact::F::S,Pimpact::Z) + 1;
+	OT nxS = space->ei(Pimpact::F::S,Pimpact::X) - space->si(Pimpact::F::S,Pimpact::X) + 1;
+	OT nyS = space->ei(Pimpact::F::S,Pimpact::Y) - space->si(Pimpact::F::S,Pimpact::Y) + 1;
+	OT nzS = space->ei(Pimpact::F::S,Pimpact::Z) - space->si(Pimpact::F::S,Pimpact::Z) + 1;
 	OT nS = nxS*nyS*nzS;
 
 
@@ -589,22 +589,22 @@ TEUCHOS_UNIT_TEST( MaatrixTest, DivGradOp2M ) {
 		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOp.txt" );
 		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-		for( OT k=space->begin(Pimpact::F::S,Pimpact::Z); k<=space->end(Pimpact::F::S,Pimpact::Z); ++k )
-			for( OT j=space->begin(Pimpact::F::S,Pimpact::Y); j<=space->end(Pimpact::F::S,Pimpact::Y); ++j )
-				for( OT i=space->begin(Pimpact::F::S,Pimpact::X); i<=space->end(Pimpact::F::S,Pimpact::X); ++i ) {
-					OT II = i-space->begin(Pimpact::F::S,Pimpact::X)
-						+ nxS*( j-space->begin(Pimpact::F::S,Pimpact::Y) )
-						+ nxS*nyS*( k-space->begin(Pimpact::F::S,Pimpact::Z) );
+		for( OT k=space->si(Pimpact::F::S,Pimpact::Z); k<=space->ei(Pimpact::F::S,Pimpact::Z); ++k )
+			for( OT j=space->si(Pimpact::F::S,Pimpact::Y); j<=space->ei(Pimpact::F::S,Pimpact::Y); ++j )
+				for( OT i=space->si(Pimpact::F::S,Pimpact::X); i<=space->ei(Pimpact::F::S,Pimpact::X); ++i ) {
+					OT II = i-space->si(Pimpact::F::S,Pimpact::X)
+						+ nxS*( j-space->si(Pimpact::F::S,Pimpact::Y) )
+						+ nxS*nyS*( k-space->si(Pimpact::F::S,Pimpact::Z) );
 					x.init( 0. );
 					x(i,j,k) = 1.;
 					op->apply( x, b );
 
-					for( OT kk=space->begin(Pimpact::F::S,Pimpact::Z); kk<=space->end(Pimpact::F::S,Pimpact::Z); ++kk )
-						for( OT jj=space->begin(Pimpact::F::S,Pimpact::Y); jj<=space->end(Pimpact::F::S,Pimpact::Y); ++jj )
-							for( OT ii=space->begin(Pimpact::F::S,Pimpact::X); ii<=space->end(Pimpact::F::S,Pimpact::X); ++ii ) {
-								OT JJ = ii-space->begin(Pimpact::F::S,Pimpact::X)
-									+ nxS*( jj-space->begin(Pimpact::F::S,Pimpact::Y) )
-									+ nxS*nyS*( kk-space->begin(Pimpact::F::S,Pimpact::Z) );
+					for( OT kk=space->si(Pimpact::F::S,Pimpact::Z); kk<=space->ei(Pimpact::F::S,Pimpact::Z); ++kk )
+						for( OT jj=space->si(Pimpact::F::S,Pimpact::Y); jj<=space->ei(Pimpact::F::S,Pimpact::Y); ++jj )
+							for( OT ii=space->si(Pimpact::F::S,Pimpact::X); ii<=space->ei(Pimpact::F::S,Pimpact::X); ++ii ) {
+								OT JJ = ii-space->si(Pimpact::F::S,Pimpact::X)
+									+ nxS*( jj-space->si(Pimpact::F::S,Pimpact::Y) )
+									+ nxS*nyS*( kk-space->si(Pimpact::F::S,Pimpact::Z) );
 								x2.init( 0. );
 								x2(ii,jj,kk) = 1.;
 
@@ -627,22 +627,22 @@ TEUCHOS_UNIT_TEST( MaatrixTest, DivGradOp2M ) {
 		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOpT.txt" );
 		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-		for( OT k=space->begin(Pimpact::F::S,Pimpact::Z); k<=space->end(Pimpact::F::S,Pimpact::Z); ++k )
-			for( OT j=space->begin(Pimpact::F::S,Pimpact::Y); j<=space->end(Pimpact::F::S,Pimpact::Y); ++j )
-				for( OT i=space->begin(Pimpact::F::S,Pimpact::X); i<=space->end(Pimpact::F::S,Pimpact::X); ++i ) {
-					OT II = i-space->begin(Pimpact::F::S,Pimpact::X)
-						+ nxS*( j-space->begin(Pimpact::F::S,Pimpact::Y) )
-						+ nxS*nyS*( k-space->begin(Pimpact::F::S,Pimpact::Z) );
+		for( OT k=space->si(Pimpact::F::S,Pimpact::Z); k<=space->ei(Pimpact::F::S,Pimpact::Z); ++k )
+			for( OT j=space->si(Pimpact::F::S,Pimpact::Y); j<=space->ei(Pimpact::F::S,Pimpact::Y); ++j )
+				for( OT i=space->si(Pimpact::F::S,Pimpact::X); i<=space->ei(Pimpact::F::S,Pimpact::X); ++i ) {
+					OT II = i-space->si(Pimpact::F::S,Pimpact::X)
+						+ nxS*( j-space->si(Pimpact::F::S,Pimpact::Y) )
+						+ nxS*nyS*( k-space->si(Pimpact::F::S,Pimpact::Z) );
 					x.init( 0. );
 					x(i,j,k) = 1.;
 					op->apply( x, b, Belos::TRANS );
 
-					for( OT kk=space->begin(Pimpact::F::S,Pimpact::Z); kk<=space->end(Pimpact::F::S,Pimpact::Z); ++kk )
-						for( OT jj=space->begin(Pimpact::F::S,Pimpact::Y); jj<=space->end(Pimpact::F::S,Pimpact::Y); ++jj )
-							for( OT ii=space->begin(Pimpact::F::S,Pimpact::X); ii<=space->end(Pimpact::F::S,Pimpact::X); ++ii ) {
-								OT JJ = ii-space->begin(Pimpact::F::S,Pimpact::X)
-									+ nxS*( jj-space->begin(Pimpact::F::S,Pimpact::Y) )
-									+ nxS*nyS*( kk-space->begin(Pimpact::F::S,Pimpact::Z) );
+					for( OT kk=space->si(Pimpact::F::S,Pimpact::Z); kk<=space->ei(Pimpact::F::S,Pimpact::Z); ++kk )
+						for( OT jj=space->si(Pimpact::F::S,Pimpact::Y); jj<=space->ei(Pimpact::F::S,Pimpact::Y); ++jj )
+							for( OT ii=space->si(Pimpact::F::S,Pimpact::X); ii<=space->ei(Pimpact::F::S,Pimpact::X); ++ii ) {
+								OT JJ = ii-space->si(Pimpact::F::S,Pimpact::X)
+									+ nxS*( jj-space->si(Pimpact::F::S,Pimpact::Y) )
+									+ nxS*nyS*( kk-space->si(Pimpact::F::S,Pimpact::Z) );
 								x2.init( 0. );
 								x2(ii,jj,kk) = 1.;
 								DJGT(JJ,II) = x2.dot( b );
@@ -713,24 +713,24 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivOp2M ) {
   auto op = Pimpact::create<Pimpact::DivOp>( space );
 
 
-	OT nxS = space->end(Pimpact::F::S,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::F::S,Pimpact::X,Pimpact::B::Y) + 1;
-	OT nyS = space->end(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) + 1;
-	OT nzS = space->end(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) + 1;
+	OT nxS = space->ei(Pimpact::F::S,Pimpact::X,Pimpact::B::Y) - space->si(Pimpact::F::S,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyS = space->ei(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) - space->si(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzS = space->ei(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) - space->si(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nS = nxS*nyS*nzS;
 
-	OT nxU = space->end(Pimpact::F::U,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::F::U,Pimpact::X,Pimpact::B::Y) + 1;
-	OT nyU = space->end(Pimpact::F::U,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::F::U,Pimpact::Y,Pimpact::B::Y) + 1;
-	OT nzU = space->end(Pimpact::F::U,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::F::U,Pimpact::Z,Pimpact::B::Y) + 1;
+	OT nxU = space->ei(Pimpact::F::U,Pimpact::X,Pimpact::B::Y) - space->si(Pimpact::F::U,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyU = space->ei(Pimpact::F::U,Pimpact::Y,Pimpact::B::Y) - space->si(Pimpact::F::U,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzU = space->ei(Pimpact::F::U,Pimpact::Z,Pimpact::B::Y) - space->si(Pimpact::F::U,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nU = nxU*nyU*nzU;
 
-	OT nxV = space->end(Pimpact::F::V,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::F::V,Pimpact::X,Pimpact::B::Y) + 1;
-	OT nyV = space->end(Pimpact::F::V,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::F::V,Pimpact::Y,Pimpact::B::Y) + 1;
-	OT nzV = space->end(Pimpact::F::V,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::F::V,Pimpact::Z,Pimpact::B::Y) + 1;
+	OT nxV = space->ei(Pimpact::F::V,Pimpact::X,Pimpact::B::Y) - space->si(Pimpact::F::V,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyV = space->ei(Pimpact::F::V,Pimpact::Y,Pimpact::B::Y) - space->si(Pimpact::F::V,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzV = space->ei(Pimpact::F::V,Pimpact::Z,Pimpact::B::Y) - space->si(Pimpact::F::V,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nV = nxV*nyV*nzV;
 
-	OT nxW = space->end(Pimpact::F::W,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::F::W,Pimpact::X,Pimpact::B::Y) + 1;
-	OT nyW = space->end(Pimpact::F::W,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::F::W,Pimpact::Y,Pimpact::B::Y) + 1;
-	OT nzW = space->end(Pimpact::F::W,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::F::W,Pimpact::Z,Pimpact::B::Y) + 1;
+	OT nxW = space->ei(Pimpact::F::W,Pimpact::X,Pimpact::B::Y) - space->si(Pimpact::F::W,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyW = space->ei(Pimpact::F::W,Pimpact::Y,Pimpact::B::Y) - space->si(Pimpact::F::W,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzW = space->ei(Pimpact::F::W,Pimpact::Z,Pimpact::B::Y) - space->si(Pimpact::F::W,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nW = nxW*nyW*nzW;
 
 	Teuchos::Tuple<OT,3> NX = Teuchos::tuple( nxU,nxV,nxW );
@@ -747,22 +747,22 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivOp2M ) {
 
 	for( int dir=0; dir<D3::sdim; ++dir ) {
 		Pimpact::F fdir = static_cast<Pimpact::F>(dir);
-		for( OT k=space->begin(fdir,Pimpact::Z,Pimpact::B::Y); k<=space->end(fdir,Pimpact::Z,Pimpact::B::Y); ++k )
-			for( OT j=space->begin(fdir,Pimpact::Y,Pimpact::B::Y); j<=space->end(fdir,Pimpact::Y,Pimpact::B::Y); ++j )
-				for( OT i=space->begin(fdir,Pimpact::X,Pimpact::B::Y); i<=space->end(fdir,Pimpact::X,Pimpact::B::Y); ++i ) {
-					OT II =               i-space->begin(fdir,Pimpact::X,Pimpact::B::Y)
-						+ NX[dir]*(         j-space->begin(fdir,Pimpact::Y,Pimpact::B::Y) )
-						+ NX[dir]*NY[dir]*( k-space->begin(fdir,Pimpact::Z,Pimpact::B::Y) ) + offset[dir];
+		for( OT k=space->si(fdir,Pimpact::Z,Pimpact::B::Y); k<=space->ei(fdir,Pimpact::Z,Pimpact::B::Y); ++k )
+			for( OT j=space->si(fdir,Pimpact::Y,Pimpact::B::Y); j<=space->ei(fdir,Pimpact::Y,Pimpact::B::Y); ++j )
+				for( OT i=space->si(fdir,Pimpact::X,Pimpact::B::Y); i<=space->ei(fdir,Pimpact::X,Pimpact::B::Y); ++i ) {
+					OT II =               i-space->si(fdir,Pimpact::X,Pimpact::B::Y)
+						+ NX[dir]*(         j-space->si(fdir,Pimpact::Y,Pimpact::B::Y) )
+						+ NX[dir]*NY[dir]*( k-space->si(fdir,Pimpact::Z,Pimpact::B::Y) ) + offset[dir];
 					x.init();
 					x(fdir)(i,j,k) = 1.;
 					op->apply( x, b );
 
-					for( OT kk=space->begin(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y); kk<=space->end(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y); ++kk )
-						for( OT jj=space->begin(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y); jj<=space->end(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y); ++jj )
-							for( OT ii=space->begin(Pimpact::F::S,Pimpact::X,Pimpact::B::Y); ii<=space->end(Pimpact::F::S,Pimpact::X,Pimpact::B::Y); ++ii ) {
-								OT JJ =       ii-space->begin(Pimpact::F::S,Pimpact::X,Pimpact::B::Y)
-									+ nxS*(     jj-space->begin(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) )
-									+ nxS*nyS*( kk-space->begin(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) );
+					for( OT kk=space->si(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y); kk<=space->ei(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y); ++kk )
+						for( OT jj=space->si(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y); jj<=space->ei(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y); ++jj )
+							for( OT ii=space->si(Pimpact::F::S,Pimpact::X,Pimpact::B::Y); ii<=space->ei(Pimpact::F::S,Pimpact::X,Pimpact::B::Y); ++ii ) {
+								OT JJ =       ii-space->si(Pimpact::F::S,Pimpact::X,Pimpact::B::Y)
+									+ nxS*(     jj-space->si(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) )
+									+ nxS*nyS*( kk-space->si(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) );
 								x2.init();
 								x2(ii,jj,kk) = 1.;
 
@@ -827,24 +827,24 @@ TEUCHOS_UNIT_TEST( MatrixTest, GradOp2M ) {
   auto op = Pimpact::create<Pimpact::GradOp>( space );
 
 
-	OT nxS = space->end(Pimpact::F::S,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::F::S,Pimpact::X,Pimpact::B::Y) + 1;
-	OT nyS = space->end(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) + 1;
-	OT nzS = space->end(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) + 1;
+	OT nxS = space->ei(Pimpact::F::S,Pimpact::X,Pimpact::B::Y) - space->si(Pimpact::F::S,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyS = space->ei(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) - space->si(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzS = space->ei(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) - space->si(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nS = nxS*nyS*nzS;
 
-	OT nxU = space->end(Pimpact::F::U,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::F::U,Pimpact::X,Pimpact::B::Y) + 1;
-	OT nyU = space->end(Pimpact::F::U,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::F::U,Pimpact::Y,Pimpact::B::Y) + 1;
-	OT nzU = space->end(Pimpact::F::U,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::F::U,Pimpact::Z,Pimpact::B::Y) + 1;
+	OT nxU = space->ei(Pimpact::F::U,Pimpact::X,Pimpact::B::Y) - space->si(Pimpact::F::U,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyU = space->ei(Pimpact::F::U,Pimpact::Y,Pimpact::B::Y) - space->si(Pimpact::F::U,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzU = space->ei(Pimpact::F::U,Pimpact::Z,Pimpact::B::Y) - space->si(Pimpact::F::U,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nU = nxU*nyU*nzU;
 
-	OT nxV = space->end(Pimpact::F::V,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::F::V,Pimpact::X,Pimpact::B::Y) + 1;
-	OT nyV = space->end(Pimpact::F::V,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::F::V,Pimpact::Y,Pimpact::B::Y) + 1;
-	OT nzV = space->end(Pimpact::F::V,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::F::V,Pimpact::Z,Pimpact::B::Y) + 1;
+	OT nxV = space->ei(Pimpact::F::V,Pimpact::X,Pimpact::B::Y) - space->si(Pimpact::F::V,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyV = space->ei(Pimpact::F::V,Pimpact::Y,Pimpact::B::Y) - space->si(Pimpact::F::V,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzV = space->ei(Pimpact::F::V,Pimpact::Z,Pimpact::B::Y) - space->si(Pimpact::F::V,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nV = nxV*nyV*nzV;
 
-	OT nxW = space->end(Pimpact::F::W,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::F::W,Pimpact::X,Pimpact::B::Y) + 1;
-	OT nyW = space->end(Pimpact::F::W,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::F::W,Pimpact::Y,Pimpact::B::Y) + 1;
-	OT nzW = space->end(Pimpact::F::W,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::F::W,Pimpact::Z,Pimpact::B::Y) + 1;
+	OT nxW = space->ei(Pimpact::F::W,Pimpact::X,Pimpact::B::Y) - space->si(Pimpact::F::W,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyW = space->ei(Pimpact::F::W,Pimpact::Y,Pimpact::B::Y) - space->si(Pimpact::F::W,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzW = space->ei(Pimpact::F::W,Pimpact::Z,Pimpact::B::Y) - space->si(Pimpact::F::W,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nW = nxW*nyW*nzW;
 
 	Teuchos::Tuple<OT,3> NX = Teuchos::tuple( nxU,nxV,nxW );
@@ -859,24 +859,24 @@ TEUCHOS_UNIT_TEST( MatrixTest, GradOp2M ) {
 	Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "GradOp.txt" );
 	*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-	for( OT kk=space->begin(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y); kk<=space->end(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y); ++kk )
-		for( OT jj=space->begin(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y); jj<=space->end(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y); ++jj )
-			for( OT ii=space->begin(Pimpact::F::S,Pimpact::X,Pimpact::B::Y); ii<=space->end(Pimpact::F::S,Pimpact::X,Pimpact::B::Y); ++ii ) {
-				OT JJ =       ii-space->begin(Pimpact::F::S,Pimpact::X,Pimpact::B::Y)
-					+ nxS*(     jj-space->begin(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) )
-					+ nxS*nyS*( kk-space->begin(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) );
+	for( OT kk=space->si(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y); kk<=space->ei(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y); ++kk )
+		for( OT jj=space->si(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y); jj<=space->ei(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y); ++jj )
+			for( OT ii=space->si(Pimpact::F::S,Pimpact::X,Pimpact::B::Y); ii<=space->ei(Pimpact::F::S,Pimpact::X,Pimpact::B::Y); ++ii ) {
+				OT JJ =       ii-space->si(Pimpact::F::S,Pimpact::X,Pimpact::B::Y)
+					+ nxS*(     jj-space->si(Pimpact::F::S,Pimpact::Y,Pimpact::B::Y) )
+					+ nxS*nyS*( kk-space->si(Pimpact::F::S,Pimpact::Z,Pimpact::B::Y) );
 				x2.init();
 				x2(ii,jj,kk) = 1.;
 				op->applyG( x2, b );
 
 				for( Pimpact::F fdir=Pimpact::F::U; fdir<D3::sdim; ++fdir ) {
 					int dir = static_cast<int>( fdir );
-					for( OT k=space->begin(fdir,Pimpact::Z,Pimpact::B::Y); k<=space->end(fdir,Pimpact::Z,Pimpact::B::Y); ++k )
-						for( OT j=space->begin(fdir,Pimpact::Y,Pimpact::B::Y); j<=space->end(fdir,Pimpact::Y,Pimpact::B::Y); ++j )
-							for( OT i=space->begin(fdir,Pimpact::X,Pimpact::B::Y); i<=space->end(fdir,Pimpact::X,Pimpact::B::Y); ++i ) {
-								OT II =               i-space->begin(fdir,Pimpact::X,Pimpact::B::Y)
-									+ NX[dir]*(         j-space->begin(fdir,Pimpact::Y,Pimpact::B::Y) )
-									+ NX[dir]*NY[dir]*( k-space->begin(fdir,Pimpact::Z,Pimpact::B::Y) ) + offset[dir];
+					for( OT k=space->si(fdir,Pimpact::Z,Pimpact::B::Y); k<=space->ei(fdir,Pimpact::Z,Pimpact::B::Y); ++k )
+						for( OT j=space->si(fdir,Pimpact::Y,Pimpact::B::Y); j<=space->ei(fdir,Pimpact::Y,Pimpact::B::Y); ++j )
+							for( OT i=space->si(fdir,Pimpact::X,Pimpact::B::Y); i<=space->ei(fdir,Pimpact::X,Pimpact::B::Y); ++i ) {
+								OT II =               i-space->si(fdir,Pimpact::X,Pimpact::B::Y)
+									+ NX[dir]*(         j-space->si(fdir,Pimpact::Y,Pimpact::B::Y) )
+									+ NX[dir]*NY[dir]*( k-space->si(fdir,Pimpact::Z,Pimpact::B::Y) ) + offset[dir];
 								x.init();
 								x(fdir)(i,j,k) = 1.;
 
@@ -893,22 +893,22 @@ TEUCHOS_UNIT_TEST( MatrixTest, GradOp2M ) {
 	Teuchos::SerialDenseMatrix<OT,ST> J  ( nU+nV+nW, nU+nV+nW );
 	for( Pimpact::F fdir=Pimpact::F::U; fdir<D3::sdim; ++fdir ) {
 		int dir = static_cast<int>(fdir);
-		for( OT kk=space->begin(fdir,Pimpact::Z,Pimpact::B::Y); kk<=space->end(fdir,Pimpact::Z,Pimpact::B::Y); ++kk )
-			for( OT jj=space->begin(fdir,Pimpact::Y,Pimpact::B::Y); jj<=space->end(fdir,Pimpact::Y,Pimpact::B::Y); ++jj )
-				for( OT ii=space->begin(fdir,Pimpact::X,Pimpact::B::Y); ii<=space->end(fdir,Pimpact::X,Pimpact::B::Y); ++ii ) {
-					OT JJ =           ii-space->begin(fdir,Pimpact::X,Pimpact::B::Y)
-						+ NX[dir]*(     jj-space->begin(fdir,Pimpact::Y,Pimpact::B::Y) )
-						+ NX[dir]*NY[dir]*( kk-space->begin(fdir,Pimpact::Z,Pimpact::B::Y) )+offset[dir];
+		for( OT kk=space->si(fdir,Pimpact::Z,Pimpact::B::Y); kk<=space->ei(fdir,Pimpact::Z,Pimpact::B::Y); ++kk )
+			for( OT jj=space->si(fdir,Pimpact::Y,Pimpact::B::Y); jj<=space->ei(fdir,Pimpact::Y,Pimpact::B::Y); ++jj )
+				for( OT ii=space->si(fdir,Pimpact::X,Pimpact::B::Y); ii<=space->ei(fdir,Pimpact::X,Pimpact::B::Y); ++ii ) {
+					OT JJ =           ii-space->si(fdir,Pimpact::X,Pimpact::B::Y)
+						+ NX[dir]*(     jj-space->si(fdir,Pimpact::Y,Pimpact::B::Y) )
+						+ NX[dir]*NY[dir]*( kk-space->si(fdir,Pimpact::Z,Pimpact::B::Y) )+offset[dir];
 					b.init();
 					b(fdir)(ii,jj,kk) = 1.;
 					op->applyJ( b );
 
-					for( OT k=space->begin(fdir,Pimpact::Z,Pimpact::B::Y); k<=space->end(fdir,Pimpact::Z,Pimpact::B::Y); ++k )
-						for( OT j=space->begin(fdir,Pimpact::Y,Pimpact::B::Y); j<=space->end(fdir,Pimpact::Y,Pimpact::B::Y); ++j )
-							for( OT i=space->begin(fdir,Pimpact::X,Pimpact::B::Y); i<=space->end(fdir,Pimpact::X,Pimpact::B::Y); ++i ) {
-								OT II =               i-space->begin(fdir,Pimpact::X,Pimpact::B::Y)
-									+ NX[dir]*(         j-space->begin(fdir,Pimpact::Y,Pimpact::B::Y) )
-									+ NX[dir]*NY[dir]*( k-space->begin(fdir,Pimpact::Z,Pimpact::B::Y) ) + offset[dir];
+					for( OT k=space->si(fdir,Pimpact::Z,Pimpact::B::Y); k<=space->ei(fdir,Pimpact::Z,Pimpact::B::Y); ++k )
+						for( OT j=space->si(fdir,Pimpact::Y,Pimpact::B::Y); j<=space->ei(fdir,Pimpact::Y,Pimpact::B::Y); ++j )
+							for( OT i=space->si(fdir,Pimpact::X,Pimpact::B::Y); i<=space->ei(fdir,Pimpact::X,Pimpact::B::Y); ++i ) {
+								OT II =               i-space->si(fdir,Pimpact::X,Pimpact::B::Y)
+									+ NX[dir]*(         j-space->si(fdir,Pimpact::Y,Pimpact::B::Y) )
+									+ NX[dir]*NY[dir]*( k-space->si(fdir,Pimpact::Z,Pimpact::B::Y) ) + offset[dir];
 								x.init();
 								x(fdir)(i,j,k) = 1.;
 

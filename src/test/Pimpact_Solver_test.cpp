@@ -379,7 +379,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicSolver, MultiHarmonicDiagOp, Spa
 		opV2Vprec->assignField( wind );
 	}
 
-	if( 0==space()->begin(Pimpact::F::U,3) ) {
+	if( 0==space()->si(Pimpact::F::U,3) ) {
 		ST iRe = 1./space->getDomainSize()->getRe();
 
 		auto initFunC = []( ST x, ST y ) ->ST { return( std::pow((y-0.5),2) ); };
@@ -416,7 +416,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicSolver, MultiHarmonicDiagOp, Spa
 				return( deriFunS(y) ); } );
 	}
 
-	for( OT i=std::max(space()->begin(Pimpact::F::U,3),1); i<=space()->end(Pimpact::F::U,3); ++i ) {
+	for( OT i=std::max(space()->si(Pimpact::F::U,3),1); i<=space()->ei(Pimpact::F::U,3); ++i ) {
 		ST iRe = 1./space->getDomainSize()->getRe();
 		ST a2 = space->getDomainSize()->getAlpha2()*iRe*i;
 

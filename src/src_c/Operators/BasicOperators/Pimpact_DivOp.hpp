@@ -96,7 +96,7 @@ public:
 				Stencil< Scalar, Ordinal, ST::SW::BL(0), ST::SW::BL(0), ST::SW::BU(0) >
 					cG2( space_->nGlo(dir) + space_->bu(dir) );
 
-				for( Ordinal i = space_->begin(F::S,dir); i<=space_->end(F::S,dir); ++i )
+				for( Ordinal i = space_->si(F::S,dir); i<=space_->ei(F::S,dir); ++i )
 					for( Ordinal ii = space_->dl(dir); ii<=space_->du(dir); ++ii )
 						cG1( i+space_->getShift(dir), ii )= getC( static_cast<ECoord>(dir), i, ii );
 
@@ -123,8 +123,8 @@ public:
 							cG2( M1+ls1+i, ii ) = cG2( 1+ls1+i, ii );
 				}
 
-				for( Ordinal i = space_->begin(fdir,dir,B::Y);
-						i<=space_->end(fdir,dir,B::Y); ++i ) 
+				for( Ordinal i = space_->si(fdir,dir,B::Y);
+						i<=space_->ei(fdir,dir,B::Y); ++i ) 
 					for( Ordinal ii=space->gl(dir); ii<=space->gu(dir); ++ii )
 						cT_[dir]( i, ii ) = cG2( i+ii+space_->getShift(dir), -ii );
 			}
@@ -139,18 +139,18 @@ public:
 
 		if( 3==ST::sdim ) {
 
-			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc3D( x, i, j, k );
 					}
 		}
 		else {
 
-			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc2D( x, i, j, k );
 					}
@@ -163,17 +163,17 @@ public:
 	void apply( const RangeFieldT& x, DomainFieldT& y, const Add& add=Add::N ) const {
 
 		x.exchange(X);
-		for( Ordinal k=space()->begin(F::U,Z,B::Y); k<=space()->end(F::U,Z,B::Y); ++k )
-			for( Ordinal j=space()->begin(F::U,Y,B::Y); j<=space()->end(F::U,Y,B::Y); ++j )
-				for( Ordinal i=space()->begin(F::U,X,B::Y); i<=space()->end(F::U,X,B::Y); ++i ) {
+		for( Ordinal k=space()->si(F::U,Z,B::Y); k<=space()->ei(F::U,Z,B::Y); ++k )
+			for( Ordinal j=space()->si(F::U,Y,B::Y); j<=space()->ei(F::U,Y,B::Y); ++j )
+				for( Ordinal i=space()->si(F::U,X,B::Y); i<=space()->ei(F::U,X,B::Y); ++i ) {
 					if( Add::N==add ) y(F::U)(i,j,k) = 0.;
 					y(F::U)(i,j,k) += innerStencU( x, i, j, k );
 				}
 
 		x.exchange(Y);
-		for( Ordinal k=space()->begin(F::V,Z,B::Y); k<=space()->end(F::V,Z,B::Y); ++k )
-			for( Ordinal j=space()->begin(F::V,Y,B::Y); j<=space()->end(F::V,Y,B::Y); ++j )
-				for( Ordinal i=space()->begin(F::V,X,B::Y); i<=space()->end(F::V,X,B::Y); ++i ) {
+		for( Ordinal k=space()->si(F::V,Z,B::Y); k<=space()->ei(F::V,Z,B::Y); ++k )
+			for( Ordinal j=space()->si(F::V,Y,B::Y); j<=space()->ei(F::V,Y,B::Y); ++j )
+				for( Ordinal i=space()->si(F::V,X,B::Y); i<=space()->ei(F::V,X,B::Y); ++i ) {
 					if( Add::N==add ) y(F::V)(i,j,k) = 0.;
 					y(F::V)(i,j,k) += innerStencV( x, i, j, k );
 				}
@@ -181,9 +181,9 @@ public:
 		if( 3==SpaceT::sdim )  {
 
 			x.exchange(Z);
-			for( Ordinal k=space()->begin(F::W,Z,B::Y); k<=space()->end(F::W,Z,B::Y); ++k )
-				for( Ordinal j=space()->begin(F::W,Y,B::Y); j<=space()->end(F::W,Y,B::Y); ++j )
-					for( Ordinal i=space()->begin(F::W,X,B::Y); i<=space()->end(F::W,X,B::Y); ++i ) {
+			for( Ordinal k=space()->si(F::W,Z,B::Y); k<=space()->ei(F::W,Z,B::Y); ++k )
+				for( Ordinal j=space()->si(F::W,Y,B::Y); j<=space()->ei(F::W,Y,B::Y); ++j )
+					for( Ordinal i=space()->si(F::W,X,B::Y); i<=space()->ei(F::W,X,B::Y); ++i ) {
 						if( Add::N==add ) y(F::W)(i,j,k) = 0.;
 						y(F::W)(i,j,k) += innerStencW( x, i, j, k );
 					}
@@ -198,15 +198,15 @@ public:
 			B bc2 = B::Y;
 			if( F::U!=dir ) {
 				if( space()->getBCLocal()->getBCL(X) > 0 ) {
-					Ordinal i = space()->begin(dir,X,B::Y);
-					for( Ordinal k=space()->begin(dir,Z, bc2); k<=space()->end(dir,Z,bc2); ++k )
-						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+					Ordinal i = space()->si(dir,X,B::Y);
+					for( Ordinal k=space()->si(dir,Z, bc2); k<=space()->ei(dir,Z,bc2); ++k )
+						for( Ordinal j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
 							y(dir)(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(X) > 0 ) {
-					Ordinal i = space()->end(dir,X,B::Y);
-					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
-						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+					Ordinal i = space()->ei(dir,X,B::Y);
+					for( Ordinal k=space()->si(dir,Z,bc2); k<=space()->ei(dir,Z,bc2); ++k )
+						for( Ordinal j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
 							y(dir)(i,j,k) *= eps;  
 				}
 				bc2 = B::N;
@@ -214,15 +214,15 @@ public:
 
 			if( F::V!=dir ) {
 				if( space()->getBCLocal()->getBCL(Y) > 0 ) {
-					Ordinal j = space()->begin(dir,Y,B::Y);
-					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
-						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i ) 
+					Ordinal j = space()->si(dir,Y,B::Y);
+					for( Ordinal k=space()->si(dir,Z,bc2); k<=space()->ei(dir,Z,bc2); ++k )
+						for( Ordinal i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i ) 
 							y(dir)(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Y) > 0 ) {
-					Ordinal j = space()->end(dir,Y,B::Y);
-					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
-						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+					Ordinal j = space()->ei(dir,Y,B::Y);
+					for( Ordinal k=space()->si(dir,Z,bc2); k<=space()->ei(dir,Z,bc2); ++k )
+						for( Ordinal i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i )
 							y(dir)(i,j,k) *= eps;  
 				}
 				bc2 = B::N;
@@ -230,15 +230,15 @@ public:
 
 			if( F::W!=dir ) {
 				if( space()->getBCLocal()->getBCL(Z) > 0 ) {
-					Ordinal k = space()->begin(dir,Z,B::Y);
-					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
-						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+					Ordinal k = space()->si(dir,Z,B::Y);
+					for( Ordinal j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
+						for( Ordinal i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i )
 							y(dir)(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Z) > 0 ) {
-					Ordinal k = space()->end(dir,Z,B::Y);
-					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
-						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+					Ordinal k = space()->ei(dir,Z,B::Y);
+					for( Ordinal j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
+						for( Ordinal i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i )
 							y(dir)(i,j,k) *= eps;  
 				}
 				bc2 = B::N;

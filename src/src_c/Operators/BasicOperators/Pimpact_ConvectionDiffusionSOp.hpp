@@ -87,9 +87,9 @@ public:
 		//std::cout << "mulI: " << mulI << "\tmulC: " << mulC << "\tmulL: " << mulL << "\tsize: " << wind[0].getLength() << "\tnorm: " << wind[0].norm() << "\n";
 
 		if( 3==SpaceT::sdim ) {
-			for( Ordinal k=space()->begin(m,Z,wnB); k<=space()->end(m,Z,wnB); ++k )
-				for( Ordinal j=space()->begin(m,Y,wnB); j<=space()->end(m,Y,wnB); ++j )
-					for( Ordinal i=space()->begin(m,X,wnB); i<=space()->end(m,X,wnB); ++i ) {
+			for( Ordinal k=space()->si(m,Z,wnB); k<=space()->ei(m,Z,wnB); ++k )
+				for( Ordinal j=space()->si(m,Y,wnB); j<=space()->ei(m,Y,wnB); ++j )
+					for( Ordinal i=space()->si(m,X,wnB); i<=space()->ei(m,X,wnB); ++i ) {
 						if( Add::N==add ) z(i,j,k) = 0.;
 						z(i,j,k) += 
 							+ mulI * y(i,j,k)
@@ -101,9 +101,9 @@ public:
 					}
 		}
 		else {
-			for( Ordinal k=space()->begin(m,Z,wnB); k<=space()->end(m,Z,wnB); ++k )
-				for( Ordinal j=space()->begin(m,Y,wnB); j<=space()->end(m,Y,wnB); ++j )
-					for( Ordinal i=space()->begin(m,X,wnB); i<=space()->end(m,X,wnB); ++i ) {
+			for( Ordinal k=space()->si(m,Z,wnB); k<=space()->ei(m,Z,wnB); ++k )
+				for( Ordinal j=space()->si(m,Y,wnB); j<=space()->ei(m,Y,wnB); ++j )
+					for( Ordinal i=space()->si(m,X,wnB); i<=space()->ei(m,X,wnB); ++i ) {
 						if( Add::N==add ) z(i,j,k) = 0.;
 						z(i,j,k) += 
 							+ mulI*y(i,j,k)

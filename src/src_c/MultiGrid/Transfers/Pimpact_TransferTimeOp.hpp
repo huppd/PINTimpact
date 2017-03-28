@@ -42,7 +42,7 @@ public:
 	template< class DT, class RT>
 	void apply( const DT& x, RT& y ) const {
 
-		for (int i=x.space()->begin(F::S,3); i<x.space()->end(F::S,3); ++i)
+		for (int i=x.space()->si(F::S,3); i<x.space()->ei(F::S,3); ++i)
 			opV_->apply( x(i), y(i) );
 
 		y.changed();

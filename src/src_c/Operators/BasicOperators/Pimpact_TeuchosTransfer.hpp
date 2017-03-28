@@ -155,12 +155,12 @@ public:
 			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-					const bool bcX = (op->space()->getBCLocal()->getBCL(X) > 0 && i==op->space()->begin(F::S,X) ) ||
-						(op->space()->getBCLocal()->getBCU(X) > 0 && i==op->space()->end(F::S,X) ) ;
-					const bool bcY = (op->space()->getBCLocal()->getBCL(Y) > 0 && j==op->space()->begin(F::S,Y) ) ||
-						(op->space()->getBCLocal()->getBCU(Y) > 0 && j==op->space()->end(F::S,Y) ) ;
-					const bool bcZ = (op->space()->getBCLocal()->getBCL(Z) > 0 && k==op->space()->begin(F::S,Z) ) ||
-						(op->space()->getBCLocal()->getBCU(Z) > 0 && k==op->space()->end(F::S,Z) ) ;
+					const bool bcX = (op->space()->getBCLocal()->getBCL(X) > 0 && i==op->space()->si(F::S,X) ) ||
+						(op->space()->getBCLocal()->getBCU(X) > 0 && i==op->space()->ei(F::S,X) ) ;
+					const bool bcY = (op->space()->getBCLocal()->getBCL(Y) > 0 && j==op->space()->si(F::S,Y) ) ||
+						(op->space()->getBCLocal()->getBCU(Y) > 0 && j==op->space()->ei(F::S,Y) ) ;
+					const bool bcZ = (op->space()->getBCLocal()->getBCL(Z) > 0 && k==op->space()->si(F::S,Z) ) ||
+						(op->space()->getBCLocal()->getBCU(Z) > 0 && k==op->space()->ei(F::S,Z) ) ;
 
 					const Scalar& eps = 0.1;
 
@@ -191,21 +191,21 @@ public:
 		assert( N_==b->numRows()*b->numCols() );
 
 		// boundary conditions in X
-		if( space_->getBCLocal()->getBCL(X)<=0 || SS_[X]>space_->begin(F::S,X,true) ) {
+		if( space_->getBCLocal()->getBCL(X)<=0 || SS_[X]>space_->si(F::S,X,true) ) {
 
 			Ordinal i = SS_[X];
 
 			Ordinal SZ = SS_[Z];
-			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(F::S,Z,true) )
+			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->si(F::S,Z,true) )
 				++SZ;
 			Ordinal NZ = NN_[Z];
-			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(F::S,Z,true) )
+			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->ei(F::S,Z,true) )
 				--NZ;
 			Ordinal SY = SS_[Y];
-			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(F::S,Y,true) )
+			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->si(F::S,Y,true) )
 				++SY;
 			Ordinal NY = NN_[Y];
-			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(F::S,Y,true) )
+			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->ei(F::S,Y,true) )
 				--NY;
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
@@ -213,21 +213,21 @@ public:
 					(*b)( getI(i,j,k) ) -= x(i-1,j,k)*op->getC( X, i, -1 );
 		}
 
-		if( space_->getBCLocal()->getBCU(X)<=0 || NN_[X]<space_->end(F::S,X,true) ) {
+		if( space_->getBCLocal()->getBCU(X)<=0 || NN_[X]<space_->ei(F::S,X,true) ) {
 
 			Ordinal i = NN_[X];
 
 			Ordinal SZ = SS_[Z];
-			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(F::S,Z,true) )
+			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->si(F::S,Z,true) )
 				++SZ;
 			Ordinal NZ = NN_[Z];
-			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(F::S,Z,true) )
+			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->ei(F::S,Z,true) )
 				--NZ;
 			Ordinal SY = SS_[Y];
-			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(F::S,Y,true) )
+			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->si(F::S,Y,true) )
 				++SY;
 			Ordinal NY = NN_[Y];
-			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(F::S,Y,true) )
+			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->ei(F::S,Y,true) )
 				--NY;
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
@@ -236,21 +236,21 @@ public:
 		}
 
 		// boundary conditions in Y
-		if( space_->getBCLocal()->getBCL(Y)<=0 || SS_[Y]>space_->begin(F::S,Y,true) ) {
+		if( space_->getBCLocal()->getBCL(Y)<=0 || SS_[Y]>space_->si(F::S,Y,true) ) {
 
 			Ordinal j = SS_[Y];
 
 			Ordinal SZ = SS_[Z];
-			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(F::S,Z,true) )
+			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->si(F::S,Z,true) )
 				++SZ;
 			Ordinal NZ = NN_[Z];
-			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(F::S,Z,true) )
+			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->ei(F::S,Z,true) )
 				--NZ;
 			Ordinal SX = SS_[X];
-			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(F::S,X,true) )
+			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->si(F::S,X,true) )
 				++SX;
 			Ordinal NX = NN_[X];
-			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(F::S,X,true) )
+			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->ei(F::S,X,true) )
 				--NX;
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
@@ -258,21 +258,21 @@ public:
 					(*b)( getI(i,j,k) ) -= x(i,j-1,k)*op->getC( Y, j, -1 );
 		}
 
-		if( space_->getBCLocal()->getBCU(Y)<=0 || NN_[Y]<space_->end(F::S,Y,true) ) {
+		if( space_->getBCLocal()->getBCU(Y)<=0 || NN_[Y]<space_->ei(F::S,Y,true) ) {
 
 			Ordinal j = NN_[Y];
 
 			Ordinal SZ = SS_[Z];
-			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(F::S,Z,true) )
+			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->si(F::S,Z,true) )
 				++SZ;
 			Ordinal NZ = NN_[Z];
-			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(F::S,Z,true) )
+			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->ei(F::S,Z,true) )
 				--NZ;
 			Ordinal SX = SS_[X];
-			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(F::S,X,true) )
+			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->si(F::S,X,true) )
 				++SX;
 			Ordinal NX = NN_[X];
-			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(F::S,X,true) )
+			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->ei(F::S,X,true) )
 				--NX;
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
@@ -281,21 +281,21 @@ public:
 		}
 
 		// boundary conditions in Z
-		if( space_->getBCLocal()->getBCL(Z)<=0 || SS_[Z]>space_->begin(F::S,Z,true) ) {
+		if( space_->getBCLocal()->getBCL(Z)<=0 || SS_[Z]>space_->si(F::S,Z,true) ) {
 
 			Ordinal k = SS_[Z];
 
 			Ordinal SX = SS_[X];
-			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(F::S,X,true) )
+			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->si(F::S,X,true) )
 				++SX;
 			Ordinal NX = NN_[X];
-			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(F::S,X,true) )
+			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->ei(F::S,X,true) )
 				--NX;
 			Ordinal SY = SS_[Y];
-			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(F::S,Y,true) )
+			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->si(F::S,Y,true) )
 				++SY;
 			Ordinal NY = NN_[Y];
-			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(F::S,Y,true) )
+			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->ei(F::S,Y,true) )
 				--NY;
 
 			for( Ordinal j=SY; j<=NY; ++j )
@@ -303,21 +303,21 @@ public:
 					(*b)( getI(i,j,k) ) -= x(i,j,k-1)*op->getC( Z, k, -1 );
 		}
 
-		if( space_->getBCLocal()->getBCU(Z)<=0 || NN_[Z]<space_->end(F::S,Z,true) ) {
+		if( space_->getBCLocal()->getBCU(Z)<=0 || NN_[Z]<space_->ei(F::S,Z,true) ) {
 
 			Ordinal k = NN_[Z];
 
 			Ordinal SX = SS_[X];
-			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(F::S,X,true) )
+			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->si(F::S,X,true) )
 				++SX;
 			Ordinal NX = NN_[X];
-			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(F::S,X,true) )
+			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->ei(F::S,X,true) )
 				--NX;
 			Ordinal SY = SS_[Y];
-			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(F::S,Y,true) )
+			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->si(F::S,Y,true) )
 				++SY;
 			Ordinal NY = NN_[Y];
-			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(F::S,Y,true) )
+			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->ei(F::S,Y,true) )
 				--NY;
 
 			for( Ordinal j=SY; j<=NY; ++j )
@@ -502,7 +502,7 @@ public:
 		for( Ordinal i=1; i<=op_->space()->nLoc(dir); ++i )
 			for( int o=-1; o<=1; ++o ) {
 				Ordinal I = i-1;
-				if( (i+o)>=op_->space()->begin(F::S,dir) && (i+o)<=op_->space()->end(F::S,dir) ) 
+				if( (i+o)>=op_->space()->si(F::S,dir) && (i+o)<=op_->space()->ei(F::S,dir) ) 
 					(*A)( I, I+o ) += op_->getC( dir, i, o) ;
 			}
 

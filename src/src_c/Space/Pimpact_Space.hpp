@@ -338,13 +338,13 @@ public:
 	}
 
 
-	constexpr const Ordinal& begin( const F& fieldType, const int& dir, const B& withB=B::N ) const {
+	constexpr const Ordinal& si( const F& fieldType, const int& dir, const B& withB=B::N ) {
 		return(
 				static_cast<bool>(withB)?
 				indexSpace_->sIndB( fieldType, dir ):
 				indexSpace_->sInd ( fieldType, dir ) );
 	}
-	constexpr const Ordinal& end( const F& fieldType, const int& dir, const B& withB=B::N ) const {
+	constexpr const Ordinal& ei( const F& fieldType, const int& dir, const B& withB=B::N ) {
 		return(
 				static_cast<bool>(withB)?
 				indexSpace_->eIndB( fieldType, dir ):

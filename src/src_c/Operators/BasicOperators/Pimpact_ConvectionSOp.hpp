@@ -82,12 +82,12 @@ public:
 						cSD_[dir].get() );
 
 				if( BC::Dirichlet==space_->bcl(dir) ) {
-					Ordinal i = space_->begin(F::S,dir,B::Y);
+					Ordinal i = space_->si(F::S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSD_[dir](i,ii) = 0.;
 				}
 				if( BC::Dirichlet==space_->bcu(dir) ) {
-					Ordinal i = space_->end(F::S,dir,B::Y);
+					Ordinal i = space_->ei(F::S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSD_[dir](i,ii) = 0.;
 				}
@@ -116,12 +116,12 @@ public:
 						cSU_[dir].get() );
 
 				if( BC::Dirichlet==space_->bcl(dir) ) {
-					Ordinal i = space_->begin(F::S,dir,B::Y);
+					Ordinal i = space_->si(F::S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSU_[dir](i,ii) = 0.;
 				}
 				if( BC::Dirichlet==space_->bcu(dir) ) {
-					Ordinal i = space_->end(F::S,dir,B::Y);
+					Ordinal i = space_->ei(F::S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSU_[dir](i,ii) = 0.;
 				}
@@ -152,12 +152,12 @@ public:
 						cVD_[dir].get() );
 
 				if( BC::Dirichlet==space_->bcl(dir) ) {
-					Ordinal i = space_->begin(fdir,dir,B::Y);
+					Ordinal i = space_->si(fdir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVD_[dir](i,ii) = 0.;
 				}
 				if( BC::Dirichlet==space_->bcu(dir) ) {
-					Ordinal i = space_->end(fdir,dir,B::Y);
+					Ordinal i = space_->ei(fdir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVD_[dir](i,ii) = 0.;
 				}
@@ -186,12 +186,12 @@ public:
 						cVU_[dir].get() );
 
 				if( BC::Dirichlet==space_->bcl(dir) ) {
-					Ordinal i = space_->begin(fdir,dir,B::Y);
+					Ordinal i = space_->si(fdir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVU_[dir](i,ii) = 0.;
 				}
 				if( BC::Dirichlet==space_->bcu(dir) ) {
-					Ordinal i = space_->end(fdir,dir,B::Y);
+					Ordinal i = space_->ei(fdir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVU_[dir](i,ii) = 0.;
 				}
@@ -226,16 +226,16 @@ public:
 		y.exchange();
 
 		if( 3==SpaceT::sdim )
-			for( Ordinal k=space()->begin(m,Z,b); k<=space()->end(m,Z,b); ++k )
-				for( Ordinal j=space()->begin(m,Y,b); j<=space()->end(m,Y,b); ++j )
-					for( Ordinal i=space()->begin(m,X,b); i<=space()->end(m,X,b); ++i ) {
+			for( Ordinal k=space()->si(m,Z,b); k<=space()->ei(m,Z,b); ++k )
+				for( Ordinal j=space()->si(m,Y,b); j<=space()->ei(m,Y,b); ++j )
+					for( Ordinal i=space()->si(m,X,b); i<=space()->ei(m,X,b); ++i ) {
 						if( Add::N==add ) z(i,j,k) = 0.;
 						z(i,j,k) += mulC*innerStenc3D( wind[0](i,j,k), wind[1](i,j,k), wind[2](i,j,k), y, i, j, k );
 					}
 		else
-			for( Ordinal k=space()->begin(m,Z,b); k<=space()->end(m,Z,b); ++k )
-				for( Ordinal j=space()->begin(m,Y,b); j<=space()->end(m,Y,b); ++j )
-					for( Ordinal i=space()->begin(m,X,b); i<=space()->end(m,X,b); ++i ) {
+			for( Ordinal k=space()->si(m,Z,b); k<=space()->ei(m,Z,b); ++k )
+				for( Ordinal j=space()->si(m,Y,b); j<=space()->ei(m,Y,b); ++j )
+					for( Ordinal i=space()->si(m,X,b); i<=space()->ei(m,X,b); ++i ) {
 						if( Add::N==add ) z(i,j,k) = 0.;
 						z(i,j,k) += mulC*innerStenc2D( wind[0](i,j,k), wind[1](i,j,k), y, i,j,k);
 					}

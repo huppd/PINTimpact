@@ -68,7 +68,7 @@ public:
 
     // computing zero mode of z
 		// set paramteters
-		if( 0==space()->begin(F::U,3) ) {
+		if( 0==space()->si(F::U,3) ) {
 
 			// set parameters
 			//
@@ -81,7 +81,7 @@ public:
 			zeroOp_->apply( x.get0Field(), y.get0Field() );
 		}
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 
 			// set parameters
 			auto para = Teuchos::parameterList();

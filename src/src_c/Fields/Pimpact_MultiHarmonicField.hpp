@@ -75,7 +75,7 @@ protected:
 			s_ = new Scalar[ getStorageSize() ];
 
 			field0_.setStoragePtr( s_ );
-			for( Ordinal i=0; i<=space()->end(F::U,3) - std::max(space()->begin(F::U,3),1); ++i )
+			for( Ordinal i=0; i<=space()->ei(F::U,3) - std::max(space()->si(F::U,3),1); ++i )
 				fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
 		}
 	}
@@ -87,7 +87,7 @@ public:
 		return(
 				( global_ )?
 					( ( 1 + 2*space()->nGlo(3)                                             )*field0_.getStorageSize() ):
-					( ( 1 + 2*( space()->end(F::U,3) - std::max(space()->begin(F::U,3),1) + 1 )  )*field0_.getStorageSize() )
+					( ( 1 + 2*( space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1 )  )*field0_.getStorageSize() )
 				);
 	}
 
@@ -110,7 +110,7 @@ public:
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
 			}
 			else{
-				for( Ordinal i=0; i<space()->end(F::U,3) - std::max(space()->begin(F::U,3),1) + 1; ++i )
+				for( Ordinal i=0; i<space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1; ++i )
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
 			}
 
@@ -137,8 +137,8 @@ public:
 					fields_[i-1] = Teuchos::rcp( new ModeField<IFT>( vF.getField(i), copyType ) );
 			}
 			else{
-				for( Ordinal i=0; i<space()->end(F::U,3) - std::max(space()->begin(F::U,3),1) + 1; ++i )
-					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getField(i+std::max(space()->begin(F::U,3),1)), copyType ) );
+				for( Ordinal i=0; i<space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1; ++i )
+					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getField(i+std::max(space()->si(F::U,3),1)), copyType ) );
 			}
 
 			allocate();
@@ -168,9 +168,9 @@ protected:
 
 	constexpr Ordinal index( const Ordinal& i ) const {
 		return( i - 1 + 
-				(( global_||0==space()->begin(F::U,3) )?
+				(( global_||0==space()->si(F::U,3) )?
 					0:
-					(-space()->begin(F::U,3)+1) )
+					(-space()->si(F::U,3)+1) )
 				);
 	};
 
@@ -205,7 +205,7 @@ public:
 		Ordinal len = 0;
 
 		len += get0Field().getLength();
-		//len += space()->nGlo(3)*getField( std::max(space()->begin(F::U,3),1) ).getLength();
+		//len += space()->nGlo(3)*getField( std::max(space()->si(F::U,3),1) ).getLength();
 		len += 2*space()->nGlo(3)*get0Field().getLength();
 
     return( len );
@@ -221,10 +221,10 @@ public:
 	/// \todo add test for consistent VectorSpaces in debug mode
   void add( const Scalar& alpha, const FieldT& a, const Scalar& beta, const FieldT& b, const B& wb=B::Y ) {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.add(alpha, a.get0Field(), beta, b.get0Field(), wb );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).add( alpha, a.getField(i), beta, b.getField(i), wb );
 
 		changed();
@@ -239,10 +239,10 @@ public:
   /// \return Reference to this object
   void abs( const FieldT& y) {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.abs( y.get0Field() );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).abs( y.getField(i) );
 
 		changed();
@@ -256,10 +256,10 @@ public:
   /// \return Reference to this object
   void reciprocal( const FieldT& y){
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.reciprocal( y.get0Field() );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).reciprocal( y.getField(i) );
 
 		changed();
@@ -269,10 +269,10 @@ public:
   /// \brief Scale each element of the vectors in \c this with \c alpha.
   void scale( const Scalar& alpha, const B& wB=B::Y ) {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.scale( alpha, wB );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).scale( alpha, wB );
 
 		changed();
@@ -287,10 +287,10 @@ public:
   /// \return Reference to this object
   void scale( const FieldT& a) {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.scale( a.get0Field() );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).scale( a.getField(i) );
 
 		changed();
@@ -308,9 +308,9 @@ public:
 
     Scalar b = 0.;
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			b += get0Field().dotLoc( a.get0Field() );
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			b += getField(i).dotLoc( a.getField(i) );
 
     return( b );
@@ -328,10 +328,10 @@ public:
 
     Scalar normvec = 0.;
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			normvec += get0Field().normLoc(type);
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			normvec =
 				(Belos::InfNorm==type)?
 				std::max( getField(i).normLoc(type), normvec ):
@@ -368,10 +368,10 @@ public:
 
     Scalar normvec= Teuchos::ScalarTraits<Scalar>::zero();
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			normvec += get0Field().normLoc( weights.get0Field() );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			normvec += getField(i).normLoc(weights.getField(i));
 
     return( normvec );
@@ -397,10 +397,10 @@ public:
   /// \brief mv := a
 	MultiHarmonicField& operator=( const MultiHarmonicField& a ) {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_ = a.get0Field();
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i) = a.getField(i);
 
 		return *this;
@@ -410,10 +410,10 @@ public:
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.random();
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).random();
 
 		changed();
@@ -423,10 +423,10 @@ public:
   /// \brief Replace each element of the vector  with \c alpha.
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.init( alpha, wB );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).init( alpha, wB );
 
 		changed();
@@ -436,10 +436,10 @@ public:
 	///  \brief initializes including boundaries to zero 
 	void initField( Teuchos::ParameterList& para, const Add& add=Add::N  ) {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.initField( para.sublist("0 mode"), add );
 
-		if( space()->begin(F::U,3)<=1 && 1<=space()->end(F::U,3) ) {
+		if( space()->si(F::U,3)<=1 && 1<=space()->ei(F::U,3) ) {
 			getCField(1).initField( para.sublist("cos mode"), add );
 			getSField(1).initField( para.sublist("sin mode"), add );
 		}
@@ -448,10 +448,10 @@ public:
 
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.extrapolateBC( trans );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).extrapolateBC( trans );
 
 		changed();
@@ -459,10 +459,10 @@ public:
 
   void level() const {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			field0_.level();
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).level();
 
 		changed();
@@ -473,10 +473,10 @@ public:
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& os=std::cout ) const {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			get0Field().print( os );
 
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).print( os );
   }
 
@@ -507,10 +507,10 @@ public:
 		}
 		else{
 
-			if( 0==space()->begin(F::U,3) )
+			if( 0==space()->si(F::U,3) )
 				get0Field().write(count);
 
-			for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
+			for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 				getCField(i).write( count+2*i-1 );
 				getSField(i).write( count+2*i   );
 			}
@@ -534,10 +534,10 @@ public:
 		if( exchangedState_==false ) {
 
 			// exchange spatial
-			if( 0==space()->begin(F::U,3) )
+			if( 0==space()->si(F::U,3) )
 				field0_.exchange();
 
-			for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+			for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 				getField(i).exchange();
 
 			// mpi stuff
@@ -545,9 +545,9 @@ public:
 
 			// --- sendcount ---
 			int sendcount = 0;
-			if( 0==space()->begin(F::U,3) )
+			if( 0==space()->si(F::U,3) )
 				sendcount += nx;
-			for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
+			for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 				sendcount += 2*nx;
 
 			// --- recvcount, displacement ---
@@ -594,13 +594,13 @@ public:
 			delete[] displs;
 
 			// set non owning spatial block as exchanged
-			if( 0!=space()->begin(F::U,3) )
+			if( 0!=space()->si(F::U,3) )
 				get0Field().setExchanged();
 
-			for( Ordinal i=1; i<space()->begin(F::U,3); ++i )
+			for( Ordinal i=1; i<space()->si(F::U,3); ++i )
 				getField(i).setExchanged();
 
-			for( Ordinal i=space()->end(F::U,3)+1; i<=space()->nGlo(3); ++i )
+			for( Ordinal i=space()->ei(F::U,3)+1; i<=space()->nGlo(3); ++i )
 				getField(i).setExchanged();
 		}
 	}

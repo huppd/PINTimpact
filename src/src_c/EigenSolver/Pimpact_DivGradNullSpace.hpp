@@ -6,6 +6,8 @@
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ScalarTraits.hpp"
+#include "Teuchos_SerialQRDenseSolver.hpp"
+
 #include "Pimpact_Stencil.hpp"
 
 #include "BelosTypes.hpp"
@@ -20,6 +22,7 @@ namespace Pimpact {
 
 
 /// \todo make nullspace greate again, (store vectors) not hole field
+/// \todo integrate with DGProjector
 template<class OperatorT>
 class DivGradNullSpace {
 
@@ -69,7 +72,7 @@ public:
 				Stenc cG1( space->nGlo(dir) + space->bu(dir) );
 				Stenc cG2( space->nGlo(dir) + space->bu(dir) );
 
-				for( Ordinal i = space->begin(F::S,dir); i<=space->end(F::S,dir); ++i )
+				for( Ordinal i = space->si(F::S,dir); i<=space->ei(F::S,dir); ++i )
 					for( Ordinal ii = space->dl(dir); ii<=space->du(dir); ++ii )
 						cG1( i+space->getShift(dir), ii )= div->getC( static_cast<ECoord>(dir), i, ii );
 
@@ -117,7 +120,7 @@ public:
 					if( DJG_yes ) {
 
 						for( int ii=space->dl(dir); ii<=0; ++ii )
-							(*b)(N+ii) = space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),space->end(F::S,dir), ii);
+							(*b)(N+ii) = space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),space->ei(F::S,dir), ii);
 						
 						MPI_Bcast(
 								&(*b)(N-3),																//void* data,
@@ -149,16 +152,16 @@ public:
 			}
 		}
 		if( 3==SpaceT::sdim ) {
-			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 							y(i,j,k) = (*x_[0])(i-1+space->getShift(0))* (*x_[1])(j-1+space->getShift(1))* (*x_[2])(k-1+space->getShift(2));
 					}
 		}
 		else{
-			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i )
+			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i )
 						y(i,j,k) = (*x_[0])(i-1+space->getShift(0))* (*x_[1])(j-1+space->getShift(1));
 		}
 		Scalar blup = std::sqrt( 1./y.dot(y) );

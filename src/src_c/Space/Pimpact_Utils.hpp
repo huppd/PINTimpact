@@ -119,7 +119,7 @@ bool operator!=( const int& c, const F& f ) {
 /// \relates BoundaryConditionsGlobal
 /// \relates BoundaryConditionsLocal
 /// \todo make enumclass impl ()
-enum  BC  {
+enum BC {
 	Symmetry  = -2, ///< -2
 	Periodic  = -1, ///< -1
 	Neighbor  =  0, ///<  0 

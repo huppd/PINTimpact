@@ -99,7 +99,7 @@ public:
 		Scalar mulI;
 
     // computing zero mode of z
-		if( 0==space()->begin(F::U,3) ) {
+		if( 0==space()->si(F::U,3) ) {
 
 			op_->apply( get0Wind(), y->get0Field(), z.get0Field(), 0., 1., iRe, Add::N );
 
@@ -110,7 +110,7 @@ public:
 		}
 
     // computing cos mode of z
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 
       op_->apply( get0Wind( ), y->getCField(i), z.getCField(i), 0., 1., iRe, Add::N  );
       op_->apply( getCWind(i), y->get0Field( ), z.getCField(i), 0., 1., 0.,  Add::Y );
@@ -127,7 +127,7 @@ public:
     }
 
     // computing sin mode of y
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 
       op_->apply( get0Wind(),  y->getSField(i), z.getSField(i), 0., 1., iRe, Add::N  );
       op_->apply( getSWind(i), y->get0Field(),  z.getSField(i), 0., 1., 0. , Add::Y );
@@ -144,7 +144,7 @@ public:
     }
 
 		// rest of time
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
+		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 			if( Nf/2+1<=i && i<=Nf ) {
 				mulI = a2*i;
 				z.getCField(i).add( 1., z.getCField(i),  mulI, y->getSField(i), B::N );
@@ -158,7 +158,7 @@ public:
 			for( Ordinal l=1; l<=Nf; ++l ) { // that is fine
 				i = k+l; 
 				if( i<=Nf ) { // do something here
-					if( std::max(space()->begin(F::U,3),1)<=i && i<=space()->end(F::U,3) ) {
+					if( std::max(space()->si(F::U,3),1)<=i && i<=space()->ei(F::U,3) ) {
 						op_->apply( getCWind(k), y->getCField(l), z.getCField(i), 0.,  0.5, 0., Add::Y );
 						op_->apply( getSWind(k), y->getSField(l), z.getCField(i), 0., -0.5, 0., Add::Y );
 
@@ -174,10 +174,10 @@ public:
 
   void applyBC( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		if( 0==space()->begin(F::U,3) )
+		if( 0==space()->si(F::U,3) )
 			op_->getSOp()->getHelmholtzOp()->applyBC( x.get0Field(), y.get0Field() );
 
-		for( typename SpaceT::Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
+		for( typename SpaceT::Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 			op_->getSOp()->getHelmholtzOp()->applyBC( x.getCField(i), y.getCField(i) );
 			op_->getSOp()->getHelmholtzOp()->applyBC( x.getSField(i), y.getSField(i) );
 		}

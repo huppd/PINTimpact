@@ -47,16 +47,16 @@ public:
 		};
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    x.exchange();
+		x.exchange();
 
-    for( Ordinal i=space_->begin(F::S,3); i<=space_->end(F::S,3); ++i ) {
-       y(i).add( mulI_, x(i), -mulI_, x(i-1) );
-    }
+		for( Ordinal i=space_->si(F::S,3); i<=space_->ei(F::S,3); ++i ) {
+			y(i).add( mulI_, x(i), -mulI_, x(i-1) );
+		}
 
-    y.changed();
-  }
+		y.changed();
+	}
 
   void assignField( const DomainFieldT& mv ) {};
 

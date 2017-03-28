@@ -113,9 +113,9 @@ public:
 		x.exchange( m );
 
 		if( X==m ) {
-			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						for( Ordinal ii=c_[m].bl(); ii<=c_[m].bu(); ++ii )
 							y(i,j,k) += getC( m, i, ii )*x(i+ii,j,k);
@@ -123,9 +123,9 @@ public:
 		}
 
 		if( Y==m ) {
-			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						for( Ordinal jj=c_[m].bl(); jj<=c_[m].bu(); ++jj )
 							y(i,j,k) += getC( m, j, jj )*x(i,j+jj,k);
@@ -133,9 +133,9 @@ public:
 		}
 
 		if( Z==m ) {
-			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
-				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
-					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						for( Ordinal kk=c_[m].bl(); kk<=c_[m].bu(); ++kk )
 							y(i,j,k) += getC( m, k, kk )*x(i,j,k+kk);

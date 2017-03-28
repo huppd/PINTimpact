@@ -109,7 +109,7 @@
 	</ParameterList>
 	<ParameterList id="23" name="Picard Solver">
 		<Parameter docString="" id="127" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
-		<Parameter docString="" id="611" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
+		<Parameter docString="" id="611" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<ParameterList id="24" name="Solver">
 			<!--<Parameter docString="" id="136" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />-->
 			<!--<Parameter docString="" id="128" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />-->
@@ -129,7 +129,7 @@
 		<Parameter docString="" id="142" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<Parameter docString="" id="143" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
-		<Parameter docString="" id="931" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
+		<Parameter docString="" id="931" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<Parameter docString="" id="9113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-2" />
 		<Parameter docString="" id="1111" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true"/>
 		<ParameterList id="26" name="Solver">
@@ -260,7 +260,7 @@
 	</ParameterList>
 	<ParameterList id="43" name="Base flow">
 		<ParameterList id="44" name="0 mode">
-			<!--<Parameter docString="" id="246" isDefault="true" isUsed="true" name="Type" type="string" value="Poiseuille" />-->
+			<Parameter docString="" id="246" isDefault="true" isUsed="true" name="Type" type="string" value="Poiseuille" />
 		</ParameterList>
 		<ParameterList id="45" name="cos mode">
 			<Parameter docString="" id="247" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
@@ -293,25 +293,25 @@
 			<!--</ParameterList>-->
 		</ParameterList>
 		<ParameterList id="52" name="cos mode">
-			<Parameter docString="" id="262" isDefault="true" isUsed="true" name="Type" type="string" value="Scalar" />
-			<ParameterList id="53" name="U">
-				<Parameter docString="" id="263" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />
-				<Parameter docString="" id="264" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />
-			</ParameterList>
-			<ParameterList id="54" name="V">
-				<Parameter docString="" id="265" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />
-				<Parameter docString="" id="266" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="267" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="268" isDefault="true" isUsed="true" name="c_z" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="269" isDefault="true" isUsed="true" name="amp" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="270" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />
-				<Parameter docString="" id="271" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />
-				<Parameter docString="" id="272" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />
-			</ParameterList>
-			<ParameterList id="55" name="W">
-				<Parameter docString="" id="273" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />
-				<Parameter docString="" id="274" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />
-			</ParameterList>
+			<!--<Parameter docString="" id="262" isDefault="true" isUsed="true" name="Type" type="string" value="Scalar" />-->
+			<!--<ParameterList id="53" name="U">-->
+				<!--<Parameter docString="" id="263" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />-->
+				<!--<Parameter docString="" id="264" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />-->
+			<!--</ParameterList>-->
+			<!--<ParameterList id="54" name="V">-->
+				<!--<Parameter docString="" id="265" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />-->
+				<!--<Parameter docString="" id="266" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="267" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="268" isDefault="true" isUsed="true" name="c_z" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="269" isDefault="true" isUsed="true" name="amp" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="270" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />-->
+				<!--<Parameter docString="" id="271" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />-->
+				<!--<Parameter docString="" id="272" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />-->
+			<!--</ParameterList>-->
+			<!--<ParameterList id="55" name="W">-->
+				<!--<Parameter docString="" id="273" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />-->
+				<!--<Parameter docString="" id="274" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />-->
+			<!--</ParameterList>-->
 		</ParameterList>
 		<ParameterList id="56" name="sin mode">
 			<Parameter docString="" id="275" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
