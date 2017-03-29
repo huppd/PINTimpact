@@ -57,6 +57,7 @@ public:
 				c_[i] = Stenc( space_->nLoc(i) );
 
 				FD_getDiffCoeff(
+						0,
 						space_->nLoc(i),
 						space_->bl(i),
 						space_->bu(i),

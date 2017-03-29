@@ -16,6 +16,7 @@ contains
 
   !> \brief calculates finite differences coefficients.
   !!
+  !! \param[in] iStart start indedx 
   !! \param[in] Nmax dimension of cc and xc,xs corresponds to \c GridSizeLocal
   !! \param[in] bl  coordinate lower bound \c FieldSpace
   !! \param[in] bu  coordinate upper bound \c FieldSpace
@@ -24,7 +25,7 @@ contains
   !! \param[in] BCL local lower Boundary conditions \c BoundaryConditionsLocal
   !! \param[in] BCU local upper Boundary conditions \c BoundaryConditionsLocal
   !! \param[in] SShift shift in \c ProcGrid
-  !! \param[in] grid_type used weridly
+  !! \param[in] grid_type used weirdly
   !!                      - 5 on pressure grid S2S(ConvOp,HelmOp), on same grid
   !!                      - 1 on velocity grid V2V(ConvOp,HelmOp), on same grid
   !!                      - 2 on velocity grid S2V(GradOp,IntS2VOp), grid transfer
@@ -53,6 +54,7 @@ contains
   !!          schon vor dieser Routine ausgefuehrt werden, um hier die
   !!          Uebersichtlichkeit zu verbessern.
   subroutine FD_getDiffCoeff( &
+      iStart,                 &
       Nmax,                   &
       bL,                     &
       bU,                     &
@@ -75,6 +77,7 @@ contains
     implicit none
 
 
+    integer(c_int),  intent(in)   :: iStart
     integer(c_int),  intent(in)   :: Nmax
 
     integer(c_int),  intent(in)   :: bL
@@ -106,7 +109,7 @@ contains
 
     integer(c_int)        :: n_coeff
     integer(c_int)        :: dim_n_coeff_bound ! Same as dim_ncb?
-    integer(c_int)        :: i, ii, iC, iStart
+    integer(c_int)        :: i, ii, iC
     integer(c_int)        :: k!, kk
 
     integer(c_int)        :: left, right
@@ -133,11 +136,11 @@ contains
     !===========================================================================================
     !=== Startindex für Entwicklungspunkte =====================================================
     !===========================================================================================
-    if( grid_type == 5 .or. grid_type == 3 ) then
-      iStart = 1
-    else
-      iStart = 0
-    end if
+    !if( grid_type == 5 .or. grid_type == 3 ) then
+      !iStart = 1
+    !else
+      !iStart = 0
+    !end if
     !===========================================================================================
 
     filter_yes = .false.

@@ -62,6 +62,7 @@ public:
 				cSD_[dir] = Stenc( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
+						1,
 						space_->nLoc(dir),
 						space_->bl(dir),
 						space_->bu(dir),
@@ -70,7 +71,7 @@ public:
 						space_->getBCLocal()->getBCL(dir),
 						space_->getBCLocal()->getBCU(dir),
 						space_->getShift(dir),
-						int(F::S)+1,
+						5,
 						dir+1,
 						1,
 						-1,
@@ -96,6 +97,7 @@ public:
 				cSU_[dir] = Stenc( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
+						1,
 						space_->nLoc(dir),
 						space_->bl(dir),
 						space_->bu(dir),
@@ -104,7 +106,7 @@ public:
 						space_->getBCLocal()->getBCL(dir),
 						space_->getBCLocal()->getBCU(dir),
 						space_->getShift(dir),
-						int(F::S)+1,
+						5,
 						dir+1,
 						1,
 						+1,
@@ -132,6 +134,7 @@ public:
 				cVD_[dir] = Stenc( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
+						0,
 						space_->nLoc(dir),
 						space_->bl(dir),
 						space_->bu(dir),
@@ -166,6 +169,7 @@ public:
 				cVU_[dir] = Stenc( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
+						0,
 						space_->nLoc(dir),
 						space_->bl(dir),
 						space_->bu(dir),

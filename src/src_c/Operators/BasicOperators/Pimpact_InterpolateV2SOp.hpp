@@ -79,6 +79,7 @@ public:
 			F fi = static_cast<F>( i );
 			
 			FD_getDiffCoeff(
+					1,
 					gridSizeLocal->get(i),
 					stencilWidths->getBL(i),
 					stencilWidths->getBU(i),

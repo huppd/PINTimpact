@@ -67,6 +67,7 @@ public:
 				c_[dir] = StencG( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
+						0,
 						space_->nLoc(dir),
 						space_->bl(dir),
 						space_->bu(dir),

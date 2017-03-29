@@ -11,6 +11,7 @@ namespace Pimpact {
 
 extern "C"
 void FD_getDiffCoeff(
+		const int& iStart,
 		const int& Nmax,
 		const int& bL,
 		const int& bU,
@@ -31,9 +32,7 @@ void FD_getDiffCoeff(
           double* const cc );
 
 
-
 } // end of namespace Pimpact
-
 
 
 #endif // end of #ifndef PIMPACT_EXTERN_FDCOEFF_HPP
