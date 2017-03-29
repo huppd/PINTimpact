@@ -72,7 +72,7 @@ contains
       n_coeff_bound,          &
       xC,                     &
       xE,                     &
-      cc ) bind(c,name='FD_getDiffCoeff')
+      cc ) bind( c, name='FD_getDiffCoeff' )
 
     implicit none
 
@@ -148,8 +148,6 @@ contains
 
     dim_n_coeff_bound = SIZE(n_coeff_bound)
 
-    cc = 0.
-
     right = 0 ! to please compiler
 
     do i = iStart, Nmax
@@ -159,10 +157,8 @@ contains
       !=========================================================================================
       if( BCL>0 .and. i<=( iStart - 1 + dim_n_coeff_bound ) ) then
         n_coeff = n_coeff_bound(i + 1 - iStart)
-        !IF (upwind /= 0 .AND. i == iStart) n_coeff = 0
       else if( BCU>0 .and. i >=( Nmax + 1 - dim_n_coeff_bound ) ) then
         n_coeff = n_coeff_bound(Nmax + 1 - i)
-        !IF (upwind /= 0 .AND. i == Nmax  ) n_coeff = 0
       else
         n_coeff = n_coeff_bound(dim_n_coeff_bound)
       end if

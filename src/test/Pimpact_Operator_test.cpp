@@ -2264,10 +2264,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 				x.init();
 				sol.init();
 				auto inifunc = [&pi2]( ST x ) -> ST {  
-								return(  std::cos(x*pi2) );
+					return(  std::cos(x*pi2) );
 				};
-				auto solfunc = [&pi2,&ire,&space]( ST x ) -> ST {  return(
-						std::cos(x*pi2)*pi2*pi2*ire );
+				auto solfunc = [&pi2,&ire,&space]( ST x ) -> ST {
+					return( std::cos(x*pi2)*pi2*pi2*ire );
 				};
  
 				if( 0==dir ) {
@@ -2276,32 +2276,87 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 								return( inifunc(x) ); } );
 					sol(field).initFromFunction(
 							[&space,&inifunc,&solfunc]( ST x, ST y, ST z ) ->ST {
-								if( (space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<=Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>=1.-Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<=Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>=1.-Teuchos::ScalarTraits<ST>::eps() )  ||
-								  (  space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<=Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>=1.-Teuchos::ScalarTraits<ST>::eps() ) 
-									)
-									return( inifunc(std::min(std::max(x,0.),1.)) );
-								else
-									return( solfunc(x) ); } );
+
+								if( space->bcl(Pimpact::X)>0 && x<=Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcl(Pimpact::X) )
+										return( inifunc(std::min(std::max(x,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcl(Pimpact::X) )
+										return( 0. );
+								}
+								else if( space->bcu(Pimpact::X)>0 && x>=1.-Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::X) )
+										return( inifunc(std::min(std::max(x,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcu(Pimpact::X) )
+										return( 0. );
+								}
+								else if( space->bcl(Pimpact::Y)>0 && y<=Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y) )
+										return( inifunc(std::min(std::max(x,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcl(Pimpact::Y) )
+										return( 0. );
+								}
+								else if( space->bcu(Pimpact::Y)>0 && y>=1.-Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y) )
+										return( inifunc(std::min(std::max(x,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcu(Pimpact::Y) )
+										return( 0. );
+								}
+								else if( space->bcl(Pimpact::Z)>0 && z<=Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z) )
+										return( inifunc(std::min(std::max(x,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcl(Pimpact::Z) )
+										return( 0. );
+								}
+								else if( space->bcu(Pimpact::Z)>0 && z>=1.-Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z) )
+										return( inifunc(std::min(std::max(x,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcu(Pimpact::Z) )
+										return( 0. );
+								}
+								return( solfunc(x) ); } );
 				}
 				else if( 1==dir ) {
 					x(field).initFromFunction( [&inifunc]( ST x, ST y, ST z ) ->ST {  
 								return( inifunc(y) ); } );
 					sol(field).initFromFunction(
 							[&space,&inifunc,&solfunc]( ST x, ST y, ST z ) ->ST {
-								if( (space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<=Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>=1.-Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<=Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>=1.-Teuchos::ScalarTraits<ST>::eps() )  ||
-								  (  space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<=Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>=1.-Teuchos::ScalarTraits<ST>::eps() ) 
-									)
-								return( inifunc(std::min(std::max(y,0.),1.)) );
-								else
-									return( solfunc(y) ); } );
+								if( space->bcl(Pimpact::X)>0 && x<=Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcl(Pimpact::X) )
+										return( inifunc(std::min(std::max(y,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcl(Pimpact::X) )
+										return( 0. );
+								}
+								else if( space->bcu(Pimpact::X)>0 && x>=1.-Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::X) )
+										return( inifunc(std::min(std::max(y,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcu(Pimpact::X) )
+										return( 0. );
+								}
+								else if( space->bcl(Pimpact::Y)>0 && y<=Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y) )
+										return( inifunc(std::min(std::max(y,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcl(Pimpact::Y) )
+										return( 0. );
+								}
+								else if( space->bcu(Pimpact::Y)>0 && y>=1.-Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y) )
+										return( inifunc(std::min(std::max(y,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcu(Pimpact::Y) )
+										return( 0. );
+								}
+								else if( space->bcl(Pimpact::Z)>0 && z<=Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z) )
+										return( inifunc(std::min(std::max(y,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcl(Pimpact::Z) )
+										return( 0. );
+								}
+								else if( space->bcu(Pimpact::Z)>0 && z>=1.-Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z) )
+										return( inifunc(std::min(std::max(y,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcu(Pimpact::Z) )
+										return( 0. );
+								}
+								return( solfunc(y) ); } );
 				}
 				else if( 2==dir ) {
 					x(field).initFromFunction(
@@ -2309,16 +2364,43 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 								return( inifunc(z) ); } );
 					sol(field).initFromFunction(
 							[&space,&inifunc,&solfunc]( ST x, ST y, ST z ) ->ST {
-								if( (space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<=Teuchos::ScalarTraits<ST>::eps()    ) ||
-									(  space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>=1.-Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<=Teuchos::ScalarTraits<ST>::eps()    ) ||
-									(  space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>=1.-Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<=Teuchos::ScalarTraits<ST>::eps()    ) ||
-									(  space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>=1.-Teuchos::ScalarTraits<ST>::eps() ) 
-									)
-									return( inifunc(std::min(std::max(z,0.),1.)) );
-								else
-									return( solfunc(z) ); } );
+								if( space->bcl(Pimpact::X)>0 && x<=Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcl(Pimpact::X) )
+										return( inifunc(std::min(std::max(z,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcl(Pimpact::X) )
+										return( 0. );
+								}
+								else if( space->bcu(Pimpact::X)>0 && x>=1.-Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::X) )
+										return( inifunc(std::min(std::max(z,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcu(Pimpact::X) )
+										return( 0. );
+								}
+								else if( space->bcl(Pimpact::Y)>0 && y<=Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y) )
+										return( inifunc(std::min(std::max(z,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcl(Pimpact::Y) )
+										return( 0. );
+								}
+								else if( space->bcu(Pimpact::Y)>0 && y>=1.-Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y) )
+										return( inifunc(std::min(std::max(z,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcu(Pimpact::Y) )
+										return( 0. );
+								}
+								else if( space->bcl(Pimpact::Z)>0 && z<=Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z) )
+										return( inifunc(std::min(std::max(z,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcl(Pimpact::Z) )
+										return( 0. );
+								}
+								else if( space->bcu(Pimpact::Z)>0 && z>=1.-Teuchos::ScalarTraits<ST>::eps() ) {
+									if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z) )
+										return( inifunc(std::min(std::max(z,0.),1.)) );
+									else if( Pimpact::BC::Neumann==space->bcu(Pimpact::Z) )
+										return( 0. );
+								}
+								return( solfunc(z) ); } );
 				}
 
 				auto op = Pimpact::create<Pimpact::HelmholtzOp>( space );
@@ -2326,7 +2408,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 				op->apply( x, y );
 
 				// compute error
-				if( print ) y.print();
+				if( print ) y(field).print();
 				y(field).add( 1., sol(field), -1., y(field) );
 				//if( print ) sol->print();
 				if( write ) y.write( n );
