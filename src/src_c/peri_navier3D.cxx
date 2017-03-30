@@ -244,7 +244,7 @@ int main( int argi, char** argv ) {
 			x->getField(0).getSField().changed();
 		}
 
-		//if( withoutput ) fu->write( 90000 );
+		if( withoutput ) fu->write( 90000 );
 
 		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
@@ -339,7 +339,6 @@ int main( int argi, char** argv ) {
 					ConvDiffOpT,
 					//ConvDiffSORT,
 					ConvDiffJT,
-					//ConvDiffJT
 					MOP
 					//POP2
 					//POP3
@@ -507,12 +506,35 @@ int main( int argi, char** argv ) {
 			//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getField().write( refine*1000 );
 		}
 
+		// compute glob energy
 		{
 			auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
 
 			*out << 0 << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().get0Field() ) << "\t" << 0. << "\n";
 			for( int i=1; i<=space->nGlo(3); ++i )
 				*out << i << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getCField(i) ) << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getSField(i) ) << "\n";
+		}
+		// compute glob energy in y-dir
+		{
+
+			auto vel =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Deep );
+			auto base =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Shallow );
+			base->initField( pl->sublist("Base flow").sublist( "0 mode" ) );
+			vel->add( 1., *vel, -1., *base );
+
+			auto out = Pimpact::createOstream( "energyY_0.txt", space->rankST() );
+			Pimpact::computeEnergyY( *vel, *out );
+
+			for( int i=1; i<=space->nGlo(3); ++i ) {
+				{
+					auto out = Pimpact::createOstream( "energyY_C"+std::to_string(i)+".txt", space->rankST() );
+					Pimpact::computeEnergyY( x->getField(0).getVField().getCField(i), *out );
+				}
+				{
+					auto out = Pimpact::createOstream( "energyY_S"+std::to_string(i)+".txt", space->rankST() );
+					Pimpact::computeEnergyY( x->getField(0).getVField().getSField(i), *out );
+				}
+			}
 		}
 
 		// spectral refinement criterion

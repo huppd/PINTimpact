@@ -61,8 +61,8 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 		
-		Scalar iRe = 1./zeroOp_->space()->getDomainSize()->getRe();
-		Scalar a2 = zeroOp_->space()->getDomainSize()->getAlpha2()*iRe;
+		Scalar iRe = 1./space()->getDomainSize()->getRe();
+		Scalar a2 = space()->getDomainSize()->getAlpha2()*iRe;
 
 		Scalar mulI;
 

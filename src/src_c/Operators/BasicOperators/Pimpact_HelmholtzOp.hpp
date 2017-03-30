@@ -280,69 +280,94 @@ public:
 		// U-field
 		if( F::U==f ) {
 
+			// Neumann BC
+			// tangential direction: Y
+			if( BC::Neumann==space()->bcl(Y) ) {
+				OT j = space()->si(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT jj=0; jj<=SW::BU(Y); ++jj )
+							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
+					}
+			}
+			if( BC::Neumann==space()->bcu(Y) ) {
+				OT j = space()->ei(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT jj=SW::BL(Y); jj<=0; ++jj )
+							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
+					}
+			}
+			// tangential direction: Z
+			if( BC::Neumann==space()->bcl(Z) ) {
+				OT k = space()->si(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT kk=0; kk<=SW::BU(Z); ++kk )
+							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
+					}
+			}
+			if( BC::Neumann==space()->bcu(Z) ) {
+				OT k = space()->ei(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT kk=SW::BL(Z); kk<=0; ++kk )
+							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
+					}
+			}
+			// normal direction: X
+			if( BC::Neumann==space()->bcl(X) ) {
+				OT i = space()->si(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
+						y(i,j,k) = 0.;
+						for( OT ii=0; ii<=SW::BU(X); ++ii )
+							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
+					}
+			}
+			if( BC::Neumann==space()->bcu(X) ) {
+				OT i = space()->ei(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
+						y(i,j,k) = 0.;
+						for( OT ii=SW::BL(X); ii<=0; ++ii )
+							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
+					}
+			}
+
+			// Dirichlet BC
 			// tangential direction: Y
 			if( BC::Dirichlet==space()->bcl(Y) ) {
 				OT j = space()->si(f,Y,B::Y);
 				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i )
 						y(i,j,k) = x(i,j,k);
-			}
-			else if( BC::Neumann==space()->bcl(Y) ) {
-				OT j = space()->si(f,Y,B::Y);
-				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT jj=SW::BL(Y); jj<=SW::BU(Y); ++jj )
-							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
-					}
 			}
 
 			if( BC::Dirichlet==space()->bcu(Y) ) {
 				OT j = space()->ei(f,Y,B::Y);
 				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i )
 						y(i,j,k) = x(i,j,k);
-			}
-			else if( BC::Neumann==space()->bcu(Y) ) {
-				OT j = space()->ei(f,Y,B::Y);
-				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT jj=SW::BL(Y); jj<=SW::BU(Y); ++jj )
-							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
-					}
 			}
 
 			// tangential direction: Z
 			if( BC::Dirichlet==space()->bcl(Z) ) {
 				OT k = space()->si(f,Z,B::Y);
 				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i )
 						y(i,j,k) = x(i,j,k);
 			}
-			else if( BC::Neumann==space()->bcl(Z) ) {
-				OT k = space()->si(f,Z,B::Y);
-				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT kk=SW::BL(Z); kk<=SW::BU(Z); ++kk )
-							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
-					}
-			}
-			if( BC::Dirichlet==space()->bcl(Z) ) {
+
+			if( BC::Dirichlet==space()->bcu(Z) ) {
 				OT k = space()->ei(f,Z,B::Y);
 				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i )
 						y(i,j,k) = x(i,j,k);
-			}
-			else if( BC::Neumann==space()->bcl(Z) ) {
-				OT k = space()->ei(f,Z,B::Y);
-				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT kk=SW::BL(Z); kk<=SW::BU(Z); ++kk )
-							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
-					}
 			}
 
 			// normal direction: X
@@ -355,15 +380,6 @@ public:
 							y(i,j,k) += space()->getInterpolateV2S()->getC( X, i+1, ii )*x(1+i+ii,j,k);
 					}
 			}
-			else if( BC::Neumann==space()->bcl(X) ) {
-				OT i = space()->si(f,X,B::Y);
-				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
-						y(i,j,k) = 0.;
-						for( OT ii=0; ii<=SW::BU(X); ++ii )
-							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
-					}
-			}
 			if( BC::Dirichlet==space()->bcu(X) ) {
 				OT i = space()->ei(f,X,B::Y);
 				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
@@ -373,7 +389,23 @@ public:
 							y(i,j,k) += space()->getInterpolateV2S()->getC( X, i, ii )*x(i+ii,j,k);
 					}
 			}
-			else if( BC::Neumann==space()->bcu(X) ) {
+		}
+
+		// V-field
+		if( F::V==f ) {
+
+			// Neumann BC
+			// tangential direction: X
+			if( BC::Neumann==space()->bcl(X) ) {
+				OT i = space()->si(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
+						y(i,j,k) = 0.;
+						for( OT ii=0; ii<=SW::BU(X); ++ii )
+							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
+					}
+			}
+			if( BC::Neumann==space()->bcu(X) ) {
 				OT i = space()->ei(f,X,B::Y);
 				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
 					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
@@ -382,78 +414,77 @@ public:
 							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
 					}
 			}
-		}
-
-		// V-field
-		if( F::V==f ) {
-
+			// tangential direction: Z
+			if( BC::Neumann==space()->bcl(Z) ) {
+				OT k = space()->si(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT kk=0; kk<=SW::BU(Z); ++kk )
+							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
+					}
+			}
+			if( BC::Neumann==space()->bcu(Z) ) {
+				OT k = space()->ei(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT kk=SW::BL(Z); kk<=0; ++kk )
+							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
+					}
+			}
+			// normal direction: Y
+			if( BC::Neumann==space()->bcl(Y) ) {
+				OT j = space()->si(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT jj=0; jj<=SW::BU(Y); ++jj )
+							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
+					}
+			}
+			if( BC::Neumann==space()->bcu(Y) ) {
+				OT j = space()->ei(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT jj=SW::BL(Y); jj<=0; ++jj )
+							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
+					}
+			}
+			
+			// Dirichelt BC
 			// tangential direction: X
 			if( BC::Dirichlet==space()->bcl(X) ) {
 				OT i = space()->si(f,X,B::Y);
 				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
 						y(i,j,k) = x(i,j,k);
-			}
-			else if( BC::Neumann==space()->bcl(X) ) {
-				OT i = space()->si(f,X,B::Y);
-				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j ) {
-						y(i,j,k) = 0.;
-						for( OT ii=SW::BL(X); ii<=SW::BU(X); ++ii )
-							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
-					}
 			}
 			if( BC::Dirichlet==space()->bcu(X) ) {
 				OT i = space()->ei(f,X,B::Y);
 				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
 						y(i,j,k) = x(i,j,k);
-			}
-			if( BC::Neumann==space()->bcu(X) ) {
-				OT i = space()->ei(f,X,B::Y);
-				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j ) {
-						y(i,j,k) = 0.;
-						for( OT ii=SW::BL(X); ii<=SW::BU(X); ++ii )
-							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
-					}
 			}
 
 			// tangential direction: Z
 			if( BC::Dirichlet==space()->bcl(Z) ) {
 				OT k = space()->si(f,Z,B::Y);
-				for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
 					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i )
 						y(i,j,k) = x(i,j,k);
-			}
-			else if( BC::Neumann==space()->bcl(Z) ) {
-				OT k = space()->si(f,Z,B::Y);
-				for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
-					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT kk=SW::BL(Z); kk<=SW::BU(Z); ++kk )
-							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
-					}
 			}
 
 			if( BC::Dirichlet==space()->bcu(Z) ) {
 				OT k = space()->ei(f,Z,B::Y);
-				for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
 					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
 						y(i,j,k) = x(i,j,k);
 					}
 			}
-			else if( BC::Neumann==space()->bcu(Z) ) {
-				OT k = space()->ei(f,Z,B::Y);
-				for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
-					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT kk=SW::BL(Z); kk<=SW::BU(Z); ++kk )
-							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
-					}
-			}
 
-			// normal direction: Z
+			// normal direction: Y
 			if( BC::Dirichlet==space()->bcl(Y) ) {
 				OT j = space()->si(f,Y,B::Y);
 				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
@@ -461,15 +492,6 @@ public:
 						y(i,j,k) = 0.;
 						for( OT jj=SW::DL(Y); jj<=SW::DU(Y); ++jj )
 							y(i,j,k) += space()->getInterpolateV2S()->getC( Y, j+1, jj )*x(i,1+j+jj,k);
-					}
-			}
-			else if( BC::Neumann==space()->bcl(Y) ) {
-				OT j = space()->si(f,Y,B::Y);
-				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT jj=0; jj<=SW::BU(Y); ++jj )
-							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
 					}
 			}
 
@@ -482,7 +504,42 @@ public:
 							y(i,j,k) += space()->getInterpolateV2S()->getC( Y, j, jj )*x(i,j+jj,k);
 					}
 			}
-			else if( BC::Neumann==space()->bcu(Y) ) {
+		}
+
+		// W-field
+		if( F::W==f ) {
+
+			// Neumann BC
+			// tangential direction: X
+			if( BC::Neumann==space()->bcl(X) ) {
+				OT i = space()->si(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
+						y(i,j,k) = 0.;
+						for( OT ii=0; ii<=SW::BU(X); ++ii )
+							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
+					}
+			}
+			if( BC::Neumann==space()->bcu(X) ) {
+				OT i = space()->ei(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
+						y(i,j,k) = 0.;
+						for( OT ii=SW::BL(X); ii<=0; ++ii )
+							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
+					}
+			}
+			// tangential direction: Y
+			if( BC::Neumann==space()->bcl(Y) ) {
+				OT j = space()->si(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT jj=0; jj<=SW::BU(Y); ++jj )
+							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
+					}
+			}
+			if( BC::Neumann==space()->bcu(Y) ) {
 				OT j = space()->ei(f,Y,B::Y);
 				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
 					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
@@ -491,75 +548,55 @@ public:
 							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
 					}
 			}
-		}
+			// normal direction: Z
+			if( BC::Neumann==space()->bcl(Z) ) {
+				OT k = space()->si(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT kk=0; kk<=SW::BU(Z); ++kk )
+							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
+					}
+			}
+			if( BC::Neumann==space()->bcu(Z) ) {
+				OT k = space()->ei(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						y(i,j,k) = 0.;
+						for( OT kk=SW::BL(Z); kk<=0; ++kk )
+							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
+					}
+			}
 
-		// W-field
-		if( F::W==f ) {
-
+			// Dirichlet BC
 			// tangential direction: X
 			if( BC::Dirichlet==space()->bcl(X) ) {
 				OT i = space()->si(f,X,B::Y);
-				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
 					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
 						y(i,j,k) = x(i,j,k);
-			}
-			else if( BC::Neumann==space()->bcl(X) ) {
-				OT i = space()->si(f,X,B::Y);
-				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
-					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
-						y(i,j,k) = 0.;
-						for( OT ii=SW::BL(X); ii<=SW::BU(X); ++ii )
-							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
-					}
 			}
 
 			if( BC::Dirichlet==space()->bcu(X) ) {
 				OT i = space()->ei(f,X,B::Y);
-				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
 					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
 						y(i,j,k) = x(i,j,k);
-			}
-			else if( BC::Neumann==space()->bcu(X) ) {
-				OT i = space()->ei(f,X,B::Y);
-				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
-					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
-						y(i,j,k) = 0.;
-						for( OT ii=SW::BL(X); ii<=SW::BU(X); ++ii )
-							y(i,j,k) += getC(X,f,i,ii)*x(i+ii,j,k);
-					}
 			}
 
 			// tangential direction: Y
 			if( BC::Dirichlet==space()->bcl(Y) ) {
 				OT j = space()->si(f,Y,B::Y);
-				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
 					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i )
 						y(i,j,k) = x(i,j,k);
-			}
-			else if( BC::Neumann==space()->bcl(Y) ) {
-				OT j = space()->si(f,Y,B::Y);
-				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
-					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT jj=SW::BL(Y); jj<=SW::BU(Y); ++jj )
-							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
-					}
 			}
 
 			if( BC::Dirichlet==space()->bcu(Y) ) {
 				OT j = space()->ei(f,Y,B::Y);
-				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
 					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i )
 						y(i,j,k) = x(i,j,k);
-			}
-			else if( BC::Neumann==space()->bcu(Y) ) {
-				OT j = space()->ei(f,Y,B::Y);
-				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
-					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT jj=SW::BL(Y); jj<=SW::BU(Y); ++jj )
-							y(i,j,k) += getC(Y,f,j,jj)*x(i,j+jj,k);
-					}
 			}
 
 			// normal direction: Z
@@ -572,15 +609,6 @@ public:
 							y(i,j,k) += space()->getInterpolateV2S()->getC( Z, k+1, kk )*x(i,j,1+k+kk);
 					}
 			}
-			else if( BC::Neumann==space()->bcl(Z) ) {
-				OT k = space()->si(f,Z,B::Y);
-				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT kk=0; kk<=SW::BU(Z); ++kk )
-							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
-					}
-			}
 
 			if( BC::Dirichlet==space()->bcu(Z) ) {
 				OT k = space()->ei(f,Z,B::Y);
@@ -589,15 +617,6 @@ public:
 						y(i,j,k) = 0.;
 						for( OT kk=SW::DL(Z); kk<=SW::DU(Z); ++kk )
 							y(i,j,k) += space()->getInterpolateV2S()->getC( Z, k, kk )*x(i,j,k+kk);
-					}
-			}
-			else if( BC::Neumann==space()->bcu(Z) ) {
-				OT k = space()->ei(f,Z,B::Y);
-				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
-						for( OT kk=SW::BL(Z); kk<=0; ++kk )
-							y(i,j,k) += getC(Z,f,k,kk)*x(i,j,k+kk);
 					}
 			}
 		}
@@ -630,13 +649,13 @@ public:
   }
 
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( space_ ); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() { return( space_ ); };
 
-  constexpr const ST* getC( const int& dir, const F& ftype ) const {
+  constexpr const ST* getC( const int& dir, const F& ftype ) {
 		return( (dir==ftype)?cV_[dir].get():cS_[dir].get() );
   }
 
-	constexpr const ST& getC( const ECoord& dir, const F& ftype, OT i, OT ii ) const {
+	constexpr const ST& getC( const ECoord& dir, const F& ftype, OT i, OT ii ) {
 		return(
 				(static_cast<int>(dir)==static_cast<int>(ftype))?
 					cV_[dir](i,ii):

@@ -200,9 +200,9 @@ public:
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 
-		if( para->name()=="Linear Solver" )
-			solverParameter_->set<ST>( "Convergence Tolerance",
-					para->get<double>("Convergence Tolerance")*relTol_ );
+		//if( para->name()=="Linear Solver" )
+			//solverParameter_->set<ST>( "Convergence Tolerance",
+					//para->get<double>("Convergence Tolerance")*relTol_ );
 
 		Teuchos::rcp_const_cast<MOpT>( problem_->getOperator() )->setParameter( para );
 
@@ -242,14 +242,6 @@ public:
 
 
 
-///// \relates InverseOp
-//template<class OpT>
-//Teuchos::RCP< InverseOp<OpT> >
-//createInverseOp( const Teuchos::RCP<OpT>& op ) {
-	//return( Teuchos::rcp( new InverseOp<OpT>( op ) ) );
-//}
-
-
 /// \relates InverseOp
 template<class OpT>
 Teuchos::RCP< InverseOp<OpT> >
@@ -260,6 +252,8 @@ createInverseOp(
 	return( Teuchos::rcp( new InverseOp<OpT>( op, pl ) ) );
 }
 
+
+
 /// \relates InverseOp
 template< template<class> class  ProjectorT, class OpT  >
 Teuchos::RCP< InverseOp<OpT,ProjectorT> >
@@ -269,6 +263,7 @@ createInverseOp(
 
 	return( Teuchos::rcp( new InverseOp<OpT,ProjectorT>( op, pl ) ) );
 }
+
 
 } // end of namespace Pimpact
 
