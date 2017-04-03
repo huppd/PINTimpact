@@ -226,6 +226,10 @@ int main( int argi, char** argv ) {
 			//fu->getField(0).getVField().getCField(2)(Pimpact::F::V).initFromFunction(
 					//[&pi2]( S x, S y, S z ) ->S { return( std::sin(2.*y*pi2)/4. ); } );
 		}
+		if( withoutput ) fu->write( 90000 );
+		//if( withoutput ) fu->getField(0).getVField().get0Field()(Pimpact::F::U).print();
+		//return (0);
+
 
 		if( 0==space->rankST() ) std::cout << "set initial conditions\n";
 		if( 0==refine ) {
@@ -244,7 +248,6 @@ int main( int argi, char** argv ) {
 			x->getField(0).getSField().changed();
 		}
 
-		if( withoutput ) fu->write( 90000 );
 
 		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 

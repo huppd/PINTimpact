@@ -4,18 +4,18 @@
 		<Parameter docString="Womersley square alpha^2" id="58" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.0e+02" />
 		<ParameterList id="99998" name="boundary conditions">
 			<Parameter docString="" id="99992" isDefault="false" isUsed="true" name="lower X" type="int" value="1"/>
-			<Parameter docString="" id="99993" isDefault="false" isUsed="true" name="upper X" type="int" value="1"/>
+			<Parameter docString="" id="99993" isDefault="false" isUsed="true" name="upper X" type="int" value="2"/>
 			<Parameter docString="" id="99994" isDefault="false" isUsed="true" name="lower Y" type="int" value="1"/>
 			<Parameter docString="" id="99995" isDefault="false" isUsed="true" name="upper Y" type="int" value="1"/>
-			<Parameter docString="" id="99996" isDefault="false" isUsed="true" name="lower Z" type="int" value="1"/>
-			<Parameter docString="" id="99997" isDefault="false" isUsed="true" name="upper Z" type="int" value="1"/>
+			<Parameter docString="" id="99996" isDefault="false" isUsed="true" name="lower Z" type="int" value="-1"/>
+			<Parameter docString="" id="99997" isDefault="false" isUsed="true" name="upper Z" type="int" value="-1"/>
 		</ParameterList>
 		<Parameter docString="length in x-direction" id="61" isDefault="false" isUsed="true" name="lx" type="double" value="2.00000000000000000e+00" />
-		<Parameter docString="length in y-direction" id="62" isDefault="false" isUsed="true" name="ly" type="double" value="4.00000000000000000e+00" />
+		<Parameter docString="length in y-direction" id="62" isDefault="false" isUsed="true" name="ly" type="double" value="2.00000000000000000e+00" />
 		<Parameter docString="length in z-direction" id="63" isDefault="false" isUsed="true" name="lz" type="double" value="2.00000000000000000e+00" />
-		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="64" isDefault="false" isUsed="true" name="nx" type="int" value="33" />
-		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="65" isDefault="false" isUsed="true" name="ny" type="int" value="33" />
-		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="66" isDefault="false" isUsed="true" name="nz" type="int" value="33" />
+		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="64" isDefault="false" isUsed="true" name="nx" type="int" value="9" />
+		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="65" isDefault="false" isUsed="true" name="ny" type="int" value="9" />
+		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="66" isDefault="false" isUsed="true" name="nz" type="int" value="9" />
 		<Parameter docString="amount of grid points in f-direction" id="67" isDefault="false" isUsed="true" name="nf" type="int" value="1" />
 		<Parameter docString="amount of processors in x-direction" id="68" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
 		<Parameter docString="amount of processors in y-direction" id="69" isDefault="false" isUsed="true" name="npy" type="int" value="1" />
@@ -38,7 +38,7 @@
 		<Parameter docString="" id="79" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
 		<Parameter docString="" id="80" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
 		<Parameter docString="" id="81" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-		<Parameter docString="" id="82" isDefault="false" isUsed="true" name="initial guess" type="string" value="none" />
+		<Parameter docString="" id="82" isDefault="false" isUsed="true" name="initial guess" type="string" value="asdf" />
 	</ParameterList>
 	<ParameterList id="6" name="Multi Grid">
 		<Parameter docString="" id="83" isDefault="false" isUsed="true" name="maxGrids" type="int" value="2" />
@@ -66,7 +66,7 @@
 				</ParameterList>
 				<ParameterList id="12" name="Test 2">
 					<Parameter docString="" id="101" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-					<Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
+					<Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
 				</ParameterList>
 				<ParameterList id="13" name="Test 3">
 					<Parameter docString="" id="103" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
@@ -117,17 +117,17 @@
 	</ParameterList>
 	<ParameterList id="23" name="Picard Solver">
 		<Parameter docString="" id="127" isDefault="true" isUsed="true" name="Solver name" type="string" value="Block GMRES" />
-		<Parameter docString="" id="611" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="611" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
 		<ParameterList id="24" name="Solver">
-			<Parameter docString="" id="136" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="50" />
+			<!--<Parameter docString="" id="136" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="50" />-->
 			<!--<Parameter docString="" id="128" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />-->
 			<!--<Parameter docString="" id="129" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />-->
 			<!--<Parameter docString="" id="130" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />-->
 			<!--<Parameter docString="" id="131" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />-->
 			<Parameter docString="" id="1817" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
-			<Parameter docString="" id="132" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
-			<!--<Parameter docString="" id="133" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
+			<!--<Parameter docString="" id="132" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />-->
+			<Parameter docString="" id="133" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />
+			<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />
 			<Parameter docString="" id="138" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="139" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
 			<Parameter docString="" id="140" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="20" />
@@ -149,8 +149,8 @@
 			<!--<Parameter docString="" id="147" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />-->
 			<Parameter docString="" id="148" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="false" />
 			<!--<Parameter docString="" id="149" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />-->
-			<!--<Parameter docString="" id="150" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="151" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
+			<Parameter docString="" id="150" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />
+			<Parameter docString="" id="151" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />
 			<Parameter docString="" id="155" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="156" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
 			<Parameter docString="" id="157" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -188,8 +188,8 @@
 	<ParameterList id="41" name="MH_ConvDiff">
 		<Parameter docString="" id="231" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<!--<Parameter docString="" id="231" isDefault="true" isUsed="true" name="Solver name" type="string" value="TFQMR" />-->
-		<Parameter docString="" id="2612" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
-		<Parameter docString="" id="91113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-1" />
+		<Parameter docString="" id="2612" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
+		<Parameter docString="" id="91113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-2" />
 		<ParameterList id="42" name="Solver">
 			<Parameter docString="" id="2187" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
 			<!--<Parameter docString="" id="240" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />-->
@@ -285,14 +285,14 @@
 		<ParameterList id="48" name="0 mode">
 			<Parameter docString="" id="249" isDefault="true" isUsed="true" name="Type" type="string" value="Scalar" />
 			<ParameterList id="49" name="U">
-				<Parameter docString="" id="250" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />
-				<Parameter docString="" id="251" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="252" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="253" isDefault="true" isUsed="true" name="c_z" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="254" isDefault="true" isUsed="true" name="amp" type="double" value="-2.00000000000000000e+00" />
-				<Parameter docString="" id="255" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />
-				<Parameter docString="" id="256" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />
-				<Parameter docString="" id="257" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />
+				<!--<Parameter docString="" id="250" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />-->
+				<!--<Parameter docString="" id="251" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="252" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="253" isDefault="true" isUsed="true" name="c_z" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="254" isDefault="true" isUsed="true" name="amp" type="double" value="-2.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="255" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />-->
+				<!--<Parameter docString="" id="256" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />-->
+				<!--<Parameter docString="" id="257" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />-->
 			</ParameterList>
 			<ParameterList id="50" name="V">
 				<Parameter docString="" id="258" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />
@@ -310,14 +310,14 @@
 				<Parameter docString="" id="264" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />
 			</ParameterList>
 			<ParameterList id="54" name="V">
-				<Parameter docString="" id="265" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />
-				<Parameter docString="" id="266" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="267" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="268" isDefault="true" isUsed="true" name="c_z" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="269" isDefault="true" isUsed="true" name="amp" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="270" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />
-				<Parameter docString="" id="271" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />
-				<Parameter docString="" id="272" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />
+				<!--<Parameter docString="" id="265" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />-->
+				<!--<Parameter docString="" id="266" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="267" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="268" isDefault="true" isUsed="true" name="c_z" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="269" isDefault="true" isUsed="true" name="amp" type="double" value="1.00000000000000000e+00" />-->
+				<!--<Parameter docString="" id="270" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />-->
+				<!--<Parameter docString="" id="271" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />-->
+				<!--<Parameter docString="" id="272" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />-->
 			</ParameterList>
 			<ParameterList id="55" name="W">
 				<Parameter docString="" id="273" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />

@@ -56,9 +56,6 @@ public:
 
   using SpaceT = typename OperatorT::SpaceT;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
   using FluxFieldT = ScalarField<SpaceT>[3];
 
   using DomainFieldT = ScalarField<SpaceT>;
@@ -66,7 +63,12 @@ public:
 
 protected:
 
-  Scalar omega_;
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
+
+	using SW = typename SpaceT::SW;
+
+  ST omega_;
   int nIter_;
 
   int ordering_;
@@ -77,6 +79,10 @@ protected:
 
 
   const Teuchos::RCP<const OperatorT> op_;
+
+	constexpr const ST& getHC( const ECoord& dir, const F& ftype, OT i, OT ii ) {
+		return( op_->getHelmOp()->getC(dir,ftype,i,ii) );
+	}
 
 public:
 
@@ -103,7 +109,7 @@ public:
 
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mulI, Scalar mulC, Scalar mulL, const Add& add=Add::N ) const { std::cout << "not implmented\n"; }
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, ST mulI, ST mulC, ST mulL, const Add& add=Add::N ) const { std::cout << "not implmented\n"; }
 
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Add& add=Add::N ) const {
 
@@ -214,159 +220,217 @@ protected:
 
 		assert( b.getType()==y.getType() );
 
-		const F& f = b.getType();
+		const F& f = y.getType();
 
-		const Scalar& omegaBC = omega_;
-		//const Scalar& omegaBC = 0.9;
+		const ST& omegaBC = omega_;
+		//const ST& omegaBC = 0.9;
 	
 		// U-field
 		if( F::U==f ) {
-			if( BC::Dirichlet==space()->bcl(Y) ) {
-				Ordinal j = space()->si(f,Y,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( Ordinal i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i )
-						y(i,j,k) = b(i,j,k);
-			}
-			if( BC::Dirichlet==space()->bcu(Y) ) {
-				Ordinal j = space()->ei(f,Y,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( Ordinal i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i )
-						y(i,j,k) = b(i,j,k);
-			}
 
-			if( BC::Dirichlet==space()->bcl(Z) ) {
-				Ordinal k = space()->si(f,Z,B::Y);
-				for( Ordinal j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( Ordinal i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i )
-						y(i,j,k) = b(i,j,k);
-			}
-			if( BC::Dirichlet==space()->bcl(Z) ) {
-				Ordinal k = space()->ei(f,Z,B::Y);
-				for( Ordinal j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( Ordinal i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i )
-						y(i,j,k) = b(i,j,k);
-			}
-
-			if( BC::Dirichlet==space()->bcl(X) ) {
-				Ordinal i = space()->si(f,X,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( Ordinal j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
-						Scalar bla = 0.;
-						for( Ordinal ii=space()->dl(X); ii<=space()->du(X); ++ii )
-							bla += space()->getInterpolateV2S()->getC( X, i+1, ii )*y(1+i+ii,j,k);
-						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( X, i+1, 0 );
+			// tangential direction: Y
+			if( 0<space()->bcl(Y) ) {
+				OT j = space()->si(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i ) {
+						ST temp = 0.;
+						for( OT jj=0; jj<=SW::BU(Y); ++jj )
+							temp += getHC(Y,f,j,jj)*y(i,j+jj,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Y,f,j,0);
 					}
 			}
-			if( BC::Dirichlet==space()->bcu(X) ) {
-				Ordinal i = space()->ei(f,X,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( Ordinal j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
-						Scalar bla = 0.;
-						for( Ordinal ii=space()->dl(X); ii<=space()->du(X); ++ii )
-							bla += space()->getInterpolateV2S()->getC( X, i, ii )*y(i+ii,j,k);
-						y(i,j,k) +=  omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( X, i, 0 );
+			if( 0<space()->bcu(Y) ) {
+				OT j = space()->ei(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i ) {
+						ST temp = 0.;
+						for( OT jj=SW::BL(Y); jj<=0; ++jj )
+							temp += getHC(Y,f,j,jj)*y(i,j+jj,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Y,f,j,0);
+					}
+			}
+
+			// tangential direction: Z
+			if( 0<space()->bcl(Z) ) {
+				OT k = space()->si(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i ) {
+						ST temp = 0.;
+						for( OT kk=0; kk<=SW::BU(Z); ++kk )
+							temp += getHC(Z,f,k,kk)*y(i,j,k+kk);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Z,f,k,0);
+					}
+			}
+			if( 0<space()->bcu(Z) ) {
+				OT k = space()->ei(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i ) {
+						ST temp = 0.;
+						for( OT kk=SW::BL(Z); kk<=0; ++kk )
+							temp += getHC(Z,f,k,kk)*y(i,j,k+kk);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Z,f,k,0);
+					}
+			}
+
+			// normal direction: X
+			if( 0<space()->bcl(X) ) {
+				OT i = space()->si(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
+						ST temp = 0.;
+						for( OT ii=0; ii<=SW::BU(X); ++ii )
+							temp += getHC(X,f,i,ii)*y(i+ii,j,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(X,f,i,0);
+					}
+			}
+			if( 0<space()->bcu(X) ) {
+				OT i = space()->ei(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
+						ST temp = 0.;
+						for( OT ii=SW::BL(X); ii<=0; ++ii )
+							temp += getHC(X,f,i,ii)*y(i+ii,j,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(X,f,i,0);
 					}
 			}
 		}
 
 		// V-field
 		if( F::V==f ) {
-			if( BC::Dirichlet==space()->bcl(X) ) {
-				Ordinal i = space()->si(f,X,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( Ordinal j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
-						y(i,j,k) = b(i,j,k);
-			}
-			if( BC::Dirichlet==space()->bcu(X) ) {
-				Ordinal i = space()->ei(f,X,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( Ordinal j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
-						y(i,j,k) = b(i,j,k);
-			}
 
-			if( BC::Dirichlet==space()->bcl(Z) ) {
-				Ordinal k = space()->si(f,Z,B::Y);
-				for( Ordinal j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
-					for( Ordinal i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						y(i,j,k) = b(i,j,k);
+			// tangential direction: X
+			if( 0<space()->bcl(X) ) {
+				OT i = space()->si(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j ) {
+						ST temp = 0.;
+						for( OT ii=0; ii<=SW::BU(X); ++ii )
+							temp += getHC(X,f,i,ii)*y(i+ii,j,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(X,f,i,0);
 					}
 			}
-			if( BC::Dirichlet==space()->bcu(Z) ) {
-				Ordinal k = space()->ei(f,Z,B::Y);
-				for( Ordinal j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
-					for( Ordinal i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						y(i,j,k) = b(i,j,k);
+			if( 0<space()->bcu(X) ) {
+				OT i = space()->ei(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j ) {
+						ST temp = 0.;
+						for( OT ii=SW::BL(X); ii<=0; ++ii )
+							temp += getHC(X,f,i,ii)*y(i+ii,j,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(X,f,i,0);
 					}
 			}
 
-			if( BC::Dirichlet==space()->bcl(Y) ) {
-				Ordinal j = space()->si(f,Y,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( Ordinal i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						Scalar bla = 0.;
-						for( Ordinal jj=space()->dl(Y); jj<=space()->du(Y); ++jj )
-							bla += space()->getInterpolateV2S()->getC( Y, j+1, jj )*y(i,1+j+jj,k);
-						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( Y, j+1, 0 );
+			// tangential direction: Z
+			if( 0<space()->bcl(Z) ) {
+				OT k = space()->si(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						ST temp = 0.;
+						for( OT kk=0; kk<=SW::BU(Z); ++kk )
+							temp += getHC(Z,f,k,kk)*y(i,j,k+kk);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Z,f,k,0);
 					}
 			}
-			if( BC::Dirichlet==space()->bcu(Y) ) {
-				Ordinal j = space()->ei(f,Y,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
-					for( Ordinal i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						Scalar bla = 0.;
-						for( Ordinal jj=space()->dl(Y); jj<=space()->du(Y); ++jj )
-							bla += space()->getInterpolateV2S()->getC( Y, j, jj )*y(i,j+jj,k);
-						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( Y, j, 0 );
+			if( 0<space()->bcu(Z) ) {
+				OT k = space()->ei(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::N); j<=space()->ei(f,Y,B::N); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						ST temp = 0.;
+						for( OT kk=SW::BL(Z); kk<=0; ++kk )
+							temp += getHC(Z,f,k,kk)*y(i,j,k+kk);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Z,f,k,0);
+					}
+			}
+
+			// normal direction: Y
+			if( 0<space()->bcl(Y) ) {
+				OT j = space()->si(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						ST temp = 0.;
+						for( OT jj=0; jj<=SW::BU(Y); ++jj )
+							temp += getHC(Y,f,j,jj)*y(i,j+jj,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Y,f,j,0);
+					}
+			}
+			if( 0<space()->bcu(Y) ) {
+				OT j = space()->ei(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						ST temp = 0.;
+						for( OT jj=SW::DL(Y); jj<=SW::DU(Y); ++jj )
+							temp += getHC(Y,f,j,jj)*y(i,j+jj,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Y,f,j,0);
 					}
 			}
 		}
 
 		// W-field
 		if( F::W==f ) {
-			if( BC::Dirichlet==space()->bcl(X) ) {
-				Ordinal i = space()->si(f,X,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
-					for( Ordinal j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-						y(i,j,k) = b(i,j,k);
-			}
-			if( BC::Dirichlet==space()->bcu(X) ) {
-				Ordinal i = space()->ei(f,X,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
-					for( Ordinal j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-						y(i,j,k) = b(i,j,k);
-			}
 
-			if( BC::Dirichlet==space()->bcl(Y) ) {
-				Ordinal j = space()->si(f,Y,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
-					for( Ordinal i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i )
-						y(i,j,k) = b(i,j,k);
-			}
-			if( BC::Dirichlet==space()->bcu(Y) ) {
-				Ordinal j = space()->ei(f,Y,B::Y);
-				for( Ordinal k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
-					for( Ordinal i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i )
-						y(i,j,k) = b(i,j,k);
-			}
-
-			if( BC::Dirichlet==space()->bcl(Z) ) {
-				Ordinal k = space()->si(f,Z,B::Y);
-				for( Ordinal j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( Ordinal i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						Scalar bla = 0.;
-						for( Ordinal kk=space()->dl(Z); kk<=space()->du(Z); ++kk )
-							bla += space()->getInterpolateV2S()->getC( Z, k+1, kk )*y(i,j,1+k+kk);
-						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( Z, k+1, 0 );
+			// tangential direction: X
+			if( 0<space()->bcl(X) ) {
+				OT i = space()->si(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
+						ST temp = 0.;
+						for( OT ii=0; ii<=SW::BU(X); ++ii )
+							temp += getHC(X,f,i,ii)*y(i+ii,j,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(X,f,i,0);
 					}
 			}
-			if( BC::Dirichlet==space()->bcu(Z) ) {
-				Ordinal k = space()->ei(f,Z,B::Y);
-				for( Ordinal j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
-					for( Ordinal i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
-						Scalar bla = 0.;
-						for( Ordinal kk=space()->dl(Z); kk<=space()->du(Z); ++kk )
-							bla += space()->getInterpolateV2S()->getC( Z, k, kk )*y(i,j,k+kk);
-						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( Z, k, 0 );
+			if( 0<space()->bcu(X) ) {
+				OT i = space()->ei(f,X,B::Y);
+				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
+					for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j ) {
+						ST temp = 0.;
+						for( OT ii=SW::BL(X); ii<=0; ++ii )
+							temp += getHC(X,f,i,ii)*y(i+ii,j,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(X,f,i,0);
+					}
+			}
+
+			// tangential direction: Y
+			if( 0<space()->bcl(Y) ) {
+				OT j = space()->si(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						ST temp = 0.;
+						for( OT jj=0; jj<=SW::BU(Y); ++jj )
+							temp += getHC(Y,f,j,jj)*y(i,j+jj,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Y,f,j,0);
+					}
+			}
+			if( 0<space()->bcu(Y) ) {
+				OT j = space()->ei(f,Y,B::Y);
+				for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						ST temp = 0.;
+						for( OT jj=SW::BL(Y); jj<=0; ++jj )
+							temp += getHC(Y,f,j,jj)*y(i,j+jj,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Y,f,j,0);
+					}
+			}
+
+			// normal direction: Z
+			if( 0<space()->bcl(Z) ) {
+				OT k = space()->si(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						ST temp = 0.;
+						for( OT kk=0; kk<=SW::BU(Z); ++kk )
+							temp += getHC(Z,f,k,kk)*y(i,j,k+kk);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Z,f,k,0);
+					}
+			}
+			if( 0<space()->bcu(Z) ) {
+				OT k = space()->ei(f,Z,B::Y);
+				for( OT j=space()->si(f,Y,B::Y); j<=space()->ei(f,Y,B::Y); ++j )
+					for( OT i=space()->si(f,X,B::Y); i<=space()->ei(f,X,B::Y); ++i ) {
+						ST temp = 0.;
+						for( OT kk=SW::BL(Z); kk<=0; ++kk )
+							temp += getHC(Z,f,k,kk)*y(i,j,k+kk);
+						y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Z,f,k,0);
 					}
 			}
 		}
@@ -375,7 +439,6 @@ protected:
 public:
 
   void print( std::ostream& out=std::cout ) const {
-
     out << "--- " << getLabel() << "---\n";
     op_->print();
   }
