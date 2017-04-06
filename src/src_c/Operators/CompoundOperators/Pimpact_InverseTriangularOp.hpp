@@ -33,7 +33,6 @@ public:
 
 protected:
 
-
   const Teuchos::RCP<OpV2V> opV2V_;
   const Teuchos::RCP<OpS2V> opS2V_;
   const Teuchos::RCP<OpS2S> opS2S_;
@@ -49,7 +48,9 @@ public:
 		opS2S_(opS2S) {};
 
 
-	/// \todo rm tempv???
+	/// \brief apply
+	/// 
+	/// \f[ \begin{bmatrix} opV2V^{-1} & opS2V \\ 0 & -opS2S^{-1} \end{bmatrix}^{-1} \mathbf{x} = \mathbf{y} \f]
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		opS2S_->apply( x.getSField(),  y.getSField() );
@@ -62,7 +63,6 @@ public:
 		tempv.add( -1., tempv, 1., x.getVField() );
 
 		opV2V_->apply( tempv, y.getVField() );
-
 	}
 
 

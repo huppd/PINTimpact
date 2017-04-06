@@ -111,14 +111,14 @@ contains
 
 
     ! get interpolation stencil for v'' between starting values in sweep_angle and kappa direction
-    fxx1 = fxx(floor(sweep_angle_degrees/10.)+1,  floor(kappa/0.5)+1)
-    fxx2 = fxx(floor(sweep_angle_degrees/10.)+1,  ceiling(kappa/0.5)+1)
-    fxx3 = fxx(ceiling(sweep_angle_degrees/10.)+1,floor(kappa/0.5)+1)
+    fxx1 = fxx(floor(  sweep_angle_degrees/10.)+1,floor(  kappa/0.5)+1)
+    fxx2 = fxx(floor(  sweep_angle_degrees/10.)+1,ceiling(kappa/0.5)+1)
+    fxx3 = fxx(ceiling(sweep_angle_degrees/10.)+1,floor(  kappa/0.5)+1)
     fxx4 = fxx(ceiling(sweep_angle_degrees/10.)+1,ceiling(kappa/0.5)+1)
     ! get interpolation stencil for w' between starting values in sweep_angle and kappa direction
-    gx1 = gx(floor(sweep_angle_degrees/10.)+1,  floor(kappa/0.5)+1)
-    gx2 = gx(floor(sweep_angle_degrees/10.)+1,  ceiling(kappa/0.5)+1)
-    gx3 = gx(ceiling(sweep_angle_degrees/10.)+1,floor(kappa/0.5)+1)
+    gx1 = gx(floor(  sweep_angle_degrees/10.)+1,floor(  kappa/0.5)+1)
+    gx2 = gx(floor(  sweep_angle_degrees/10.)+1,ceiling(kappa/0.5)+1)
+    gx3 = gx(ceiling(sweep_angle_degrees/10.)+1,floor(  kappa/0.5)+1)
     gx4 = gx(ceiling(sweep_angle_degrees/10.)+1,ceiling(kappa/0.5)+1)
 
 
@@ -181,7 +181,7 @@ contains
     real(c_double) :: rk1(3), rk2(3)!Runge-Kutta coefficients
     real(c_double) :: dx            !integration step
     real(c_double) :: x             !independent variable
-    integer(c_int) :: i, k    !counters
+    integer(c_int) :: i, k          !counters
     real(c_double) :: cosPhi        !cos(sweep_angle)
     real(c_double) :: sinAlpha      !sin(angle_attack)
     real(c_double) :: upperBound    !upper interval boundary for integration
@@ -199,7 +199,7 @@ contains
     i = 1
     upperBound = 50.0
 
-    cosPhi = cos(sweep_angle)
+    cosPhi   = cos(sweep_angle)
     sinAlpha = sin(angle_attack)
 
     t(1) = -kappa

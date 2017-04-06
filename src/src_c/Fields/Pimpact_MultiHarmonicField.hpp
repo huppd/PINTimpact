@@ -83,7 +83,7 @@ protected:
 
 public:
 
-	constexpr Ordinal getStorageSize() const {
+	constexpr Ordinal getStorageSize() {
 		return(
 				( global_ )?
 					( ( 1 + 2*space()->nGlo(3)                                             )*field0_.getStorageSize() ):
@@ -166,7 +166,7 @@ public:
 
 protected:
 
-	constexpr Ordinal index( const Ordinal& i ) const {
+	constexpr Ordinal index( const Ordinal& i ) {
 		return( i - 1 + 
 				(( global_||0==space()->si(F::U,3) )?
 					0:
@@ -176,7 +176,7 @@ protected:
 
 public:
 
-	constexpr const bool& global() const { return( global_ ); }
+	constexpr const bool& global() { return( global_ ); }
 
                   IFT& get0Field() { return( field0_ ); }
   constexpr const IFT& get0Field() { return( field0_ ); }
@@ -191,10 +191,10 @@ public:
   constexpr const IFT& getSField( const Ordinal& i ) { return( fields_[index(i)]->getSField() ); }
 
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() { return( AF::space_ ); }
 
 
-  constexpr const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
+  constexpr const MPI_Comm& comm() { return( space()->getProcGrid()->getCommWorld() ); }
 
 
   /// \brief returns the length of Field.
@@ -304,7 +304,7 @@ public:
   /// \{
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dotLoc( const FieldT& a ) const {
+  constexpr Scalar dotLoc( const FieldT& a ) {
 
     Scalar b = 0.;
 
@@ -317,14 +317,14 @@ public:
   }
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y ) const {
+	constexpr Scalar dot( const FieldT& y ) {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
 	}
 
   /// \brief Compute the norm of Field.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm ) {
 
     Scalar normvec = 0.;
 
@@ -343,7 +343,7 @@ public:
 
 	/// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) {
 
 		Scalar normvec = this->reduce(
 				comm(),
@@ -364,7 +364,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const FieldT& weights ) const {
+  constexpr Scalar normLoc( const FieldT& weights ) {
 
     Scalar normvec= Teuchos::ScalarTraits<Scalar>::zero();
 
@@ -384,7 +384,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights ) const {
+  constexpr Scalar norm( const FieldT& weights ) {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 

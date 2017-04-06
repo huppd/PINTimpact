@@ -37,7 +37,8 @@ using ST = double;
 using OT= int;
 
 const int d = 4;
-const int dNC = 4;
+//const int dNC = 4;
+const int dNC = 3;
 
 using D2 = Pimpact::Space<ST,OT,2,d,dNC>;
 using D3 = Pimpact::Space<ST,OT,3,d,dNC>;
@@ -64,7 +65,8 @@ ST omega = 0.8;
 ST winds = 1;
 int sweeps = 12;
 int nIter = 1;
-OT ns = 4;
+OT n0 = 32;
+OT ns = 2;
 
 OT nx = 33;
 OT ny = 33;
@@ -114,6 +116,7 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "wind", &winds, "" );
 	clp.setOption( "sweeps", &sweeps, "" );
 	clp.setOption( "nIter", &nIter, "" );
+	clp.setOption( "n0", &n0, "" );
 	clp.setOption( "ns", &ns, "" );
 
 	clp.setOption( "re", &re, "" );

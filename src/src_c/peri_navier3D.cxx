@@ -49,8 +49,9 @@ using S = double;
 using O = int;
 
 const int sd = 3;
-const int dNC = 4;
-//const int dNC = 3;
+//const int dNC = 4;
+const int dNC = 3;
+//const int dNC = 2;
 
 using SpaceT = Pimpact::Space<S,O,sd,4,dNC>;
 

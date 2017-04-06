@@ -58,9 +58,9 @@ private:
 
 public:
 
-	constexpr Ordinal getStorageSize() const { return( fieldc_.getStorageSize()+fields_.getStorageSize() ); }
+	constexpr Ordinal getStorageSize() { return( fieldc_.getStorageSize()+fields_.getStorageSize() ); }
 
-	constexpr Scalar* getRawPtr() const { return( s_ ); }
+	constexpr Scalar* getRawPtr() { return( s_ ); }
 
   void setStoragePtr( Scalar*  array ) {
     s_ = array;
@@ -134,9 +134,9 @@ public:
   constexpr const IFT& getCField() { return( fieldc_ ); }
   constexpr const IFT& getSField() { return( fields_ ); }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() { return( AF::space_ ); }
 
-  constexpr const MPI_Comm& comm() const { return( fieldc_.comm() ); }
+  constexpr const MPI_Comm& comm() { return( fieldc_.comm() ); }
 
   /// \brief returns the length of Field.
   constexpr Ordinal getLength() {
@@ -198,7 +198,7 @@ public:
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dotLoc( const ModeField& a ) const {
+  constexpr Scalar dotLoc( const ModeField& a ) {
 
     Scalar b=0.;
 
@@ -209,7 +209,7 @@ public:
 
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const ModeField& y ) const {
+	constexpr Scalar dot( const ModeField& y ) {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
 	}
@@ -218,7 +218,7 @@ public:
   /// \name Norm method
   /// \{
 
-  constexpr Scalar normLoc( Belos::NormType type=Belos::TwoNorm ) const {
+  constexpr Scalar normLoc( Belos::NormType type=Belos::TwoNorm ) {
 
     Scalar normvec = 
 			(Belos::InfNorm==type)?
@@ -230,7 +230,7 @@ public:
 
 	/// \brief compute the norm
 	/// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) {
 
 		Scalar normvec = this->reduce(
 				comm(),
@@ -251,7 +251,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc(const ModeField& weights ) const {
+  constexpr Scalar normLoc(const ModeField& weights ) {
 		 return(
 				 fieldc_.normLoc( weights.fieldc_ ) +
 				 fields_.normLoc( weights.fields_ )
@@ -264,7 +264,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const ModeField& weights ) const {
+  constexpr Scalar norm( const ModeField& weights ) {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 

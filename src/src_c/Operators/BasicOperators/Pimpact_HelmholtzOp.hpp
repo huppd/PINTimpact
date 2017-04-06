@@ -47,7 +47,7 @@ protected:
 	ST mulI_;
 	ST mulL_;
 
-	const ST& mulBC_ = 1.;
+	const ST& mulBC_ = 1.e+0; /// good idea, but has to be considered also in Force
 	
   TO cS_;
   TO cV_;

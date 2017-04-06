@@ -194,11 +194,11 @@ public:
 
 
   /// \brief get number of stored Field's
-  constexpr int getNumberVecs() const { return( mfs_.size() ); }
+  constexpr int getNumberVecs() { return( mfs_.size() ); }
 
 
   /// \brief is true
-  constexpr bool HasConstantStride() const { return( true ); }
+  constexpr bool HasConstantStride() { return( true ); }
 
 
   /// \}
@@ -341,7 +341,7 @@ public:
 
 
   /// \brief Compute the inner product for the \c MultiField considering it as one Vector.
-	constexpr Scalar dotLoc( const FieldT& A ) const {
+	constexpr Scalar dotLoc( const FieldT& A ) {
 		int n = getNumberVecs();
 
 		Scalar b = 0.;
@@ -353,7 +353,7 @@ public:
 	}
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y ) const {
+	constexpr Scalar dot( const FieldT& y ) {
 		return( this->reduce( comm(), dotLoc( y ) ) );
 	}
 
@@ -390,7 +390,7 @@ public:
 
 
   /// \brief Compute the norm for the \c MultiField as it is considered as one Vector .
-	constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) const {
+	constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) {
 
 		Scalar normvec = 0.;
 
@@ -405,7 +405,7 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) {
 
 		Scalar normvec = this->reduce(
 				comm(),
@@ -426,7 +426,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-	constexpr Scalar normLoc( const FieldT& weights ) const {
+	constexpr Scalar normLoc( const FieldT& weights ) {
 
 		Scalar nor = Teuchos::ScalarTraits<Scalar>::zero();
 
@@ -443,7 +443,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights ) const {
+  constexpr Scalar norm( const FieldT& weights ) {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 
@@ -522,9 +522,9 @@ public:
 	InnerFieldT& getField( const int& i ) { return( *mfs_[i] ); }
 	constexpr const InnerFieldT& getField( const int& i ) { return( *mfs_[i] ); }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
+	constexpr const Teuchos::RCP<const SpaceT>& space() { return( AF::space_ ); }
 
-	constexpr const MPI_Comm& comm() const { return(mfs_[0]->comm()); }
+	constexpr const MPI_Comm& comm() { return(mfs_[0]->comm()); }
 
 	///  @} 
 

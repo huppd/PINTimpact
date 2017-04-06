@@ -49,12 +49,12 @@ typename SpaceT::Scalar computeEnergy( const VectorField<SpaceT>& vel ) {
 /// - compute energy local
 /// - reduce to rank_dim=0 
 /// - having two vectors for y and e(z)
+/// \f[ e(y) = \int \int (u^2 + v^2 + z^2 ) \exp( -\frac{x}{\gamma}^2/2 ) \f]
 template<class SpaceT>
-void computeEnergyY( const VectorField<SpaceT>& vel, std::ostream& out=std::cout ) {
+void computeEnergyY( const VectorField<SpaceT>& vel, std::ostream& out=std::cout, typename SpaceT::Scalar gamma=10. ) {
 
 	using ST = typename SpaceT::Scalar;
 	using OT = typename SpaceT::Ordinal;
-
 
 	auto space = vel.space();
 	auto coord = space->getCoordinatesLocal();
@@ -71,7 +71,7 @@ void computeEnergyY( const VectorField<SpaceT>& vel, std::ostream& out=std::cout
 			for( OT j=space->si(F::S,Y); j<=space->ei(F::S,Y); ++j )
 				for( OT i=space->si(F::S,X); i<=space->ei(F::S,X); ++i ) {
 					ST volume = coord->dx(F::S,X,i) * coord->dx(F::S,Z,k);
-					energyY[j-space->si(F::S,Y)] += volume * std::pow( temp(i,j,k), 2 );
+					energyY[j-space->si(F::S,Y)] += volume * std::pow( temp(i,j,k), 2 )*std::exp( -0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2 ) );
 				}
 
 	}
@@ -86,15 +86,19 @@ void computeEnergyY( const VectorField<SpaceT>& vel, std::ostream& out=std::cout
 			0,                                         // int root,
 			space->getProcGrid()->getCommSlice(Y) );   // MPI_Comm communicator);
 
-	std::vector<ST> energyYglobal( space->nGlo(Y)+1, Teuchos::ScalarTraits<ST>::zero() );
+	std::cout << space->nGlo(Y) << "\n";
+	std::cout << space->nLoc(Y) << "\n";
+	std::cout << space->getProcGrid()->getNP(Y) << "\n";
+
+	std::vector<ST> energyYglobal( space->nGlo(Y), Teuchos::ScalarTraits<ST>::zero() );
 
 	if( 0==space->getProcGrid()->getRankSlice(Y) ) {
 		MPI_Gather(
 				energyY.data(),                        // void* send_data,
-				space->nLoc(Y),                        // int send_count,
+				space->nLoc(Y)-1,                        // int send_count,
 				MPI_REAL8,                             // MPI_Datatype send_datatype,
 				energyYglobal.data(),                  // void* recv_data,
-				space->nLoc(Y),                        // int recv_count,
+				space->nLoc(Y)-1,                        // int recv_count,
 				MPI_REAL8,                             // MPI_Datatype recv_datatype,
 				0,                                     // int root,
 				space->getProcGrid()->getCommBar(Y) ); // MPI_Comm communicator);

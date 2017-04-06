@@ -7,15 +7,15 @@
 			<Parameter docString="" id="99993" isDefault="false" isUsed="true" name="upper X" type="int" value="2"/>
 			<Parameter docString="" id="99994" isDefault="false" isUsed="true" name="lower Y" type="int" value="1"/>
 			<Parameter docString="" id="99995" isDefault="false" isUsed="true" name="upper Y" type="int" value="1"/>
-			<Parameter docString="" id="99996" isDefault="false" isUsed="true" name="lower Z" type="int" value="-1"/>
-			<Parameter docString="" id="99997" isDefault="false" isUsed="true" name="upper Z" type="int" value="-1"/>
+			<Parameter docString="" id="99996" isDefault="false" isUsed="true" name="lower Z" type="int" value="2"/>
+			<Parameter docString="" id="99997" isDefault="false" isUsed="true" name="upper Z" type="int" value="2"/>
 		</ParameterList>
 		<Parameter docString="length in x-direction" id="61" isDefault="false" isUsed="true" name="lx" type="double" value="2.00000000000000000e+00" />
 		<Parameter docString="length in y-direction" id="62" isDefault="false" isUsed="true" name="ly" type="double" value="2.00000000000000000e+00" />
 		<Parameter docString="length in z-direction" id="63" isDefault="false" isUsed="true" name="lz" type="double" value="2.00000000000000000e+00" />
-		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="64" isDefault="false" isUsed="true" name="nx" type="int" value="9" />
-		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="65" isDefault="false" isUsed="true" name="ny" type="int" value="9" />
-		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="66" isDefault="false" isUsed="true" name="nz" type="int" value="9" />
+		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="64" isDefault="false" isUsed="true" name="nx" type="int" value="17" />
+		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="65" isDefault="false" isUsed="true" name="ny" type="int" value="17" />
+		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="66" isDefault="false" isUsed="true" name="nz" type="int" value="17" />
 		<Parameter docString="amount of grid points in f-direction" id="67" isDefault="false" isUsed="true" name="nf" type="int" value="1" />
 		<Parameter docString="amount of processors in x-direction" id="68" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
 		<Parameter docString="amount of processors in y-direction" id="69" isDefault="false" isUsed="true" name="npy" type="int" value="1" />
@@ -38,7 +38,7 @@
 		<Parameter docString="" id="79" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
 		<Parameter docString="" id="80" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
 		<Parameter docString="" id="81" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-		<Parameter docString="" id="82" isDefault="false" isUsed="true" name="initial guess" type="string" value="asdf" />
+		<Parameter docString="" id="82" isDefault="false" isUsed="true" name="initial guess" type="string" value="none" />
 	</ParameterList>
 	<ParameterList id="6" name="Multi Grid">
 		<Parameter docString="" id="83" isDefault="false" isUsed="true" name="maxGrids" type="int" value="2" />
@@ -87,7 +87,7 @@
 			<ParameterList id="16" name="Newton">
 				<Parameter docString="" id="112" isDefault="true" isUsed="true" name="Rescue Bad Newton Solve" type="bool" value="true" />
 				<ParameterList id="17" name="Linear Solver">
-					<Parameter docString="" id="113" isDefault="true" isUsed="true" name="Tolerance" type="double" value="1.0e-2" />
+					<Parameter docString="" id="113" isDefault="true" isUsed="true" name="Tolerance" type="double" value="1.0e-1" />
 				</ParameterList>
 				<Parameter docString="" id="114" isDefault="true" isUsed="true" name="Forcing Term Method" type="string" value="Constant" />
 			</ParameterList>
@@ -117,9 +117,9 @@
 	</ParameterList>
 	<ParameterList id="23" name="Picard Solver">
 		<Parameter docString="" id="127" isDefault="true" isUsed="true" name="Solver name" type="string" value="Block GMRES" />
-		<Parameter docString="" id="611" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
+		<Parameter docString="" id="611" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<ParameterList id="24" name="Solver">
-			<!--<Parameter docString="" id="136" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="50" />-->
+			<Parameter docString="" id="136" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
 			<!--<Parameter docString="" id="128" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />-->
 			<!--<Parameter docString="" id="129" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />-->
 			<!--<Parameter docString="" id="130" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />-->
@@ -140,7 +140,7 @@
 		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
 		<Parameter docString="" id="931" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
 		<Parameter docString="" id="9113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-2" />
-		<Parameter docString="" id="1111" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true"/>
+		<Parameter docString="" id="1111" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
 		<ParameterList id="26" name="Solver">
 			<Parameter docString="" id="1187" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
 			<!--<Parameter docString="" id="145" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />-->
@@ -188,7 +188,7 @@
 	<ParameterList id="41" name="MH_ConvDiff">
 		<Parameter docString="" id="231" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<!--<Parameter docString="" id="231" isDefault="true" isUsed="true" name="Solver name" type="string" value="TFQMR" />-->
-		<Parameter docString="" id="2612" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
+		<Parameter docString="" id="2612" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<Parameter docString="" id="91113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-2" />
 		<ParameterList id="42" name="Solver">
 			<Parameter docString="" id="2187" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
