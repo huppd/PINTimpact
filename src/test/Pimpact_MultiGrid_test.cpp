@@ -24,15 +24,23 @@ const ST pi2 = 2.*std::acos(-1.);
 using CSpace2DT = Pimpact::Space<ST,OT,2,d,2>;
 using CSpace3DT = Pimpact::Space<ST,OT,3,d,2>;
 
+using CCSpace2DT = Pimpact::Space<ST,OT,2,d,3>;
+using CCSpace3DT = Pimpact::Space<ST,OT,3,d,3>;
+
 using CSL2D = Pimpact::CoarsenStrategy<D2,CSpace2DT>;
 using CSG2D = Pimpact::CoarsenStrategyGlobal<D2,CSpace2DT>;
 
 using CSL3D = Pimpact::CoarsenStrategy<D3,CSpace3DT>;
 using CSG3D = Pimpact::CoarsenStrategyGlobal<D3,CSpace3DT>;
 
+using CCSL3D = Pimpact::CoarsenStrategy<D3,D2>;
+using CCSG3D = Pimpact::CoarsenStrategyGlobal<D3,D3>;
+
 using Spaces2D = Pimpact::MGSpaces<D2,CSpace2DT>;
 using Spaces3D = Pimpact::MGSpaces<D3,CSpace3DT>;
 
+using CSpaces2D = Pimpact::MGSpaces<D2,D2>;
+using CSpaces3D = Pimpact::MGSpaces<D3,D3>;
 
 
 template<class T> using ConvDiffOpT =
@@ -156,6 +164,17 @@ using CDSOR2D = Pimpact::MultiGrid<
 
 using CDSOR3D = Pimpact::MultiGrid<
 	Spaces3D,
+	Pimpact::VectorField,
+	TransVF,
+	RestrVF,
+	InterVF,
+	ConvDiffOpT,
+	ConvDiffOpT,
+	ConvDiffSORT,
+	MOP >;
+
+using CCDSOR3D = Pimpact::MultiGrid<
+	CSpaces3D,
 	Pimpact::VectorField,
 	TransVF,
 	RestrVF,
@@ -1391,7 +1410,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffOp, CS, MGT ) {
 	bm->init( 0. );
 	xm->random();
 	linprob->solve( xm, bm );
-
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG2D, CDJ2D )
@@ -1399,6 +1417,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG3D, CDJ3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG2D, CDSOR2D )
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG3D, CDSOR3D )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CCSG3D, CCDSOR3D )
 
 
 

@@ -49,14 +49,14 @@ using S = double;
 using O = int;
 
 const int sd = 3;
-//const int dNC = 4;
-const int dNC = 3;
+const int dNC = 4;
+//const int dNC = 3;
 //const int dNC = 2;
 
 using SpaceT = Pimpact::Space<S,O,sd,4,dNC>;
 
 using FSpaceT = Pimpact::Space<S,O,sd,4,dNC>;
-using CSpaceT = Pimpact::Space<S,O,sd,4,2>;
+using CSpaceT = Pimpact::Space<S,O,sd,4,2  >;
 
 //using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>; // dirty fix: till gather isn't fixed
@@ -341,8 +341,8 @@ int main( int argi, char** argv ) {
 					InterVF,
 					ConvDiffOpT,
 					ConvDiffOpT,
-					//ConvDiffSORT,
-					ConvDiffJT,
+					ConvDiffSORT,
+					//ConvDiffJT,
 					MOP
 					//POP2
 					//POP3

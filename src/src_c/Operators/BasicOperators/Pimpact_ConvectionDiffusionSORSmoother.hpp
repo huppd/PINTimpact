@@ -2,7 +2,6 @@
 #ifndef PIMPACT_CONVECTIONDIFFUSIONSORSMOOTHER_HPP
 #define PIMPACT_CONVECTIONDIFFUSIONSORSMOOTHER_HPP
 
-
 #include "Pimpact_ConvectionSOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_ScalarField.hpp"
@@ -10,41 +9,7 @@
 
 
 
-
 namespace Pimpact {
-
-
-extern "C"
-void OP_convectionDiffusionSOR(
-    const int& dimens,
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const nL,
-    const int* const nU,
-    const int* const SS,
-    const int* const NN,
-    const short int* const dir,
-    const short int* const loopOrder,
-    const double* const c1D,
-    const double* const c2D,
-    const double* const c3D,
-    const double* const c1U,
-    const double* const c2U,
-    const double* const c3U,
-    const double* const c11,
-    const double* const c22,
-    const double* const c33,
-    const double* const phiU,
-    const double* const phiV,
-    const double* const phiW,
-    const double* const b,
-    double* const phi,
-    const double& mulI,
-    const double& mulC,
-    const double& mulL,
-    const double& om );
-
 
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
@@ -75,9 +40,6 @@ protected:
 
   Teuchos::Tuple<short int,3> dirs_;
 
-  Teuchos::Tuple<short int,3> loopOrder_;
-
-
   const Teuchos::RCP<const OperatorT> op_;
 
 	constexpr const ST& getHC( const ECoord& dir, const F& ftype, OT i, OT ii ) {
@@ -92,8 +54,6 @@ public:
         omega_( pl->get("omega", 1. ) ),
         nIter_( pl->get("numIters", 1 ) ),
         ordering_( pl->get("Ordering",1 ) ),
-        loopOrder_( Teuchos::tuple<short int>(1,2,3) ),
-        //space_(op->space_),
         op_(op) {
 
     if( 4==SpaceT::dimNC )
@@ -124,12 +84,10 @@ public:
       x[vel_dir].exchange();
 
     for( int i=0; i<nIter_; ++i ) {
-
       if( ordering_==0 )
-        apply(x,y,z,dirs_,loopOrder_ );
+        apply( x, y, z, dirs_ );
       else
         applyNPoint( x, y, z );
-
     }
   }
 
@@ -158,58 +116,79 @@ protected:
 			for( dirs_[2]=dirS[2]; std::abs(dirs_[2])<=1; dirs_[2]+=inc[2] )
 				for( dirs_[1]=dirS[1]; std::abs(dirs_[1])<=1; dirs_[1]+=inc[1] )
 					for( dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0] )
-						apply( x, y, z, dirs_, loopOrder_ );
+						apply( x, y, z, dirs_ );
 		else {
 			dirs_[2] = 1 ;
 			for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
 				for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
-					apply( x, y, z, dirs_, loopOrder_ );
+					apply( x, y, z, dirs_ );
 		}
 	}
 
 
   /// \brief little helper
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
-      const Teuchos::Tuple<short int,3>& dirs,
-      const Teuchos::Tuple<short int,3>& loopOrder ) const {
+  void apply( const FluxFieldT& wind, const DomainFieldT& b, RangeFieldT& x,
+      const Teuchos::Tuple<short int,3>& dirs ) const {
 
-		const int sdim = SpaceT::sdim;
+		for( int i=0; i<3; ++i ) { assert( 1==dirs[i] || -1==dirs[i] ); }
 
-    z.exchange();
+		const F& f = x.getType();
+    x.exchange();
 
-		applyBC( y, z );
-    OP_convectionDiffusionSOR(
-        sdim,
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->nl(),
-        space()->nu(),
-        space()->sInd(z.getType()),
-        space()->eInd(z.getType()),
-        dirs.getRawPtr(),
-        loopOrder.getRawPtr(),
-        op_->getConvSOp()->getCD( X, z.getType() ),
-        op_->getConvSOp()->getCD( Y, z.getType() ),
-        op_->getConvSOp()->getCD( Z, z.getType() ),
-        op_->getConvSOp()->getCU( X, z.getType() ),
-        op_->getConvSOp()->getCU( Y, z.getType() ),
-        op_->getConvSOp()->getCU( Z, z.getType() ),
-        op_->getHelmOp()->getC( X, z.getType() ),
-        op_->getHelmOp()->getC( Y, z.getType() ),
-        op_->getHelmOp()->getC( Z, z.getType() ),
-        x[X].getConstRawPtr(),
-        x[Y].getConstRawPtr(),
-        x[Z].getConstRawPtr(),
-        y.getConstRawPtr(),
-        z.getRawPtr(),
-        op_->getMulI(),
-        op_->getMulC(),
-        op_->getMulL(),
-        omega_ );
+		applyBC( b, x );
 
-		applyBC( y, z );
-    z.changed();
+		Teuchos::Tuple<OT,3> ss;
+		Teuchos::Tuple<OT,3> nn;
+		for( int i=0; i<3; ++i ) {
+			ss[i] = (dirs[i]>0)?(space()->si(f,i,B::N)  ):(space()->ei(f,i,B::N)  );
+			nn[i] = (dirs[i]>0)?(space()->ei(f,i,B::N)+1):(space()->si(f,i,B::N)-1);
+		}
+
+		if( 3==SpaceT::sdim ) {
+
+			for( OT k=ss[Z]; k!=nn[Z]; k+=dirs[Z] )
+				for( OT j=ss[Y]; j!=nn[Y]; j+=dirs[Y] )
+					for( OT i=ss[X]; i!=nn[X]; i+=dirs[X] ) {
+						ST diag =
+							op_->getMulI() 
+								+ op_->getMulC() * op_->getConvSOp()->innerDiag3D(
+									wind[0](i,j,k),
+									wind[1](i,j,k),
+									wind[2](i,j,k), f, i, j, k )
+								- op_->getMulL() * op_->getHelmOp()->innerDiag3D( f, i, j, k) ;
+						assert( diag!=0 );
+						x(i,j,k) += omega_*( b(i,j,k)
+							- op_->getMulI() * x(i,j,k)
+							- op_->getMulC() * op_->getConvSOp()->innerStenc3D(
+									wind[0](i,j,k),
+									wind[1](i,j,k),
+									wind[2](i,j,k), x, i, j, k )
+							+ op_->getMulL() * op_->getHelmOp()->innerStenc3D( x, f, i, j, k) ) / diag;
+					}
+		}
+		else {
+
+			for( OT k=ss[Z]; k!=nn[Z]; k+=dirs[Z] )
+				for( OT j=ss[Y]; j!=nn[Y]; j+=dirs[Y] )
+					for( OT i=ss[X]; i!=nn[X]; i+=dirs[X] ) {
+						ST diag =
+							op_->getMulI() 
+								+ op_->getMulC() * op_->getConvSOp()->innerDiag2D(
+									wind[0](i,j,k),
+									wind[1](i,j,k), f, i, j, k )
+								- op_->getMulL() * op_->getHelmOp()->innerDiag2D( f, i, j, k) ;
+						assert( diag!=0 );
+						x(i,j,k) += omega_*( b(i,j,k)
+							- op_->getMulI() * x(i,j,k)
+							- op_->getMulC() * op_->getConvSOp()->innerStenc2D(
+									wind[0](i,j,k),
+									wind[1](i,j,k), x, i, j, k )
+							+ op_->getMulL() * op_->getHelmOp()->innerStenc2D( x, f, i, j, k) ) / diag;
+					}
+		}
+
+		applyBC( b, x );
+    x.changed();
   }
 
 

@@ -130,7 +130,9 @@ protected:
 		const F& f = y.getType();
 
 		const ST& omegaBC = omega_;
-		//const ST& omegaBC = 0.9;
+		//const ST& omegaBC = 1.;
+		//const ST& omegaBC = omega_/2.;
+
 	
 		// U-field
 		if( F::U==f ) {
