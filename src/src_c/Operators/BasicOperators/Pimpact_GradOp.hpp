@@ -142,8 +142,6 @@ public:
 
 		if( Add::N==add )
 			applyJ( y );
-		//else
-			//y.setBZero();
   }
 
 
@@ -168,7 +166,6 @@ public:
 				}
 
 		if( 3==SpaceT::sdim )  {
-
 			x.exchange(Z);
 			for( Ordinal k=space()->si(F::W,Z,b); k<=space()->ei(F::W,Z,b); ++k )
 				for( Ordinal j=space()->si(F::W,Y,b); j<=space()->ei(F::W,Y,b); ++j )
@@ -177,6 +174,7 @@ public:
 						y(F::W)(i,j,k) += innerStencW( x, i, j, k );
 					}
 		}
+    y.changed();
   }
 
 

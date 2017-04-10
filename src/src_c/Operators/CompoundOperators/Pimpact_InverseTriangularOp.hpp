@@ -53,6 +53,11 @@ public:
 	/// \f[ \begin{bmatrix} opV2V^{-1} & opS2V \\ 0 & -opS2S^{-1} \end{bmatrix}^{-1} \mathbf{x} = \mathbf{y} \f]
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
+		//y.getSField() = x.getSField();
+		//opV2V_->apply( x.getVField(), y.getVField() );
+		//opS2S_->apply( x.getSField(),  y.getSField() );
+		//y.getSField().scale( -1. );
+
 		opS2S_->apply( x.getSField(),  y.getSField() );
 		y.getSField().scale( -1. );
 

@@ -431,7 +431,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, ReadWrite, SpaceT ) {
   for( int i=1; i<=6; ++i ) {
     write.initField( static_cast<Pimpact::EScalarField>(i) );
     write.write( i, true );
-		//read.read(i);
+		read.read(i);
 
 		err.add( 1., read, -1., write );
 		ST error = err.norm();

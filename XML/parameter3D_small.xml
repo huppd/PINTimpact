@@ -38,10 +38,10 @@
 		<Parameter docString="" id="79" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
 		<Parameter docString="" id="80" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
 		<Parameter docString="" id="81" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-		<Parameter docString="" id="82" isDefault="false" isUsed="true" name="initial guess" type="string" value="zero" />
+		<Parameter docString="" id="82" isDefault="false" isUsed="true" name="initial guess" type="string" value="none" />
 	</ParameterList>
 	<ParameterList id="6" name="Multi Grid">
-		<Parameter docString="" id="83" isDefault="false" isUsed="true" name="maxGrids" type="int" value="2" />
+		<Parameter docString="" id="83" isDefault="false" isUsed="true" name="maxGrids" type="int" value="3" />
 	</ParameterList>
 	<ParameterList id="7" name="NOX Solver">
 		<ParameterList id="8" name="Status Test">
@@ -118,6 +118,7 @@
 	<ParameterList id="23" name="Picard Solver">
 		<Parameter docString="" id="127" isDefault="true" isUsed="true" name="Solver name" type="string" value="Block GMRES" />
 		<Parameter docString="" id="611" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="143" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 		<ParameterList id="24" name="Solver">
 			<Parameter docString="" id="136" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
 			<!--<Parameter docString="" id="128" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />-->
@@ -136,16 +137,15 @@
 	</ParameterList>
 	<ParameterList id="25" name="DivGrad">
 		<Parameter docString="" id="142" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
-		<Parameter docString="" id="143" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
-		<Parameter docString="" id="931" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
-		<Parameter docString="" id="9113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-2" />
-		<Parameter docString="" id="1111" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
+		<Parameter docString="" id="931" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="9113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
+		<Parameter docString="" id="1111" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true"/>
 		<ParameterList id="26" name="Solver">
 			<Parameter docString="" id="1187" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
-			<!--<Parameter docString="" id="145" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />-->
-			<!--<Parameter docString="" id="146" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="1" />-->
-			<!--<Parameter docString="" id="153" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />-->
+			<Parameter docString="" id="145" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
+			<Parameter docString="" id="146" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="1" />
+			<Parameter docString="" id="153" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
 			<!--<Parameter docString="" id="147" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />-->
 			<Parameter docString="" id="148" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="false" />
 			<!--<Parameter docString="" id="149" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />-->

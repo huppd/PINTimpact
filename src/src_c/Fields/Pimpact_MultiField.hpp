@@ -43,8 +43,8 @@ public:
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
 
 
   using FieldT = Pimpact::MultiField<InnerFieldT>;
@@ -188,7 +188,7 @@ public:
 
 
   /// \brief returns the length of MultiField.
-  constexpr Ordinal getLength() {
+  constexpr OT getLength() {
 		return( mfs_[0]->getLength() );
 	}
 
@@ -221,9 +221,9 @@ public:
   /// \param a Vector
   /// \param b Matrix
   /// \param beta
-	void TimesMatAdd( const Scalar& alpha, const FieldT& a,
-			const Teuchos::SerialDenseMatrix<int,Scalar>& b,
-			const Scalar& beta ) {
+	void TimesMatAdd( const ST& alpha, const FieldT& a,
+			const Teuchos::SerialDenseMatrix<int,ST>& b,
+			const ST& beta ) {
 
 		int m1 = a.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
 		int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
@@ -241,7 +241,7 @@ public:
 
 
   /// \brief <tt>mv := alpha*a + beta*b</tt>
-	void add( Scalar alpha, const FieldT& a, Scalar beta, const FieldT& b, const B& wb=B::Y ) {
+	void add( ST alpha, const FieldT& a, ST beta, const FieldT& b, const B& wb=B::Y ) {
 		for( int i=0; i<getNumberVecs(); ++i )
 			mfs_[i]->add( alpha, *a.mfs_[i], beta, *b.mfs_[i], wb );
 	}
@@ -274,7 +274,7 @@ public:
   ///
   /// Here x represents on \c Field, and we update it as
   /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
-	void scale( const Scalar& alpha ) {
+	void scale( const ST& alpha ) {
 		for( int i=0; i<getNumberVecs(); ++i )
 			mfs_[i]->scale(alpha);
 	}
@@ -295,7 +295,7 @@ public:
   ///
   /// Here x_j represents the j'th field, and we update it as
   /// \f[ x_j[i] = \alpha_j x_j[i] \quad \mbox{for } i=1,\dots,n \f]
-	void scale( const std::vector<Scalar>& alphas ) {
+	void scale( const std::vector<ST>& alphas ) {
 
 		assert( alphas.size()==getNumberVecs() );
 
@@ -309,8 +309,8 @@ public:
   /// \param A
   /// \param C
 	/// \todo make dot local and reduce over C (cf dot)
-	void Trans( Scalar alpha, const FieldT& A,
-			Teuchos::SerialDenseMatrix<int,Scalar>& C) const {
+	void Trans( ST alpha, const FieldT& A,
+			Teuchos::SerialDenseMatrix<int,ST>& C) const {
 
 		const int& n1 = getNumberVecs();
 		const int& n2 = A.getNumberVecs();
@@ -327,10 +327,10 @@ public:
   /// \}
 
   /// For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
-	void dot( const FieldT& A, std::vector<Scalar>& dots) const {
+	void dot( const FieldT& A, std::vector<ST>& dots) const {
 
 		const int n = getNumberVecs();
-		Scalar* temp = new Scalar[n];
+		ST* temp = new ST[n];
 
 		for( int i=0; i<n; ++i )
 			temp[i] = A.mfs_[i]->dotLoc( *mfs_[i] );
@@ -341,10 +341,10 @@ public:
 
 
   /// \brief Compute the inner product for the \c MultiField considering it as one Vector.
-	constexpr Scalar dotLoc( const FieldT& A ) {
+	constexpr ST dotLoc( const FieldT& A ) {
 		int n = getNumberVecs();
 
-		Scalar b = 0.;
+		ST b = 0.;
 
 		for( int i=0; i<n; ++i )
 			b+= mfs_[i]->dotLoc( *A.mfs_[i] );
@@ -353,18 +353,18 @@ public:
 	}
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y ) {
+	constexpr ST dot( const FieldT& y ) {
 		return( this->reduce( comm(), dotLoc( y ) ) );
 	}
 
   /// \brief Compute the norm of each individual vector.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
 	void norm(
-			std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
+			std::vector<typename Teuchos::ScalarTraits<ST>::magnitudeType> &normvec,
 			Belos::NormType type=Belos::TwoNorm ) const {
 
 		const int n = getNumberVecs();
-		Scalar* temp = new Scalar[n];
+		ST* temp = new ST[n];
 
 		switch( type ) {
 			case Belos::OneNorm:
@@ -390,9 +390,9 @@ public:
 
 
   /// \brief Compute the norm for the \c MultiField as it is considered as one Vector .
-	constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) {
+	constexpr ST normLoc(  Belos::NormType type = Belos::TwoNorm ) {
 
-		Scalar normvec = 0.;
+		ST normvec = 0.;
 
 		for( int i=0; i<getNumberVecs(); ++i )
 			normvec = 
@@ -405,9 +405,9 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) {
+  constexpr ST norm( Belos::NormType type = Belos::TwoNorm ) {
 
-		Scalar normvec = this->reduce(
+		ST normvec = this->reduce(
 				comm(),
 				normLoc( type ),
 				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
@@ -426,9 +426,9 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-	constexpr Scalar normLoc( const FieldT& weights ) {
+	constexpr ST normLoc( const FieldT& weights ) {
 
-		Scalar nor = Teuchos::ScalarTraits<Scalar>::zero();
+		ST nor = Teuchos::ScalarTraits<ST>::zero();
 
 		for( int i=0; i<getNumberVecs(); ++i )
 			nor += mfs_[i]->normLoc( *weights.mfs_[i] );
@@ -443,7 +443,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights ) {
+  constexpr ST norm( const FieldT& weights ) {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 
@@ -484,7 +484,7 @@ public:
 	}
 
   /// \brief \f[ *this = \alpha \f]
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
+	void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& wB=B::Y ) {
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )
 			mfs_[i]->init(alpha,wB);

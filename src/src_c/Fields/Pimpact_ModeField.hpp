@@ -36,10 +36,10 @@ public:
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
+  using ST = typename SpaceT::Scalar;
   using Ordinal =typename SpaceT::Ordinal;
 
-	using ScalarArray =  Scalar*;
+	using ScalarArray =  ST*;
 
 	using AF =  AbstractField<SpaceT>;
 
@@ -53,16 +53,16 @@ protected:
 private:
 
 	void allocate() {
-		setStoragePtr( new Scalar[ fieldc_.getStorageSize()+fields_.getStorageSize() ] );
+		setStoragePtr( new ST[ fieldc_.getStorageSize()+fields_.getStorageSize() ] );
 	}
 
 public:
 
 	constexpr Ordinal getStorageSize() { return( fieldc_.getStorageSize()+fields_.getStorageSize() ); }
 
-	constexpr Scalar* getRawPtr() { return( s_ ); }
+	constexpr ST* getRawPtr() { return( s_ ); }
 
-  void setStoragePtr( Scalar*  array ) {
+  void setStoragePtr( ST*  array ) {
     s_ = array;
 		fieldc_.setStoragePtr( s_                             );
 		fields_.setStoragePtr( s_ + fieldc_.getStorageSize() );
@@ -150,7 +150,7 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
-  void add( const Scalar& alpha, const ModeField& a, const Scalar& beta, const ModeField& b, const B& wb=B::Y ) {
+  void add( const ST& alpha, const ModeField& a, const ST& beta, const ModeField& b, const B& wb=B::Y ) {
     fieldc_.add( alpha, a.fieldc_, beta, b.fieldc_, wb );
     fields_.add( alpha, a.fields_, beta, b.fields_, wb );
   }
@@ -180,7 +180,7 @@ public:
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
-  void scale( const Scalar& alpha, const B& wB=B::Y ) {
+  void scale( const ST& alpha, const B& wB=B::Y ) {
     fieldc_.scale( alpha, wB );
     fields_.scale( alpha, wB );
   }
@@ -198,9 +198,9 @@ public:
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dotLoc( const ModeField& a ) {
+  constexpr ST dotLoc( const ModeField& a ) {
 
-    Scalar b=0.;
+    ST b=0.;
 
     b = fieldc_.dotLoc( a.fieldc_) + fields_.dotLoc( a.fields_ );
 
@@ -209,7 +209,7 @@ public:
 
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const ModeField& y ) {
+	constexpr ST dot( const ModeField& y ) {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
 	}
@@ -218,9 +218,9 @@ public:
   /// \name Norm method
   /// \{
 
-  constexpr Scalar normLoc( Belos::NormType type=Belos::TwoNorm ) {
+  constexpr ST normLoc( Belos::NormType type=Belos::TwoNorm ) {
 
-    Scalar normvec = 
+    ST normvec = 
 			(Belos::InfNorm==type)?
 			std::fmax( fieldc_.normLoc(type), fields_.normLoc(type) ):
       ( fieldc_.normLoc(type) + fields_.normLoc(type) );
@@ -230,9 +230,9 @@ public:
 
 	/// \brief compute the norm
 	/// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) {
+  constexpr ST norm( Belos::NormType type = Belos::TwoNorm ) {
 
-		Scalar normvec = this->reduce(
+		ST normvec = this->reduce(
 				comm(),
 				normLoc( type ),
 				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
@@ -251,7 +251,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc(const ModeField& weights ) {
+  constexpr ST normLoc(const ModeField& weights ) {
 		 return(
 				 fieldc_.normLoc( weights.fieldc_ ) +
 				 fields_.normLoc( weights.fields_ )
@@ -264,7 +264,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const ModeField& weights ) {
+  constexpr ST norm( const ModeField& weights ) {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 
@@ -290,7 +290,7 @@ public:
   }
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
+  void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& wB=B::Y ) {
     fieldc_.init(alpha,wB);
     fields_.init(alpha,wB);
   }
@@ -339,15 +339,6 @@ public:
 
 
 } // end of namespace Pimpact
-
-
-#ifdef COMPILE_ETI
-#include "Pimpact_VectorField.hpp"
-extern template class Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > >;
-extern template class Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > >;
-extern template class Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >;
-extern template class Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >;
-#endif
 
 
 #endif // end of #ifndef PIMPACT_MODEFIELD_HPP
