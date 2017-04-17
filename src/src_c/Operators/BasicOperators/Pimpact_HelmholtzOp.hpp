@@ -182,7 +182,7 @@ public:
 
 					using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
-					StencD c_ =( space_->nLoc(dir) );
+					StencD c_( space_->nLoc(dir) );
 
 					FD_getDiffCoeff(
 							1,
@@ -224,7 +224,7 @@ public:
 				else if( BC::Neumann==space_->bcu(dir) ) {
 					using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
-					StencD c_ =( space_->nLoc(dir) );
+					StencD c_( space_->nLoc(dir) );
 
 					FD_getDiffCoeff(
 							1,

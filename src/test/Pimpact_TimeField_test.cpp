@@ -407,23 +407,17 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 	setParameter( SpaceT::sdim );
 	// processor grid size
     
-	double pi = 4.*std::atan(1.);
+	//double pi = 4.*std::atan(1.);
 
-	int l = 4;
-	std::vector<double> error(l);
-	std::vector<double> idt(l);
+	std::vector<ST> error2( ns );
+	std::vector<ST> errorInf( ns );
+	std::vector<ST> dofs( ns );
 
-	for( int q = 0; q < l; q++ ) {
+	for( OT n=0; n<ns; ++n ) {
 
-		pl->set<OT>( "nf", 8*std::pow(2,q) );
-
-		OT nt = 8*std::pow(2,q);
+		pl->set<OT>( "nf", n0*std::pow(2,n) );
 
 		auto space = Pimpact::create<SpaceT>( pl );
-		//if( 1==space->rankST() ) {
-			//space->print();
-			//space->getCoordinatesLocal()->print();
-		//}
 
 		ST a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
 
@@ -457,34 +451,28 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
 		dt->apply( x, y );
 
-		////y.write(0);
-		////sol.write(1000);
-		
-		//ST offset = space->getShift(3);
-		//for( OT i=space->si(Pimpact::F::S,3); i<space->ei(Pimpact::F::S,3); ++i ) {
-			////std::cout << "\ti: " << i << "\tt: " << 2.*pi*(i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX(  Pimpact::F::S, Pimpact::ECoord::T, i ) << "\t" << x(i).norm( Belos::InfNorm) << "\n";
-		//}
-		er.add( 1., y, -1., sol, Pimpact::B::N );
+		er.add( 1., y, -1., sol );
 
-		//for( OT i=space->si(Pimpact::F::S,3); i<space->ei(Pimpact::F::S,3); ++i ) {
-			//std::cout << "i: " << i << "er: " << er(i).norm(Belos::InfNorm) << "\n";
-		//}
-		ST bla = er.norm(Belos::InfNorm);
-
-		error[q] = std::log10( bla ); 
-		idt[q]   = std::log10( nt );
+		error2[n] = std::log10( er.norm( Belos::TwoNorm ) / sol.norm( Belos::TwoNorm ) );
+		errorInf[n] = std::log10( er.norm( Belos::InfNorm ) / sol.norm( Belos::InfNorm ) );
+		dofs[n] = std::log10( n0*std::pow(2.,n) );
 
 		if( 0==space->rankST() )
-				std::cout << std::pow(10.,idt[q]) << "\t" << bla << "\n";
+			std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
 	}
 
-	double sl = order(idt,error);
-	std::cout << "order: " << sl << "\n";
+	// compute order
+	ST order2 = order<ST>( dofs, error2 );
+	if( 0==rank )	
+		std::cout << "DtOp: order two norm in: " << order2 << "\n";
 
-	TEST_EQUALITY( std::abs(sl + 1.) <  0.05, true );
-
+	ST orderInf = order<ST>( dofs, errorInf );
+	if( 0==rank )	
+		std::cout << "DtOp: order inf norm: " << orderInf << "\n";
+	// test
+	TEST_EQUALITY( -order2>1., true );
+	TEST_EQUALITY( -orderInf>1., true );
 	pl->set("nf", 8 );
-
 }
 
 
@@ -495,33 +483,36 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto y = Pimpact::create<TVF>( space );
-	auto x = y->clone();
-	auto sol = y->clone();
-	auto wind = y->clone();
+	TVF y( space );
+	TVF x( space );
+	TVF sol( space );
+	TVF wind( space );
 
-
-	auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,false> >( space );
+	auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,true> >( space );
 
 	// test against flow dir
 	for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
-		wind->operator()(i).init( 2. );
-		x->operator()(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
-		x->operator()(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
-		x->operator()(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inZ );
-		sol->operator()(i).init( 2. );
-		wind->changed();
-		x->changed();
-		sol->changed();
+		wind(i).init( 2. );
+		x(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
+		x(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
+		x(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inZ );
+		sol(i).init( 2. );
+		wind.changed();
+		x.changed();
+		sol.changed();
 	}
 
 
-	op->assignField( *wind );
-	op->apply( *x, *y );
+	op->assignField( wind );
+	op->apply( x, y );
 
-	y->add( 1., *y, -1., *sol );
+	y.add( 1., y, -1., sol, Pimpact::B::N );
 
-	std::cout << "error: " << y->norm() << "\n";
+	if( write ) y.write();
+
+	ST error = y.norm( Belos::TwoNorm, Pimpact::B::N );
+	std::cout << "error: " <<  error << "\n";
+	TEST_EQUALITY( error<eps, true );
 }
 
 
@@ -907,5 +898,157 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOpDT ) {
 	pl->set<OT>("nf", 8 );
 
 }
+
+
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeOperator, TimeDtConvectionDiffusionOp2, SpaceT ) {
+
+	setParameter( SpaceT::sdim );
+
+	pl->set<bool>( "spectral in time", false );
+
+	const ST& pi2 = 2.*std::acos(-1.);
+
+	const ST& a =  1.;
+	const ST& A =  1.;
+	const ST& b =  1.;
+	const ST& B = -1.;
+
+	lx = pi2 ;
+	ly = pi2 ;
+	lz = pi2 ;
+
+	Teuchos::SerialDenseMatrix<OT,ST> error2( ns, ns );
+	Teuchos::SerialDenseMatrix<OT,ST> errorInf( ns, ns );
+	std::vector<ST> dofS( ns );
+	std::vector<ST> dofT( ns );
+
+	for( OT nX=0; nX<ns; ++nX ) {
+		for( OT nT=0; nT<ns; ++nT ) {
+
+			pl->set<OT>( "nx", n0*std::pow(2,nX)+1 );
+			pl->set<OT>( "ny", n0*std::pow(2,nX)+1 );
+			pl->set<OT>( "nz", 5 );
+			pl->set<OT>( "nf", n0*std::pow(2,nT) );
+			dofS[nX] = std::pow( n0*std::pow(2,nX)+1, 2 );
+			dofT[nT] = n0*std::pow(2,nT);
+
+			// grid stretching
+			setStretching();
+
+			Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
+
+			Pimpact::TimeField< Pimpact::VectorField<SpaceT> > x( space );
+			Pimpact::TimeField< Pimpact::VectorField<SpaceT> > y( space );
+			Pimpact::TimeField< Pimpact::VectorField<SpaceT> > sol( space );
+			Pimpact::TimeField< Pimpact::VectorField<SpaceT> > err( space );
+
+			auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,false> >( space );
+
+			// initializtion
+			//std::cout << "\n";
+			for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
+				ST time = space->getCoordinatesLocal()->getX(Pimpact::F::U,3, i );
+				ST stime = std::sin( time );
+				//std::cout << i << "\t" << time << "\t" << stime << "\n";
+				x(i)(Pimpact::F::U).initFromFunction(
+						[&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*stime ); } );
+				x(i)(Pimpact::F::V).initFromFunction(
+						[&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*stime ); } );
+			}
+			x.changed();
+			//if( write ) x.write();
+
+
+			// solution init
+			for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
+				ST time = space->getCoordinatesLocal()->getX(Pimpact::F::U,3, i );
+				ST stime = std::sin( time );
+				ST s2time = std::pow( stime, 2 );
+				ST ctime = std::cos( time );
+				sol(i)(Pimpact::F::U).initFromFunction(
+						[=]( ST x, ST y, ST z ) ->ST {
+						if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+							(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+							(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+							(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+							(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+							(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+							return( A*std::cos(a*pi2*std::min(std::max(x,0.),1.))*std::sin(b*pi2*y)*stime );
+						else
+							return(
+								alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*ctime										// \alpha^2 dt u
+								/*+a*A*A/2.*std::sin(2.*a*pi2*x)*s2time 																// (\u * \na) u*/
+								/*+A*( a*a + b*b )/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*stime */); } );	// -\lap u
+
+				sol(i)(Pimpact::F::V).initFromFunction(
+						[=]( ST x, ST y, ST z ) ->ST {
+						if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+							(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+							(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+							(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+							(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+							(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+							return( B*std::sin(a*pi2*x)*std::cos(b*pi2*std::max(std::min(y,1.),0.))*stime );
+						else
+							return(
+								alpha2/re*B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*ctime										// \alpha^2 dt v
+ /*               -b*B*B/2.*std::sin(2.*b*pi2*y)*s2time 																// (\u * \na) v*/
+								/*+B*( a*a + b*b )/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*stime*/ ); } );	// -\lap u
+			}
+			y.changed();
+
+			if( write ) sol.write( 4*dofT[nT] );
+
+			//if( print ) {
+				//std::cout << "\n--- x ---\n";
+				//std::cout << "\n--- x ---\n";
+				//std::cout << "\n--- x ---\n";
+				//x.print();
+			//}
+			op->assignField( x );
+			op->apply( x, y );
+
+			//if( print ) {
+				//std::cout << "\n--- y ---\n";
+				//std::cout << "\n--- y ---\n";
+				//std::cout << "\n--- y ---\n";
+				//y.print();
+			//}
+			if( write ) y.write( 8*dofT[nT] );
+
+			err.add( 1., sol, -1., y );
+			if( write ) err.write();
+
+			//if( print ) {
+				//std::cout << "\n--- sol ---\n";
+				//sol.print();
+			//}
+			if( print ) {
+				std::cout << "\n--- err ---\n";
+				err.print();
+			}
+			for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
+				std::cout << "err(" << space->getCoordinatesLocal()->getX(Pimpact::F::U,3, i ) << "): " << err(i).norm() << "\n";
+			}
+
+			error2(nX,nT)   = err.norm()/sol.norm();
+			errorInf(nX,nT) = err.norm(Belos::InfNorm)/sol.norm(Belos::InfNorm);
+
+			std::cout << "\nnx: " << dofS[nX] << "\n";
+			std::cout << "\nnt: " << dofT[nT] << "\n";
+			//TEST_EQUALITY( error<(1./nx/ny), true );
+		}
+	}
+	std::cout << "error 2:\n";
+	std::cout << error2 << "\n";
+	std::cout << "error Inf:\n";
+	std::cout << errorInf << "\n";
+}
+
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeOperator, TimeDtConvectionDiffusionOp2, D2 )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeOperator, TimeDtConvectionDiffusionOp2, D3 )
+
 
 } // end of namespace

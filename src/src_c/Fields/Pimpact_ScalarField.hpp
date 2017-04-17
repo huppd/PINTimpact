@@ -666,7 +666,7 @@ public:
 	}
 
 
-	/// \brief extrapolate the velocity points outside the domain such that the
+	/// \brief for Dirichlet BC extrapolate the velocity points outside the domain such that the
 	///  interpolated value on the boundary is zero
 	///
 	/// \param trans transposed
@@ -674,42 +674,107 @@ public:
 
 		switch( trans ) {
 			case( Belos::NOTRANS ): {
-
 				switch( fType_ ) {
 					case( F::U ):  {
+						using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
+
+						StencD c_( space()->nLoc(X) );
+
+						if( space()->bcl(X)==BC::Neumann || space()->bcu(X)==BC::Neumann )
+							FD_getDiffCoeff(
+									1,
+									space()->nLoc(X),
+									space()->bl(X),
+									space()->bu(X),
+									space()->dl(X),
+									space()->du(X),
+									space()->getBCLocal()->getBCL(X),
+									space()->getBCLocal()->getBCU(X),
+									space()->getShift(X),
+									3,
+									1,
+									1,
+									0,
+									false, // mapping
+									space()->getStencilWidths()->getDimNcbD(X),
+									space()->getStencilWidths()->getNcbD(X),
+									space()->getCoordinatesLocal()->getX( F::U, X ),
+									space()->getCoordinatesLocal()->getX( F::S, X ),
+									c_.get() );
+
 						if( 0 < space()->bcl(X) ) {
 							OT i = space()->si(fType_,X,B::Y);
 							for( OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
 								for( OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j ) {
 									at(i,j,k) = 0.;
-									for( OT ii=0; ii<=SW::DU(X); ++ii )
-										at(i,j,k) -= at(1+ii,j,k)*space()->getInterpolateV2S()->getC(X,1,ii)/space()->getInterpolateV2S()->getC(X,1,-1);
+									if( BC::Dirichlet==space()->bcl(X) ) {
+										for( OT ii=0; ii<=SW::DU(X); ++ii )
+											at(i,j,k) -= at(1+ii,j,k)*space()->getInterpolateV2S()->getC(X,1,ii)/space()->getInterpolateV2S()->getC(X,1,-1);
+									}
+									else if( BC::Neumann==space()->bcl(X) ) {
+										for( OT ii=0; ii<=SW::DU(X); ++ii )
+											at(i,j,k) -= at(1+ii,j,k)*c_(1,ii)/c_(1,-1);
+									}
 								}
 						}
 						if( 0 < space()->bcu(X) ) {
+
 							OT i = space()->ei(fType_,X,B::Y);
 							for( OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
 								for( OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j ) {
-									//if( BC::Dirichlet==space()->bcu(X) ) {
-											at(i,j,k) = 0.;
-											for( OT ii=SW::DL(X); ii<=-1; ++ii )
-												at(i,j,k) -= space()->getInterpolateV2S()->getC(X,i,ii)*at(i+ii,j,k)/space()->getInterpolateV2S()->getC(X,i,0);
-									//}
-									//else if( BC::Neumann==space()->bcu(X) ) {
-											//at(i,j,k) = at(i-1,j,k);
-									//}
+									at(i,j,k) = 0.;
+									if( BC::Dirichlet==space()->bcu(X) ) {
+										for( OT ii=SW::DL(X); ii<=-1; ++ii )
+											at(i,j,k) -= space()->getInterpolateV2S()->getC(X,i,ii)*at(i+ii,j,k)/space()->getInterpolateV2S()->getC(X,i,0);
+									}
+									else if( BC::Neumann==space()->bcu(X) ) {
+										for( OT ii=SW::DL(X); ii<=-1; ++ii )
+											at(i,j,k) -= c_(i,ii)*at(i+ii,j,k)/c_(i,0);
+									}
 								}
 						}
 						break;
 					}
 					case( F::V ) : {
+						using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
+
+						StencD c_( space()->nLoc(Y) );
+
+						if( space()->bcl(Y)==BC::Neumann || space()->bcu(Y)==BC::Neumann )
+							FD_getDiffCoeff(
+									1,
+									space()->nLoc(Y),
+									space()->bl(Y),
+									space()->bu(Y),
+									space()->dl(Y),
+									space()->du(Y),
+									space()->getBCLocal()->getBCL(Y),
+									space()->getBCLocal()->getBCU(Y),
+									space()->getShift(Y),
+									3,
+									1,
+									1,
+									0,
+									false, // mapping
+									space()->getStencilWidths()->getDimNcbD(Y),
+									space()->getStencilWidths()->getNcbD(Y),
+									space()->getCoordinatesLocal()->getX( F::V, Y ),
+									space()->getCoordinatesLocal()->getX( F::S, Y ),
+									c_.get() );
+
 						if( 0 < space()->bcl(Y) ) {
 							OT j = space()->si(fType_,Y,B::Y);
 							for( OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
 								for( OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) = 0.;
-									for( OT jj=0; jj<=SW::DU(Y); ++jj )
-										at(i,j,k) -= at(i,1+jj,k)*space()->getInterpolateV2S()->getC(Y,1,jj)/space()->getInterpolateV2S()->getC(Y,1,-1);  
+									if( BC::Dirichlet==space()->bcl(Y) ) {
+										for( OT jj=0; jj<=SW::DU(Y); ++jj )
+											at(i,j,k) -= at(i,1+jj,k)*space()->getInterpolateV2S()->getC(Y,1,jj)/space()->getInterpolateV2S()->getC(Y,1,-1);  
+									}
+									else if( BC::Neumann==space()->bcl(Y) ) {
+										for( OT jj=0; jj<=SW::DU(Y); ++jj )
+											at(i,j,k) -= at(i,1+jj,k)*c_(1,jj)/c_(1,-1);  
+									}
 								}
 						}
 						if( 0 < space()->bcu(Y) ) {
@@ -717,20 +782,58 @@ public:
 							for( OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k )
 								for( OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) = 0.;
-									for( OT jj=SW::DL(Y); jj<=-1; ++jj )
-										at(i,j,k) -= space()->getInterpolateV2S()->getC(Y,j,jj)*at(i,j+jj,k)/space()->getInterpolateV2S()->getC(Y,j,0);
+									if( BC::Dirichlet==space()->bcu(Y) ) {
+										for( OT jj=SW::DL(Y); jj<=-1; ++jj )
+											at(i,j,k) -= space()->getInterpolateV2S()->getC(Y,j,jj)*at(i,j+jj,k)/space()->getInterpolateV2S()->getC(Y,j,0);
+									}
+									else if( BC::Neumann==space()->bcu(Y) ) {
+										for( OT jj=SW::DL(Y); jj<=-1; ++jj )
+											at(i,j,k) -= c_(j,jj)*at(i,j+jj,k)/c_(j,0);
+									}
 								}
 						}
 						break;
 					}
 					case( F::W ) : {
+						using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
+
+						StencD c_( space()->nLoc(Z) );
+
+						if( space()->bcl(Z)==BC::Neumann || space()->bcu(Z)==BC::Neumann )
+							FD_getDiffCoeff(
+									1,
+									space()->nLoc(Z),
+									space()->bl(Z),
+									space()->bu(Z),
+									space()->dl(Z),
+									space()->du(Z),
+									space()->getBCLocal()->getBCL(Z),
+									space()->getBCLocal()->getBCU(Z),
+									space()->getShift(Z),
+									3,
+									1,
+									1,
+									0,
+									false, // mapping
+									space()->getStencilWidths()->getDimNcbD(Z),
+									space()->getStencilWidths()->getNcbD(Z),
+									space()->getCoordinatesLocal()->getX( F::W, Z ),
+									space()->getCoordinatesLocal()->getX( F::S, Z ),
+									c_.get() );
+
 						if( space()->bcl(Z) > 0 ) {
 							OT k = space()->si(fType_,Z,B::Y);
 							for( OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j )
 								for( OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) = 0.;
-									for( OT kk=0; kk<=SW::DU(Z); ++kk )
-										at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,1,kk)*at(i,j,1+kk)/space()->getInterpolateV2S()->getC(Z,1,-1);  
+									if( BC::Dirichlet==space()->bcl(Z) ) {
+										for( OT kk=0; kk<=SW::DU(Z); ++kk )
+											at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,1,kk)*at(i,j,1+kk)/space()->getInterpolateV2S()->getC(Z,1,-1);  
+									}
+									else if( BC::Neumann==space()->bcl(Z) ) {
+										for( OT kk=0; kk<=SW::DU(Z); ++kk )
+											at(i,j,k) -= c_(1,kk)*at(i,j,1+kk)/c_(1,-1);  
+									}
 								}
 						}
 						if( space()->bcu(Z) > 0 ) {
@@ -738,8 +841,14 @@ public:
 							for( OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j )
 								for( OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i ) {
 									at(i,j,k) = 0.;
-									for( OT kk=SW::DL(Z); kk<=-1; ++kk )
-										at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,k,kk)*at(i,j,k+kk)/space()->getInterpolateV2S()->getC(Z,k,0);
+									if( BC::Dirichlet==space()->bcu(Z) ) {
+										for( OT kk=SW::DL(Z); kk<=-1; ++kk )
+											at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,k,kk)*at(i,j,k+kk)/space()->getInterpolateV2S()->getC(Z,k,0);
+									}
+									else if( BC::Neumann==space()->bcu(Z) ) {
+										for( OT kk=SW::DL(Z); kk<=-1; ++kk )
+											at(i,j,k) -= c_(k,kk)*at(i,j,k+kk)/c_(k,0);
+									}
 								}
 						}
 						break;

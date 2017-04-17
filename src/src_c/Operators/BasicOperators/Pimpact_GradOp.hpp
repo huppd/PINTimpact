@@ -20,26 +20,28 @@ namespace Pimpact{
 
 
 /// \ingroup BaseOperator
-template<class ST>
+template<class SpT>
 class GradOp {
 
 public:
 
-  using SpaceT = ST;
+  using SpaceT = SpT;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
 
-	static const int dimNC = ST::dimNC;
-	static const int dim = ST::dimension;
+	using SW = typename SpaceT::SW;
 
-	using StencD = Stencil< Scalar, Ordinal, 0, ST::SW::DL(0), ST::SW::DU(0) >;
-	using StencG = Stencil< Scalar, Ordinal, 0, ST::SW::GL(0), ST::SW::GU(0) >;
+	static const int dimNC = SpT::dimNC;
+	static const int dim = SpT::dimension;
 
-  using TD = const Teuchos::Tuple<StencD,ST::sdim>; 
-  using TG = const Teuchos::Tuple<StencG,ST::sdim>; 
+	using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
+	using StencG = Stencil< ST, OT, 0, SW::GL(0), SW::GU(0) >;
+
+  using TD = const Teuchos::Tuple<StencD,SpT::sdim>; 
+  using TG = const Teuchos::Tuple<StencG,SpT::sdim>; 
 
   Teuchos::RCP<const SpaceT> space_;
 
@@ -59,7 +61,7 @@ public:
 			//const bool mapping=true; // order ~2
 			const bool mapping=false; // order ~6
 
-			for( int dir=0; dir<ST::sdim; ++dir ) {
+			for( int dir=0; dir<SpT::sdim; ++dir ) {
 				// Gradient stencil
 				
 				F fdir = static_cast<F>( dir );
@@ -90,17 +92,17 @@ public:
 				// transposed Gradient stencil
 				cT_[dir] = StencD( space_->nLoc(dir) );
 
-				Ordinal nTempG = ( space_->nGlo(dir) + space_->bu(dir) - space_->bl(dir) + 1 )
+				OT nTempG = ( space_->nGlo(dir) + space_->bu(dir) - space_->bl(dir) + 1 )
 					*( space_->bu(dir) - space_->bl(dir) + 1);
 
 
-				Stencil< Scalar, Ordinal, ST::SW::BL(0), ST::SW::BL(0), ST::SW::BU(0) >
+				Stencil< ST, OT, SW::BL(0), SW::BL(0), SW::BU(0) >
 				cG1( space_->nGlo(dir) + space_->bu(dir) );
-				Stencil< Scalar, Ordinal, ST::SW::BL(0), ST::SW::BL(0), ST::SW::BU(0) >
+				Stencil< ST, OT, SW::BL(0), SW::BL(0), SW::BU(0) >
 				cG2( space_->nGlo(dir) + space_->bu(dir) );
 
-				for( Ordinal i = space_->si(fdir,dir,B::Y); i<=space_->ei(fdir,dir,B::Y); ++i )
-					for( Ordinal ii = space_->gl(dir); ii<=space_->gu(dir); ++ii )
+				for( OT i = space_->si(fdir,dir,B::Y); i<=space_->ei(fdir,dir,B::Y); ++i )
+					for( OT ii = space_->gl(dir); ii<=space_->gu(dir); ++ii )
 						cG1( i+space_->getShift(dir), ii ) = getC( static_cast<ECoord>(dir), i, ii );
 
 				MPI_Allreduce(
@@ -113,23 +115,23 @@ public:
 
 				if( -1==space_->getBCGlobal()->getBCL(dir) ) {
 
-					Ordinal ls1 = space_->getStencilWidths()->getLS(dir);
-					Ordinal M1 = space_->nGlo(dir);
+					OT ls1 = space_->getStencilWidths()->getLS(dir);
+					OT M1 = space_->nGlo(dir);
 
-					for( Ordinal i=space->bl(dir); i<=-1; ++i )
-						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii )
+					for( OT i=space->bl(dir); i<=-1; ++i )
+						for( OT ii=space->bl(dir); ii<=space->bu(dir); ++ii )
 							cG2(2+ls1+i,ii) = cG2(M1+1+ls1+i,ii);
 
-					for( Ordinal i=1; i<=space->bu(dir); ++i )
-						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii )
+					for( OT i=1; i<=space->bu(dir); ++i )
+						for( OT ii=space->bl(dir); ii<=space->bu(dir); ++ii )
 							cG2(M1+ls1+i,ii) = cG2(1+ls1+i,ii);
 				}
 
-				for( Ordinal
+				for( OT
 						i =space_->si(F::S,static_cast<ECoord>(dir),B::Y);
 						i<=space_->ei(F::S,static_cast<ECoord>(dir),B::Y);
 						++i ) 
-					for( Ordinal ii=space->dl(dir); ii<=space->du(dir); ++ii ) {
+					for( OT ii=space->dl(dir); ii<=space->du(dir); ++ii ) {
 						cT_[dir](i,ii) = cG2( i+ii+space_->getShift(dir), -ii );
 					}
 			}
@@ -150,26 +152,26 @@ public:
 		const B& b = ( (Add::N==add) ? B::Y : B::N );
 
 		x.exchange(X);
-		for( Ordinal k=space()->si(F::U,Z,b); k<=space()->ei(F::U,Z,b); ++k )
-			for( Ordinal j=space()->si(F::U,Y,b); j<=space()->ei(F::U,Y,b); ++j )
-				for( Ordinal i=space()->si(F::U,X,b); i<=space()->ei(F::U,X,b); ++i ) {
+		for( OT k=space()->si(F::U,Z,b); k<=space()->ei(F::U,Z,b); ++k )
+			for( OT j=space()->si(F::U,Y,b); j<=space()->ei(F::U,Y,b); ++j )
+				for( OT i=space()->si(F::U,X,b); i<=space()->ei(F::U,X,b); ++i ) {
 					if( Add::N==add ) y(F::U)(i,j,k) = 0.;
 					y(F::U)(i,j,k) += innerStencU( x, i, j, k );
 				}
 
 		x.exchange(Y);
-		for( Ordinal k=space()->si(F::V,Z,b); k<=space()->ei(F::V,Z,b); ++k )
-			for( Ordinal j=space()->si(F::V,Y,b); j<=space()->ei(F::V,Y,b); ++j )
-				for( Ordinal i=space()->si(F::V,X,b); i<=space()->ei(F::V,X,b); ++i ) {
+		for( OT k=space()->si(F::V,Z,b); k<=space()->ei(F::V,Z,b); ++k )
+			for( OT j=space()->si(F::V,Y,b); j<=space()->ei(F::V,Y,b); ++j )
+				for( OT i=space()->si(F::V,X,b); i<=space()->ei(F::V,X,b); ++i ) {
 					if( Add::N==add ) y(F::V)(i,j,k) = 0.;
 					y(F::V)(i,j,k) += innerStencV( x, i, j, k );
 				}
 
 		if( 3==SpaceT::sdim )  {
 			x.exchange(Z);
-			for( Ordinal k=space()->si(F::W,Z,b); k<=space()->ei(F::W,Z,b); ++k )
-				for( Ordinal j=space()->si(F::W,Y,b); j<=space()->ei(F::W,Y,b); ++j )
-					for( Ordinal i=space()->si(F::W,X,b); i<=space()->ei(F::W,X,b); ++i ) {
+			for( OT k=space()->si(F::W,Z,b); k<=space()->ei(F::W,Z,b); ++k )
+				for( OT j=space()->si(F::W,Y,b); j<=space()->ei(F::W,Y,b); ++j )
+					for( OT i=space()->si(F::W,X,b); i<=space()->ei(F::W,X,b); ++i ) {
 						if( Add::N==add ) y(F::W)(i,j,k) = 0.;
 						y(F::W)(i,j,k) += innerStencW( x, i, j, k );
 					}
@@ -181,21 +183,21 @@ public:
   void applyJ( RangeFieldT& y ) const {
 
 		// BC scaling 
-		const Scalar& eps = 0.1;
+		const ST& eps = 0.1;
 		
 		for( F dir=F::U; dir<SpaceT::sdim; ++dir ) {
 			B bc2 = B::Y;
 			if( F::U!=dir ) {
 				if( space()->getBCLocal()->getBCL(X) > 0 ) {
-					Ordinal i = space()->si(dir,X,B::Y);
-					for( Ordinal k=space()->si(dir,Z, bc2); k<=space()->ei(dir,Z,bc2); ++k )
-						for( Ordinal j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
+					OT i = space()->si(dir,X,B::Y);
+					for( OT k=space()->si(dir,Z, bc2); k<=space()->ei(dir,Z,bc2); ++k )
+						for( OT j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
 							y(dir)(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(X) > 0 ) {
-					Ordinal i = space()->ei(dir,X,B::Y);
-					for( Ordinal k=space()->si(dir,Z,bc2); k<=space()->ei(dir,Z,bc2); ++k )
-						for( Ordinal j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
+					OT i = space()->ei(dir,X,B::Y);
+					for( OT k=space()->si(dir,Z,bc2); k<=space()->ei(dir,Z,bc2); ++k )
+						for( OT j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
 							y(dir)(i,j,k) *= eps;  
 				}
 				bc2 = B::N;
@@ -203,15 +205,15 @@ public:
 
 			if( F::V!=dir ) {
 				if( space()->getBCLocal()->getBCL(Y) > 0 ) {
-					Ordinal j = space()->si(dir,Y,B::Y);
-					for( Ordinal k=space()->si(dir,Z,bc2); k<=space()->ei(dir,Z,bc2); ++k )
-						for( Ordinal i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i ) 
+					OT j = space()->si(dir,Y,B::Y);
+					for( OT k=space()->si(dir,Z,bc2); k<=space()->ei(dir,Z,bc2); ++k )
+						for( OT i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i ) 
 							y(dir)(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Y) > 0 ) {
-					Ordinal j = space()->ei(dir,Y,B::Y);
-					for( Ordinal k=space()->si(dir,Z,bc2); k<=space()->ei(dir,Z,bc2); ++k )
-						for( Ordinal i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i )
+					OT j = space()->ei(dir,Y,B::Y);
+					for( OT k=space()->si(dir,Z,bc2); k<=space()->ei(dir,Z,bc2); ++k )
+						for( OT i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i )
 							y(dir)(i,j,k) *= eps;  
 				}
 				bc2 = B::N;
@@ -219,15 +221,15 @@ public:
 
 			if( F::W!=dir ) {
 				if( space()->getBCLocal()->getBCL(Z) > 0 ) {
-					Ordinal k = space()->si(dir,Z,B::Y);
-					for( Ordinal j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
-						for( Ordinal i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i )
+					OT k = space()->si(dir,Z,B::Y);
+					for( OT j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
+						for( OT i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i )
 							y(dir)(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Z) > 0 ) {
-					Ordinal k = space()->ei(dir,Z,B::Y);
-					for( Ordinal j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
-						for( Ordinal i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i )
+					OT k = space()->ei(dir,Z,B::Y);
+					for( OT j=space()->si(dir,Y,bc2); j<=space()->ei(dir,Y,bc2); ++j )
+						for( OT i=space()->si(dir,X,bc2); i<=space()->ei(dir,X,bc2); ++i )
 							y(dir)(i,j,k) *= eps;  
 				}
 				bc2 = B::N;
@@ -235,7 +237,60 @@ public:
 		}
 
 		y.extrapolateBC();
-		
+		//if( 0 < space()->bcl(X) ) {
+			//OT i = space()->si(F::U,X,B::Y);
+			//for( OT k=space()->si(F::U,Z, B::Y); k<=space()->ei(F::U,Z,B::Y); ++k )
+				//for( OT j=space()->si(F::U,Y,B::Y); j<=space()->ei(F::U,Y,B::Y); ++j ) {
+					//y(F::U)(i,j,k) = 0.;
+					//for( OT ii=0; ii<=SW::DU(X); ++ii )
+						//y(F::U)(i,j,k) -= y(F::U)(1+ii,j,k)*space()->getInterpolateV2S()->getC(X,1,ii)/space()->getInterpolateV2S()->getC(X,1,-1);
+				//}
+		//}
+		//if( 0 < space()->bcu(X) ) {
+			//OT i = space()->ei(F::U,X,B::Y);
+			//for( OT k=space()->si(F::U,Z, B::Y); k<=space()->ei(F::U,Z,B::Y); ++k )
+				//for( OT j=space()->si(F::U,Y,B::Y); j<=space()->ei(F::U,Y,B::Y); ++j ) {
+					//y(F::U)(i,j,k) = 0.;
+					//for( OT ii=SW::DL(X); ii<=-1; ++ii )
+						//y(F::U)(i,j,k) -= space()->getInterpolateV2S()->getC(X,i,ii)*y(F::U)(i+ii,j,k)/space()->getInterpolateV2S()->getC(X,i,0);
+				//}
+		//}
+		//if( 0 < space()->bcl(Y) ) {
+			//OT j = space()->si(F::V,Y,B::Y);
+			//for( OT k=space()->si(F::V,Z, B::Y); k<=space()->ei(F::V,Z,B::Y); ++k )
+				//for( OT i=space()->si(F::V,X,B::Y); i<=space()->ei(F::V,X,B::Y); ++i ) {
+					//y(F::V)(i,j,k) = 0.;
+					//for( OT jj=0; jj<=SW::DU(Y); ++jj )
+						//y(F::V)(i,j,k) -= y(F::V)(i,1+jj,k)*space()->getInterpolateV2S()->getC(Y,1,jj)/space()->getInterpolateV2S()->getC(Y,1,-1);  
+				//}
+		//}
+		//if( 0 < space()->bcu(Y) ) {
+			//OT j = space()->ei(F::V,Y,B::Y);
+			//for( OT k=space()->si(F::V,Z, B::Y); k<=space()->ei(F::V,Z,B::Y); ++k )
+				//for( OT i=space()->si(F::V,X,B::Y); i<=space()->ei(F::V,X,B::Y); ++i ) {
+					//y(F::V)(i,j,k) = 0.;
+					//for( OT jj=SW::DL(Y); jj<=-1; ++jj )
+						//y(F::V)(i,j,k) -= space()->getInterpolateV2S()->getC(Y,j,jj)*y(F::V)(i,j+jj,k)/space()->getInterpolateV2S()->getC(Y,j,0);
+				//}
+		//}
+		//if( space()->bcl(Z) > 0 ) {
+			//OT k = space()->si(F::W,Z,B::Y);
+			//for( OT j=space()->si(F::W,Y,B::Y); j<=space()->ei(F::W,Y,B::Y); ++j )
+				//for( OT i=space()->si(F::W,X,B::Y); i<=space()->ei(F::W,X,B::Y); ++i ) {
+					//y(F::W)(i,j,k) = 0.;
+					//for( OT kk=0; kk<=SW::DU(Z); ++kk )
+						//y(F::W)(i,j,k) -= space()->getInterpolateV2S()->getC(Z,1,kk)*y(F::W)(i,j,1+kk)/space()->getInterpolateV2S()->getC(Z,1,-1);  
+				//}
+		//}
+		//if( space()->bcu(Z) > 0 ) {
+			//OT k = space()->ei(F::W,Z,B::Y);
+			//for( OT j=space()->si(F::W,Y,B::Y); j<=space()->ei(F::W,Y,B::Y); ++j )
+				//for( OT i=space()->si(F::W,X,B::Y); i<=space()->ei(F::W,X,B::Y); ++i ) {
+					//y(F::W)(i,j,k) = 0.;
+					//for( OT kk=SW::DL(Z); kk<=-1; ++kk )
+						//y(F::W)(i,j,k) -= space()->getInterpolateV2S()->getC(Z,k,kk)*y(F::W)(i,j,k+kk)/space()->getInterpolateV2S()->getC(Z,k,0);
+				//}
+		//}
     y.changed();
   }
 
@@ -247,18 +302,18 @@ public:
 
 		if( 3==SpaceT::sdim )  {
 
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+			for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc3D( x, i, j, k );
 					}
 		}
 		else{
 
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+			for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc2D( x, i, j, k );
 					}
@@ -276,15 +331,15 @@ public:
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
-	constexpr const Scalar* getC( const ECoord& dir ) const {
+	constexpr const ST* getC( const ECoord& dir ) const {
 		return( c_[dir].get() );
 	}
 
-	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
+	constexpr const ST& getC( const ECoord& dir, OT i, OT off ) const {
 		return( c_[dir](i,off) );
 	}
 
-	constexpr const Scalar& getCTrans( const ECoord& dir, Ordinal i, Ordinal off ) const {
+	constexpr const ST& getCTrans( const ECoord& dir, OT i, OT off ) const {
 		return( cT_[dir](i,off) );
 	}
 
@@ -293,7 +348,7 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "\n--- " << getLabel() << " ---\n";
     //out << " --- stencil: ---";
-    for( int dir=0; dir<ST::sdim; ++dir ) {
+    for( int dir=0; dir<SpT::sdim; ++dir ) {
 			out << "\ndir: " << static_cast<ECoord>(dir) << "\n";
 
 			c_[dir].print( out );
@@ -301,7 +356,7 @@ public:
 
 		out << "--- " << getLabel() << "^T ---\n";
 		out << " --- stencil: ---";
-		for( int dir=0; dir<ST::sdim; ++dir ) {
+		for( int dir=0; dir<SpT::sdim; ++dir ) {
 			out << "\ndir: " << static_cast<ECoord>(dir) << "\n";
 
 			cT_[dir].print( out );
@@ -312,65 +367,65 @@ public:
 
 protected:
 
-	constexpr Scalar innerStencU( const DomainFieldT& x,
-			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr ST innerStencU( const DomainFieldT& x,
+			const OT& i, const OT& j, const OT& k ) const {
 
-		Scalar grad = 0.;
+		ST grad = 0.;
 
-		for( int ii=ST::SW::GL(X); ii<=ST::SW::GU(X); ++ii ) 
+		for( int ii=SW::GL(X); ii<=SW::GU(X); ++ii ) 
 			grad += getC(X,i,ii)*x(i+ii,j,k);
 
 		return( grad );
 	}
 
-	constexpr Scalar innerStencV( const DomainFieldT& x,
-			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr ST innerStencV( const DomainFieldT& x,
+			const OT& i, const OT& j, const OT& k ) const {
 
-		Scalar grad = 0.;
+		ST grad = 0.;
 
-		for( int jj=ST::SW::GL(Y); jj<=ST::SW::GU(Y); ++jj ) 
+		for( int jj=SW::GL(Y); jj<=SW::GU(Y); ++jj ) 
 			grad += getC(Y,j,jj)*x(i,j+jj,k);
 
 		return( grad );
 	}
 
-	constexpr Scalar innerStencW( const DomainFieldT& x,
-			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr ST innerStencW( const DomainFieldT& x,
+			const OT& i, const OT& j, const OT& k ) const {
 
-		Scalar grad = 0.;
+		ST grad = 0.;
 
-		for( int kk=ST::SW::GL(Z); kk<=ST::SW::GU(Z); ++kk ) 
+		for( int kk=SW::GL(Z); kk<=SW::GU(Z); ++kk ) 
 			grad += getC(Z,k,kk)*x(i,j,k+kk);
 
 		return( grad );
 	}
 
-	constexpr Scalar innerStenc3D( const RangeFieldT& x,
-			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr ST innerStenc3D( const RangeFieldT& x,
+			const OT& i, const OT& j, const OT& k ) const {
 
-		Scalar gradT = 0.;
+		ST gradT = 0.;
 
-		for( int ii=ST::SW::DL(X); ii<=ST::SW::DU(X); ++ii ) 
+		for( int ii=SW::DL(X); ii<=SW::DU(X); ++ii ) 
 			gradT += getCTrans(X,i,ii)*x(F::U)(i+ii,j,k);
 
-		for( int jj=ST::SW::DL(Y); jj<=ST::SW::DU(Y); ++jj ) 
+		for( int jj=SW::DL(Y); jj<=SW::DU(Y); ++jj ) 
 			gradT += getCTrans(Y,j,jj)*x(F::V)(i,j+jj,k);
 
-		for( int kk=ST::SW::DL(Z); kk<=ST::SW::DU(Z); ++kk ) 
+		for( int kk=SW::DL(Z); kk<=SW::DU(Z); ++kk ) 
 			gradT += getCTrans(Z,k,kk)*x(F::W)(i,j,k+kk);
 
 		return( gradT );
 	}
 
-	constexpr Scalar innerStenc2D( const RangeFieldT& x,
-			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr ST innerStenc2D( const RangeFieldT& x,
+			const OT& i, const OT& j, const OT& k ) const {
 
-		Scalar gradT = 0.;
+		ST gradT = 0.;
 
-		for( int ii=ST::SW::DL(X); ii<=ST::SW::DU(X); ++ii ) 
+		for( int ii=SW::DL(X); ii<=SW::DU(X); ++ii ) 
 			gradT += getCTrans(X,i,ii)*x(F::U)(i+ii,j,k);
 
-		for( int jj=ST::SW::DL(Y); jj<=ST::SW::DU(Y); ++jj ) 
+		for( int jj=SW::DL(Y); jj<=SW::DU(Y); ++jj ) 
 			gradT += getCTrans(Y,j,jj)*x(F::V)(i,j+jj,k);
 
 		return( gradT );

@@ -232,26 +232,26 @@ public:
 
 
 	/// \brief Compute the norm for the \c TimeField as it is considered as one Vector .
-	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm ) const {
+	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y  ) const {
 
 		Scalar normvec = 0.;
 
 		for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
 			normvec = 
 				( (Belos::InfNorm==type)?
-				std::max( at(i).normLoc(type), normvec ) :
-				(normvec + at(i).normLoc(type) ) );
+				std::max( at(i).normLoc(type, bcYes), normvec ) :
+				(normvec + at(i).normLoc(type, bcYes) ) );
 
 		return( normvec );
 	}
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm/
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y  ) const {
 
 		Scalar normvec = this->reduce(
 				comm(),
-				normLoc( type ),
+				normLoc( type, bcYes ),
 				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
 
 		normvec = (
@@ -404,12 +404,12 @@ public:
 			}
 			else {
 				if( std::abs( space()->bl(3) )>0 ) {
-					*mfs_[space()->si(F::S,3)-1] = *mfs_[space()->ei(F::S,3)-1];
-					at(space()->si(F::S,3)-1).changed();
+					at( space()->si(F::S,3)-1 ) = at( space()->ei(F::S,3) );
+					at( space()->si(F::S,3)-1 ).changed();
 				}
 				if( std::abs( space()->bu(3) )>0 ) {
-					*mfs_[space()->ei(F::S,3)] = *mfs_[space()->si(F::S,3)];
-					at(space()->ei(F::S,3)).changed();
+					at( space()->ei(F::S,3)+1 ) = at( space()->si(F::S,3) );
+					at( space()->ei(F::S,3)+1 ).changed();
 				}
 			}
 		}

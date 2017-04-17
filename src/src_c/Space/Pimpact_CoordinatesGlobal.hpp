@@ -420,6 +420,13 @@ public:
 				);
 	}
 
+	constexpr const ScalarT& operator()( const F& ftype, const int& dir, const OrdinalT& i) {
+		return(
+				( F::S==ftype || dir!=ftype )?
+					xS_[dir][i]:xV_[dir][i] 
+				);
+	}
+
 	constexpr const ScalarT& getX( const F& ftype, const int& dir, const OrdinalT& i) {
 		return(
 				( F::S==ftype || dir!=ftype )?

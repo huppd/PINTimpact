@@ -51,9 +51,11 @@ public:
 
 		typename OP2::DomainFieldT temp2( space() ); // has to be equal to OP3::DomainFieldT
 
+		//temp1.extrapolateBC();
+
     op2_->apply( temp1, temp2 );
 
-		//temp2.extrapolateBC();
+		temp2.extrapolateBC();
 
     op1_->apply( temp2, y );
   }

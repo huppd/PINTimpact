@@ -36,23 +36,23 @@ extern "C" void Op_getCDG_dir(
 ///
 /// independent of \c StencilWidths
 /// \ingroup BaseOperator
-template<class ST>
+template<class SpT>
 class DivGradO2Op {
 
 public:
 
-  using SpaceT = ST;
+  using SpaceT = SpT;
 
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
 
-	using Stenc = Stencil< Scalar, Ordinal, 1, -1, 1 >;
-  using TS = const Teuchos::Tuple< Stenc, ST::sdim >;
+	using Stenc = Stencil< ST, OT, 1, -1, 1 >;
+  using TS = const Teuchos::Tuple< Stenc, SpT::sdim >;
 
   const Teuchos::RCP<const SpaceT> space_;
 
@@ -62,21 +62,86 @@ public:
 
 	DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ): space_(space) {
 
-		for( int dir=0; dir<ST::sdim; ++dir ) {
-			// allocate stencil
+		using StencG = Stencil< ST, OT, 0,  0, 1 >;
+		using StencD = Stencil< ST, OT, 1, -1, 0 >;
+
+		const auto& x = *space_->getCoordinatesLocal();
+		const auto& y = *space_->getCoordinatesGlobal();
+
+		for( int dir=0; dir<SpT::sdim; ++dir ) {
+			F f = static_cast<F>( dir );
+			// allocate stencils
+			StencG cG( space_->nLoc(dir) );
+			StencD cD( space_->nLoc(dir) );
+
 			c_[dir] = Stenc( space_->nLoc(dir) );
 
-			Op_getCDG_dir(
-					space_->nGlo( dir ),
-					space_->nLoc( dir ),
-					space_->bl( dir ),
-					space_->bu( dir ),
-					space_->getBCLocal()->getBCL( dir ),
-					space_->getBCLocal()->getBCU( dir ),
-					space_->getCoordinatesGlobal()->getX( static_cast<F>(dir), static_cast<ECoord>(dir) ),
-					space_->getCoordinatesLocal()->getX( F::S, static_cast<ECoord>(dir) ),
-					space_->getCoordinatesLocal()->getX( static_cast<F>(dir), static_cast<ECoord>(dir) ),
-					c_[dir].get() );
+			for( OT i=0; i<=space_->nLoc(dir); ++i ) {
+				ST h = 1./( x(F::S,dir,i+1) - x(F::S,dir,i) );
+				cG(i,0) = - h;
+				cG(i,1) =   h;
+			}
+
+			for( OT i=1; i<=space_->nLoc(dir); ++i ) {
+				ST h = 1./( x(f,dir,i+1) - x(f,dir,i) );
+				cD(i,-1) = - h;
+				cD(i, 0) =   h;
+			}
+
+			if( 0<space_->bcl(dir) ) {
+				cG(0,0) = 0.;
+				cG(0,1) = 0.;
+				cD(1,-1) = 0.;
+				cD(1, 0) = 0.;
+				cD(1, 0) = 1./( y(f,dir,1) - y(f,dir,0) );
+			}
+			if( 0<space_->bcu(dir) ) {
+				cG( space_->nLoc(dir), 0 ) = 0.;
+				cG( space_->nLoc(dir), 1 ) = 0.;
+				cD( space_->nLoc(dir),-1 ) = 0.;
+				cD( space_->nLoc(dir), 0 ) = 0.;
+				cD( space_->nLoc(dir),-1 ) = -1./( y(f,dir,space_->nGlo(dir)) - y(f,dir,space_->nGlo(dir)-1) );
+			}
+
+			for( OT i=1; i<=space_->nLoc(dir); ++i ) {
+				c_[dir](i,-1) = cD(i,-1)*cG(i-1,0);
+				c_[dir](i, 0) = cD(i,-1)*cG(i-1,1) + cD(i,0)*cG(i,0);
+				c_[dir](i, 1) =                      cD(i,0)*cG(i,1);
+			}
+
+			if( 0<space_->bcl(dir) ) {
+				c_[dir](1,-1)  = 0.;
+				c_[dir](1, 0) *= 2.;
+				c_[dir](1, 1) *= 2.;
+			}
+
+			if( 0<space_->bcu(dir) ) {
+				c_[dir](space_->nLoc(dir),-1) *= 2.;
+				c_[dir](space_->nLoc(dir), 0) *= 2.;
+				c_[dir](space_->nLoc(dir), 1)  = 0.;
+			}
+
+			if( BC::Symmetry==space_->bcl(dir) ) {
+				c_[dir](1, 1) += c_[dir](1,-1);
+				c_[dir](1,-1)  = 0.;
+			}
+			if( BC::Symmetry==space_->bcu(dir) ) {
+				c_[dir](space_->nLoc(dir),-1) += c_[dir](space_->nLoc(dir),1);
+				c_[dir](space_->nLoc(dir), 1)  = 0.;
+			}
+
+
+			//Op_getCDG_dir(
+					//space_->nGlo( dir ),
+					//space_->nLoc( dir ),
+					//space_->bl( dir ),
+					//space_->bu( dir ),
+					//space_->getBCLocal()->getBCL( dir ),
+					//space_->getBCLocal()->getBCU( dir ),
+					//space_->getCoordinatesGlobal()->getX( static_cast<F>(dir), static_cast<ECoord>(dir) ),
+					//space_->getCoordinatesLocal()->getX( F::S, static_cast<ECoord>(dir) ),
+					//space_->getCoordinatesLocal()->getX( static_cast<F>(dir), static_cast<ECoord>(dir) ),
+					//c_[dir].get() );
 		}
 	}
 
@@ -86,17 +151,17 @@ public:
 		x.exchange();
 
 		if( 3==SpaceT::sdim ) {
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+			for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc3D(x, i,j,k);
 					}
 		}
 		else {
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+			for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc2D(x, i,j,k);
 					}
@@ -110,15 +175,15 @@ public:
 		x.exchange();
 		// inner stencil
 		if( 3==SpaceT::sdim ) {
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i )
+			for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i )
 						res(i,j,k) = b(i,j,k) - innerStenc3D(x, i,j,k);
 		}
 		else {
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i )
+			for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i )
 						res(i,j,k) = b(i,j,k) - innerStenc2D(x, i,j,k);
 		}
 
@@ -128,12 +193,12 @@ public:
 
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		const Scalar& eps = 0.1;
+		const ST& eps = 0.1;
 
 		if( 3==SpaceT::sdim ) {
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+			for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 
 						const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 							(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
@@ -142,25 +207,25 @@ public:
 						const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
 							(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-						const Scalar epsX = ( (bcY||bcZ)?eps:1. );
-						const Scalar epsY = ( (bcX||bcZ)?eps:1. );
-						const Scalar epsZ = ( (bcX||bcY)?eps:1. );
+						const ST epsX = ( (bcY||bcZ)?eps:1. );
+						const ST epsY = ( (bcX||bcZ)?eps:1. );
+						const ST epsZ = ( (bcX||bcY)?eps:1. );
 
-						Scalar diag = std::fabs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
+						ST diag = std::fabs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
 						y(i,j,k) = x(i,j,k)/diag;
 					}
 		}
 		else {
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+			for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+				for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+					for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 						const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 							(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
 						const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
 							(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-						const Scalar epsX = ( bcY?eps:1. );
-						const Scalar epsY = ( bcX?eps:1. );
+						const ST epsX = ( bcY?eps:1. );
+						const ST epsY = ( bcX?eps:1. );
 
 						y(i,j,k) = x(i,j,k)/std::fabs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) );
 					}
@@ -181,7 +246,7 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
-    for( int dir=0; dir<ST::sdim; ++dir ) {
+    for( int dir=0; dir<SpT::sdim; ++dir ) {
       out << "\ndir: " << dir << "\n";
 			c_[dir].print( out );
     }
@@ -189,7 +254,7 @@ public:
 
   void print2Mat(  ) const {
 
-    for( int dir=0; dir<ST::sdim; ++dir ) {
+    for( int dir=0; dir<SpT::sdim; ++dir ) {
 			std::string fn = "A_" + toString( static_cast<ECoord>(dir) ) + "_" + std::to_string(space_->nLoc(dir)) + ".txt";
 
 			Teuchos::RCP<std::ostream> out = Pimpact::createOstream( fn );
@@ -203,8 +268,8 @@ public:
   }
 
 
-	constexpr Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
-			const Ordinal& k ) const {
+	constexpr ST innerStenc3D( const DomainFieldT& x, const OT& i, const OT& j,
+			const OT& k ) const {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
@@ -213,11 +278,11 @@ public:
 		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
 			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-		const Scalar& eps = 0.1;
+		const ST& eps = 0.1;
 
-		const Scalar epsX = ( (bcY||bcZ)?eps:1. );
-		const Scalar epsY = ( (bcX||bcZ)?eps:1. );
-		const Scalar epsZ = ( (bcX||bcY)?eps:1. );
+		const ST epsX = ( (bcY||bcZ)?eps:1. );
+		const ST epsY = ( (bcX||bcZ)?eps:1. );
+		const ST epsZ = ( (bcX||bcY)?eps:1. );
 
 		return( 
 				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) + epsX*getC(X,i,1)*x(i+1,j  ,k  ) +
@@ -227,18 +292,18 @@ public:
 				);
 	}
 
-	constexpr Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
-			const Ordinal& k ) const {
+	constexpr ST innerStenc2D( const DomainFieldT& x, const OT& i, const OT& j,
+			const OT& k ) const {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
 		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-		const Scalar& eps = 0.1;
+		const ST& eps = 0.1;
 
-		const Scalar epsX = (bcY)?eps:1.;
-		const Scalar epsY = (bcX)?eps:1.;
+		const ST epsX = (bcY)?eps:1.;
+		const ST epsY = (bcX)?eps:1.;
 
 		return( 
 				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) + epsX*getC(X,i,1)*x(i+1,j  ,k  ) +
@@ -247,8 +312,7 @@ public:
 				);
 	}
 
-	constexpr Scalar innerDiag3D( const Ordinal& i, const Ordinal& j,
-			const Ordinal& k ) {
+	constexpr ST innerDiag3D( const OT& i, const OT& j, const OT& k ) {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
@@ -257,27 +321,27 @@ public:
 		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
 			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-		const Scalar& eps = 0.1;
+		const ST& eps = 0.1;
 
-		const Scalar epsX = ( (bcY||bcZ)?eps:1. );
-		const Scalar epsY = ( (bcX||bcZ)?eps:1. );
-		const Scalar epsZ = ( (bcX||bcY)?eps:1. );
+		const ST epsX = ( (bcY||bcZ)?eps:1. );
+		const ST epsY = ( (bcX||bcZ)?eps:1. );
+		const ST epsZ = ( (bcX||bcY)?eps:1. );
 
 		return( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
 	}
 
-	constexpr Scalar innerDiag2D( const Ordinal& i, const Ordinal& j,
-			const Ordinal& k ) {
+	constexpr ST innerDiag2D( const OT& i, const OT& j,
+			const OT& k ) {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
 			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-		const Scalar& eps = 0.1;
+		const ST& eps = 0.1;
 
-		const Scalar epsX = ( bcY?eps:1. );
-		const Scalar epsY = ( bcX?eps:1. );
+		const ST epsX = ( bcY?eps:1. );
+		const ST epsY = ( bcX?eps:1. );
 
 		return( epsX*getC(X,i,0) + epsY*getC(Y,j,0) );
 	}
@@ -289,19 +353,19 @@ public:
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
-	constexpr const Scalar* getC( const ECoord& dir) const  {
+	constexpr const ST* getC( const ECoord& dir) const  {
 		return( getC( static_cast<const int&>(dir) ) );
   }
 
-  constexpr const Scalar* getC( const int& dir) const  {
+  constexpr const ST* getC( const int& dir) const  {
 		return( c_[dir].get() );
   }
 
-	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
+	constexpr const ST& getC( const ECoord& dir, OT i, OT off ) const  {
 		return( getC( static_cast<const int&>(dir), i, off ) );
   }
 
-	constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
+	constexpr const ST& getC( const int& dir, OT i, OT off ) const  {
 		return( c_[dir](i,off) );
   }
 

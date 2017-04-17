@@ -140,12 +140,12 @@
 		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
 		<Parameter docString="" id="931" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<Parameter docString="" id="9113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
-		<Parameter docString="" id="1111" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true"/>
+		<Parameter docString="" id="1111" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
 		<ParameterList id="26" name="Solver">
 			<Parameter docString="" id="1187" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
-			<Parameter docString="" id="145" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
-			<Parameter docString="" id="146" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="1" />
-			<Parameter docString="" id="153" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+			<!--<Parameter docString="" id="145" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />-->
+			<!--<Parameter docString="" id="146" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="1" />-->
+			<Parameter docString="" id="153" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="300" />
 			<!--<Parameter docString="" id="147" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />-->
 			<Parameter docString="" id="148" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="false" />
 			<!--<Parameter docString="" id="149" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />-->

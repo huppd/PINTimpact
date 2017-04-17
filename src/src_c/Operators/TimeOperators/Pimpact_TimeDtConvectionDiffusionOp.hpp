@@ -68,7 +68,7 @@ public:
 		Ordinal sInd = space()->si(F::S,3);
 		Ordinal eInd = space()->ei(F::S,3);
 
-    Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+    //Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
 		Scalar iRe = 1./space()->getDomainSize()->getRe();
 		Scalar a2 = space()->getDomainSize()->getAlpha2()*iRe;
@@ -81,29 +81,16 @@ public:
 		y.exchange();
 
 		if( CNyes ) {
-
-			VectorField<SpaceT> temp( space() );
-
-
 			for( Ordinal i=sInd; i<=eInd; ++i ) {
-
-				z(i).add( mulI, y(i), -mulI, y(i-1), B::N );
-
-				if( i>sInd )
-					z(i).add( 1., z(i), 0.5, temp );
-
-				op_->apply( wind_[i]->get(), y(i), temp, 0., 1., iRe, Add::N );
-
-				z(i).add( 1., z(i), 0.5, temp );
+				op_->apply( wind_[i  ]->get(), y(i  ), z(i),  mulI, 0.5, iRe*0.5, Add::N );
+				op_->apply( wind_[i-1]->get(), y(i-1), z(i), -mulI, 0.5, iRe*0.5, Add::Y );
 			}
-
-			op_->apply( wind_[sInd-1]->get(), y(sInd-1), z(sInd), 0., 0.5, iRe*0.5, Add::Y );
-
 		}
 		else {
 			for( Ordinal i=sInd; i<=eInd; ++i ) {
-				op_->apply( wind_[i]->get(), y(i), z(i), mulI, 1., iRe, Add::N );
-				z(i).add( 1., z(i), -mulI, y(i-1), B::N );
+				//op_->apply( wind_[i]->get(), y(i), z(i), mulI, 1., iRe, Add::N );
+				//z(i).add( 1., z(i), -mulI, y(i-1), B::N );
+				z(i).add( mulI, y(i), -mulI, y(i-1), B::N );
 			}
 		}
 		z.changed();

@@ -63,7 +63,7 @@ contains
     !          der nur über die Sonderbehandlung weiter unten korrigiert wird!  !
     !---------------------------------------------------------------------------!
 
-    do i = 1, N-1
+    do i = 0, N
       cGp(0,i) = -1./( xp(i+1) - xp(i) )
       cGp(1,i) =  1./( xp(i+1) - xp(i) )
     end do
@@ -79,9 +79,6 @@ contains
       cDu(0,1) = 1./( yu(1) - yu(0) ) ! TEST!!! Der Schoenheit halber, s.u.
       !cDu(0,1) = 1./( xp(2) - xp(1) ) ! TEST!!! Der Schoenheit halber, s.u.
       !cDu(0,1) =  1./(xu(1) - xu (0)) !! shoudl be the same
-    else
-      cGp(0,0) = -1./( xp(1) - xp(0) )
-      cGp(1,0) =  1./( xp(1) - xp(0) )
     end if
 
     if( BCU > 0 ) then
@@ -92,9 +89,6 @@ contains
       ! consistency prefered
       !cDu(-1,N) = -1./( xu(N) - xu(N-1) ) ! TEST!!! Das geht in die Hose ...
       !cDu(-1,N) = -1./( yu(M+1) - yu(M) )
-    else
-      cGp( 0,N) = -1./( xp(N+1) - xp(N) )
-      cGp( 1,N) =  1./( xp(N+1) - xp(N) )
     end if
     !-------------------------------------------------------------------------------------------
     do i = 1, N
