@@ -124,7 +124,8 @@ public:
 			const OT& k ) const {
 
 		ST diag = 0.;
-		const ST& eps = 0.1;
+		//const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(GradOp<SpaceT>::epsI);
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
@@ -197,7 +198,8 @@ public:
 	ST innerDiag2D( const OT& i, const OT& j, const OT& k ) const {
 
 		ST diag = 0.;
-		const ST& eps = 0.1;
+		//const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(GradOp<SpaceT>::epsI);
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;

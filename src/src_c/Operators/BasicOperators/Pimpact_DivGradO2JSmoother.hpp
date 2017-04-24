@@ -28,17 +28,17 @@ public:
 
   using SpaceT = typename OperatorT::SpaceT;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
 
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
+
 	using SolverT = TeuchosSolver<OperatorT>;
 
-  Scalar omega_;
+  ST omega_;
   int nIter_;
 
 	bool levelYes_;
@@ -58,7 +58,7 @@ public:
 	/// \param[in] op pointer to operator that is smoothed
 	/// \param[in] pl  Parameter list of options for the multi grid solver.
 	///   These are the options accepted by the solver manager:
-	///   - "omega" - a \c Scalar damping factor. Default: for 2D 0.8 for 3D 6./7.  /
+	///   - "omega" - a \c ST damping factor. Default: for 2D 0.8 for 3D 6./7.  /
 	///   - "numIters" - a \c int number of smoothing steps. Default: 4  /
 	///   - "BC smoothing" - a \c int type of BC smoothing 0, 0: Jacbobian, else: direct. Default: 0 /
 	///   - "debth" - for direct BC smoothing only meaning depth in wand normal direction of 2D BC problems. Default: 2 /
@@ -66,7 +66,7 @@ public:
   DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
-    omega_( pl->get<Scalar>("omega", (2==SpaceT::sdim)?0.8:6./7. ) ),
+    omega_( pl->get<ST>("omega", (2==SpaceT::sdim)?0.8:6./7. ) ),
     nIter_( pl->get<int>( "numIters", 2 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
 		op_(op) {}
@@ -82,15 +82,15 @@ public:
       y.exchange();
 
 			if( 3==SpaceT::sdim )
-				for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-					for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-						for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+				for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+					for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+						for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 							temp(i,j,k) = innerStenc3D( b, y, i,j,k);
 						}
 			else
-				for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-					for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-						for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+				for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+					for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+						for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 							temp(i,j,k) = innerStenc2D( b, y, i,j,k);
 						}
 			
@@ -98,15 +98,15 @@ public:
 			temp.exchange();
 
 			if( 3==SpaceT::sdim )
-				for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-					for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-						for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+				for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+					for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+						for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 							y(i,j,k) = innerStenc3D( b, temp, i,j,k);
 						}
 			else
-				for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-					for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-						for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+				for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+					for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+						for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
 							y(i,j,k) = innerStenc2D( b, temp, i,j,k);
 						}
 
@@ -135,8 +135,8 @@ public:
 
 protected:
 
-	constexpr Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
-			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
+	constexpr ST innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
+			const OT& i, const OT& j, const OT& k ) const { 
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
@@ -145,35 +145,40 @@ protected:
 		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
 		           (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-		const Scalar& eps = 0.1;
+		//const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(OperatorT::epsI);
 
-		const Scalar epsX = (bcY||bcZ)?eps:1.;
-		const Scalar epsY = (bcX||bcZ)?eps:1.;
-		const Scalar epsZ = (bcX||bcY)?eps:1.;
+		const ST epsX = (bcY||bcZ)?eps:1.;
+		const ST epsY = (bcX||bcZ)?eps:1.;
+		const ST epsZ = (bcX||bcY)?eps:1.;
 
+		ST diag = epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0);
+
+		diag = (diag==0.)?1.:diag;
 		return(
 				(1.-omega_)*x(i,j,k) +
-				omega_/( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) )*(
+				omega_/ diag *(
 					b(i,j,k) - 
 				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) - 
 				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) - 
 				epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) - epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) ) );
 	} 
 
-	constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
-			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
+	constexpr ST innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
+			const OT& i, const OT& j, const OT& k ) const { 
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
 		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
 		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-		const Scalar& eps = 0.1;
+		//const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(OperatorT::epsI);
 
-		const Scalar epsX = bcY?eps:1.;
-		const Scalar epsY = bcX?eps:1.;
+		const ST epsX = bcY?eps:1.;
+		const ST epsY = bcX?eps:1.;
 
-		Scalar diag = (epsX*getC(X,i,0) + epsY*getC(Y,j,0));
+		ST diag = (epsX*getC(X,i,0) + epsY*getC(Y,j,0));
 		diag = (diag!=0.)?diag:1.;
 		return(
 				(1.-omega_)*x(i,j,k) +
@@ -182,19 +187,19 @@ protected:
 				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) ) );
 	} 
 
-	constexpr const Scalar* getC( const ECoord& dir) const  { 
+	constexpr const ST* getC( const ECoord& dir) const  { 
 		return( op_->getC( dir ) ); 
 	} 
 
-	constexpr const Scalar* getC( const int& dir) const  { 
+	constexpr const ST* getC( const int& dir) const  { 
 		return( op_->getC( dir ) ); 
 	} 
 
-	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  { 
+	constexpr const ST& getC( const ECoord& dir, OT i, OT off ) const  { 
 		return( op_->getC( dir, i, off ) ); 
 	} 
 
-	constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  { 
+	constexpr const ST& getC( const int& dir, OT i, OT off ) const  { 
 		return( op_->getC( dir, i, off ) ); 
 	} 
 	

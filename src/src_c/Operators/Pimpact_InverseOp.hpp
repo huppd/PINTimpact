@@ -199,7 +199,6 @@ public:
 
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-
 		if( para->name()=="Linear Solver" )
 			solverParameter_->set<ST>( "Convergence Tolerance",
 					para->get<double>("Convergence Tolerance")*relTol_ );

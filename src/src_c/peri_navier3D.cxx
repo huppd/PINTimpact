@@ -209,18 +209,18 @@ int main( int argi, char** argv ) {
 				//[&pi2,&re]( ST x, ST y, ST z ) ->ST {  return(  -std::sin(2.*y*pi2)/4. ); } );
 
 				fu->getField(0).getVField().getCField(1)(Pimpact::F::U).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
 				fu->getField(0).getVField().getCField(1)(Pimpact::F::V).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
 				fu->getField(0).getVField().getCField(1)(Pimpact::F::W).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*C*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*C*std::sin(a*x*pi2)*std::sin(b*y*pi2)/* *std::cos(c*z*pi2)*//re ); } );
 
 				fu->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( 3.*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
 				fu->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( 3.*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
 				fu->getField(0).getVField().getSField(1)(Pimpact::F::W).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( 3.*C*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( C*(a*a+b*b)*std::sin(a*x*pi2)*std::sin(b*y*pi2)/* *std::cos(c*z*pi2)*//re ); } );
 
 				//fu->getField(0).getVField().getCField(2)(Pimpact::F::U).initFromFunction(
 				//[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(2.*x*pi2)/4. ); } );
@@ -419,11 +419,11 @@ int main( int argi, char** argv ) {
 						Pimpact::DivGradO2JSmoother,
 						//Pimpact::Chebyshev,
 						//Pimpact::DivGradO2SORSmoother,
-						MOP
-							//Pimpact::Chebyshev
-							//Pimpact::DivGradO2Inv
-							//Pimpact::DivGradO2SORSmoother
-							//Pimpact::DivGradO2JSmoother
+						//MOP
+						//Pimpact::Chebyshev
+						//Pimpact::DivGradO2Inv
+						//Pimpact::DivGradO2SORSmoother
+						Pimpact::DivGradO2JSmoother
 							>( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
 
 					if( 0==space->rankST() )

@@ -19,20 +19,22 @@ namespace Pimpact {
 /// \ingroup TimeHarmonicOperator
 /// \ingroup NonliearOperator
 /// \deprecated
-template<class ST, bool CNyes=false>
+template<class SpT, int meth=0 >
 class TimeDtConvectionDiffusionOp {
 
 public:
 
-  using SpaceT = ST;
+	//static const int method = meth;
+
+  using SpaceT = SpT;
 
   using DomainFieldT = TimeField< VectorField<SpaceT> >;
   using RangeFieldT = TimeField< VectorField<SpaceT> >;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
 
   Teuchos::RCP<NonlinearWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
 
@@ -45,9 +47,9 @@ public:
     op_( create<NonlinearWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
     wind_( space()->nLoc(3) + space()->bu(3) - space()->bl(3) ) {
 
-    Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+    OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-    for( Ordinal i=0; i<nt; ++i ) 
+    for( OT i=0; i<nt; ++i ) 
       wind_[i] = create<ConvectionField>( space );
   };
 
@@ -55,9 +57,9 @@ public:
 
 		mv.exchange();
 
-    Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+    OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-    for( Ordinal i=0; i<nt; ++i ) {
+    for( OT i=0; i<nt; ++i ) {
       wind_[i]->assignField( mv(i) );
     }
   };
@@ -65,35 +67,43 @@ public:
 
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 		
-		Ordinal sInd = space()->si(F::S,3);
-		Ordinal eInd = space()->ei(F::S,3);
+		OT sInd = space()->si(F::S,3);
+		OT eInd = space()->ei(F::S,3);
 
-    //Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+		ST iRe = 1./space()->getDomainSize()->getRe();
+		ST a2 = space()->getDomainSize()->getAlpha2()*iRe;
 
-		Scalar iRe = 1./space()->getDomainSize()->getRe();
-		Scalar a2 = space()->getDomainSize()->getAlpha2()*iRe;
+		ST pi = 4.*std::atan(1.);
 
-		Scalar pi = 4.*std::atan(1.);
-
-		Scalar mulI = a2*iRe*(static_cast<Scalar>(space()->nGlo(3)))/2./pi;
+		ST mulI = a2*(static_cast<ST>(space()->nGlo(3)))/2./pi;
 
 		
 		y.exchange();
 
-		if( CNyes ) {
-			for( Ordinal i=sInd; i<=eInd; ++i ) {
-				op_->apply( wind_[i  ]->get(), y(i  ), z(i),  mulI, 0.5, iRe*0.5, Add::N );
-				op_->apply( wind_[i-1]->get(), y(i-1), z(i), -mulI, 0.5, iRe*0.5, Add::Y );
-			}
+		switch( meth ) {
+			case 0 : {
+								 for( OT i=sInd; i<=eInd; ++i ) {
+									 op_->apply( wind_[i]->get(), y(i), z(i), mulI, 1., iRe, Add::N );
+									 z(i).add( 1., z(i), -mulI, y(i-1), B::N ); 
+								 }
+								 break;
+							 }
+			case 1: {
+								for( OT i=sInd; i<=eInd; ++i ) {
+									op_->apply( wind_[i  ]->get(), y(i  ), z(i),  mulI, 0.5, iRe*0.5, Add::N );
+									op_->apply( wind_[i-1]->get(), y(i-1), z(i), -mulI, 0.5, iRe*0.5, Add::Y );
+								}
+								break;
+							}
+			case 2: {
+								for( OT i=sInd; i<=eInd; ++i ) {
+									op_->apply( wind_[i]->get(), y(i), z(i), 0., 1., iRe, Add::N );
+									z(i).add( 1., z(i), -mulI/2., y(i-1), B::N ); 
+									z(i).add( 1., z(i),  mulI/2., y(i+1), B::N ); 
+								}
+								break;
+							}
 		}
-		else {
-			for( Ordinal i=sInd; i<=eInd; ++i ) {
-				//op_->apply( wind_[i]->get(), y(i), z(i), mulI, 1., iRe, Add::N );
-				//z(i).add( 1., z(i), -mulI, y(i-1), B::N );
-				z(i).add( mulI, y(i), -mulI, y(i-1), B::N );
-			}
-		}
-		z.changed();
 	}
 
 
@@ -104,7 +114,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "TimeDtConvectionDiffusionOp " ); };
+	const std::string getLabel() const { return( "TimeDtConvectionDiffusionOp" ); };
 
   void print( std::ostream& out=std::cout ) const {
 		out << getLabel() << ":\n";

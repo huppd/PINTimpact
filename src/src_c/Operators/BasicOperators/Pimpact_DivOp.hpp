@@ -279,12 +279,12 @@ public:
 			c_[dir].print( out );
 		}
 
-		out << "--- " << getLabel() << "^T ---\n";
-		out << " --- stencil: ---";
-		for( int dir=0; dir<ST::sdim; ++dir ) {
-			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n\n";
-			cT_[dir].print( out );
-		}
+		//out << "--- " << getLabel() << "^T ---\n";
+		//out << " --- stencil: ---";
+		//for( int dir=0; dir<ST::sdim; ++dir ) {
+			//out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n\n";
+			//cT_[dir].print( out );
+		//}
 	}
 
 	const std::string getLabel() const { return( "Div" ); };

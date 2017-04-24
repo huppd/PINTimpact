@@ -52,6 +52,7 @@
 #include "Pimpact_DtTimeOp.hpp"
 #include "Pimpact_TimeOpWrap.hpp"
 #include "Pimpact_TimeDtConvectionDiffusionOp.hpp"
+#include "Pimpact_TimeDtConvectionDiffusionPrec.hpp"
 
 
 /// \defgroup ModeOperator Mode Operator

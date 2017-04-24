@@ -404,11 +404,11 @@ public:
 			}
 			else {
 				if( std::abs( space()->bl(3) )>0 ) {
-					at( space()->si(F::S,3)-1 ) = at( space()->ei(F::S,3) );
+					*mfs_[ space()->si(F::S,3)-1 ] = at( space()->ei(F::S,3) );
 					at( space()->si(F::S,3)-1 ).changed();
 				}
 				if( std::abs( space()->bu(3) )>0 ) {
-					at( space()->ei(F::S,3)+1 ) = at( space()->si(F::S,3) );
+					*mfs_[ space()->ei(F::S,3)+1 ] = at( space()->si(F::S,3) );
 					at( space()->ei(F::S,3)+1 ).changed();
 				}
 			}
@@ -426,13 +426,9 @@ public:
 	                Field& operator()( const int& i ) { return( at(i) ); }
 	constexpr const Field& operator()( const int& i ) { return( at(i) ); }
 
-									//Field& getField( const int& i ) { return( at(i) ); }
-	//constexpr const Field& getField( const int& i ) { return( at(i) ); }
-
 	constexpr ScalarArray getRawPtr() { return( array_ ); }
 
 	constexpr const Scalar* getConstRawPtr() const { return( array_ ); }
-
 
 }; // end of class TimeField
 
