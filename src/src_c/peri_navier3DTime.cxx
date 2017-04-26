@@ -208,40 +208,35 @@ int main( int argi, char** argv ) {
 				// init RHS
 				fu->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
 						[=]( ST x, ST y, ST z ) ->ST {
-						if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
-							(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
-							(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
-							(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
-							(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
-							(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-							return( A*std::cos(a*pi2*std::min(std::max(x,0.),1.))*std::sin(b*pi2*y)*stime );
-						else
 							return(
-								alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*ctime									// \alpha^2 dt u
+								alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::sin(c*pi2*z)*ctime									// \alpha^2 dt u
 								//-a*A*A/2.*std::sin(2.*a*pi2*x)*s2time 															// (\u * \na) u
-								+A*( a*a + b*b )/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*stime ); } );	// -\lap u
+								+A*(a*a+b*b+c*c)/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::sin(c*pi2*z)*(1.+stime) ); } );	// -\lap u
 
 				fu->getField(0).getVField()(i)(Pimpact::F::V).initFromFunction(
 						[=]( ST x, ST y, ST z ) ->ST {
-						if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
-							(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
-							(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
-							(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
-							(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
-							(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-							return( B*std::sin(a*pi2*x)*std::cos(b*pi2*std::max(std::min(y,1.),0.))*stime );
-						else
 							return(
-								alpha2/re*B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*ctime									// \alpha^2 dt v
+								alpha2/re*B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::sin(c*pi2*z)*ctime									// \alpha^2 dt v
 								//-b*B*B/2.*std::sin(2.*b*pi2*y)*s2time 															// (\u * \na) v
-								+B*( a*a + b*b )/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*stime ); } );	// -\lap u
+								+B*(a*a+b*b+c*c)/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::sin(c*pi2*z)*(1.+stime) ); } );	// -\lap u
+
+				//fu->getField(0).getVField()(i)(Pimpact::F::W).initFromFunction(
+						//[=]( ST x, ST y, ST z ) ->ST {
+							//return(
+								//alpha2/re*B*std::sin(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*ctime									// \alpha^2 dt v
+								////-b*B*B/2.*std::sin(2.*b*pi2*y)*s2time 															// (\u * \na) v
+								//+C*(a*a+b*b+c*c)/re*std::sin(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*stime ); } );	// -\lap u
+
 				// init sol
 				(*sol)(i)(Pimpact::F::U).initFromFunction(
 				 		[=]( ST x, ST y, ST z ) ->ST {
-				 			return( A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*stime); } );
+				 			return( A*std::cos(a*pi2*x)*std::sin(b*pi2*y)/* *std::sin(c*pi2*z)*/*(1.+stime) ); } );
 				(*sol)(i)(Pimpact::F::V).initFromFunction(
 						[=]( ST x, ST y, ST z ) ->ST {
-							return( B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*stime); } );
+							return( B*std::sin(a*pi2*x)*std::cos(b*pi2*y)/* *std::sin(c*pi2*z)*/*(1.+stime) ); } );
+				//(*sol)(i)(Pimpact::F::W).initFromFunction(
+						//[=]( ST x, ST y, ST z ) ->ST {
+							//return( C*std::sin(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*stime); } );
 
 
 			}

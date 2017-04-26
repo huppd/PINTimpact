@@ -970,7 +970,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeOperator, TimeDtConvectionDiffusionOp2, O
 
 			// solution init
 			for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
-				ST time = space->getCoordinatesLocal()->getX(Pimpact::F::U,3, i )/*-space->getCoordinatesLocal()->getX(Pimpact::F::U,3, 1 )/2.*/;
+				ST time = (space->getCoordinatesLocal()->getX(Pimpact::F::U,3, i-1 ) + space->getCoordinatesLocal()->getX(Pimpact::F::U,3, i ) )/2./*-space->getCoordinatesLocal()->getX(Pimpact::F::U,3, 1 )/2.*/;
 				ST stime = std::sin( time );
 				ST s2time = std::pow( stime, 2 );
 				ST ctime = std::cos( time );
@@ -986,7 +986,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeOperator, TimeDtConvectionDiffusionOp2, O
 						else
 							return(
 								alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*ctime									// \alpha^2 dt u
-								-a*A*A/2.*std::sin(2.*a*pi2*x)*s2time 																// (\u * \na) u
+								//-a*A*A/2.*std::sin(2.*a*pi2*x)*s2time 																// (\u * \na) u
 								+A*( a*a + b*b )/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*stime ); } );	// -\lap u
 
 				sol(i)(Pimpact::F::V).initFromFunction(
@@ -1001,7 +1001,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeOperator, TimeDtConvectionDiffusionOp2, O
 						else
 							return(
 								alpha2/re*B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*ctime									// \alpha^2 dt v
-								-b*B*B/2.*std::sin(2.*b*pi2*y)*s2time 																// (\u * \na) v
+								//-b*B*B/2.*std::sin(2.*b*pi2*y)*s2time 																// (\u * \na) v
 								+B*( a*a + b*b )/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*stime ); } );	// -\lap u
 			}
 			y.changed();
@@ -1015,7 +1015,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeOperator, TimeDtConvectionDiffusionOp2, O
 				//std::cout << "\n--- x ---\n";
 				//x.print();
 			//}
-			op->assignField( x );
+			//op->assignField( x );
 			op->apply( x, y );
 
 			//if( print ) {

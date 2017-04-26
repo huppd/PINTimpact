@@ -113,7 +113,7 @@
 	</ParameterList>
 	<ParameterList id="23" name="Picard Solver">
 		<Parameter docString="" id="115" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
-		<Parameter docString="" id="116" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="116" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
 		<Parameter docString="" id="117" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
 		<ParameterList id="24" name="Solver">
 			<Parameter docString="" id="118" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.000000000000000e-01" />

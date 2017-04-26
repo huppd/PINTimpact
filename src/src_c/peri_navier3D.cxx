@@ -130,7 +130,7 @@ int main( int argi, char** argv ) {
 		int withoutput=pl->sublist("Solver").get<int>( "withoutput", 1 );
 
 		int refinement     = pl->sublist("Solver").get<int>( "refinement level", 1     );
-		ST   refinementTol  = pl->sublist("Solver").get<ST>(   "refinement tol",   1.e-6 );
+		ST   refinementTol = pl->sublist("Solver").get<ST>(   "refinement tol",   1.e-6 );
 		int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
 		Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(
@@ -177,6 +177,7 @@ int main( int argi, char** argv ) {
 
 			if( 0==space->rankST() ) std::cout << "\tcreate RHS\n";
 			auto fu = x->clone( Pimpact::ECopy::Shallow );
+			auto sol = fu->getField(0).getVField().clone( Pimpact::ECopy::Shallow);
 
 			if( 0==space->rankST() ) std::cout << "\tBC interpolation\n";
 			{
@@ -195,37 +196,56 @@ int main( int argi, char** argv ) {
 				ST pi2 = 2.*std::acos(-1.);
 				ST alpha2 = space->getDomainSize()->getAlpha2();
 				ST re = space->getDomainSize()->getRe();
-				ST A =  pl->sublist("Force").get<ST>("A", 1.);
-				ST B =  pl->sublist("Force").get<ST>("B",-1.);
+				ST A =  pl->sublist("Force").get<ST>("A", 0.5);
+				ST B =  pl->sublist("Force").get<ST>("B",-0.5);
 				ST C =  pl->sublist("Force").get<ST>("C", 0.);
 				ST a =  pl->sublist("Force").get<ST>("a", 1.);
 				ST b =  pl->sublist("Force").get<ST>("b", 1.);
 				ST c =  pl->sublist("Force").get<ST>("c", 1.);
 				TEUCHOS_TEST_FOR_EXCEPT( std::abs( a*A + b*B + c*C )>1.e-16 );
 
+				// --- init RHS ---
 				//fu->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
 				//[&pi2,&re]( ST x, ST y, ST z ) ->ST {  return(  -std::sin(2.*x*pi2)/4. ); } );
 				//fu->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
 				//[&pi2,&re]( ST x, ST y, ST z ) ->ST {  return(  -std::sin(2.*y*pi2)/4. ); } );
+				
+				fu->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
+						[&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b/*+c*c*/)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
+				fu->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
+						[&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b/*+c*c*/)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
 
 				fu->getField(0).getVField().getCField(1)(Pimpact::F::U).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/**std::sin(c*z*pi2)*//re ); } );
 				fu->getField(0).getVField().getCField(1)(Pimpact::F::V).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
-				fu->getField(0).getVField().getCField(1)(Pimpact::F::W).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*C*std::sin(a*x*pi2)*std::sin(b*y*pi2)/* *std::cos(c*z*pi2)*//re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/**std::sin(c*z*pi2)*//re ); } );
+				//fu->getField(0).getVField().getCField(1)(Pimpact::F::W).initFromFunction(
+						//[&]( ST x, ST y, ST z ) ->ST { return( alpha2*C*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
 
 				fu->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b/*+c*c*/)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/**std::sin(c*z*pi2)*//re ); } );
 				fu->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
-				fu->getField(0).getVField().getSField(1)(Pimpact::F::W).initFromFunction(
-						[&]( ST x, ST y, ST z ) ->ST { return( C*(a*a+b*b)*std::sin(a*x*pi2)*std::sin(b*y*pi2)/* *std::cos(c*z*pi2)*//re ); } );
+						[&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b/*+c*c*/)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/**std::sin(c*z*pi2)*//re ); } );
+				//fu->getField(0).getVField().getSField(1)(Pimpact::F::W).initFromFunction(
+						//[&]( ST x, ST y, ST z ) ->ST { return( C*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
 
 				//fu->getField(0).getVField().getCField(2)(Pimpact::F::U).initFromFunction(
 				//[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(2.*x*pi2)/4. ); } );
 				//fu->getField(0).getVField().getCField(2)(Pimpact::F::V).initFromFunction(
 				//[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(2.*y*pi2)/4. ); } );
+				
+				// --- init solution ---
+				sol->get0Field()(Pimpact::F::U).initFromFunction( 
+						[&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/**std::sin(c*z*pi2)*/ ); } );
+				sol->get0Field()(Pimpact::F::V).initFromFunction(
+						[&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/**std::sin(c*z*pi2)*/ ); } );
+
+				sol->getSField(1)(Pimpact::F::U).initFromFunction( 
+						[&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/**std::sin(c*z*pi2)*/ ); } );
+				sol->getSField(1)(Pimpact::F::V).initFromFunction(
+						[&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/**std::sin(c*z*pi2)*/ ); } );
+				//sol->getSField(1)(Pimpact::F::W).initFromFunction(
+						//[&]( ST x, ST y, ST z ) ->ST { return( C*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2) ); } );
 			}
 			if( withoutput ) fu->write( 90000 );
 			if( withoutput ) fu->getField(0).getVField().get0Field()(Pimpact::F::U).print();
@@ -238,7 +258,7 @@ int main( int argi, char** argv ) {
 					x->init( 0. );
 				else if( "almost zero"==initGuess ) {
 					x->random();
-					x->scale(1.e-12);
+					x->scale(1.e-32);
 				}
 				else if( "random"==initGuess )
 					x->random();
@@ -510,80 +530,43 @@ int main( int argi, char** argv ) {
 				Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getField().write( (refine+1)*1000 );
 			}
 
-			// compute glob energy
-			{
-				auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
+			// --- compute error ---
+			ST solNorm = sol->norm();
+			sol->add( 1., *sol, -1., x->getField(0).getVField() );
+			ST error = sol->norm()/solNorm;
+			if( 0==space->rankST() ) std::cout << "error: " << error << "\n";
 
-				*out << 0 << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().get0Field() ) << "\t" << 0. << "\n";
-				for( int i=1; i<=space->nGlo(3); ++i )
-					*out << i << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getCField(i) ) << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getSField(i) ) << "\n";
-			}
-			// compute glob energy in y-dir
-			{
+			//// compute glob energy
+			//{
+				//auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
 
-				auto vel =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Deep );
-				auto base =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Shallow );
-				base->initField( pl->sublist("Base flow").sublist( "0 mode" ) );
-				vel->add( 1., *vel, -1., *base );
+				//*out << 0 << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().get0Field() ) << "\t" << 0. << "\n";
+				//for( int i=1; i<=space->nGlo(3); ++i )
+					//*out << i << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getCField(i) ) << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getSField(i) ) << "\n";
+			//}
+			//// compute glob energy in y-dir
+			//{
 
-				auto out = Pimpact::createOstream( "energyY_0.txt", space->rankST() );
-				Pimpact::computeEnergyY( *vel, *out );
+				//auto vel =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Deep );
+				//auto base =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Shallow );
+				//base->initField( pl->sublist("Base flow").sublist( "0 mode" ) );
+				//vel->add( 1., *vel, -1., *base );
 
-				for( int i=1; i<=space->nGlo(3); ++i ) {
-					{
-						auto out = Pimpact::createOstream( "energyY_C"+std::to_string(i)+".txt", space->rankST() );
-						Pimpact::computeEnergyY( x->getField(0).getVField().getCField(i), *out );
-					}
-					{
-						auto out = Pimpact::createOstream( "energyY_S"+std::to_string(i)+".txt", space->rankST() );
-						Pimpact::computeEnergyY( x->getField(0).getVField().getSField(i), *out );
-					}
-				}
-			}
+				//auto out = Pimpact::createOstream( "energyY_0.txt", space->rankST() );
+				//Pimpact::computeEnergyY( *vel, *out );
 
-			// spectral refinement criterion
-			if( refinement>1 ) {
+				//for( int i=1; i<=space->nGlo(3); ++i ) {
+					//{
+						//auto out = Pimpact::createOstream( "energyY_C"+std::to_string(i)+".txt", space->rankST() );
+						//Pimpact::computeEnergyY( x->getField(0).getVField().getCField(i), *out );
+					//}
+					//{
+						//auto out = Pimpact::createOstream( "energyY_S"+std::to_string(i)+".txt", space->rankST() );
+						//Pimpact::computeEnergyY( x->getField(0).getVField().getSField(i), *out );
+					//}
+				//}
+			//}
 
-				x->getField(0).getVField().exchange();
-				ST u_nf = x->getField(0).getVField().getField(space->nGlo(3)).norm();
-				ST u_1  = x->getField(0).getVField().getField(1             ).norm();
-				ST truncError = 1.;
-				if( u_nf != u_1 ) // just in case u_1=u_nf=0
-					truncError = u_nf / u_1 ;
-				if( truncError < refinementTol ) {
-					if( 0==space->rankST() )
-						std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " < " << refinementTol << "\n\n"; 
-					break;
-				}	
-				else
-					if( 0==space->rankST() )
-						std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " >= " << refinementTol << "\n\n"; 
-
-				auto spaceF =
-					Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
-							space, Teuchos::tuple<int>( 0, 0, 0, refinementStep ) );
-
-				auto refineOp =
-					Teuchos::rcp(
-							new Pimpact::TransferCompoundOp<
-							Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<SpaceT> > >,
-							Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp<SpaceT> >
-							>( space, spaceF ) );
-				// refineOp->print();
-
-				// init Fields for fine Boundary conditions
-				auto xf = Pimpact::create<CF>( spaceF );
-				xf->getVField().initField( pl->sublist("Base flow") );
-
-				auto temp = Pimpact::create<CF>( spaceF );
-
-				refineOp->apply( x->getField(0), *temp );
-
-				xf->add( 1., *temp, 0., *temp );
-
-				x = Pimpact::wrapMultiField( xf );
-				space = spaceF;
-			}
 		} // end of for( int refine=0; refine<refinement; ++refine ) {
 		/******************************************************************************************/
 
