@@ -1,7 +1,7 @@
 <ParameterList id="0" name="ANONYMOUS">
   <ParameterList id="1" name="Space">
-    <Parameter docString="Reynolds number" id="38" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+01" />
-    <Parameter docString="Womersley square alpha^2" id="39" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.00000000000000000e+01" />
+    <Parameter docString="Reynolds number" id="38" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+00" />
+    <Parameter docString="Womersley square alpha^2" id="39" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.00000000000000000e+00" />
     <ParameterList id="2" name="boundary conditions">
       <Parameter docString="" id="40" isDefault="false" isUsed="true" name="lower X" type="int" value="-1" />
       <Parameter docString="" id="41" isDefault="false" isUsed="true" name="upper X" type="int" value="-1" />
@@ -15,7 +15,7 @@
     <Parameter docString="length in z-direction" id="48" isDefault="false" isUsed="true" name="lz" type="double" value="6.28318530717958648e+00" />
     <Parameter docString="amount of grid points in x-direction: a*2**q+1" id="49" isDefault="false" isUsed="true" name="nx" type="int" value="33" />
     <Parameter docString="amount of grid points in y-direction: a*2**q+1" id="50" isDefault="false" isUsed="true" name="ny" type="int" value="33" />
-    <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="51" isDefault="false" isUsed="true" name="nz" type="int" value="33" />
+    <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="51" isDefault="false" isUsed="true" name="nz" type="int" value="9" />
     <Parameter docString="amount of grid points in f-direction" id="52" isDefault="false" isUsed="true" name="nf" type="int" value="64" />
     <Parameter docString="amount of processors in x-direction" id="53" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
     <Parameter docString="amount of processors in y-direction" id="54" isDefault="false" isUsed="true" name="npy" type="int" value="1" />
@@ -59,11 +59,11 @@
         </ParameterList>
         <ParameterList id="11" name="Test 2">
           <Parameter docString="" id="79" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-          <Parameter docString="" id="80" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="3" />
+          <Parameter docString="" id="80" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
         </ParameterList>
         <ParameterList id="12" name="Test 3">
           <Parameter docString="" id="81" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
-          <Parameter docString="" id="82" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.00000000000000022e-01" />
+          <Parameter docString="" id="82" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.99000000000000022e-01" />
           <Parameter docString="" id="83" isDefault="false" isUsed="true" name="Consecutive Iterations" type="int" value="1" />
         </ParameterList>
       </ParameterList>
@@ -123,6 +123,8 @@
 		<Parameter docString="" id="119" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
 		<!--<Parameter docString="" id="99951" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-2" />-->
 		<ParameterList id="24" name="Solver">
+      <Parameter docString="" id="99148" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
+      <Parameter docString="" id="99140" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="100" />
 			<!--<Parameter docString="" id="99137" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
 			<!--<Parameter docString="" id="99147" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
 			<Parameter docString="" id="120" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.000000000000000e-02" />

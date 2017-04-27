@@ -192,8 +192,8 @@ int main( int argi, char** argv ) {
 			ST pi2 = 2.*std::acos(-1.);
 			ST alpha2 = space->getDomainSize()->getAlpha2();
 			ST re = space->getDomainSize()->getRe();
-			ST A =  pl->sublist("Force").get<ST>("A", 1.);
-			ST B =  pl->sublist("Force").get<ST>("B",-1.);
+			ST A =  pl->sublist("Force").get<ST>("A", 0.5);
+			ST B =  pl->sublist("Force").get<ST>("B",-0.5);
 			ST C =  pl->sublist("Force").get<ST>("C", 0.);
 			ST a =  pl->sublist("Force").get<ST>("a", 1.);
 			ST b =  pl->sublist("Force").get<ST>("b", 1.);
@@ -209,16 +209,16 @@ int main( int argi, char** argv ) {
 				fu->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
 						[=]( ST x, ST y, ST z ) ->ST {
 							return(
-								alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::sin(c*pi2*z)*ctime									// \alpha^2 dt u
+								alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)/*std::sin(c*pi2*z)*/*ctime									// \alpha^2 dt u
 								//-a*A*A/2.*std::sin(2.*a*pi2*x)*s2time 															// (\u * \na) u
-								+A*(a*a+b*b+c*c)/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::sin(c*pi2*z)*(1.+stime) ); } );	// -\lap u
+								+A*(a*a+b*b/*+c*c*/)/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)/*std::sin(c*pi2*z)*/*(1.+stime) ); } );	// -\lap u
 
 				fu->getField(0).getVField()(i)(Pimpact::F::V).initFromFunction(
 						[=]( ST x, ST y, ST z ) ->ST {
 							return(
-								alpha2/re*B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::sin(c*pi2*z)*ctime									// \alpha^2 dt v
+								alpha2/re*B*std::sin(a*pi2*x)*std::cos(b*pi2*y)/*std::sin(c*pi2*z)*/*ctime									// \alpha^2 dt v
 								//-b*B*B/2.*std::sin(2.*b*pi2*y)*s2time 															// (\u * \na) v
-								+B*(a*a+b*b+c*c)/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::sin(c*pi2*z)*(1.+stime) ); } );	// -\lap u
+								+B*(a*a+b*b/*+c*c*/)/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)/*std::sin(c*pi2*z)*/*(1.+stime) ); } );	// -\lap u
 
 				//fu->getField(0).getVField()(i)(Pimpact::F::W).initFromFunction(
 						//[=]( ST x, ST y, ST z ) ->ST {

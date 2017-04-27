@@ -286,6 +286,7 @@ public:
 
 	/// \todo smoother that have to be updated should be "assigned" as well
 	void assignField( const DomainFieldT& mv ) {
+		//std::cout << getLabel() << "assignField\n";
 
 		MGFieldsT temp( mgSpaces_ );
 
@@ -296,6 +297,7 @@ public:
 			if( mgSpaces_->participating(i) ) {
 				mgOps_->get(i)->assignField( temp.get(i) );
 				mgTrans_->getRestrictionOp(i)->apply( temp.get(i), temp.get(i+1) );
+				//std::cout << temp.get(i).norm()<< "\n";
 			}
 		}
 
