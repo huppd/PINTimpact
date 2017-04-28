@@ -7,7 +7,7 @@ import manipulator as ma
 
 
 # load parameter file
-tree = ET.parse('../XML/parameterSHL.xml')
+tree = ET.parse('../XML/parameterSHLabs.xml')
 root = tree.getroot()
 
 # ma.setParameter( root, 'withoutput', 0 )
@@ -24,7 +24,8 @@ case_path = ['','','','','','','','','']
 runs = range( 1 )
 
 res      = [ 300 ]
-alpha2s  = [ 1./60., 1./30., 1./15., 1./10. ]
+alpha2s  = [ 1./60., 1./30., 1./10. ]
+# alpha2s  = [ 1./15.]
 nf       =  1 
 nx       =  1 
 npx      =  1 
@@ -64,14 +65,14 @@ for re in res:
 		ma.setParameter( root, 'nz', 64*nx+1 )
 		ma.setParameter( root, 'nf', nf )
 		ma.setParameter( root, 'npx',  1 )
-		ma.setParameter( root, 'npy',  2 )
-		ma.setParameter( root, 'npz',  2 )
+		ma.setParameter( root, 'npy',  1 )
+		ma.setParameter( root, 'npz',  1 )
 		ma.setParameter( root, 'npf', npf)
 		tree.write( 'parameter3D.xml' )
-		nptot = 4*npf
+		nptot = 1*npf
 		for run in runs:
 			print()
 			print( case_path )
-			print(     exe_pre( nptot, ' -N -W 13:00 -R "rusage[mem='+str(max(1024*1*nx*nf*npf/nptot,1024))+']" ', run ) + exe_path+'/'+exe  )
-			os.system( exe_pre( nptot, ' -N -W 13:00 -R "rusage[mem='+str(max(1024*1*nx*nf*npf/nptot,1024))+']" ', run ) + exe_path+'/'+exe  )
+			print(     exe_pre( nptot, ' -N -W 8:00 -R "rusage[mem='+str(max(1024*4,1024))+']" ', run ) + exe_path+'/'+exe  )
+			os.system( exe_pre( nptot, ' -N -W 8:00 -R "rusage[mem='+str(max(1024*4,1024))+']" ', run ) + exe_path+'/'+exe  )
 
