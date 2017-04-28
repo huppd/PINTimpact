@@ -19,7 +19,7 @@ namespace Pimpact {
 /// \ingroup TimeHarmonicOperator
 /// \ingroup NonliearOperator
 /// \deprecated
-template<class SpT, int meth=0 >
+template<class SpT, int meth=1 >
 class TimeDtConvectionDiffusionOp {
 
 public:
@@ -89,7 +89,7 @@ public:
 								 break;
 							 }
 			case 1: {
-								for( OT i=sInd; i<=eInd; ++i ) {
+								for( OT i=sInd; i<=eInd; ++i ) { // explicit looping
 									op_->apply( wind_[i  ]->get(), y(i  ), z(i),  mulI, 0.5, iRe*0.5, Add::N );
 									op_->apply( wind_[i-1]->get(), y(i-1), z(i), -mulI, 0.5, iRe*0.5, Add::Y );
 								}

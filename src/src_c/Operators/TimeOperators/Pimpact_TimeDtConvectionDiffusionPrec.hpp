@@ -19,7 +19,7 @@ namespace Pimpact {
 /// \ingroup TimeHarmonicOperator
 /// \ingroup NonliearOperator
 /// \deprecated
-template<class ConvDiffInv, int meth=2>
+template<class ConvDiffInv, int meth=1>
 class TimeDtConvectionDiffusionPrec {
 
 public:
