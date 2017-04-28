@@ -1,7 +1,7 @@
 import os
 
 # exection path
-exe_path = os.path.expanduser( "~/Pimpact/release/src_c" )
+exe_path = os.path.expanduser( "~/PImpact/release/src_c" )
 
 # data patch
 data_path = os.path.expanduser( "~/data" )
