@@ -16,15 +16,15 @@ ma.setParameter( root, 'withoutput', 0 )
 # make executable ready
 exe = 'peri_navier3D'
 os.chdir( exe_path )
-# os.system( 'make '+exe+' -j4' )
+os.system( 'make '+exe+' -j4' )
 
 
 case_path = ['','','','','','','','','']
 
-runs = range( 0, 2 )
+runs = range( 0, 1 )
 
-res  = [1,10,100 ]
-a2  = [0.1 ,1,10]
+res = [  1,10,100 ]
+a2  = [0.1, 1, 10 ]
 
 re = 1
 a2 = 1
@@ -61,4 +61,4 @@ for i in range(len(npx)):
 		# print(     exe_pre( nptot, ' -N -R "select[model==Opteron6174"] -R "rusage[mem='+str(1024*1)+']" ', run ) + exe_path+'/'+exe  )
 		# os.system( exe_pre( nptot, ' -N -R "select[model==Opteron6174"] -R "rusage[mem='+str(1024*1)+']" ', run ) + exe_path+'/'+exe  )
 		print(     exe_pre( nptot, ' -N -R beta -R "span[ptile=4]"  ', run ) + exe_path+'/'+exe  )
-		# os.system( exe_pre( nptot, ' -N -R beta -R "span[ptile=4]"  ', run ) + exe_path+'/'+exe  )
+		os.system( exe_pre( nptot, ' -N -R beta -R "span[ptile=4]"  ', run ) + exe_path+'/'+exe  )
