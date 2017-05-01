@@ -296,7 +296,10 @@ int main( int argi, char** argv ) {
 			}
 
 
-			pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard.txt", space->rankST() ) );
+			if( withoutput )
+				pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream", Pimpact::createOstream("Picard.txt", space->rankST() ) );
+			else 
+				pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
 
 			auto opInv = Pimpact::createInverseOp( op, Teuchos::sublist( pl, "Picard Solver" ) );
 
@@ -350,10 +353,14 @@ int main( int argi, char** argv ) {
 				auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
 				///////////////////////////////////////////begin of opv2v////////////////////////////////////
+				if( withoutput )
+					pl->sublist("MH_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+							"Output Stream",
+							Pimpact::createOstream( opV2V->getLabel()+".txt", space->rankST() ) );
+				else
+					pl->sublist("MH_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+							"Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
 
-				pl->sublist("MH_ConvDiff").sublist("Solver").set(
-						"Output Stream",
-						Pimpact::createOstream( opV2V->getLabel()+".txt", space->rankST() ) );
 				auto opV2Vinv = Pimpact::createInverseOp( opV2V, Teuchos::rcpFromRef(
 							pl->sublist("MH_ConvDiff") ) );
 
@@ -363,8 +370,12 @@ int main( int argi, char** argv ) {
 					// creat H0-inv prec
 					auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
-					pl->sublist("ConvDiff").sublist("Solver").set( "Output Stream",
-							Pimpact::createOstream( zeroOp->getLabel()+".txt", space->rankST() ) );
+					if( withoutput )
+						pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
+								Pimpact::createOstream( zeroOp->getLabel()+".txt", space->rankST() ) );
+					else
+						pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
+								Teuchos::rcp( new Teuchos::oblackholestream ) );
 
 					auto zeroInv = Pimpact::createInverseOp(
 							zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
@@ -372,9 +383,13 @@ int main( int argi, char** argv ) {
 					auto modeOp = Teuchos::rcp( new
 							Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
-					pl->sublist("M_ConvDiff").sublist("Solver").set(
-							"Output Stream",
-							Pimpact::createOstream( modeOp->getLabel()+".txt", space->rankST() ) );
+					if( withoutput )
+						pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+								"Output Stream",
+								Pimpact::createOstream( modeOp->getLabel()+".txt", space->rankST() ) );
+					else
+						pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+								"Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
 
 					auto modeInv = Pimpact::createInverseOp(
 							modeOp, Teuchos::sublist( pl, "M_ConvDiff" ) );
@@ -425,8 +440,12 @@ int main( int argi, char** argv ) {
 				/////////////////////////////////////////end of opv2v//////////////////////////////////////
 				////--- inverse DivGrad
 
-				pl->sublist("DivGrad").sublist("Solver").set( "Output Stream",
-						Pimpact::createOstream( "DivGrad.txt", space->rankST() ) );
+				if( withoutput )
+					pl->sublist("DivGrad").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
+							Pimpact::createOstream( "DivGrad.txt", space->rankST() ) );
+				else
+					pl->sublist("DivGrad").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
+							Teuchos::rcp( new Teuchos::oblackholestream ) );
 
 				auto divGradOp =
 					Pimpact::createDivGradOp(
@@ -561,37 +580,6 @@ int main( int argi, char** argv ) {
 			sol->add( 1., *sol, -1., x->getField(0).getVField() );
 			ST error = sol->norm()/solNorm;
 			if( 0==space->rankST() ) std::cout << "error: " << error << "\n";
-
-			//// compute glob energy
-			//{
-				//auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
-
-				//*out << 0 << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().get0Field() ) << "\t" << 0. << "\n";
-				//for( int i=1; i<=space->nGlo(3); ++i )
-					//*out << i << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getCField(i) ) << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getSField(i) ) << "\n";
-			//}
-			//// compute glob energy in y-dir
-			//{
-
-				//auto vel =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Deep );
-				//auto base =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Shallow );
-				//base->initField( pl->sublist("Base flow").sublist( "0 mode" ) );
-				//vel->add( 1., *vel, -1., *base );
-
-				//auto out = Pimpact::createOstream( "energyY_0.txt", space->rankST() );
-				//Pimpact::computeEnergyY( *vel, *out );
-
-				//for( int i=1; i<=space->nGlo(3); ++i ) {
-					//{
-						//auto out = Pimpact::createOstream( "energyY_C"+std::to_string(i)+".txt", space->rankST() );
-						//Pimpact::computeEnergyY( x->getField(0).getVField().getCField(i), *out );
-					//}
-					//{
-						//auto out = Pimpact::createOstream( "energyY_S"+std::to_string(i)+".txt", space->rankST() );
-						//Pimpact::computeEnergyY( x->getField(0).getVField().getSField(i), *out );
-					//}
-				//}
-			//}
 
 		} // end of for( int refine=0; refine<refinement; ++refine ) {
 		/******************************************************************************************/
