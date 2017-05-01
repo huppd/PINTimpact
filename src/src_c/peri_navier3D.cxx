@@ -297,9 +297,11 @@ int main( int argi, char** argv ) {
 
 
 			if( withoutput )
-				pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream", Pimpact::createOstream("Picard.txt", space->rankST() ) );
+				pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+						"Output Stream", Pimpact::createOstream("Picard.txt", space->rankST() ) );
 			else 
-				pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
+				pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+						"Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
 
 			auto opInv = Pimpact::createInverseOp( op, Teuchos::sublist( pl, "Picard Solver" ) );
 

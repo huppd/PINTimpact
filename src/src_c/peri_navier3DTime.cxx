@@ -241,9 +241,6 @@ int main( int argi, char** argv ) {
 					(*sol)(i)(Pimpact::F::V).initFromFunction(
 							[=]( ST x, ST y, ST z ) ->ST {
 								return( B*std::sin(a*pi2*x)*std::cos(b*pi2*y)/* *std::sin(c*pi2*z)*/*(1.+stime) ); } );
-					//(*sol)(i)(Pimpact::F::W).initFromFunction(
-							//[=]( ST x, ST y, ST z ) ->ST {
-								//return( C*std::sin(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*stime); } );
 				}
 
 			}
@@ -263,14 +260,46 @@ int main( int argi, char** argv ) {
 		}
 		else if( "random"==initGuess )
 			x->random();
-		else if( "exact"==initGuess ) {
-			//x->getField(0).getSField().get0Field().initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
+		else if( "exact"==initGuess || "disturbed"==initGuess ) {
+			if( "disturbed"==initGuess ) {
+				x->getField(0).getVField().random();
+				x->getField(0).getVField().add( 1.e-9, x->getField(0).getVField(), 1., *sol );
+			}
+			else 
+				x->getField(0).getVField() = *sol;
+
+			ST pi2 = 2.*std::acos(-1.);
+			ST re = space->getDomainSize()->getRe();
+			ST A =  pl->sublist("Force").get<ST>("A", 0.5);
+			ST B =  pl->sublist("Force").get<ST>("B",-0.5);
+			ST C =  pl->sublist("Force").get<ST>("C", 0.);
+			ST a =  pl->sublist("Force").get<ST>("a", 1.);
+			ST b =  pl->sublist("Force").get<ST>("b", 1.);
+			ST c =  pl->sublist("Force").get<ST>("c", 1.);
+
+			for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
+				// init
+				ST time = ( space->getCoordinatesLocal()->getX(Pimpact::F::U,3, i ) + space->getCoordinatesLocal()->getX(Pimpact::F::U,3, i-1 ) )/2.;
+				ST stime = std::sin( time );
+				ST s2time = std::pow( 1.+stime, 2 );
+
+				x->getField(0).getSField()(i).initFromFunction(
+					[=]( ST x, ST y, ST z ) ->ST {
+						return( -re/4.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) )*s2time );
+						} );
+				}
 		}
+
 		x->getField(0).getVField().changed();
 		x->getField(0).getSField().changed();
+		x->write();
 
-
-		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
+		if( withoutput )
+			pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+				"Output Stream", Pimpact::createOstream("Picard.txt", space->rankST() ) );
+		else 
+			pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+			"Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
 
 		auto opInv = Pimpact::createInverseOp( op, Teuchos::sublist( pl, "Picard Solver" ) );
 
@@ -325,9 +354,13 @@ int main( int argi, char** argv ) {
 
 			/////////////////////////////////////////////begin of opv2v////////////////////////////////////
 
-			pl->sublist("TimeConvDiff").sublist("Solver").set(
+			if( withoutput )
+				pl->sublist("TimeConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
 					"Output Stream", Pimpact::createOstream( opV2V->getLabel()+rl+".txt",
 						space->rankST() ) );
+			else
+				pl->sublist("TimeConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+					"Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
 
 			auto opV2Vinv = Pimpact::createInverseOp( opV2V,
 					Teuchos::rcpFromRef( pl->sublist("TimeConvDiff") ) );
@@ -338,8 +371,14 @@ int main( int argi, char** argv ) {
 				// creat H0-inv prec
 				auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
-				pl->sublist("ConvDiff").sublist("Solver").set( "Output Stream",
-						Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
+				if( withoutput )
+					pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+							"Output Stream",
+							Pimpact::createOstream( zeroOp->getLabel()+rl+".txt",
+								space->rankST() ) );
+				else
+					pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+							"Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
 
 				auto zeroInv = Pimpact::createInverseOp(
 						zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
@@ -384,8 +423,13 @@ int main( int argi, char** argv ) {
 			///////////////////////////////////////////end of opv2v//////////////////////////////////////
 			//////--- inverse DivGrad
 
-			pl->sublist("DivGrad").sublist("Solver").set( "Output Stream",
-					Pimpact::createOstream( "DivGrad"+rl+".txt", space->rankST() ) );
+			if( withoutput )
+				pl->sublist("DivGrad").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+						"Output Stream",
+						Pimpact::createOstream( "DivGrad"+rl+".txt", space->rankST() ) );
+			else
+				pl->sublist("DivGrad").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+						"Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
 
 			auto divGradOp =
 				Pimpact::createDivGradOp(
@@ -519,6 +563,8 @@ int main( int argi, char** argv ) {
 		sol->add( 1., *sol, -1., x->getField(0).getVField() );
 		ST error = sol->norm()/solNorm;
 		if( 0==space->rankST() ) std::cout << "error: " << error << "\n";
+		auto eStream = Pimpact::createOstream("error.txt", space->rankST() );
+		*eStream << error << "\n";
 
 		/******************************************************************************************/
 
