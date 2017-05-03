@@ -172,7 +172,7 @@ int main( int argi, char** argv ) {
 
 		if( 0==space->rankST() ) std::cout << "\tcreate RHS\n";
 		auto fu = x->clone( Pimpact::ECopy::Shallow );
-		auto sol = fu->getField(0).getVField().clone( Pimpact::ECopy::Shallow);
+		auto sol = fu->clone( Pimpact::ECopy::Shallow);
 
 		if( 0==space->rankST() ) std::cout << "\tBC interpolation\n";
 		{
@@ -235,10 +235,10 @@ int main( int argi, char** argv ) {
 					ST stime = std::sin( time );
 					ST s2time = std::pow( stime, 2 );
 					ST ctime = std::cos( time );
-					(*sol)(i)(Pimpact::F::U).initFromFunction(
+					sol->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
 							[=]( ST x, ST y, ST z ) ->ST {
 								return( A*std::cos(a*pi2*x)*std::sin(b*pi2*y)/* *std::sin(c*pi2*z)*/*(1.+stime) ); } );
-					(*sol)(i)(Pimpact::F::V).initFromFunction(
+					sol->getField(0).getVField()(i)(Pimpact::F::V).initFromFunction(
 							[=]( ST x, ST y, ST z ) ->ST {
 								return( B*std::sin(a*pi2*x)*std::cos(b*pi2*y)/* *std::sin(c*pi2*z)*/*(1.+stime) ); } );
 				}
@@ -263,10 +263,10 @@ int main( int argi, char** argv ) {
 		else if( "exact"==initGuess || "disturbed"==initGuess ) {
 			if( "disturbed"==initGuess ) {
 				x->getField(0).getVField().random();
-				x->getField(0).getVField().add( 1.e-9, x->getField(0).getVField(), 1., *sol );
+				x->getField(0).getVField().add( 1.e-9, x->getField(0).getVField(), 1., sol->getField(0).getVField() );
 			}
 			else 
-				x->getField(0).getVField() = *sol;
+				x->getField(0).getVField() = sol->getField(0).getVField();
 
 			ST pi2 = 2.*std::acos(-1.);
 			ST re = space->getDomainSize()->getRe();
@@ -517,7 +517,11 @@ int main( int argi, char** argv ) {
 		}
 		// end of init preconditioner *************************************************************
 
-		auto inter = NOX::Pimpact::createInterface( fu, Pimpact::createMultiOpWrap(op), Pimpact::createMultiOpWrap(opInv) );
+		auto inter = NOX::Pimpact::createInterface(
+				fu,
+				Pimpact::createMultiOpWrap(op),
+				Pimpact::createMultiOpWrap(opInv),
+				withoutput?sol:Teuchos::null );
 
 		auto nx = NOX::Pimpact::createVector( x );
 
@@ -559,9 +563,9 @@ int main( int argi, char** argv ) {
 			//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getField().write( 1000 );
 		}
 
-		ST solNorm = sol->norm();
-		sol->add( 1., *sol, -1., x->getField(0).getVField() );
-		ST error = sol->norm()/solNorm;
+		ST solNorm = sol->getField(0).getVField().norm();
+		sol->getField(0).getVField().add( 1., sol->getField(0).getVField(), -1., x->getField(0).getVField() );
+		ST error = sol->getField(0).getVField().norm()/solNorm;
 		if( 0==space->rankST() ) std::cout << "error: " << error << "\n";
 		auto eStream = Pimpact::createOstream("error.txt", space->rankST() );
 		*eStream << error << "\n";

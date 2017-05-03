@@ -41,22 +41,39 @@ public:
 protected:
 
 	Teuchos::RCP<FieldT> fu_;
+	Teuchos::RCP<FieldT> sol_;
 	Teuchos::RCP<OpT>    op_;
 	Teuchos::RCP<IOpT>   jopInv_;
 
+	Teuchos::RCP<std::ostream> eStream;
 public:
 
 	/// Constructor
 	Interface(
 			Teuchos::RCP<FieldT> fu=Teuchos::null,
 			Teuchos::RCP<OpT>    op=Teuchos::null,
-			Teuchos::RCP<IOpT>   jop=Teuchos::null ):
+			Teuchos::RCP<IOpT>   jop=Teuchos::null,
+			Teuchos::RCP<FieldT> sol=Teuchos::null	):
 		fu_( fu ),
+		sol_( sol ),
 		op_(op),
-		jopInv_(jop) {};
+		jopInv_(jop) {
+
+			if( sol_!=Teuchos::null )
+				eStream = Teuchos::rcp( new std::ofstream( "errorIter.txt" ) );
+		};
 
 	/// Compute the function, F, given the specified input vector x.
 	NOX::Abstract::Group::ReturnType computeF( const FieldT& x, FieldT& f ) {
+
+		if( !sol_.is_null() ) {
+			auto temp = x.getField(0).getVField().clone();
+			double solNorm = sol_->getField(0).getVField().norm();
+			temp->add( 1., sol_->getField(0).getVField(), -1., x.getField(0).getVField() );
+			//temp->add( 1., *sol_, -1., x );
+			double error = temp->norm()/solNorm;
+			*eStream << error << "\n";
+		}
 
 		op_->assignField( x );
 		op_->apply( x, f );
@@ -109,9 +126,10 @@ template<class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::
 Teuchos::RCP< Interface<FT,OpT,IOpT> > createInterface(
     Teuchos::RCP<FT> fu=Teuchos::null,
     Teuchos::RCP<OpT>  op=Teuchos::null,
-    Teuchos::RCP<IOpT> jop=Teuchos::null ) {
+    Teuchos::RCP<IOpT> jop=Teuchos::null,
+    Teuchos::RCP<FT> sol=Teuchos::null	) {
 
-	return( Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop) ) );
+	return( Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop,sol) ) );
 }
 
 

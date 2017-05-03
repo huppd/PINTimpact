@@ -34,7 +34,7 @@
 		<Parameter docString="" id="75" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
 		<Parameter docString="" id="76" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.e-04" />
 		<Parameter docString="" id="77" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-		<Parameter docString="" id="78" isDefault="false" isUsed="true" name="initial guess" type="string" value="disturbed" />
+		<Parameter docString="" id="78" isDefault="false" isUsed="true" name="initial guess" type="string" value="exact" />
 	</ParameterList>
 	<ParameterList id="7" name="Multi Grid">
 		<Parameter docString="" id="79" isDefault="false" isUsed="true" name="maxGrids" type="int" value="4" />

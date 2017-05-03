@@ -54,7 +54,7 @@ for re in res:
 			ma.setParameter( root, 'npx', 1 )
 			ma.setParameter( root, 'npy', 1 )
 			ma.setParameter( root, 'npz', 1 )
-			ma.setParameter( root, 'npf', 4 )
+			ma.setParameter( root, 'npf', 1 )
 			tree.write( 'parameter3D.xml' )
 			# nptot = npx[i]*npy[i]*npf[i]
 			nptot = 4 

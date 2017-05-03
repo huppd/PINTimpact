@@ -177,7 +177,7 @@ int main( int argi, char** argv ) {
 
 			if( 0==space->rankST() ) std::cout << "\tcreate RHS\n";
 			auto fu = x->clone( Pimpact::ECopy::Shallow );
-			auto sol = fu->getField(0).getVField().clone( Pimpact::ECopy::Shallow);
+			auto sol = fu->clone( Pimpact::ECopy::Shallow);
 
 			//if( 0==space->rankST() ) std::cout << "\tBC interpolation\n";
 			//{
@@ -230,16 +230,16 @@ int main( int argi, char** argv ) {
 				
 				// --- init solution ---
 				if( 0==space->si(Pimpact::F::U,3) ) {
-					sol->get0Field()(Pimpact::F::U).initFromFunction( 
+					sol->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction( 
 							[&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*/ ); } );
-					sol->get0Field()(Pimpact::F::V).initFromFunction(
+					sol->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
 							[&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*/ ); } );
 				}
 
 				if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
-					sol->getSField(1)(Pimpact::F::U).initFromFunction( 
+					sol->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction( 
 							[&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*/ ); } );
-					sol->getSField(1)(Pimpact::F::V).initFromFunction(
+					sol->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
 							[&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*/ ); } );
 					//sol->getSField(1)(Pimpact::F::W).initFromFunction(
 					//[&]( ST x, ST y, ST z ) ->ST { return( C*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2) ); } );
@@ -260,10 +260,10 @@ int main( int argi, char** argv ) {
 				else if( "exact"==initGuess || "disturbed"==initGuess ) {
 					if( "disturbed"==initGuess ) {
 						x->getField(0).getVField().random();
-						x->getField(0).getVField().add( 1.e-9, x->getField(0).getVField(), 1., *sol );
+						x->getField(0).getVField().add( 1.e-9, x->getField(0).getVField(), 1., sol->getField(0).getVField() );
 					}
 					else
-						x->getField(0).getVField() = *sol;
+						x->getField(0).getVField() = sol->getField(0).getVField();
 
 					ST pi2 = 2.*std::acos(-1.);
 					ST alpha2 = space->getDomainSize()->getAlpha2();
@@ -535,7 +535,11 @@ int main( int argi, char** argv ) {
 			}
 			//** end of init preconditioner ***************************************************************
 
-			auto inter = NOX::Pimpact::createInterface( fu, Pimpact::createMultiOpWrap(op), Pimpact::createMultiOpWrap(opInv) );
+			auto inter = NOX::Pimpact::createInterface(
+					fu,
+					Pimpact::createMultiOpWrap(op),
+					Pimpact::createMultiOpWrap(opInv),
+					withoutput?sol:Teuchos::null );
 
 			auto nx = NOX::Pimpact::createVector( x );
 
@@ -578,10 +582,12 @@ int main( int argi, char** argv ) {
 			}
 
 			// --- compute error ---
-			ST solNorm = sol->norm();
-			sol->add( 1., *sol, -1., x->getField(0).getVField() );
-			ST error = sol->norm()/solNorm;
+			ST solNorm = sol->getField(0).getVField().norm();
+			sol->getField(0).getVField().add( 1., sol->getField(0).getVField(), -1., x->getField(0).getVField() );
+			ST error = sol->getField(0).getVField().norm()/solNorm;
 			if( 0==space->rankST() ) std::cout << "error: " << error << "\n";
+			auto eStream = Pimpact::createOstream("error.txt", space->rankST() );
+			*eStream << error << "\n";
 
 		} // end of for( int refine=0; refine<refinement; ++refine ) {
 		/******************************************************************************************/
