@@ -1,7 +1,7 @@
 <ParameterList id="0" name="ANONYMOUS">
 	<ParameterList id="1" name="Space">
 		<Parameter docString="Reynolds number" id="48" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+00" />
-		<Parameter docString="Womersley square alpha^2" id="49" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.0e+00" />
+    <Parameter docString="Womersley square alpha^2" id="49" isDefault="false" isUsed="true" name="alpha2" type="double" value="6.28000000000000000e+00" />
   <ParameterList id="2" name="boundary conditions">
     <Parameter docString="" id="50" isDefault="false" isUsed="true" name="lower X" type="int" value="-1" />
     <Parameter docString="" id="51" isDefault="false" isUsed="true" name="upper X" type="int" value="-1" />
@@ -30,11 +30,10 @@
 		</ParameterList>
 	</ParameterList>
 	<ParameterList id="6" name="Solver">
-		<Parameter docString="" id="74" isDefault="false" isUsed="true" name="withoutput" type="int" value="0" />
+		<Parameter docString="" id="74" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
 		<Parameter docString="" id="75" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
 		<Parameter docString="" id="76" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.e-04" />
 		<Parameter docString="" id="77" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-		
 		<Parameter docString="" id="78" isDefault="false" isUsed="true" name="initial guess" type="string" value="disturbed" />
 	</ParameterList>
 	<ParameterList id="7" name="Multi Grid">
@@ -191,7 +190,7 @@
 		</ParameterList>
 		<ParameterList id="36" name="Solver">
 			<Parameter docString="" id="666168" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
-			<Parameter docString="" id="159" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="40" />
+			<Parameter docString="" id="159" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
 			<Parameter docString="" id="160" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000000e-01" />
 			<Parameter docString="" id="161" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="162" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ConvectionDiffusionVOp" />
@@ -206,8 +205,8 @@
 		<Parameter docString="" id="182" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 		<Parameter docString="" id="183" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
 		<ParameterList id="38" name="Solver">
-			<Parameter docString="" id="177" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
-			<Parameter docString="" id="176" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+			<Parameter docString="" id="177" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="5.00000000000000006e-01" />
+			<Parameter docString="" id="176" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
 			<Parameter docString="" id="168" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
 			<Parameter docString="" id="169" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
 			<Parameter docString="" id="171" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />

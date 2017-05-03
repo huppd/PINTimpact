@@ -285,7 +285,7 @@ int main( int argi, char** argv ) {
 
 				x->getField(0).getSField()(i).initFromFunction(
 					[=]( ST x, ST y, ST z ) ->ST {
-						return( -re/4.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) )*s2time );
+						return( -1./4.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) )*s2time );
 						} );
 				}
 		}

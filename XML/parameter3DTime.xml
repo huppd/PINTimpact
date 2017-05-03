@@ -1,7 +1,7 @@
 <ParameterList id="0" name="ANONYMOUS">
   <ParameterList id="1" name="Space">
-    <Parameter docString="Reynolds number" id="38" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+00" />
-    <Parameter docString="Womersley square alpha^2" id="39" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.00000000000000000e+00" />
+    <Parameter docString="Reynolds number" id="38" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+01" />
+    <Parameter docString="Womersley square alpha^2" id="39" isDefault="false" isUsed="true" name="alpha2" type="double" value="6.28000000000000000e+01" />
     <ParameterList id="2" name="boundary conditions">
       <Parameter docString="" id="40" isDefault="false" isUsed="true" name="lower X" type="int" value="-1" />
       <Parameter docString="" id="41" isDefault="false" isUsed="true" name="upper X" type="int" value="-1" />
@@ -109,7 +109,7 @@
   </ParameterList>
   <ParameterList id="22" name="Solver">
     <Parameter docString="" id="106" isDefault="true" isUsed="true" name="initial guess" type="string" value="exact" />
-    <Parameter docString="" id="107" isDefault="true" isUsed="true" name="withoutput" type="int" value="0" />
+    <Parameter docString="" id="107" isDefault="true" isUsed="true" name="withoutput" type="int" value="1" />
   </ParameterList>
 	<ParameterList id="23" name="Multi Grid">
 		<Parameter docString="" id="108" isDefault="false" isUsed="true" name="maxGrids" type="int" value="4" />
