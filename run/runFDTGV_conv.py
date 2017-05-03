@@ -24,8 +24,9 @@ case_path = ['','','','','','','','','']
 
 runs = range( 1 )
 
-res = [ 1 ]
+res = [ 10 ]
 a2s = [ 1., 10., 100. ]
+a2s = [ 10., 1., 0.1 ]
 
 nfs = [ 32, 64, 128 ]
 
@@ -57,7 +58,7 @@ for re in res:
 			ma.setParameter( root, 'npf', 1 )
 			tree.write( 'parameter3D.xml' )
 			# nptot = npx[i]*npy[i]*npf[i]
-			nptot = 4 
+			nptot = 1 
 			mem = int( max( 1024, 29*1024/nptot ) )
 			for run in runs:
 				print()

@@ -10,8 +10,8 @@ data_path = os.path.expanduser( "~/data" )
 # exection command
 def exe_pre( np, ops='', run=0 ):
 	# return( "bsub -n "+str(np)+" "+ops+" -o output"+str(run)+" " )
-	return( "bsub -n "+str(np)+ ' '+ops+' '+' -oo output'+str(run)+' mpirun ' )
-	# return( "mpirun -n "+str(np)+' ' )
+	# return( "bsub -n "+str(np)+ ' '+ops+' '+' -oo output'+str(run)+' mpirun ' )
+	return( "mpirun -n "+str(np)+' ' )
 
 def mkdir( path, npa ):
 	fullPath = data_path

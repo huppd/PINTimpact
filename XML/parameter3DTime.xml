@@ -52,7 +52,7 @@
         </ParameterList>
         <ParameterList id="10" name="Test 1">
           <Parameter docString="" id="75" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" />
-          <Parameter docString="" id="76" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.e-09" />
+          <Parameter docString="" id="76" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.e-04" />
           <Parameter docString="" id="77" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
           <Parameter docString="" id="78" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
         </ParameterList>
