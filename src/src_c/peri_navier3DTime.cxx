@@ -285,6 +285,16 @@ int main( int argi, char** argv ) {
 		x->getField(0).getVField().changed();
 		x->getField(0).getSField().changed();
 		//x->write();
+		// find the error
+		{
+			auto y = x->clone();
+			auto res = x->clone();
+			op->assignField(x->getField(0));
+			op->apply( x->getField(0), y->getField(0) );
+			res->add( 1., *y, -1., *fu );
+			res->write();
+
+		}
 
 		if( withoutput )
 			pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
