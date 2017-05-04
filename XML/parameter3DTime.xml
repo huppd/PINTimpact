@@ -3,7 +3,6 @@
 		<Parameter docString="Reynolds number" id="38" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+01" />
 		<!--<Parameter docString="Reynolds number" id="38" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+00" />-->
 		<Parameter docString="Womersley square alpha^2" id="39" isDefault="false" isUsed="true" name="alpha2" type="double" value="6.28000000000000000e+00" />
-		<Parameter docString="Womersley square alpha^2" id="39" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.00000000000e+00" />
     <ParameterList id="2" name="boundary conditions">
       <Parameter docString="" id="40" isDefault="false" isUsed="true" name="lower X" type="int" value="-1" />
       <Parameter docString="" id="41" isDefault="false" isUsed="true" name="upper X" type="int" value="-1" />
@@ -60,7 +59,7 @@
         </ParameterList>
         <ParameterList id="11" name="Test 2">
           <Parameter docString="" id="79" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-          <Parameter docString="" id="80" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+          <Parameter docString="" id="80" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
         </ParameterList>
         <ParameterList id="12" name="Test 3">
           <Parameter docString="" id="81" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
@@ -163,9 +162,9 @@
 		<Parameter docString="" id="157" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 		<Parameter docString="" id="158" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
 		<ParameterList id="29" name="Solver">
-      <Parameter docString="" id="999148" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+      <Parameter docString="" id="999148" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
 			<Parameter docString="" id="999173" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
-			<Parameter docString="" id="160" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="4" />
+			<Parameter docString="" id="160" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="2" />
 			<!--<Parameter docString="" id="161" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
 			<!--<Parameter docString="" id="162" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
 			<Parameter docString="" id="163" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
@@ -210,7 +209,7 @@
     <Parameter docString="" id="190" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<ParameterList id="36" name="Solver">
       <Parameter docString="" id="200" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-02" />
-      <Parameter docString="" id="191" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="3" />
+      <Parameter docString="" id="191" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="2" />
       <Parameter docString="" id="192" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
       <Parameter docString="" id="193" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />
       <Parameter docString="" id="194" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />
@@ -218,7 +217,7 @@
       <!--<Parameter docString="" id="196" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
       <!--<Parameter docString="" id="197" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
       <Parameter docString="" id="198" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />
-      <Parameter docString="" id="199" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+      <Parameter docString="" id="199" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
       <Parameter docString="" id="201" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <!--<Parameter docString="" id="202" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />-->
       <Parameter docString="" id="203" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="10" />
