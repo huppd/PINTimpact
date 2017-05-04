@@ -3,6 +3,7 @@
 #define NOX_PIMPACT_INTERFACE_HPP
 
 
+#include <mpi.h>
 #include "Teuchos_RCP.hpp"
 
 #include "NOX_Abstract_Group.H"
@@ -59,8 +60,12 @@ public:
 		op_(op),
 		jopInv_(jop) {
 
-			if( sol_!=Teuchos::null )
+			int world_rank;
+			MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+			if( sol_!=Teuchos::null && world_rank==0 )
 				eStream = Teuchos::rcp( new std::ofstream( "errorIter.txt" ) );
+			else
+				eStream = Teuchos::null;
 		};
 
 	/// Compute the function, F, given the specified input vector x.
@@ -72,7 +77,8 @@ public:
 			temp->add( 1., sol_->getField(0).getVField(), -1., x.getField(0).getVField() );
 			//temp->add( 1., *sol_, -1., x );
 			double error = temp->norm()/solNorm;
-			*eStream << error << "\n";
+			if( eStream!=Teuchos::null )
+				*eStream << error << "\n";
 		}
 
 		op_->assignField( x );
