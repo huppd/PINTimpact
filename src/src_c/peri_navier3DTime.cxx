@@ -292,7 +292,7 @@ int main( int argi, char** argv ) {
 
 		x->getField(0).getVField().changed();
 		x->getField(0).getSField().changed();
-		x->write();
+		//x->write();
 
 		if( withoutput )
 			pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
@@ -558,7 +558,7 @@ int main( int argi, char** argv ) {
 		x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
 		if( withoutput ) {
 			//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().level();
-			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write();
+			//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write();
 			//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().write( 500+1000, true );
 			//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getField().write( 1000 );
 		}
