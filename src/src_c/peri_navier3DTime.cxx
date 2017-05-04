@@ -203,27 +203,30 @@ int main( int argi, char** argv ) {
 			for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
 				{
 					// init RHS
-					ST time = ( space->getCoordinatesLocal()->getX(Pimpact::F::U,3,i) + space->getCoordinatesLocal()->getX(Pimpact::F::U,3,i-1) )/2.;
-					ST stime = std::sin( time );
-					ST s2time = std::pow( stime, 2 );
-					ST ctime = std::cos( time );
+					ST timei = space->getCoordinatesLocal()->getX(Pimpact::F::U,3,i);
+					ST timeim =space->getCoordinatesLocal()->getX(Pimpact::F::U,3,i-1);
+					//std::cout << time << "\n";
+					//ST ctime = (std::cos( timei )+std::cos( timeim ))/2.;
+					ST ctime = std::cos( (timei+timeim)/2. );
+					ST stime = (std::sin( timei )+std::sin( timeim ))/2.;
 					fu->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
 							[=]( ST x, ST y, ST z ) ->ST {
 								return(
-									alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*ctime									// \alpha^2 dt u
-									+A*(a*a+b*b)/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*(1.+stime) ); } );	// -\lap u
+									alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*(ctime)									// \alpha^2 dt u
+									+2.*A/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*(1.+stime) ); } );	// -\lap u
 
 					fu->getField(0).getVField()(i)(Pimpact::F::V).initFromFunction(
 							[=]( ST x, ST y, ST z ) ->ST {
 								return(
 									alpha2/re*B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*ctime									// \alpha^2 dt v
-									+B*(a*a+b*b)/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*(1.+stime) ); } );	// -\lap u
+									+2.*B/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*(1.+stime) ); } );	// -\lap u
 
 
 				}
 				// init sol
 				{
-					ST time = space->getCoordinatesLocal()->getX(Pimpact::F::U,3, i );
+					ST time = space->getCoordinatesLocal()->getX(Pimpact::F::U,3,i);
+					//std::cout<< time << "\n";
 					ST stime = std::sin( time );
 					sol->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
 							[=]( ST x, ST y, ST z ) ->ST {
@@ -234,6 +237,7 @@ int main( int argi, char** argv ) {
 				}
 
 			}
+			sol->getField(0).getVField().changed();
 			fu->getField(0).getVField().changed();
 		}
 		//if( withoutput ) fu->write( 90000 );
@@ -273,7 +277,7 @@ int main( int argi, char** argv ) {
 				ST time1 = space->getCoordinatesLocal()->getX(Pimpact::F::U,3,i-1);
 				ST stime0 = std::sin( time0 );
 				ST stime1 = std::sin( time1 );
-				ST s2time = ( std::pow(1.+stime0,2)+std::pow(1.+stime1,2) )/2.;
+				ST s2time = ( std::pow(1.+stime0,2) + std::pow(1.+stime1,2) )/2.;
 
 				x->getField(0).getSField()(i).initFromFunction(
 					[=]( ST x, ST y, ST z ) ->ST {
@@ -285,6 +289,20 @@ int main( int argi, char** argv ) {
 		x->getField(0).getVField().changed();
 		x->getField(0).getSField().changed();
 		//x->write();
+		// find the error
+		{
+			auto y = x->clone();
+			auto res = x->clone();
+			op->assignField(x->getField(0));
+			op->apply( x->getField(0), y->getField(0) );
+			res->add( 1., *y, -1., *fu );
+			//res->write();
+			std::cout << "res: " << res->norm() << "\n";
+			for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
+				std::cout << i << "\t" << res->getField(0).getVField()(i).norm() << "\n";
+			}
+
+		}
 
 		if( withoutput )
 			pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
