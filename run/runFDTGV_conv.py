@@ -24,9 +24,12 @@ case_path = ['','','','','','','','','']
 
 runs = range( 1 )
 
-res = [ 10 ]
+res = [ 1, 10 ]
+res = [ 1 ]
 a2s = [ 1., 10., 100. ]
-a2s = [ 1., 10., 0.1 ]
+# a2s = [ 1., 10., 0.1 ]
+# a2s = [ 0.1, 1., 10. ]
+a2s = [ 1. ]
 
 nfs = [ 32, 64, 128 ]
 
@@ -34,7 +37,7 @@ ma.setParameter( root, 'nx', 64+1 )
 ma.setParameter( root, 'ny', 64+1 )
 ma.setParameter( root, 'nz', 7 )
 
-case_path[0] = '/FDTGV_conv'
+case_path[0] = '/FDTGV_conv2'
 mkdir( case_path, 0 )
 
 for re in res:

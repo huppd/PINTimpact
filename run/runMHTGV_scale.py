@@ -22,7 +22,7 @@ os.system( 'make '+exe+' -j4' )
 
 case_path = ['','','','','','','','','']
 
-runs = range( 1 )
+runs = range( 1, 10 )
 
 a2s  = [ 0.1, 1., 10. ]
 
