@@ -290,19 +290,18 @@ int main( int argi, char** argv ) {
 		x->getField(0).getSField().changed();
 		//x->write();
 		// find the error
-		{
-			auto y = x->clone();
-			auto res = x->clone();
-			op->assignField(x->getField(0));
-			op->apply( x->getField(0), y->getField(0) );
-			res->add( 1., *y, -1., *fu );
-			//res->write();
-			std::cout << "res: " << res->norm() << "\n";
-			for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
-				std::cout << i << "\t" << res->getField(0).getVField()(i).norm() << "\n";
-			}
-
-		}
+		//{
+			//auto y = x->clone();
+			//auto res = x->clone();
+			//op->assignField(x->getField(0));
+			//op->apply( x->getField(0), y->getField(0) );
+			//res->add( 1., *y, -1., *fu );
+			////res->write();
+			//std::cout << "res: " << res->norm() << "\n";
+			//for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
+				//std::cout << i << "\t" << res->getField(0).getVField()(i).norm() << "\n";
+			//}
+		//}
 
 		if( withoutput )
 			pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
