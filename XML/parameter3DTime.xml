@@ -53,13 +53,13 @@
         </ParameterList>
         <ParameterList id="10" name="Test 1">
           <Parameter docString="" id="75" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" />
-          <Parameter docString="" id="76" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.e-04" />
+          <Parameter docString="" id="76" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.e-06" />
           <Parameter docString="" id="77" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
           <Parameter docString="" id="78" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
         </ParameterList>
         <ParameterList id="11" name="Test 2">
           <Parameter docString="" id="79" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-          <Parameter docString="" id="80" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
+          <Parameter docString="" id="80" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
         </ParameterList>
         <ParameterList id="12" name="Test 3">
           <Parameter docString="" id="81" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
@@ -119,8 +119,8 @@
 		<Parameter docString="" id="118" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
 		<Parameter docString="" id="119" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<ParameterList id="24" name="Solver">
-      <Parameter docString="" id="99148" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
-      <Parameter docString="" id="99140" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
+			<Parameter docString="" id="99148" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+			<Parameter docString="" id="99140" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="5" />
 			<!--<Parameter docString="" id="99137" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
 			<!--<Parameter docString="" id="99147" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
 			<Parameter docString="" id="120" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.000000000000000e-02" />
@@ -139,9 +139,9 @@
 		<Parameter docString="" id="138" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
 		<Parameter docString="" id="139" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<ParameterList id="27" name="Solver">
-      <Parameter docString="" id="148" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
+			<Parameter docString="" id="148" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="160" />
       <Parameter docString="" id="149" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="2.00000000000000006e-01" />
-      <Parameter docString="" id="140" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="50" />
+			<Parameter docString="" id="140" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="40" />
       <Parameter docString="" id="141" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
       <Parameter docString="" id="142" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />
       <Parameter docString="" id="143" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />
