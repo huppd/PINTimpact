@@ -22,7 +22,7 @@ os.system( 'make '+exe+' -j4' )
 
 case_path = ['','','','','','','','','']
 
-runs = range( 1, 10 )
+runs = range( 0, 5 )
 
 a2s  = [ 0.1, 1., 10. ]
 
@@ -45,9 +45,9 @@ for a2 in a2s:
 		#
 		ma.setParameter( root, 'Re', re )
 		ma.setParameter( root, 'alpha2', 2.*pi*a2*re )
-		# ma.setParameter( root, 'nx', 64*+1 )
-		# ma.setParameter( root, 'ny', 64*+1 )
-		# ma.setParameter( root, 'nz', 5 )
+		ma.setParameter( root, 'nx', 129 )
+		ma.setParameter( root, 'ny', 129 )
+		ma.setParameter( root, 'nz', 5 )
 		# ma.setParameter( root, 'nf', nf )
 		ma.setParameter( root, 'npx', npx[i] )
 		ma.setParameter( root, 'npy', npy[i] )
