@@ -204,9 +204,9 @@ public:
 
 		OT len = 0;
 
-		len += get0Field().getLength();
-		//len += space()->nGlo(3)*getField( std::max(space()->si(F::U,3),1) ).getLength();
-		len += 2*space()->nGlo(3)*get0Field().getLength();
+		//len += get0Field().getLength();
+		//len += 2*space()->nGlo(3)*get0Field().getLength();
+		len = 2*( 1 + space()->nGlo(3) )*get0Field().getLength();
 
     return( len );
   }
@@ -309,7 +309,7 @@ public:
     ST b = 0.;
 
 		if( 0==space()->si(F::U,3) )
-			b += get0Field().dotLoc( a.get0Field() );
+			b += 2.*get0Field().dotLoc( a.get0Field() );
 		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			b += getField(i).dotLoc( a.getField(i) );
 
@@ -329,13 +329,16 @@ public:
     ST normvec = 0.;
 
 		if( 0==space()->si(F::U,3) )
-			normvec += get0Field().normLoc(type);
+			normvec = 
+				( Belos::InfNorm==type )?
+				std::max( get0Field().normLoc(type), normvec ):
+				( 2.*get0Field().normLoc(type) );
 
 		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			normvec =
-				(Belos::InfNorm==type)?
+				( Belos::InfNorm==type )?
 				std::max( getField(i).normLoc(type), normvec ):
-				(normvec+getField(i).normLoc(type));
+				( normvec+getField(i).normLoc(type) );
 
 		return( normvec );
   }

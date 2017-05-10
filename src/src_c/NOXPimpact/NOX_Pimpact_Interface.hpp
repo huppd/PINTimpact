@@ -47,6 +47,7 @@ protected:
 	Teuchos::RCP<IOpT>   jopInv_;
 
 	Teuchos::RCP<std::ostream> eStream;
+
 public:
 
 	/// Constructor

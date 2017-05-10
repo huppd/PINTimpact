@@ -538,8 +538,8 @@ int main( int argi, char** argv ) {
 			auto inter = NOX::Pimpact::createInterface(
 					fu,
 					Pimpact::createMultiOpWrap(op),
-					Pimpact::createMultiOpWrap(opInv),
-					withoutput?sol:Teuchos::null );
+					Pimpact::createMultiOpWrap(opInv) ); 
+					//, withoutput?sol:Teuchos::null );
 
 			auto nx = NOX::Pimpact::createVector( x );
 
