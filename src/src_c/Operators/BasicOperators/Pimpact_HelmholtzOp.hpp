@@ -47,7 +47,7 @@ protected:
 	ST mulI_;
 	ST mulL_;
 
-	const ST& mulBC_ = 1.0e+00; /// good idea, but has to be considered also in Force
+	const ST& mulBC_ = 1.0e+00; /// good idea, but has to be considered also in Force( what happens in Schurcomplement?
 	
   TO cS_;
   TO cV_;

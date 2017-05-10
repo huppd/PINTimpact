@@ -268,7 +268,7 @@ public:
     //      sharedLinearSystem.getObject(this)->destroyPreconditioner();
     resetIsValid();
     xVector.update(1.0, grp.xVector, step, d);
-		xVector.getFieldPtr()->write();
+		//xVector.getFieldPtr()->write();
     return;
   }
   virtual void computeX( const NOX::Abstract::Group& grp,

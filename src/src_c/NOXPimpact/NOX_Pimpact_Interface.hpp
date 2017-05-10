@@ -3,6 +3,7 @@
 #define NOX_PIMPACT_INTERFACE_HPP
 
 
+#include <mpi.h>
 #include "Teuchos_RCP.hpp"
 
 #include "NOX_Abstract_Group.H"
@@ -41,22 +42,44 @@ public:
 protected:
 
 	Teuchos::RCP<FieldT> fu_;
+	Teuchos::RCP<FieldT> sol_;
 	Teuchos::RCP<OpT>    op_;
 	Teuchos::RCP<IOpT>   jopInv_;
 
+	Teuchos::RCP<std::ostream> eStream;
 public:
 
 	/// Constructor
 	Interface(
 			Teuchos::RCP<FieldT> fu=Teuchos::null,
 			Teuchos::RCP<OpT>    op=Teuchos::null,
-			Teuchos::RCP<IOpT>   jop=Teuchos::null ):
+			Teuchos::RCP<IOpT>   jop=Teuchos::null,
+			Teuchos::RCP<FieldT> sol=Teuchos::null	):
 		fu_( fu ),
+		sol_( sol ),
 		op_(op),
-		jopInv_(jop) {};
+		jopInv_(jop) {
+
+			int world_rank;
+			MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+			if( sol_!=Teuchos::null && world_rank==0 )
+				eStream = Teuchos::rcp( new std::ofstream( "errorIter.txt" ) );
+			else
+				eStream = Teuchos::null;
+		};
 
 	/// Compute the function, F, given the specified input vector x.
 	NOX::Abstract::Group::ReturnType computeF( const FieldT& x, FieldT& f ) {
+
+		if( !sol_.is_null() ) {
+			auto temp = x.getField(0).getVField().clone();
+			double solNorm = sol_->getField(0).getVField().norm();
+			temp->add( 1., sol_->getField(0).getVField(), -1., x.getField(0).getVField() );
+			//temp->add( 1., *sol_, -1., x );
+			double error = temp->norm()/solNorm;
+			if( eStream!=Teuchos::null )
+				*eStream << error << "\n";
+		}
 
 		op_->assignField( x );
 		op_->apply( x, f );
@@ -82,12 +105,15 @@ public:
 	NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const FieldT& x, FieldT& y ) {
 
 		double atol = params.get<double>("Tolerance");
-		double res = x.norm();
+		if( atol>0. ) {
+			double res = x.norm();
 
-		Teuchos::RCP<Teuchos::ParameterList> para = Teuchos::parameterList("Linear Solver");
-		para->set<double>( "Convergence Tolerance", atol*res );
+			Teuchos::RCP<Teuchos::ParameterList> para = Teuchos::parameterList("Linear Solver");
+			para->set<double>( "Convergence Tolerance", atol*res );
 
-		jopInv_->setParameter( para );
+			jopInv_->setParameter( para );
+		}
+
 		jopInv_->apply( x, y );
 		return( NOX::Abstract::Group::Ok );
 	}
@@ -106,9 +132,10 @@ template<class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::
 Teuchos::RCP< Interface<FT,OpT,IOpT> > createInterface(
     Teuchos::RCP<FT> fu=Teuchos::null,
     Teuchos::RCP<OpT>  op=Teuchos::null,
-    Teuchos::RCP<IOpT> jop=Teuchos::null ) {
+    Teuchos::RCP<IOpT> jop=Teuchos::null,
+    Teuchos::RCP<FT> sol=Teuchos::null	) {
 
-	return( Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop) ) );
+	return( Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop,sol) ) );
 }
 
 

@@ -669,6 +669,7 @@ public:
 	/// \brief for Dirichlet BC extrapolate the velocity points outside the domain such that the
 	///  interpolated value on the boundary is zero
 	///
+	/// \test Neumann BC
 	/// \param trans transposed
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 

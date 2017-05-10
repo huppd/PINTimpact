@@ -18,19 +18,6 @@
 namespace Pimpact{
 
 
-extern "C" void Op_getCDG_dir(
-    const int& M,
-    const int& N,
-    const int& BL,
-    const int& BU,
-    const int& BCL,
-    const int& BCU,
-    const double* const y1u,
-    const double* const x1p,
-    const double* const x1u,
-    double* const cdg1 );
-
-
 
 /// \brief "Laplace" for pressure 2nd Order.
 ///
@@ -45,6 +32,8 @@ public:
 
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
+
+	static constexpr int epsI = 1e2;
 
 protected:
 
@@ -83,7 +72,7 @@ public:
 			}
 
 			for( OT i=1; i<=space_->nLoc(dir); ++i ) {
-				ST h = 1./( x(f,dir,i+1) - x(f,dir,i) );
+				ST h = 1./( x(f,dir,i) - x(f,dir,i-1) );
 				cD(i,-1) = - h;
 				cD(i, 0) =   h;
 			}
@@ -92,8 +81,10 @@ public:
 				cG(0,0) = 0.;
 				cG(0,1) = 0.;
 				cD(1,-1) = 0.;
-				cD(1, 0) = 0.;
+				//cD(1, 0) = 0.;
 				cD(1, 0) = 1./( y(f,dir,1) - y(f,dir,0) );
+				//cD(1, 0) = 1./( x(f,dir,1) - x(f,dir,0) );
+				//cD(1, 0) = 1./( x(F::S,dir,1) - x(F::S,dir,0) );
 			}
 			if( 0<space_->bcu(dir) ) {
 				cG( space_->nLoc(dir), 0 ) = 0.;
@@ -101,6 +92,8 @@ public:
 				cD( space_->nLoc(dir),-1 ) = 0.;
 				cD( space_->nLoc(dir), 0 ) = 0.;
 				cD( space_->nLoc(dir),-1 ) = -1./( y(f,dir,space_->nGlo(dir)) - y(f,dir,space_->nGlo(dir)-1) );
+				//cD( space_->nLoc(dir),-1 ) = -1./( x(f,dir,space_->nLoc(dir)) - x(f,dir,space_->nLoc(dir)-1) );
+				//cD( space_->nLoc(dir),-1 ) = -1./( x(F::S,dir,space_->nLoc(dir)) - x(F::S,dir,space_->nLoc(dir)-1) );
 			}
 
 			for( OT i=1; i<=space_->nLoc(dir); ++i ) {
@@ -114,11 +107,21 @@ public:
 				c_[dir](1, 0) *= 2.;
 				c_[dir](1, 1) *= 2.;
 			}
-
 			if( 0<space_->bcu(dir) ) {
 				c_[dir](space_->nLoc(dir),-1) *= 2.;
 				c_[dir](space_->nLoc(dir), 0) *= 2.;
 				c_[dir](space_->nLoc(dir), 1)  = 0.;
+			}
+
+			if( BC::Neumann==space_->bcl(dir) ) {
+				c_[dir](1,-1) = 0.;
+				c_[dir](1, 0) = 0.;
+				c_[dir](1, 1) = 0.;
+			}
+			if( BC::Neumann==space_->bcu(dir) ) {
+				c_[dir](space_->nLoc(dir),-1) = 0.;
+				c_[dir](space_->nLoc(dir), 0) = 0.;
+				c_[dir](space_->nLoc(dir), 1) = 0.;
 			}
 
 			if( BC::Symmetry==space_->bcl(dir) ) {
@@ -129,19 +132,6 @@ public:
 				c_[dir](space_->nLoc(dir),-1) += c_[dir](space_->nLoc(dir),1);
 				c_[dir](space_->nLoc(dir), 1)  = 0.;
 			}
-
-
-			//Op_getCDG_dir(
-					//space_->nGlo( dir ),
-					//space_->nLoc( dir ),
-					//space_->bl( dir ),
-					//space_->bu( dir ),
-					//space_->getBCLocal()->getBCL( dir ),
-					//space_->getBCLocal()->getBCU( dir ),
-					//space_->getCoordinatesGlobal()->getX( static_cast<F>(dir), static_cast<ECoord>(dir) ),
-					//space_->getCoordinatesLocal()->getX( F::S, static_cast<ECoord>(dir) ),
-					//space_->getCoordinatesLocal()->getX( static_cast<F>(dir), static_cast<ECoord>(dir) ),
-					//c_[dir].get() );
 		}
 	}
 
@@ -193,7 +183,8 @@ public:
 
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		const ST& eps = 0.1;
+		//const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(epsI);
 
 		if( 3==SpaceT::sdim ) {
 			for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
@@ -212,6 +203,7 @@ public:
 						const ST epsZ = ( (bcX||bcY)?eps:1. );
 
 						ST diag = std::fabs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
+						assert( diag!=0. );
 						y(i,j,k) = x(i,j,k)/diag;
 					}
 		}
@@ -278,7 +270,7 @@ public:
 		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
 			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-		const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(epsI);
 
 		const ST epsX = ( (bcY||bcZ)?eps:1. );
 		const ST epsY = ( (bcX||bcZ)?eps:1. );
@@ -300,7 +292,7 @@ public:
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
 		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-		const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(epsI);
 
 		const ST epsX = (bcY)?eps:1.;
 		const ST epsY = (bcX)?eps:1.;
@@ -321,7 +313,7 @@ public:
 		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
 			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-		const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(epsI);
 
 		const ST epsX = ( (bcY||bcZ)?eps:1. );
 		const ST epsY = ( (bcX||bcZ)?eps:1. );
@@ -338,7 +330,7 @@ public:
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
 			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-		const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(epsI);
 
 		const ST epsX = ( bcY?eps:1. );
 		const ST epsY = ( bcX?eps:1. );

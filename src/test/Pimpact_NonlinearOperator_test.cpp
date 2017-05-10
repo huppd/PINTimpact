@@ -692,6 +692,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ModeOperator, ModeNonlinearOp, D3 )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp, SpaceT ) {
 
 	pl->set<bool>( "spectral in time", true );
+	setParameter( SpaceT::sdim );
 
 	ST pi2 = 2.*std::acos(-1.);
 
@@ -699,9 +700,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicOperator, MultiHarmonicDtConvect
 	ly = pi2 ;
 	lz = pi2 ;
 
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
 	nf = 4;
 
-	setParameter( SpaceT::sdim );
 	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 

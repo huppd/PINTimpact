@@ -50,6 +50,8 @@ protected:
 
 public:
 
+	static constexpr int epsI = 1e2;
+
   using DomainFieldT =  ScalarField<SpaceT>;
   using RangeFieldT =  VectorField<SpaceT>;
 
@@ -150,6 +152,7 @@ public:
   void applyG( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
 		const B& b = ( (Add::N==add) ? B::Y : B::N );
+		//const B& b = B::N;
 
 		x.exchange(X);
 		for( OT k=space()->si(F::U,Z,b); k<=space()->ei(F::U,Z,b); ++k )
@@ -183,7 +186,7 @@ public:
   void applyJ( RangeFieldT& y ) const {
 
 		// BC scaling 
-		const ST& eps = 0.1;
+		const ST& eps = 1./static_cast<ST>(epsI);
 		
 		for( F dir=F::U; dir<SpaceT::sdim; ++dir ) {
 			B bc2 = B::Y;
@@ -235,62 +238,7 @@ public:
 				bc2 = B::N;
 			}
 		}
-
 		y.extrapolateBC();
-		//if( 0 < space()->bcl(X) ) {
-			//OT i = space()->si(F::U,X,B::Y);
-			//for( OT k=space()->si(F::U,Z, B::Y); k<=space()->ei(F::U,Z,B::Y); ++k )
-				//for( OT j=space()->si(F::U,Y,B::Y); j<=space()->ei(F::U,Y,B::Y); ++j ) {
-					//y(F::U)(i,j,k) = 0.;
-					//for( OT ii=0; ii<=SW::DU(X); ++ii )
-						//y(F::U)(i,j,k) -= y(F::U)(1+ii,j,k)*space()->getInterpolateV2S()->getC(X,1,ii)/space()->getInterpolateV2S()->getC(X,1,-1);
-				//}
-		//}
-		//if( 0 < space()->bcu(X) ) {
-			//OT i = space()->ei(F::U,X,B::Y);
-			//for( OT k=space()->si(F::U,Z, B::Y); k<=space()->ei(F::U,Z,B::Y); ++k )
-				//for( OT j=space()->si(F::U,Y,B::Y); j<=space()->ei(F::U,Y,B::Y); ++j ) {
-					//y(F::U)(i,j,k) = 0.;
-					//for( OT ii=SW::DL(X); ii<=-1; ++ii )
-						//y(F::U)(i,j,k) -= space()->getInterpolateV2S()->getC(X,i,ii)*y(F::U)(i+ii,j,k)/space()->getInterpolateV2S()->getC(X,i,0);
-				//}
-		//}
-		//if( 0 < space()->bcl(Y) ) {
-			//OT j = space()->si(F::V,Y,B::Y);
-			//for( OT k=space()->si(F::V,Z, B::Y); k<=space()->ei(F::V,Z,B::Y); ++k )
-				//for( OT i=space()->si(F::V,X,B::Y); i<=space()->ei(F::V,X,B::Y); ++i ) {
-					//y(F::V)(i,j,k) = 0.;
-					//for( OT jj=0; jj<=SW::DU(Y); ++jj )
-						//y(F::V)(i,j,k) -= y(F::V)(i,1+jj,k)*space()->getInterpolateV2S()->getC(Y,1,jj)/space()->getInterpolateV2S()->getC(Y,1,-1);  
-				//}
-		//}
-		//if( 0 < space()->bcu(Y) ) {
-			//OT j = space()->ei(F::V,Y,B::Y);
-			//for( OT k=space()->si(F::V,Z, B::Y); k<=space()->ei(F::V,Z,B::Y); ++k )
-				//for( OT i=space()->si(F::V,X,B::Y); i<=space()->ei(F::V,X,B::Y); ++i ) {
-					//y(F::V)(i,j,k) = 0.;
-					//for( OT jj=SW::DL(Y); jj<=-1; ++jj )
-						//y(F::V)(i,j,k) -= space()->getInterpolateV2S()->getC(Y,j,jj)*y(F::V)(i,j+jj,k)/space()->getInterpolateV2S()->getC(Y,j,0);
-				//}
-		//}
-		//if( space()->bcl(Z) > 0 ) {
-			//OT k = space()->si(F::W,Z,B::Y);
-			//for( OT j=space()->si(F::W,Y,B::Y); j<=space()->ei(F::W,Y,B::Y); ++j )
-				//for( OT i=space()->si(F::W,X,B::Y); i<=space()->ei(F::W,X,B::Y); ++i ) {
-					//y(F::W)(i,j,k) = 0.;
-					//for( OT kk=0; kk<=SW::DU(Z); ++kk )
-						//y(F::W)(i,j,k) -= space()->getInterpolateV2S()->getC(Z,1,kk)*y(F::W)(i,j,1+kk)/space()->getInterpolateV2S()->getC(Z,1,-1);  
-				//}
-		//}
-		//if( space()->bcu(Z) > 0 ) {
-			//OT k = space()->ei(F::W,Z,B::Y);
-			//for( OT j=space()->si(F::W,Y,B::Y); j<=space()->ei(F::W,Y,B::Y); ++j )
-				//for( OT i=space()->si(F::W,X,B::Y); i<=space()->ei(F::W,X,B::Y); ++i ) {
-					//y(F::W)(i,j,k) = 0.;
-					//for( OT kk=SW::DL(Z); kk<=-1; ++kk )
-						//y(F::W)(i,j,k) -= space()->getInterpolateV2S()->getC(Z,k,kk)*y(F::W)(i,j,k+kk)/space()->getInterpolateV2S()->getC(Z,k,0);
-				//}
-		//}
     y.changed();
   }
 
@@ -354,13 +302,13 @@ public:
 			c_[dir].print( out );
     }
 
-		out << "--- " << getLabel() << "^T ---\n";
-		out << " --- stencil: ---";
-		for( int dir=0; dir<SpT::sdim; ++dir ) {
-			out << "\ndir: " << static_cast<ECoord>(dir) << "\n";
+		//out << "--- " << getLabel() << "^T ---\n";
+		//out << " --- stencil: ---";
+		//for( int dir=0; dir<SpT::sdim; ++dir ) {
+			//out << "\ndir: " << static_cast<ECoord>(dir) << "\n";
 
-			cT_[dir].print( out );
-		}
+			//cT_[dir].print( out );
+		//}
   }
 
 	const std::string getLabel() const { return( "Grad" ); };
