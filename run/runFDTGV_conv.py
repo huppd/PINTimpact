@@ -28,7 +28,7 @@ res = [ 1, 10 ]
 res = [ 10 ]
 # a2s = [ 1., 10., 100. ]
 # a2s = [ 1., 10., 0.1 ]
-a2s = [ 10., 1., 0.1  ]
+a2s = [ 0.1, 10., 1.  ]
 # a2s = [ 1. ]
 
 nfs = [ 72 ]
@@ -37,7 +37,7 @@ ma.setParameter( root, 'nx', 65 )
 ma.setParameter( root, 'ny', 65 )
 ma.setParameter( root, 'nz', 5 )
 
-case_path[0] = '/FDTGV_conv'
+case_path[0] = '/FDTGV_conv2'
 mkdir( case_path, 0 )
 
 for re in res:
@@ -52,20 +52,20 @@ for re in res:
 			#
 			chdir( case_path, 3 )
 			#
-			ma.setParameter( root, 'Re', re )
+			ma.setParameter( root, 'Re', re  )
 			ma.setParameter( root, 'alpha2', 2.*pi*a2*re )
-			ma.setParameter( root, 'nf', nf )
-			ma.setParameter( root, 'npx', 1 )
-			ma.setParameter( root, 'npy', 1 )
-			ma.setParameter( root, 'npz', 1 )
-			ma.setParameter( root, 'npf', 4 )
+			ma.setParameter( root, 'nf', nf  )
+			ma.setParameter( root, 'npx', 1  )
+			ma.setParameter( root, 'npy', 1  )
+			ma.setParameter( root, 'npz', 1  )
+			ma.setParameter( root, 'npf', 12 )
 			tree.write( 'parameter3D.xml' )
 			# nptot = npx[i]*npy[i]*npf[i]
-			nptot = 4 
-			mem = int( max( 1024, 29*1024/nptot ) )
+			nptot = 12 
+			mem = int( max( 1024, 60*1024/nptot ) )
 			for run in runs:
 				print()
 				print( case_path )
-				exeString = exe_pre( nptot, ' -N -R beta -R "span[ptile=4]" -R "rusage[mem=' +str(mem) + ']" -W 6:00', run ) + exe_path+'/'+exe
+				exeString = exe_pre( nptot, ' -N  -R "rusage[mem=' +str(mem) + ']" -W 6:00', run ) + exe_path+'/'+exe
 				print( exeString  )
 				os.system( exeString )
