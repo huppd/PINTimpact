@@ -86,7 +86,7 @@ public:
 
   constexpr const Teuchos::RCP<const SpaceT>& space() { return( AF::space_ ); }
 
-  constexpr const MPI_Comm& comm() const { return(vfield_->comm()); }
+  constexpr const MPI_Comm& comm() { return(vfield_->comm()); }
 
 
   /// \brief get Vect length
@@ -154,7 +154,7 @@ public:
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dotLoc( const CompoundField& a ) const {
+  constexpr Scalar dotLoc( const CompoundField& a ) {
 
     Scalar b = 0.;
 
@@ -165,7 +165,7 @@ public:
 
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const CompoundField& y ) const {
+	constexpr Scalar dot( const CompoundField& y ) {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
 	}
@@ -176,7 +176,7 @@ public:
   /// \{
 
   /// \brief Compute the norm of the field.
-  constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) {
 
 		return(
 			(Belos::InfNorm==type)?
@@ -186,7 +186,7 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) {
 
 		Scalar normvec = this->reduce(
 				comm(),
@@ -207,7 +207,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const CompoundField& weights ) const {
+  constexpr Scalar normLoc( const CompoundField& weights ) {
 		return(
 				vfield_->normLoc( *weights.vfield_ ) +
 				sfield_->normLoc( *weights.sfield_ ) );
@@ -219,7 +219,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const CompoundField& weights ) const {
+  constexpr Scalar norm( const CompoundField& weights ) {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 

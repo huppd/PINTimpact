@@ -37,8 +37,8 @@ public:
 
 protected:
 
-	using Scalar = typename SpaceT::Scalar;
-	using Ordinal = typename SpaceT::Ordinal;
+	using ST = typename SpaceT::Scalar;
+	using OT = typename SpaceT::Ordinal;
 
 	using FieldT = MultiHarmonicField<IFT>;
 
@@ -50,7 +50,7 @@ protected:
 
 	std::vector< Teuchos::RCP< ModeField<IFT> > > fields_;
 
-	Scalar* s_;
+	ST* s_;
 
 	mutable bool exchangedState_;
 
@@ -59,23 +59,23 @@ protected:
 
 		if( global_ ) {
 
-			Ordinal nx = field0_.getStorageSize();
+			OT nx = field0_.getStorageSize();
 
-			s_ = new Scalar[ getStorageSize() ];
+			s_ = new ST[ getStorageSize() ];
 			
 			field0_.setStoragePtr( s_ );
 
-			for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			for( OT i=0; i<space()->nGlo(3); ++i )
 				fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
 		}
 		else{
 
-			Ordinal nx = field0_.getStorageSize();
+			OT nx = field0_.getStorageSize();
 
-			s_ = new Scalar[ getStorageSize() ];
+			s_ = new ST[ getStorageSize() ];
 
 			field0_.setStoragePtr( s_ );
-			for( Ordinal i=0; i<=space()->ei(F::U,3) - std::max(space()->si(F::U,3),1); ++i )
+			for( OT i=0; i<=space()->ei(F::U,3) - std::max(space()->si(F::U,3),1); ++i )
 				fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
 		}
 	}
@@ -83,7 +83,7 @@ protected:
 
 public:
 
-	constexpr Ordinal getStorageSize() const {
+	constexpr OT getStorageSize() {
 		return(
 				( global_ )?
 					( ( 1 + 2*space()->nGlo(3)                                             )*field0_.getStorageSize() ):
@@ -106,11 +106,11 @@ public:
 			assert( true == space()->getStencilWidths()->spectralT() );
 
 			if( global_ ) {
-				for( Ordinal i=0; i<space->nGlo(3); ++i )
+				for( OT i=0; i<space->nGlo(3); ++i )
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
 			}
 			else{
-				for( Ordinal i=0; i<space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1; ++i )
+				for( OT i=0; i<space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1; ++i )
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
 			}
 
@@ -133,11 +133,11 @@ public:
     exchangedState_(vF.exchangedState_) {
 
 			if( global_ ) {
-				for( Ordinal i=1; i<=space()->nGlo(3); ++i )
+				for( OT i=1; i<=space()->nGlo(3); ++i )
 					fields_[i-1] = Teuchos::rcp( new ModeField<IFT>( vF.getField(i), copyType ) );
 			}
 			else{
-				for( Ordinal i=0; i<space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1; ++i )
+				for( OT i=0; i<space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1; ++i )
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getField(i+std::max(space()->si(F::U,3),1)), copyType ) );
 			}
 
@@ -166,7 +166,7 @@ public:
 
 protected:
 
-	constexpr Ordinal index( const Ordinal& i ) const {
+	constexpr OT index( const OT& i ) {
 		return( i - 1 + 
 				(( global_||0==space()->si(F::U,3) )?
 					0:
@@ -176,33 +176,33 @@ protected:
 
 public:
 
-	constexpr const bool& global() const { return( global_ ); }
+	constexpr const bool& global() { return( global_ ); }
 
                   IFT& get0Field() { return( field0_ ); }
   constexpr const IFT& get0Field() { return( field0_ ); }
 
-                  ModeField<IFT>& getField( const Ordinal& i ) { return( *fields_[index(i)] ); }
-  constexpr const ModeField<IFT>& getField( const Ordinal& i ) { return( *fields_[index(i)] ); }
+                  ModeField<IFT>& getField( const OT& i ) { return( *fields_[index(i)] ); }
+  constexpr const ModeField<IFT>& getField( const OT& i ) { return( *fields_[index(i)] ); }
 
-                  IFT& getCField( const Ordinal& i ) { return( fields_[index(i)]->getCField() ); }
-  constexpr const IFT& getCField( const Ordinal& i ) { return( fields_[index(i)]->getCField() ); }
+                  IFT& getCField( const OT& i ) { return( fields_[index(i)]->getCField() ); }
+  constexpr const IFT& getCField( const OT& i ) { return( fields_[index(i)]->getCField() ); }
 
-                  IFT& getSField( const Ordinal& i ) { return( fields_[index(i)]->getSField() ); }
-  constexpr const IFT& getSField( const Ordinal& i ) { return( fields_[index(i)]->getSField() ); }
-
-
-  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
+                  IFT& getSField( const OT& i ) { return( fields_[index(i)]->getSField() ); }
+  constexpr const IFT& getSField( const OT& i ) { return( fields_[index(i)]->getSField() ); }
 
 
-  constexpr const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() { return( AF::space_ ); }
+
+
+  constexpr const MPI_Comm& comm() { return( space()->getProcGrid()->getCommWorld() ); }
 
 
   /// \brief returns the length of Field.
   ///
   /// the vector length is with regard to the inner points
-  constexpr Ordinal getLength() {
+  constexpr OT getLength() {
 
-		Ordinal len = 0;
+		OT len = 0;
 
 		len += get0Field().getLength();
 		//len += space()->nGlo(3)*getField( std::max(space()->si(F::U,3),1) ).getLength();
@@ -219,12 +219,12 @@ public:
 
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
 	/// \todo add test for consistent VectorSpaces in debug mode
-  void add( const Scalar& alpha, const FieldT& a, const Scalar& beta, const FieldT& b, const B& wb=B::Y ) {
+  void add( const ST& alpha, const FieldT& a, const ST& beta, const FieldT& b, const B& wb=B::Y ) {
 
 		if( 0==space()->si(F::U,3) )
 			field0_.add(alpha, a.get0Field(), beta, b.get0Field(), wb );
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).add( alpha, a.getField(i), beta, b.getField(i), wb );
 
 		changed();
@@ -242,7 +242,7 @@ public:
 		if( 0==space()->si(F::U,3) )
 			field0_.abs( y.get0Field() );
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).abs( y.getField(i) );
 
 		changed();
@@ -259,7 +259,7 @@ public:
 		if( 0==space()->si(F::U,3) )
 			field0_.reciprocal( y.get0Field() );
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).reciprocal( y.getField(i) );
 
 		changed();
@@ -267,12 +267,12 @@ public:
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
-  void scale( const Scalar& alpha, const B& wB=B::Y ) {
+  void scale( const ST& alpha, const B& wB=B::Y ) {
 
 		if( 0==space()->si(F::U,3) )
 			field0_.scale( alpha, wB );
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).scale( alpha, wB );
 
 		changed();
@@ -290,7 +290,7 @@ public:
 		if( 0==space()->si(F::U,3) )
 			field0_.scale( a.get0Field() );
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).scale( a.getField(i) );
 
 		changed();
@@ -304,34 +304,34 @@ public:
   /// \{
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dotLoc( const FieldT& a ) const {
+  constexpr ST dotLoc( const FieldT& a ) {
 
-    Scalar b = 0.;
+    ST b = 0.;
 
 		if( 0==space()->si(F::U,3) )
 			b += get0Field().dotLoc( a.get0Field() );
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			b += getField(i).dotLoc( a.getField(i) );
 
     return( b );
   }
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y ) const {
+	constexpr ST dot( const FieldT& y ) {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
 	}
 
   /// \brief Compute the norm of Field.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr ST normLoc( Belos::NormType type = Belos::TwoNorm ) {
 
-    Scalar normvec = 0.;
+    ST normvec = 0.;
 
 		if( 0==space()->si(F::U,3) )
 			normvec += get0Field().normLoc(type);
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			normvec =
 				(Belos::InfNorm==type)?
 				std::max( getField(i).normLoc(type), normvec ):
@@ -343,9 +343,9 @@ public:
 
 	/// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr ST norm( Belos::NormType type = Belos::TwoNorm ) {
 
-		Scalar normvec = this->reduce(
+		ST normvec = this->reduce(
 				comm(),
 				normLoc( type ),
 				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
@@ -364,14 +364,14 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const FieldT& weights ) const {
+  constexpr ST normLoc( const FieldT& weights ) {
 
-    Scalar normvec= Teuchos::ScalarTraits<Scalar>::zero();
+    ST normvec= Teuchos::ScalarTraits<ST>::zero();
 
 		if( 0==space()->si(F::U,3) )
 			normvec += get0Field().normLoc( weights.get0Field() );
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			normvec += getField(i).normLoc(weights.getField(i));
 
     return( normvec );
@@ -384,7 +384,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights ) const {
+  constexpr ST norm( const FieldT& weights ) {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 
@@ -400,7 +400,7 @@ public:
 		if( 0==space()->si(F::U,3) )
 			field0_ = a.get0Field();
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i) = a.getField(i);
 
 		return *this;
@@ -413,7 +413,7 @@ public:
 		if( 0==space()->si(F::U,3) )
 			field0_.random();
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).random();
 
 		changed();
@@ -421,12 +421,12 @@ public:
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
+  void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& wB=B::Y ) {
 
 		if( 0==space()->si(F::U,3) )
 			field0_.init( alpha, wB );
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).init( alpha, wB );
 
 		changed();
@@ -451,7 +451,7 @@ public:
 		if( 0==space()->si(F::U,3) )
 			field0_.extrapolateBC( trans );
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).extrapolateBC( trans );
 
 		changed();
@@ -462,7 +462,7 @@ public:
 		if( 0==space()->si(F::U,3) )
 			field0_.level();
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).level();
 
 		changed();
@@ -476,7 +476,7 @@ public:
 		if( 0==space()->si(F::U,3) )
 			get0Field().print( os );
 
-		for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+		for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 			getField(i).print( os );
   }
 
@@ -487,18 +487,18 @@ public:
 			exchange();
 
 			if( space()->getProcGrid()->getIB(3)==1 ) {
-				Scalar pi = 4.*std::atan(1.);
-				Ordinal nf = space()->nGlo(3);
-				Ordinal nt = 4*nf;
+				ST pi = 4.*std::atan(1.);
+				OT nf = space()->nGlo(3);
+				OT nt = 4*nf;
 				Teuchos::RCP<IFT> temp = get0Field().clone( Pimpact::ECopy::Shallow );
-				for( Ordinal i=0; i<nt;  ++i ) {
+				for( OT i=0; i<nt;  ++i ) {
 					*temp = get0Field();
-					for( Ordinal j=1; j<=nf; ++j ) {
+					for( OT j=1; j<=nf; ++j ) {
 						temp->add(
 								1., *temp,
-								std::sin( 2.*pi*i*((Scalar)j)/nt ), getSField(j) );
+								std::sin( 2.*pi*i*(static_cast<ST>(j))/nt ), getSField(j) );
 						temp->add(
-								std::cos( 2.*pi*i*((Scalar)j)/nt ), getCField(j),
+								std::cos( 2.*pi*i*(static_cast<ST>(j))/nt ), getCField(j),
 								1., *temp );
 						temp->write( count+i );
 					}
@@ -510,7 +510,7 @@ public:
 			if( 0==space()->si(F::U,3) )
 				get0Field().write(count);
 
-			for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+			for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 				getCField(i).write( count+2*i-1 );
 				getSField(i).write( count+2*i   );
 			}
@@ -537,7 +537,7 @@ public:
 			if( 0==space()->si(F::U,3) )
 				field0_.exchange();
 
-			for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+			for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 				getField(i).exchange();
 
 			// mpi stuff
@@ -547,7 +547,7 @@ public:
 			int sendcount = 0;
 			if( 0==space()->si(F::U,3) )
 				sendcount += nx;
-			for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+			for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
 				sendcount += 2*nx;
 
 			// --- recvcount, displacement ---
@@ -556,8 +556,8 @@ public:
 			int* recvcounts = new int[np];
 			int* displs     = new int[np];
 
-			Ordinal nfl  = (space()->getGridSizeLocal()->get(3)+1)/np;
-			Ordinal rem  = (space()->getGridSizeLocal()->get(3)+1)%np;
+			OT nfl  = (space()->getGridSizeLocal()->get(3)+1)/np;
+			OT rem  = (space()->getGridSizeLocal()->get(3)+1)%np;
 
 //			std::cout << "\trankST: " << space()->rankST() << "\tsendcount: " << sendcount << "\n";
 
@@ -597,10 +597,10 @@ public:
 			if( 0!=space()->si(F::U,3) )
 				get0Field().setExchanged();
 
-			for( Ordinal i=1; i<space()->si(F::U,3); ++i )
+			for( OT i=1; i<space()->si(F::U,3); ++i )
 				getField(i).setExchanged();
 
-			for( Ordinal i=space()->ei(F::U,3)+1; i<=space()->nGlo(3); ++i )
+			for( OT i=space()->ei(F::U,3)+1; i<=space()->nGlo(3); ++i )
 				getField(i).setExchanged();
 		}
 	}

@@ -5,6 +5,7 @@
 #include "Teuchos_CommHelpers.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Tuple.hpp"
+#include "Teuchos_ParameterList.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
@@ -33,23 +34,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( VectorField, initField, SpaceT ) {
 	auto divVec = Pimpact::create<Pimpact::ScalarField>( space );
 
 	auto divOp = Pimpact::create<Pimpact::DivOp>( space );
+	auto pl = Teuchos::parameterList();
+	pl->set<std::string>( "Type", "disturbance" );
 
-	//for( int i=22; i<=23; ++i ) {
-	////if( 17==i )
-	////vel->initField( Pimpact::EVectorField(i), 1., 1., 0.25 );
-	////else
-	////vel->initField( Pimpact::EVectorField(i) );
-	//vel->write( i );
-	//divOp->apply( *vel, *divVec );
-	//auto bla = divVec->norm( Belos::InfNorm );
-	//if( 0==space->rankST() )
-	//std::cout << "F: " << i << "\tmax div: " << bla << "\n";
-	//bla = divVec->norm( Belos::TwoNorm );
-	//if( 0==space->rankST() )
-	//std::cout << "F: " << i << "\t||div||: " << bla << "\n";
-	//divVec->write( i*2 );
-	//}
-
+	vel->write();
+	divOp->apply( *vel, *divVec );
+	auto bla = divVec->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "F: " <<  "\tmax div: " << bla << "\n";
+	bla = divVec->norm( Belos::TwoNorm );
+	if( 0==space->rankST() )
+		std::cout << "F: " << "\t||div||: " << bla << "\n";
+	divVec->write( 1 );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( VectorField, initField, D2 ) 

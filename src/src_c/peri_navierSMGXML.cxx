@@ -126,7 +126,7 @@ OpT,
 		Teuchos::CommandLineProcessor my_CLP;
 
 		std::string xmlFilename = "parameterSMG.xml";
-		my_CLP.setOption("filename", &xmlFilename, "file name of the input xml paramerterlist");
+		my_CLP.setOption("filename", &xmlFilename, "file name of the input xml parameterlist");
 
 		my_CLP.recogniseAllOptions(true);
 		my_CLP.throwExceptions(true);

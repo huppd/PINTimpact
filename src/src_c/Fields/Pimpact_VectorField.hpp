@@ -41,10 +41,10 @@ public:
 
 protected:
 
-	using Scalar = typename SpaceT::Scalar;
-	using Ordinal = typename SpaceT::Ordinal;
+	using ST = typename SpaceT::Scalar;
+	using OT = typename SpaceT::Ordinal;
 
-	using ScalarArray = Scalar*;
+	using ScalarArray = ST*;
 
 	using SF = ScalarField<SpaceT>;
 
@@ -55,8 +55,8 @@ protected:
 	SF sFields_[3];
 
 	void allocate() {
-		Ordinal n = getStorageSize()/3;
-		s_ = new Scalar[3*n];
+		OT n = getStorageSize()/3;
+		s_ = new ST[3*n];
 		for( int i=0; i<3; ++i )
 			sFields_[i].setStoragePtr( s_+i*n );
 	}
@@ -130,8 +130,8 @@ public:
 	/// \f[ N_v = (N_x-2)(N_y-1)(N_z-2) \f]
 	/// \f[ N_w = (N_x-2)(N_y-2)(N_z-1) \f]
 	/// \return vect length \f[= N_u+N_v+N_w\f]
-	constexpr Ordinal getLength() {
-		Ordinal n = 0;
+	constexpr OT getLength() {
+		OT n = 0;
 		for( F i=F::U; i<SpaceT::sdim; ++i )
 			n += at(i).getLength();
 
@@ -146,7 +146,7 @@ public:
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
   ///
   /// only inner points
-	void add( const Scalar& alpha, const VectorField& a, const Scalar& beta, const
+	void add( const ST& alpha, const VectorField& a, const ST& beta, const
 			VectorField& b, const B& wB=B::Y ) {
 
 		// add test for consistent VectorSpaces in debug mode
@@ -184,7 +184,7 @@ public:
 
 
 	/// \brief Scale each element of the vectors in \c this with \c alpha.
-	void scale( const Scalar& alpha, const B& bcYes=B::Y ) {
+	void scale( const ST& alpha, const B& bcYes=B::Y ) {
 		for( F i=F::U; i<SpaceT::sdim; ++i )
 			at(i).scale( alpha, bcYes );
 		changed();
@@ -205,8 +205,8 @@ public:
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	constexpr Scalar dotLoc ( const VectorField& a, const B& bcYes=B::Y ) const {
-		Scalar b = 0.;
+	constexpr ST dotLoc ( const VectorField& a, const B& bcYes=B::Y ) const {
+		ST b = 0.;
 
 		for( F i=F::U; i<SpaceT::sdim; ++i )
 			b += at(i).dotLoc( a(i), bcYes );
@@ -216,7 +216,7 @@ public:
 
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const VectorField& y, const B& bcYes=B::Y ) const {
+	constexpr ST dot( const VectorField& y, const B& bcYes=B::Y ) const {
 
 		return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
 	}
@@ -226,9 +226,9 @@ public:
 	/// \name Norm method
 	/// @{
 
-	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
+	constexpr ST normLoc( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
 
-		Scalar normvec = 0.;
+		ST normvec = 0.;
 
 		for( F i=F::U; i<SpaceT::sdim; ++i )
 			normvec =
@@ -242,9 +242,9 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
+  constexpr ST norm( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
 
-		Scalar normvec = this->reduce(
+		ST normvec = this->reduce(
 				comm(),
 				normLoc( type, bcYes ),
 				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
@@ -263,8 +263,8 @@ public:
 	/// Here x represents this vector, and we compute its weighted norm as follows:
 	/// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
 	/// \return \f$ \|x\|_w \f$
-	constexpr Scalar normLoc( const VectorField& weights, const B& bcYes=B::Y ) const {
-		Scalar normvec = 0.;
+	constexpr ST normLoc( const VectorField& weights, const B& bcYes=B::Y ) const {
+		ST normvec = 0.;
 
 		for( F i=F::U; i<SpaceT::sdim; ++i )
 			normvec += at(i).normLoc( weights(i), bcYes );
@@ -279,7 +279,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const VectorField& weights, const B& bcYes=B::Y ) const {
+  constexpr ST norm( const VectorField& weights, const B& bcYes=B::Y ) const {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
 	}
 
@@ -314,7 +314,7 @@ public:
 	}
 
 	/// \brief Replace each element of the vector  with \c alpha.
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& bcYes=B::Y ) {
+	void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& bcYes=B::Y ) {
 		for( F i=F::U; i<SpaceT::sdim; ++i )
 			at(i).init( alpha, bcYes );
 		changed();
@@ -418,17 +418,17 @@ public:
 				}
 			case ConstFlow :
 				{
-					Scalar u = para.get<Scalar>( "U", 1.);
-					Scalar v = para.get<Scalar>( "V", 1.);
-					Scalar w = para.get<Scalar>( "V", 1.);
+					ST u = para.get<ST>( "U", 1.);
+					ST v = para.get<ST>( "V", 1.);
+					ST w = para.get<ST>( "V", 1.);
 
-					at(F::U).initFromFunction( [&u]( Scalar x, Scalar y, Scalar z)->Scalar{
+					at(F::U).initFromFunction( [&u]( ST x, ST y, ST z)->ST{
 							return( u ); },
 							add );
-					at(F::V).initFromFunction( [&v]( Scalar x, Scalar y, Scalar z)->Scalar{
+					at(F::V).initFromFunction( [&v]( ST x, ST y, ST z)->ST{
 							return( v ); },
 							add );
-					at(F::W).initFromFunction( [&w]( Scalar x, Scalar y, Scalar z)->Scalar{
+					at(F::W).initFromFunction( [&w]( ST x, ST y, ST z)->ST{
 							return( w ); },
 							add );
 					break;
@@ -438,7 +438,7 @@ public:
 					for( F i=F::U; i<SpaceT::sdim; ++i )
 						if( F::U==i )
 							at(i).initFromFunction(
-									[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*y*(1.-y) ); },
+									[] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); },
 									add );
 						else
 							if( Add::N==add ) at(i).init();
@@ -449,7 +449,7 @@ public:
 					for( F i=F::U; i<SpaceT::sdim; ++i )
 						if( F::V==i )
 							at(i).initFromFunction(
-									[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); },
+									[] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); },
 									add );
 						else
 							if( Add::N==add ) at(i).init();
@@ -460,7 +460,7 @@ public:
 					for( F i=F::U; i<SpaceT::sdim; ++i )
 						if(F::W==i )
 							at(i).initFromFunction(
-									[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); },
+									[] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); },
 									add );
 						else
 							if( Add::N==add ) at(i).init();
@@ -482,7 +482,7 @@ public:
 							space()->getCoordinatesLocal()->getX(F::S,Y),
 							space()->getDomainSize()->getRe(),     // TODO: verify
 							space()->getDomainSize()->getAlpha2(), // TODO: verify
-							para.get<Scalar>( "px", 1. ),          // TODO: verify
+							para.get<ST>( "px", 1. ),          // TODO: verify
 							at(F::U).getRawPtr(),
 							at(F::V).getRawPtr(),
 							at(F::W).getRawPtr() );
@@ -504,7 +504,7 @@ public:
 							space()->getCoordinatesLocal()->getX(F::S,X),
 							space()->getDomainSize()->getRe(),     // TODO: verify
 							space()->getDomainSize()->getAlpha2(), // TODO: verify
-							para.get<Scalar>( "px", 1. ),          // TODO: verify
+							para.get<ST>( "px", 1. ),          // TODO: verify
 							at(F::U).getRawPtr(),
 							at(F::V).getRawPtr(),
 							at(F::W).getRawPtr() );
@@ -526,7 +526,7 @@ public:
 							space()->getCoordinatesLocal()->getX(F::S,Y),
 							space()->getDomainSize()->getRe(),     // TODO: verify
 							space()->getDomainSize()->getAlpha2(), // TODO: verify
-							para.get<Scalar>( "px", 1. ),          // TODO: verify
+							para.get<ST>( "px", 1. ),          // TODO: verify
 							at(F::U).getRawPtr(),
 							at(F::V).getRawPtr(),
 							at(F::W).getRawPtr() );
@@ -548,7 +548,7 @@ public:
 							space()->getCoordinatesLocal()->getX(F::S,X),
 							space()->getDomainSize()->getRe(),     // TODO: verify
 							space()->getDomainSize()->getAlpha2(), // TODO: verify
-							para.get<Scalar>( "px", 1. ),          // TODO: verify
+							para.get<ST>( "px", 1. ),          // TODO: verify
 							at(F::U).getRawPtr(),
 							at(F::V).getRawPtr(),
 							at(F::W).getRawPtr() );
@@ -556,14 +556,14 @@ public:
 				}
 			case Streaming2DC :
 				{
-					Scalar amp = space()->getDomainSize()->getRe();
-					Scalar pi = 4.*std::atan(1.);
-					Scalar L1 = space()->getDomainSize()->getSize(X);
-					Scalar om = 2.*pi/L1;
+					ST amp = space()->getDomainSize()->getRe();
+					ST pi = 4.*std::atan(1.);
+					ST L1 = space()->getDomainSize()->getSize(X);
+					ST om = 2.*pi/L1;
 
 					if( Add::N==add ) at(F::U).init();
 					at(F::V).initFromFunction( 
-							[&amp,&om]( Scalar x, Scalar y, Scalar z ) -> Scalar {
+							[&amp,&om]( ST x, ST y, ST z ) -> ST {
 								return( amp*std::cos( om*x ) ); },
 							add );
 					if( Add::N==add ) at(F::W).init();
@@ -571,14 +571,14 @@ public:
 				}
 			case Streaming2DS:
 				{
-					Scalar amp = space()->getDomainSize()->getRe();
-					Scalar pi = 4.*std::atan(1.);
-					Scalar L1 = space()->getDomainSize()->getSize(X);
-					Scalar om = 2.*pi/L1;
+					ST amp = space()->getDomainSize()->getRe();
+					ST pi = 4.*std::atan(1.);
+					ST L1 = space()->getDomainSize()->getSize(X);
+					ST om = 2.*pi/L1;
 
 					if( Add::N==add ) at(F::U).init();
 					at(F::V).initFromFunction( 
-							[&amp,&om]( Scalar x, Scalar y, Scalar z ) -> Scalar {
+							[&amp,&om]( ST x, ST y, ST z ) -> ST {
 							return( amp*std::sin( om*x ) ); },
 							add );
 					if( Add::N==add ) at(F::W).init();
@@ -741,10 +741,10 @@ public:
 							space()->getCoordinatesLocal()->getX(F::U,X),
 							space()->getCoordinatesLocal()->getX(F::V,Y),
 							//re, om, px,sca,
-							para.get<Scalar>( "center x", 1. ),
-							para.get<Scalar>( "center y", 1. ),
-							para.get<Scalar>( "radius", 1. ),
-							para.get<Scalar>( "sca", 0.1 ),
+							para.get<ST>( "center x", 1. ),
+							para.get<ST>( "center y", 1. ),
+							para.get<ST>( "radius", 1. ),
+							para.get<ST>( "sca", 0.1 ),
 							at(F::U).getRawPtr(),
 							at(F::V).getRawPtr(),
 							at(F::W).getRawPtr() );
@@ -764,9 +764,9 @@ public:
 							space()->eIndB(F::W),
 							space()->getCoordinatesLocal()->getX(F::S,X),
 							space()->getCoordinatesLocal()->getX(F::S,Y),
-							para.get<Scalar>( "center x", 1. ),
-							para.get<Scalar>( "center y", 1. ),
-							para.get<Scalar>( "omega", 1. ),
+							para.get<ST>( "center x", 1. ),
+							para.get<ST>( "center y", 1. ),
+							para.get<ST>( "omega", 1. ),
 							at(F::U).getRawPtr(),
 							at(F::V).getRawPtr(),
 							at(F::W).getRawPtr() );
@@ -774,16 +774,16 @@ public:
 				}
 			case SweptHiemenzFlow :
 				{
-					Scalar pi = 4.*std::atan(1.);
+					ST pi = 4.*std::atan(1.);
 
-					Ordinal nTemp = space()->gu(X) - space()->gl(X) + 1;
-					//for( Ordinal i=0; i<=space()->nLoc(X); ++i ) {
+					OT nTemp = space()->gu(X) - space()->gl(X) + 1;
+					//for( OT i=0; i<=space()->nLoc(X); ++i ) {
 					//std::cout << "i: " << i<< " (\t";
-					//for( Ordinal ii=0; ii<nTemp; ++ii )
+					//for( OT ii=0; ii<nTemp; ++ii )
 					//std::cout << space()->getInterpolateV2S()->getC(X)[ i*nTemp + ii ] << ",\t";
 					//std::cout << ")\n";
 					//}
-					//Scalar c[6] = { 
+					//ST c[6] = { 
 					//space()->getInterpolateV2S()->getC(X)[ nTemp + 0 ],
 					//space()->getInterpolateV2S()->getC(X)[ nTemp + 1 ],
 					//space()->getInterpolateV2S()->getC(X)[ nTemp + 2 ],
@@ -791,7 +791,7 @@ public:
 					//space()->getInterpolateV2S()->getC(X)[ nTemp + 4 ],
 					//space()->getInterpolateV2S()->getC(X)[ nTemp + 5 ] };
 					//std::cout << "c\n";
-					//for( Ordinal ii=0; ii<nTemp; ++ii )
+					//for( OT ii=0; ii<nTemp; ++ii )
 					//std::cout << c[  ii ] << ",\t";
 					//std::cout << "c\n";
 
@@ -818,10 +818,10 @@ public:
 							space()->getInterpolateV2S()->getC(X)+2*nTemp-1, /// \todo rm dirty hack
 							space()->getDomainSize()->getRe(),
 							para.get<int>( "nonDim", 0 ),
-							para.get<Scalar>( "kappa", 0. ),
-							para.get<Scalar>( "seep angle", 0. ),
-							para.get<Scalar>( "seep angle", 0. )*pi/180.,
-							para.get<Scalar>( "attack angle", 0. ),
+							para.get<ST>( "kappa", 0. ),
+							para.get<ST>( "seep angle", 0. ),
+							para.get<ST>( "seep angle", 0. )*pi/180.,
+							para.get<ST>( "attack angle", 0. ),
 							at(F::U).getRawPtr(),
 							at(F::V).getRawPtr(),
 							at(F::W).getRawPtr() );
@@ -833,42 +833,44 @@ public:
 				}
 			case Disturbance :
 				{
-					Scalar pi = 4.*std::atan(1.);
-					Scalar xc = para.get<Scalar>( "xc", 1.3 );
-					Scalar zc = para.get<Scalar>( "zc", 3.0 );
-					Scalar b  = para.get<Scalar>( "b",  3. );
-					Scalar A  = para.get<Scalar>( "A",  0.1 );
+					ST pi = 4.*std::atan(1.);
+					ST xc = para.get<ST>( "xc", 3.0 );
+					ST zc = para.get<ST>( "zc", 1.5 );
+					ST b  = para.get<ST>( "b",  3. );
+					ST A  = para.get<ST>( "A",  0.1 );
 
-					Teuchos::RCP<const DomainSize<Scalar,SpaceT::sdim> > domain = space()->getDomainSize();
+					Teuchos::RCP<const DomainSize<ST,SpaceT::sdim> > domain = space()->getDomainSize();
 					at(F::W).initFromFunction( 
-							[=]( Scalar x_, Scalar y_, Scalar z_ ) -> Scalar {
+							[=]( ST x_, ST y_, ST z_ ) -> ST {
 
-								Scalar x = x_*domain->getSize(X) + domain->getOrigin(X);
-								Scalar y = y_*domain->getSize(Y) + domain->getOrigin(Y);
-								Scalar z = z_*domain->getSize(Z) + domain->getOrigin(Z); 
+								ST x = x_*domain->getSize(X) + domain->getOrigin(X);
+								ST y = y_*domain->getSize(Y) + domain->getOrigin(Y);
+								ST z = z_*domain->getSize(Z) + domain->getOrigin(Z); 
 
-								if( y<=0. && std::fabs( x-xc )<b && (std::fabs(z-zc)<b || std::fabs(z+zc)<b) ) {
-									return(
-										-0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) )
-										+0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z+zc)/b ) ) );
-								}
-								else 
-									return( 0. ); },
+								ST w = 0.;
+								if( y<=0. && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
+									w -=
+										0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) );
+								if( y<=0. && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
+									w +=
+										0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z+zc)/b ) );
+								return( w ); },
 							add );
 					at(F::U).initFromFunction( 
-							[=]( Scalar x_, Scalar y_, Scalar z_ ) -> Scalar {
+							[=]( ST x_, ST y_, ST z_ ) -> ST {
 
-								Scalar x = x_*domain->getSize(X) + domain->getOrigin(X);
-								Scalar y = y_*domain->getSize(Y) + domain->getOrigin(Y);
-								Scalar z = z_*domain->getSize(Z) + domain->getOrigin(Z); 
+								ST x = x_*domain->getSize(X) + domain->getOrigin(X);
+								ST y = y_*domain->getSize(Y) + domain->getOrigin(Y);
+								ST z = z_*domain->getSize(Z) + domain->getOrigin(Z); 
 
-								if( y<=0. && std::fabs( x-xc )<b && (std::fabs(z-zc)<b || std::fabs(z+zc)<b) ) {
-									return(
-										+0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) )
-										-0.5*A*std::sin( pi*(z+zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) ) );
-								}
-								else 
-									return( 0. ); },
+								ST u = 0.;
+								if( y<=0. && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
+									u +=
+										0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
+								if( y<=0. && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
+									u -=
+										0.5*A*std::sin( pi*(z+zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
+								return( u ); },
 							add );
 					if( Add::N==add ) at(F::W).init();
 					//VF_init_Dist(
@@ -909,7 +911,7 @@ public:
 			case Couette :
 				{
 					at(F::U).initFromFunction( 
-							[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
+							[]( ST x, ST y, ST z ) -> ST {
 								return( y ); },
 							add );
 					if( Add::N==add ) at(F::V).init();
@@ -919,7 +921,7 @@ public:
 			case Cavity :
 				{
 					at(F::U).initFromFunction( 
-							[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
+							[]( ST x, ST y, ST z ) -> ST {
 								if( std::fabs(x-1.)<0.5 )
 									return( 1. );
 								else
@@ -963,7 +965,7 @@ public:
 	void write( int count=0, bool restart=false ) const {
 
 		if( 0==space()->rankS() ) {
-			Teuchos::Tuple<Ordinal,3> N;
+			Teuchos::Tuple<OT,3> N;
 			for( int i=0; i<3; ++i ) {
 				N[i] = space()->nGlo(i);
 				if( space()->getBCGlobal()->getBCL(i)==Pimpact::BC::Periodic )
@@ -1033,24 +1035,24 @@ public:
 	/// Operator or on top field implementer.
 	/// @{ 
 
-	constexpr Ordinal getStorageSize() const { return( sFields_[0].getStorageSize()*3 ); }
+	constexpr OT getStorageSize() const { return( sFields_[0].getStorageSize()*3 ); }
 
-  void setStoragePtr( Scalar*  array ) {
+  void setStoragePtr( ST*  array ) {
     s_ = array;
-    Ordinal n = sFields_[0].getStorageSize();
+    OT n = sFields_[0].getStorageSize();
     for( int i=0; i<3; ++i )
       sFields_[i].setStoragePtr( s_+i*n );
   }
 
-	constexpr Scalar* getRawPtr() { return( s_ ); }
+	constexpr ST* getRawPtr() { return( s_ ); }
 
-	constexpr const Scalar* getConstRawPtr() const { return( s_ ); }
-
-	/// \deprecated
-  Scalar* getRawPtr ( int i )       { return( sFields_[i].getRawPtr() ); }
+	constexpr const ST* getConstRawPtr() const { return( s_ ); }
 
 	/// \deprecated
-	constexpr const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i].getConstRawPtr() ); }
+  ST* getRawPtr ( int i )       { return( sFields_[i].getRawPtr() ); }
+
+	/// \deprecated
+	constexpr const ST* getConstRawPtr ( int i )  const  { return( sFields_[i].getConstRawPtr() ); }
 
 	///  @} 
 
@@ -1082,7 +1084,7 @@ public:
   constexpr const MPI_Comm& comm() { return(space()->comm()); }
 
 
-	constexpr Scalar allReduce( Scalar local, const MPI_Op& op=MPI_SUM  ) {
+	constexpr ST allReduce( ST local, const MPI_Op& op=MPI_SUM  ) {
 		return( this->reduce( comm(), local ) );
 	}
 

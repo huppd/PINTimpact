@@ -1537,11 +1537,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivOp, SpaceT ) {
 		for( OT n=0; n<ns; ++n ) {
 
 			if( 0==dir ) 
-				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "nx", n0*std::pow(2,n)+1 );
 			else if( 1==dir )
-				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "ny", n0*std::pow(2,n)+1 );
 			else if( 2==dir )
-				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "nz", n0*std::pow(2,n)+1 );
 
 			// grid stretching
 			setStretching();
@@ -1583,7 +1583,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivOp, SpaceT ) {
 			if( write ) p.write(n);
 			error2[n] = std::log10( p.norm( Belos::TwoNorm ) / sol.norm( Belos::TwoNorm ) );
 			errorInf[n] = std::log10( p.norm( Belos::InfNorm ) / sol.norm( Belos::InfNorm ) );
-			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
 
@@ -1632,11 +1632,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateV2SOp, SpaceT ) {
 		for( OT n=0; n<ns; ++n ) {
 
 			if( 0==dir ) 
-				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "nx", n0*std::pow(2,n)+1 );
 			else if( 1==dir )
-				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "ny", n0*std::pow(2,n)+1 );
 			else if( 2==dir )
-				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "nz", n0*std::pow(2,n)+1 );
 
 			// grid stretching
 			setStretching();
@@ -1680,7 +1680,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateV2SOp, SpaceT ) {
 
 			error2[n]   = std::log10( p.norm( Belos::TwoNorm ) / sol.norm( Belos::TwoNorm ) );
 			errorInf[n] = std::log10( p.norm( Belos::InfNorm ) / sol.norm( Belos::InfNorm ) );
-			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
@@ -1731,11 +1731,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateS2VOp, SpaceT ) {
 		for( OT n=0; n<ns; ++n ) {
 
 			if( 0==dir ) 
-				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "nx", n0*std::pow(2,n)+1 );
 			else if( 1==dir )
-				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "ny", n0*std::pow(2,n)+1 );
 			else if( 2==dir )
-				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "nz", n0*std::pow(2,n)+1 );
 
 			// grid stretching
 			setStretching();
@@ -1776,7 +1776,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateS2VOp, SpaceT ) {
 
 			error2[n]   = std::log10( vel(dir).norm( Belos::TwoNorm ) / sol(dir).norm( Belos::TwoNorm ) );
 			errorInf[n] = std::log10( vel(dir).norm( Belos::InfNorm ) / sol(dir).norm( Belos::InfNorm ) );
-			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
 
@@ -1827,11 +1827,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, extrapolateBC, SpaceT ) {
 			for( OT n=0; n<ns; ++n ) {
 
 				if( Pimpact::F::U==dir ) 
-					pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+					pl->set<OT>( "nx", n0*std::pow(2,n)+1 );
 				else if( Pimpact::F::V==dir )
-					pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+					pl->set<OT>( "ny", n0*std::pow(2,n)+1 );
 				else if( Pimpact::F::W==dir )
-					pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+					pl->set<OT>( "nz", n0*std::pow(2,n)+1 );
 
 				// grid stretching
 				setStretching();
@@ -1869,7 +1869,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, extrapolateBC, SpaceT ) {
 				error2[n]   = std::log10( vel(dir).norm( Belos::TwoNorm ) / sol(dir).norm( Belos::TwoNorm ) );
 				errorInf[n] = std::log10( vel(dir).norm( Belos::InfNorm ) / sol(dir).norm( Belos::InfNorm ) );
 
-				dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+				dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 				if( 0==rank )	
 					std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
 			}
@@ -1918,11 +1918,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, GradOp, SpaceT ) {
 		for( OT n=0; n<ns; ++n ) {
 
 			if( Pimpact::F::U==dir ) 
-				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "nx", n0*std::pow(2,n)+1 );
 			else if( Pimpact::F::V==dir )
-				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "ny", n0*std::pow(2,n)+1 );
 			else if( Pimpact::F::W==dir )
-				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+				pl->set<OT>( "nz", n0*std::pow(2,n)+1 );
 
 			setStretching();
 
@@ -1986,7 +1986,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, GradOp, SpaceT ) {
 			
 			error2[n]   = std::log10( vel(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) / sol(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) );
 			errorInf[n] = std::log10( vel(dir).norm( Belos::InfNorm, Pimpact::B::Y ) / sol(dir).norm( Belos::InfNorm, Pimpact::B::Y ) );
-			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
 
@@ -2160,7 +2160,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			e->add( 1., *sol, -1., *y );
 			error2[n] = std::log10( e->norm( Belos::TwoNorm ) / sol->norm( Belos::TwoNorm ) );
 			errorInf[n] = std::log10( e->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
-			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 			eRef->add( 1., *yRef, -1., *y );
 			error2Ref[n] = std::log10( eRef->norm( Belos::TwoNorm ) / std::sqrt( dofs[n] ) );
 			errorInfRef[n] = std::log10( eRef->norm( Belos::InfNorm ) );
@@ -2241,11 +2241,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 			for( OT n=0; n<ns; ++n ) {
 
 				if( 0==dir ) 
-					pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+					pl->set<OT>( "nx", n0*std::pow(2,n)+1 );
 				else if( 1==dir )
-					pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+					pl->set<OT>( "ny", n0*std::pow(2,n)+1 );
 				else if( 2==dir )
-					pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+					pl->set<OT>( "nz", n0*std::pow(2,n)+1 );
 
 				// grid stretching
 				setStretching();
@@ -2414,7 +2414,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 				if( write ) y.write( n );
 				error2[n]   = std::log10( y(field).norm( Belos::TwoNorm ) / sol(field).norm( Belos::TwoNorm ) );
 				errorInf[n] = std::log10( y(field).norm( Belos::InfNorm ) / sol(field).norm( Belos::InfNorm ) );
-				dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+				dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 				if( 0==rank )	
 					std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
 			}
