@@ -589,19 +589,87 @@ int main( int argi, char** argv ) {
 			}
 
 			// --- compute error ---
-			ST solNorm = sol->getField(0).getVField().norm();
-			sol->getField(0).getVField().add( 1., sol->getField(0).getVField(), -1., x->getField(0).getVField() );
-			ST error = sol->getField(0).getVField().norm()/solNorm;
-			if( 0==space->rankST() ) std::cout << "error: " << error << "\n";
-			auto eStream = Pimpact::createOstream("error.txt", space->rankST() );
-			*eStream << error << "\n";
+			//{
+				//ST solNorm = sol->getField(0).getVField().norm();
+				//sol->getField(0).getVField().add( 1., sol->getField(0).getVField(), -1., x->getField(0).getVField() );
+				//ST error = sol->getField(0).getVField().norm()/solNorm;
+				//if( 0==space->rankST() ) std::cout << "error: " << error << "\n";
+				//auto eStream = Pimpact::createOstream("error.txt", space->rankST() );
+				//*eStream << error << "\n";
+			//}
+			// compute glob energy in y-dir
+			{
+
+				auto vel =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Deep );
+				auto base =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Shallow );
+				base->initField( pl->sublist("Base flow").sublist( "0 mode" ) );
+				vel->add( 1., *vel, -1., *base );
+
+				auto out = Pimpact::createOstream( "energyY_0.txt", space->rankST() );
+				Pimpact::computeEnergyY( *vel, *out );
+
+				for( int i=1; i<=space->nGlo(3); ++i ) {
+					{
+						auto out = Pimpact::createOstream( "energyY_C"+std::to_string(i)+".txt", space->rankST() );
+						Pimpact::computeEnergyY( x->getField(0).getVField().getCField(i), *out );
+					}
+					{
+						auto out = Pimpact::createOstream( "energyY_S"+std::to_string(i)+".txt", space->rankST() );
+						Pimpact::computeEnergyY( x->getField(0).getVField().getSField(i), *out );
+					}
+				}
+			}
+
+			// spectral refinement criterion
+			if( refinement>1 ) {
+
+				x->getField(0).getVField().exchange();
+				ST u_nf = x->getField(0).getVField().getField(space->nGlo(3)).norm();
+				ST u_1  = x->getField(0).getVField().getField(1             ).norm();
+				ST truncError = 1.;
+				if( u_nf != u_1 ) // just in case u_1=u_nf=0
+					truncError = u_nf / u_1 ;
+				if( truncError < refinementTol ) {
+					if( 0==space->rankST() )
+						std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " < " << refinementTol << "\n\n"; 
+					break;
+				}	
+				else
+					if( 0==space->rankST() )
+						std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " >= " << refinementTol << "\n\n"; 
+
+				auto spaceF =
+					Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
+							space, Teuchos::tuple<int>( 0, 0, 0, refinementStep ) );
+
+				auto refineOp =
+					Teuchos::rcp(
+							new Pimpact::TransferCompoundOp<
+							Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<SpaceT> > >,
+							Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp<SpaceT> >
+							>( space, spaceF ) );
+				// refineOp->print();
+
+				// init Fields for fine Boundary conditions
+				auto xf = Pimpact::create<CF>( spaceF );
+				xf->getVField().initField( pl->sublist("Base flow") );
+
+				auto temp = Pimpact::create<CF>( spaceF );
+
+				refineOp->apply( x->getField(0), *temp );
+
+				xf->add( 1., *temp, 0., *temp );
+
+				x = Pimpact::wrapMultiField( xf );
+				space = spaceF;
+			}
 
 		} // end of for( int refine=0; refine<refinement; ++refine ) {
 		/******************************************************************************************/
 
 		Teuchos::TimeMonitor::summarize();
-		if( 0==space->rankST() )
-			Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+		//if( 0==space->rankST() )
+			//Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
 
 	}
 	MPI_Finalize();

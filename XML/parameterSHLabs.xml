@@ -65,7 +65,7 @@
 		</ParameterList>
 		<ParameterList id="13" name="Test 2">
 			<Parameter docString="" id="100" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-			<Parameter docString="" id="101" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+			<Parameter docString="" id="101" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
 		</ParameterList>
 	</ParameterList>
 	<ParameterList id="8" name="NOX Solver">
@@ -136,7 +136,7 @@
 		<Parameter docString="" id="192" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
 		<Parameter docString="" id="193" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
 		<ParameterList id="27" name="Solver">
-			<Parameter docString="" id="149" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
+			<Parameter docString="" id="149" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
 			<Parameter docString="" id="150" isDefault="false" isUsed="true" name="Num Block" type="int" value="5" />
 			<Parameter docString="" id="151" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000002e-02" />
 			<Parameter docString="" id="152" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
@@ -249,14 +249,14 @@
 	<ParameterList id="40" name="M_ConvDiff">
 		<Parameter docString="" id="237" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<Parameter docString="" id="238" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="239" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
+		<Parameter docString="" id="239" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
 		<Parameter docString="" id="240" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
 		<Parameter docString="" id="999127" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
 		<Parameter docString="" id="241" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
 		<Parameter docString="" id="242" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
 		<Parameter docString="" id="243" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
 		<ParameterList id="41" name="Solver">
-			<Parameter docString="" id="244" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+			<Parameter docString="" id="244" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
 			<Parameter docString="" id="245" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
 			<Parameter docString="" id="246" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
 			<Parameter docString="" id="247" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
