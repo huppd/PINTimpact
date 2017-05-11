@@ -546,15 +546,22 @@ int main( int argi, char** argv ) {
 			auto group = NOX::Pimpact::createGroup( Teuchos::parameterList(), inter, nx );
 
 			// Set up the status tests
-			auto statusTest =
-				NOX::StatusTest::buildStatusTests( pl->sublist("NOX Solver").sublist("Status Test"), NOX::Utils() );
+			Teuchos::RCP<NOX::StatusTest::Generic> statusTest =
+				//NOX::StatusTest::buildStatusTests( pl->sublist("NOX Solver").sublist("Status Test"), NOX::Utils() );
+				NOX::StatusTest::buildStatusTests( pl->sublist("NOX Status Test"), NOX::Utils() );
 
 			// Create the solver
+			//Teuchos::RCP<Teuchos::ParameterList> noxSolverPara = Teuchos::parameterList();
+			Teuchos::RCP<Teuchos::ParameterList> noxSolverPara = Teuchos::sublist( pl, "NOX Solver" );
+
 			Teuchos::RCP<NOX::Solver::Generic> solver =
-				NOX::Solver::buildSolver( group, statusTest, Teuchos::sublist( pl, "NOX Solver" ) );
+				//NOX::Solver::buildSolver( group, statusTest, Teuchos::sublist( pl, "NOX Solver" ) );
+				NOX::Solver::buildSolver( group, statusTest, noxSolverPara );
 
+			//Teuchos::writeParameterListToXmlFile( *noxSolverPara, "parameterNOX.xml" );
 
-			Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+			//Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+
 			if( 0==space->rankST() )
 				std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
 
@@ -593,7 +600,6 @@ int main( int argi, char** argv ) {
 		/******************************************************************************************/
 
 		Teuchos::TimeMonitor::summarize();
-
 		if( 0==space->rankST() )
 			Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
 

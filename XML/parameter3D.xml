@@ -43,8 +43,7 @@
 	<ParameterList id="7" name="Multi Grid">
 		<Parameter docString="" id="76" isDefault="false" isUsed="true" name="maxGrids" type="int" value="3" />
 	</ParameterList>
-	<ParameterList id="8" name="NOX Solver">
-		<ParameterList id="9" name="Status Test">
+		<ParameterList id="9" name="NOX Status Test">
 			<Parameter docString="" id="77" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
 			<Parameter docString="" id="78" isDefault="false" isUsed="true" name="Combo Type" type="string" value="AND" />
 			<Parameter docString="" id="79" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="2" />
@@ -81,6 +80,7 @@
 				<Parameter docString="" id="99" isDefault="true" isUsed="true" name="Number of Nonlinear Iterations in Ramping Phase" type="int" value="10" />
 			</ParameterList>
 		</ParameterList>
+	<ParameterList id="8" name="NOX Solver">
 		<Parameter docString="" id="100" isDefault="false" isUsed="true" name="Nonlinear Solver" type="string" value="Line Search Based" />
 		<ParameterList id="16" name="Direction">
 			<Parameter docString="" id="101" isDefault="false" isUsed="true" name="Method" type="string" value="Newton" />

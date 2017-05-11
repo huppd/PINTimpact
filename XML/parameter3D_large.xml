@@ -41,44 +41,44 @@
   <Parameter docString="" id="84" isDefault="true" isUsed="true" name="lambda0x" type="double" value="-2.00000000000000000e+00" />
   <Parameter docString="" id="85" isDefault="true" isUsed="true" name="lambdaCy" type="double" value="1.00000000000000000e+00" />
   <Parameter docString="" id="86" isDefault="true" isUsed="true" name="lambdaCz" type="double" value="0.00000000000000000e+00" />
+	<ParameterList id="8" name="NOX Status Test">
+		<Parameter docString="" id="87" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
+		<Parameter docString="" id="88" isDefault="false" isUsed="true" name="Combo Type" type="string" value="AND" />
+		<Parameter docString="" id="89" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="2" />
+		<ParameterList id="9" name="Test 0">
+			<Parameter docString="" id="90" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
+			<Parameter docString="" id="91" isDefault="false" isUsed="true" name="Combo Type" type="string" value="OR" />
+			<Parameter docString="" id="92" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="4" />
+			<ParameterList id="10" name="Test 0">
+				<Parameter docString="" id="93" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormF" />
+				<Parameter docString="" id="94" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.00000000000000009e-07" />
+				<Parameter docString="" id="95" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
+				<Parameter docString="" id="96" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
+			</ParameterList>
+			<ParameterList id="11" name="Test 1">
+				<Parameter docString="" id="97" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" />
+				<Parameter docString="" id="98" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.99999999999999955e-08" />
+				<Parameter docString="" id="99" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
+				<Parameter docString="" id="100" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
+			</ParameterList>
+			<ParameterList id="12" name="Test 2">
+				<Parameter docString="" id="101" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
+				<Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
+			</ParameterList>
+			<ParameterList id="13" name="Test 3">
+				<Parameter docString="" id="103" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
+				<Parameter docString="" id="104" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.00000000000000022e-01" />
+				<Parameter docString="" id="105" isDefault="false" isUsed="true" name="Consecutive Iterations" type="int" value="1" />
+			</ParameterList>
+		</ParameterList>
+		<ParameterList id="14" name="Test 1">
+			<Parameter docString="" id="106" isDefault="false" isUsed="true" name="Test Type" type="string" value="NStep" />
+			<Parameter docString="" id="107" isDefault="true" isUsed="true" name="Number of Nonlinear Iterations" type="int" value="1" />
+			<Parameter docString="" id="108" isDefault="true" isUsed="true" name="Number of Initial Ramping Steps" type="int" value="0" />
+			<Parameter docString="" id="109" isDefault="true" isUsed="true" name="Number of Nonlinear Iterations in Ramping Phase" type="int" value="10" />
+		</ParameterList>
+	</ParameterList>
   <ParameterList id="7" name="NOX Solver">
-    <ParameterList id="8" name="Status Test">
-      <Parameter docString="" id="87" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
-      <Parameter docString="" id="88" isDefault="false" isUsed="true" name="Combo Type" type="string" value="AND" />
-      <Parameter docString="" id="89" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="2" />
-      <ParameterList id="9" name="Test 0">
-        <Parameter docString="" id="90" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
-        <Parameter docString="" id="91" isDefault="false" isUsed="true" name="Combo Type" type="string" value="OR" />
-        <Parameter docString="" id="92" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="4" />
-        <ParameterList id="10" name="Test 0">
-          <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormF" />
-          <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.00000000000000009e-07" />
-          <Parameter docString="" id="95" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
-          <Parameter docString="" id="96" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
-        </ParameterList>
-        <ParameterList id="11" name="Test 1">
-          <Parameter docString="" id="97" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" />
-          <Parameter docString="" id="98" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.99999999999999955e-08" />
-          <Parameter docString="" id="99" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
-          <Parameter docString="" id="100" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
-        </ParameterList>
-        <ParameterList id="12" name="Test 2">
-          <Parameter docString="" id="101" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-          <Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
-        </ParameterList>
-        <ParameterList id="13" name="Test 3">
-          <Parameter docString="" id="103" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
-          <Parameter docString="" id="104" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.00000000000000022e-01" />
-          <Parameter docString="" id="105" isDefault="false" isUsed="true" name="Consecutive Iterations" type="int" value="1" />
-        </ParameterList>
-      </ParameterList>
-      <ParameterList id="14" name="Test 1">
-        <Parameter docString="" id="106" isDefault="false" isUsed="true" name="Test Type" type="string" value="NStep" />
-        <Parameter docString="" id="107" isDefault="true" isUsed="true" name="Number of Nonlinear Iterations" type="int" value="1" />
-        <Parameter docString="" id="108" isDefault="true" isUsed="true" name="Number of Initial Ramping Steps" type="int" value="0" />
-        <Parameter docString="" id="109" isDefault="true" isUsed="true" name="Number of Nonlinear Iterations in Ramping Phase" type="int" value="10" />
-      </ParameterList>
-    </ParameterList>
     <Parameter docString="" id="110" isDefault="false" isUsed="true" name="Nonlinear Solver" type="string" value="Line Search Based" />
     <ParameterList id="15" name="Direction">
       <Parameter docString="" id="111" isDefault="false" isUsed="true" name="Method" type="string" value="Newton" />

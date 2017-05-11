@@ -264,11 +264,11 @@ public:
 			std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
 		}
 
-	/// \todo figure out why freeing is not working, desirable for many Utest, destructor called twize?
+	/// \todo figure out why freeing is not working, desirable for many Utest, destructor called twice?
 	~ProcGrid() {
 		if( commWorld_!=MPI_COMM_NULL )
 			//std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
-			MPI_Comm_free( &commWorld_ );
+			//MPI_Comm_free( &commWorld_ );
 		if( commSub_!=MPI_COMM_NULL )
 			MPI_Comm_free( &commSub_ );
 		//for( int i=0; i<dim; ++i )
