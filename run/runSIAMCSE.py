@@ -26,9 +26,10 @@ runs = range( 1 )
 res      = [ 300 ]
 alpha2s  = [ 1./60., 1./30., 1./10. ]
 # alpha2s  = [ 1./15.]
-nf       =  1 
-nx       =  1 
-npx      =  1 
+nf       = 1 
+nx       = 1 
+npx      = 1 
+npy      = 4
 npf = 1
 
 
@@ -60,16 +61,16 @@ for re in res:
 		#
 		ma.setParameter( root, 'Re', re )
 		ma.setParameter( root, 'alpha2', 2.*pi*alpha2*re )
-		ma.setParameter( root, 'nx', 48*nx+1 )
-		ma.setParameter( root, 'ny', 96*nx+1 )
-		ma.setParameter( root, 'nz', 64*nx+1 )
+		# ma.setParameter( root, 'nx', 48*nx+1 )
+		# ma.setParameter( root, 'ny', 96*nx+1 )
+		# ma.setParameter( root, 'nz', 64*nx+1 )
 		ma.setParameter( root, 'nf', nf )
 		ma.setParameter( root, 'npx',  1 )
-		ma.setParameter( root, 'npy',  1 )
+		ma.setParameter( root, 'npy', npy )
 		ma.setParameter( root, 'npz',  1 )
 		ma.setParameter( root, 'npf', npf)
 		tree.write( 'parameter3D.xml' )
-		nptot = 1*npf
+		nptot = npy*npf
 		for run in runs:
 			print()
 			print( case_path )
