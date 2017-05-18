@@ -1,7 +1,7 @@
 <ParameterList id="0" name="ANONYMOUS">
 	<ParameterList id="1" name="Space">
-		<Parameter docString="Reynolds number" id="48" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+00" />
-    <Parameter docString="Womersley square alpha^2" id="49" isDefault="false" isUsed="true" name="alpha2" type="double" value="6.28000000000000000e+00" />
+		<Parameter docString="Reynolds number" id="48" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+02" />
+    <Parameter docString="Womersley square alpha^2" id="49" isDefault="false" isUsed="true" name="alpha2" type="double" value="6.28000000000000000e+02" />
   <ParameterList id="2" name="boundary conditions">
     <Parameter docString="" id="50" isDefault="false" isUsed="true" name="lower X" type="int" value="-1" />
     <Parameter docString="" id="51" isDefault="false" isUsed="true" name="upper X" type="int" value="-1" />
@@ -13,10 +13,10 @@
 		<Parameter docString="length in x-direction" id="57" isDefault="false" isUsed="true" name="lx" type="double" value="6.283185307179586" />
 		<Parameter docString="length in y-direction" id="58" isDefault="false" isUsed="true" name="ly" type="double" value="6.283185307179586" />
 		<Parameter docString="length in z-direction" id="59" isDefault="false" isUsed="true" name="lz" type="double" value="6.283185307179586" />
-		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="60" isDefault="false" isUsed="true" name="nx" type="int" value="33" />
-		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="61" isDefault="false" isUsed="true" name="ny" type="int" value="33" />
+		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="60" isDefault="false" isUsed="true" name="nx" type="int" value="129" />
+		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="61" isDefault="false" isUsed="true" name="ny" type="int" value="129" />
 		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="62" isDefault="false" isUsed="true" name="nz" type="int" value="9" />
-		<Parameter docString="amount of grid points in f-direction" id="63" isDefault="false" isUsed="true" name="nf" type="int" value="6" />
+		<Parameter docString="amount of grid points in f-direction" id="63" isDefault="false" isUsed="true" name="nf" type="int" value="3" />
 		<Parameter docString="amount of processors in x-direction" id="64" isDefault="false" isUsed="true" name="npx" type="int" value="2" />
 		<Parameter docString="amount of processors in y-direction" id="65" isDefault="false" isUsed="true" name="npy" type="int" value="1" />
 		<Parameter docString="amount of processors in z-direction" id="66" isDefault="false" isUsed="true" name="npz" type="int" value="1" />
@@ -34,49 +34,50 @@
 		<Parameter docString="" id="75" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
 		<Parameter docString="" id="76" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.e-04" />
 		<Parameter docString="" id="77" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-		<Parameter docString="" id="78" isDefault="false" isUsed="true" name="initial guess" type="string" value="exact" />
+		<Parameter docString="" id="78" isDefault="false" isUsed="true" name="initial guess" type="string" value="zero" />
+		<!--<Parameter docString="" id="78" isDefault="false" isUsed="true" name="initial guess" type="string" value="zero" />-->
 	</ParameterList>
 	<ParameterList id="7" name="Multi Grid">
 		<Parameter docString="" id="79" isDefault="false" isUsed="true" name="maxGrids" type="int" value="6" />
 	</ParameterList>
-	<ParameterList id="8" name="NOX Solver">
-		<ParameterList id="9" name="Status Test">
-			<Parameter docString="" id="80" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
-			<Parameter docString="" id="81" isDefault="false" isUsed="true" name="Combo Type" type="string" value="AND" />
-			<Parameter docString="" id="82" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="2" />
-			<ParameterList id="10" name="Test 0">
-				<Parameter docString="" id="83" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
-				<Parameter docString="" id="84" isDefault="false" isUsed="true" name="Combo Type" type="string" value="OR" />
-				<Parameter docString="" id="85" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="4" />
-				<ParameterList id="11" name="Test 0">
-					<Parameter docString="" id="86" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormF" />
-					<Parameter docString="" id="87" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.00000000000000009e-12" />
-					<Parameter docString="" id="88" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
-					<Parameter docString="" id="89" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
-				</ParameterList>
-				<ParameterList id="12" name="Test 1">
-					<Parameter docString="" id="90" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" />
-					<Parameter docString="" id="91" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.e-06" />
-					<Parameter docString="" id="92" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
-					<Parameter docString="" id="93" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Unscaled" />
-				</ParameterList>
-				<ParameterList id="13" name="Test 2">
-					<Parameter docString="" id="94" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-					<Parameter docString="" id="95" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
-				</ParameterList>
-				<ParameterList id="14" name="Test 3">
-					<Parameter docString="" id="96" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
-					<Parameter docString="" id="97" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.00000000000000022e-01" />
-					<Parameter docString="" id="98" isDefault="false" isUsed="true" name="Consecutive Iterations" type="int" value="1" />
-				</ParameterList>
+	<ParameterList id="9" name="NOX Status Test">
+		<Parameter docString="" id="80" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
+		<Parameter docString="" id="81" isDefault="false" isUsed="true" name="Combo Type" type="string" value="AND" />
+		<Parameter docString="" id="82" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="2" />
+		<ParameterList id="10" name="Test 0">
+			<Parameter docString="" id="83" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
+			<Parameter docString="" id="84" isDefault="false" isUsed="true" name="Combo Type" type="string" value="OR" />
+			<Parameter docString="" id="85" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="4" />
+			<ParameterList id="11" name="Test 0">
+				<Parameter docString="" id="86" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormF" />
+				<Parameter docString="" id="87" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.00000000000000009e-12" />
+				<Parameter docString="" id="88" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
+				<Parameter docString="" id="89" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
 			</ParameterList>
-			<ParameterList id="15" name="Test 1">
-				<Parameter docString="" id="99" isDefault="false" isUsed="true" name="Test Type" type="string" value="NStep" />
-				<Parameter docString="" id="100" isDefault="true" isUsed="true" name="Number of Nonlinear Iterations" type="int" value="1" />
-				<Parameter docString="" id="101" isDefault="true" isUsed="true" name="Number of Initial Ramping Steps" type="int" value="0" />
-				<Parameter docString="" id="102" isDefault="true" isUsed="true" name="Number of Nonlinear Iterations in Ramping Phase" type="int" value="10" />
+			<ParameterList id="12" name="Test 1">
+				<Parameter docString="" id="90" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" />
+				<Parameter docString="" id="91" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.e-06" />
+				<Parameter docString="" id="92" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
+				<Parameter docString="" id="93" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Unscaled" />
+			</ParameterList>
+			<ParameterList id="13" name="Test 2">
+				<Parameter docString="" id="94" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
+				<Parameter docString="" id="95" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="3" />
+			</ParameterList>
+			<ParameterList id="14" name="Test 3">
+				<Parameter docString="" id="96" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
+				<Parameter docString="" id="97" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.00000000000000022e-01" />
+				<Parameter docString="" id="98" isDefault="false" isUsed="true" name="Consecutive Iterations" type="int" value="1" />
 			</ParameterList>
 		</ParameterList>
+		<ParameterList id="15" name="Test 1">
+			<Parameter docString="" id="99" isDefault="false" isUsed="true" name="Test Type" type="string" value="NStep" />
+			<Parameter docString="" id="100" isDefault="true" isUsed="true" name="Number of Nonlinear Iterations" type="int" value="1" />
+			<Parameter docString="" id="101" isDefault="true" isUsed="true" name="Number of Initial Ramping Steps" type="int" value="0" />
+			<Parameter docString="" id="102" isDefault="true" isUsed="true" name="Number of Nonlinear Iterations in Ramping Phase" type="int" value="10" />
+		</ParameterList>
+	</ParameterList>
+	<ParameterList id="8" name="NOX Solver">
 		<Parameter docString="" id="103" isDefault="false" isUsed="true" name="Nonlinear Solver" type="string" value="Line Search Based" />
 		<ParameterList id="16" name="Direction">
 			<Parameter docString="" id="104" isDefault="false" isUsed="true" name="Method" type="string" value="Newton" />
@@ -117,7 +118,7 @@
 			<Parameter docString="" id="120" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.000000000000000e-02" />
 			<Parameter docString="" id="121" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="122" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
-			<Parameter docString="" id="123" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="10" />
+			<Parameter docString="" id="123" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
 			<Parameter docString="" id="124" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
 		</ParameterList>
 	</ParameterList>
@@ -167,8 +168,8 @@
 				<Parameter docString="" id="144" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
 				<Parameter docString="" id="145" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />
 				<ParameterList id="33" name="Solver">
-			<!--<Parameter docString="" id="7777173" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="7777174" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
+					<!--<Parameter docString="" id="7777173" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
+					<!--<Parameter docString="" id="7777174" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
 					<Parameter docString="" id="146" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
 					<Parameter docString="" id="147" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
 					<Parameter docString="" id="148" isDefault="false" isUsed="true" name="Verbosity" type="int" value="0" />
@@ -197,7 +198,7 @@
 		</ParameterList>
 	</ParameterList>
 	<ParameterList id="37" name="M_ConvDiff">
-		<Parameter docString="" id="99821" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
+		<Parameter docString="" id="99821" isDefault="true" isUsed="true" name="preconditioner" type="string" value="left" />
 		<Parameter docString="" id="167" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<Parameter docString="" id="182" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 		<Parameter docString="" id="183" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
@@ -207,7 +208,7 @@
 			<Parameter docString="" id="168" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="68" />
 			<Parameter docString="" id="169" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
 			<Parameter docString="" id="171" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />
-			<Parameter docString="" id="172" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
+			<!--<Parameter docString="" id="172" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />-->
 			<Parameter docString="" id="175" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />
 			<Parameter docString="" id="178" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="179" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ModeNonlinearOp_ConvectionDiffusionVOp" />
@@ -233,8 +234,8 @@
 	</ParameterList>
 	<ParameterList id="45" name="Force">
 		<Parameter docString="" id="999" isDefault="false" isUsed="true" name="force type" type="string" value="Taylor-Green" />
-			 <!--<Parameter docString="" id="228" isDefault="true" isUsed="true" name="A" type="double" value="1.00000000000000000e+00"/>-->
-    <!--<Parameter docString="" id="229" isDefault="true" isUsed="true" name="B" type="double" value="-1.000000000000000e+00"/>-->
-    <!--<Parameter docString="" id="230" isDefault="true" isUsed="true" name="C" type="double" value="-0.000000000000000e+00"/>-->
+		<!--<Parameter docString="" id="228" isDefault="true" isUsed="true" name="A" type="double" value="1.00000000000000000e+00"/>-->
+		<!--<Parameter docString="" id="229" isDefault="true" isUsed="true" name="B" type="double" value="-1.000000000000000e+00"/>-->
+		<!--<Parameter docString="" id="230" isDefault="true" isUsed="true" name="C" type="double" value="-0.000000000000000e+00"/>-->
 	</ParameterList>
 </ParameterList>

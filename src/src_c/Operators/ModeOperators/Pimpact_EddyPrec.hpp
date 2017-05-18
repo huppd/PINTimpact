@@ -46,19 +46,20 @@ public:
 
 	void apply(const DomainFieldT& x, RangeFieldT& y) {
 
-		if( true || mulI_<std::max( mulC_, mulL_ ) ) {
+		//if( true || mulI_<std::max( mulC_, mulL_ ) ) {
 
-			//set paramters
-			auto pl = Teuchos::parameterList();
-			pl->set<Scalar>( "mulI", 0. );
-			pl->set<Scalar>( "mulC", mulC_ );
-			pl->set<Scalar>( "mulL", mulL_ );
-			op_->setParameter( pl );
+			////set paramters
+			//auto pl = Teuchos::parameterList();
+			//pl->set<Scalar>( "mulI", 0. );
+			//pl->set<Scalar>( "mulC", mulC_ );
+			//pl->set<Scalar>( "mulL", mulL_ );
+			//op_->setParameter( pl );
 
-			op_->apply( x.getCField(), y.getCField() );
-			op_->apply( x.getSField(), y.getSField() );
-		}
-		else{
+			//op_->apply( x.getCField(), y.getCField() );
+			//op_->apply( x.getSField(), y.getSField() );
+		//}
+		//else
+		{
 
 			DomainFieldT temp( space() );
 
@@ -66,11 +67,6 @@ public:
 			temp = x;
 			temp.getCField().add( 1.0, x.getCField(),  1.0, x.getSField(), B::N );
 			temp.getSField().add( 1.0, x.getCField(), -1.0, x.getSField(), B::N );
-
-
-			MultiField<typename OpT::DomainFieldT> mx( space(), 0 );
-			MultiField<typename OpT::RangeFieldT> my( space(), 0 );
-
 
 			//// set paramters
 			auto pl = Teuchos::parameterList();
@@ -84,6 +80,10 @@ public:
 			op_->apply( temp.getSField(), y.getSField() );
 
 			y.scale( 0.5, B::N );
+
+			//MultiField<typename OpT::DomainFieldT> mx( space(), 0 );
+			//MultiField<typename OpT::RangeFieldT> my( space(), 0 );
+
 			//mx.push_back( Teuchos::rcpFromRef(temp.getCField()) );
 			//mx.push_back( Teuchos::rcpFromRef(temp.getSField()) );
 
