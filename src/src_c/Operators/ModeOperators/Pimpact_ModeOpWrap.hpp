@@ -20,7 +20,7 @@ namespace Pimpact {
 /// \ingroup ModeOperator
 /// wraps and \c Operator and adds the functionality of handling \c ModeField.
 template<class Operator>
-class ModeOpWrap  {
+class ModeOpWrap {
 
 public:
 

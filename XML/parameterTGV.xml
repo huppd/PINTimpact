@@ -198,7 +198,7 @@
 		</ParameterList>
 	</ParameterList>
 	<ParameterList id="37" name="M_ConvDiff">
-		<Parameter docString="" id="99821" isDefault="true" isUsed="true" name="preconditioner" type="string" value="left" />
+		<Parameter docString="" id="99821" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<Parameter docString="" id="167" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<Parameter docString="" id="182" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 		<Parameter docString="" id="183" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />

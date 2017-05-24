@@ -90,8 +90,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
 
 	Teuchos::RCP< Teuchos::ParameterList > param = Teuchos::parameterList();// = Pimpact::createLinSolverParameter( solvName, 1.e-6 );
 
-	std::string solvName = "TFQMR";
-	//std::string solvName = "GMRES";
+	//std::string solvName = "TFQMR";
+	std::string solvName = "GMRES";
 	param->get<std::string>( "Solver name", solvName );
 
 	param->sublist("Solver").set( "Output Style", Belos::Brief );
@@ -145,8 +145,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
 	//if( 0==space->rankST() )
 	//mgConvDiff->print();
 
-	zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
-	modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+	//zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+	//modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 	//modeInv->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 
 	ST iRe = 1./space->getDomainSize()->getRe();

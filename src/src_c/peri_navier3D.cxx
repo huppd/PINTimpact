@@ -162,14 +162,14 @@ int main( int argi, char** argv ) {
 					opV2S );
 
 			if( 0==space->rankST() ) std::cout << "create RHS:\n";
-			//if( 0==space->rankST() ) std::cout << "\tdiv test\n";
-			//{
-				//opV2S->apply( x->getField(0).getVField(), x->getField(0).getSField()  );
-				//ST divergence = x->getField(0).getSField().norm();
-				//if( 0==space->rankST() )
-					//std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
-				//x->getField(0).getSField().init( 0. );
-			//}
+			if( 0==space->rankST() ) std::cout << "\tdiv test\n";
+			{
+				opV2S->apply( x->getField(0).getVField(), x->getField(0).getSField()  );
+				ST divergence = x->getField(0).getSField().norm();
+				if( 0==space->rankST() )
+					std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
+				x->getField(0).getSField().init( 0. );
+			}
 
 			//std::string rl = "";
 			//if( refinement>1 )
@@ -179,13 +179,13 @@ int main( int argi, char** argv ) {
 			auto fu = x->clone( Pimpact::ECopy::Shallow );
 			auto sol = fu->clone( Pimpact::ECopy::Shallow);
 
-			//if( 0==space->rankST() ) std::cout << "\tBC interpolation\n";
-			//{
-				//// to get the Dirichlet for the RHS (necessary interpolation) ugly
-				//// super ugly hack for BC::Dirichlet
-				//opV2V->apply( x->getField(0).getVField(), fu->getField(0).getVField() );
-				//fu->init( 0., Pimpact::B::N );
-			//}
+			if( 0==space->rankST() ) std::cout << "\tBC interpolation\n";
+			{
+				// to get the Dirichlet for the RHS (necessary interpolation) ugly
+				// super ugly hack for BC::Dirichlet
+				opV2V->apply( x->getField(0).getVField(), fu->getField(0).getVField() );
+				fu->init( 0., Pimpact::B::N );
+			}
 
 			if( 0==space->rankST() ) std::cout << "\tforcing\n";
 			// Taylor Green Vortex
@@ -294,6 +294,7 @@ int main( int argi, char** argv ) {
 				x->getField(0).getVField().changed();
 				x->getField(0).getSField().changed();
 			}
+			fu->write( 999 );
 
 
 			if( withoutput )

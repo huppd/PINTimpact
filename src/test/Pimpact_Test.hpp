@@ -18,8 +18,8 @@ ScalarT order( const std::vector<ScalarT>& x, const std::vector<ScalarT>& y ) {
 	const ScalarT n    = x.size();
 	if( n<2 ) return( 0. );
 
-	const ScalarT s_x  = std::accumulate(x.begin(), x.end(), 0.0);
-	const ScalarT s_y  = std::accumulate(y.begin(), y.end(), 0.0);
+	const ScalarT s_x = std::accumulate(x.begin(), x.end(), 0.0);
+	const ScalarT s_y = std::accumulate(y.begin(), y.end(), 0.0);
 
 	const ScalarT s_xx = std::inner_product(x.begin(), x.end(), x.begin(), 0.0);
 	const ScalarT s_xy = std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
@@ -65,6 +65,7 @@ ST omega = 0.8;
 ST winds = 1;
 int sweeps = 12;
 int nIter = 1;
+int 
 OT n0 = 32;
 OT ns = 2;
 

@@ -43,62 +43,80 @@ public:
 		mulL_( 1./op->space()->getDomainSize()->getRe() ),
  		op_(op) {};
 
-
-	void apply(const DomainFieldT& x, RangeFieldT& y) {
-
-		//if( true || mulI_<std::max( mulC_, mulL_ ) ) {
-
-			////set paramters
-			//auto pl = Teuchos::parameterList();
-			//pl->set<Scalar>( "mulI", 0. );
-			//pl->set<Scalar>( "mulC", mulC_ );
-			//pl->set<Scalar>( "mulL", mulL_ );
-			//op_->setParameter( pl );
-
-			//op_->apply( x.getCField(), y.getCField() );
-			//op_->apply( x.getSField(), y.getSField() );
-		//}
-		//else
-		{
-
-			DomainFieldT temp( space() );
-
-			// left
-			temp = x;
-			temp.getCField().add( 1.0, x.getCField(),  1.0, x.getSField(), B::N );
-			temp.getSField().add( 1.0, x.getCField(), -1.0, x.getSField(), B::N );
-
-			//// set paramters
-			auto pl = Teuchos::parameterList();
-			pl->set<Scalar>( "mulI", mulI_ );
-			pl->set<Scalar>( "mulC", mulC_ );
-			pl->set<Scalar>( "mulL", mulL_ );
-
-			op_->setParameter( pl );
-
-			op_->apply( temp.getCField(), y.getCField() );
-			op_->apply( temp.getSField(), y.getSField() );
-
-			y.scale( 0.5, B::N );
-
-			//MultiField<typename OpT::DomainFieldT> mx( space(), 0 );
-			//MultiField<typename OpT::RangeFieldT> my( space(), 0 );
-
-			//mx.push_back( Teuchos::rcpFromRef(temp.getCField()) );
-			//mx.push_back( Teuchos::rcpFromRef(temp.getSField()) );
-
-			//my.push_back( Teuchos::rcpFromRef(y.getCField()) );
-			//my.push_back( Teuchos::rcpFromRef(y.getSField()) );
-			//op_->apply( mx, my );
-		}
-
+	void apply( const DomainFieldT& x, RangeFieldT& y ) {
+		applyDTinv( x, y );
+		//applyCDinv( x, y );
+		//applyELinv( x, y );
+		//applyERinv( x, y );
  	}
+
+	/// left/right same
+	void applyDTinv( const DomainFieldT& x, RangeFieldT& y ) const {
+		y.getCField().add( 0.0,      x.getCField(), -1.0/mulI_, x.getSField(), B::N );
+		y.getSField().add( 1.0/mulI_, x.getCField(), 0.0,      x.getSField(), B::N );
+	}
+
+	void applyCDinv( const DomainFieldT& x, RangeFieldT& y ) const {
+		//set paramters
+		auto pl = Teuchos::parameterList();
+		pl->set<Scalar>( "mulI", 0. );
+		pl->set<Scalar>( "mulC", mulC_ );
+		pl->set<Scalar>( "mulL", mulL_ );
+		op_->setParameter( pl );
+
+		op_->apply( x.getCField(), y.getCField() );
+		op_->apply( x.getSField(), y.getSField() );
+	}
+
+	void applyELinv( const DomainFieldT& x, RangeFieldT& y ) {
+
+		DomainFieldT temp( space() );
+
+		// left
+		temp = x;
+		temp.getCField().add( 1.0, x.getCField(),  1.0, x.getSField(), B::N );
+		temp.getSField().add( 1.0, x.getCField(), -1.0, x.getSField(), B::N );
+
+		//// set paramters
+		auto pl = Teuchos::parameterList();
+		pl->set<Scalar>( "mulI", mulI_ );
+		pl->set<Scalar>( "mulC", mulC_ );
+		pl->set<Scalar>( "mulL", mulL_ );
+
+		op_->setParameter( pl );
+
+		op_->apply( temp.getCField(), y.getCField() );
+		op_->apply( temp.getSField(), y.getSField() );
+
+		y.scale( 0.5, B::N );
+	}
+
+	void applyERinv( const DomainFieldT& x, RangeFieldT& y ) {
+
+		DomainFieldT temp( space() );
+
+		// right
+		// set paramters
+		auto pl = Teuchos::parameterList();
+		pl->set<Scalar>( "mulI", mulI_ );
+		pl->set<Scalar>( "mulC", mulC_ );
+		pl->set<Scalar>( "mulL", mulL_ );
+
+		op_->setParameter( pl );
+
+		op_->apply( x.getCField(), y.getCField() );
+		op_->apply( x.getSField(), y.getSField() );
+
+		temp = x;
+		temp.getCField().add( 1.0, x.getCField(),  1.0, x.getSField(), B::N );
+		temp.getSField().add( 1.0, x.getCField(), -1.0, x.getSField(), B::N );
+
+		y.scale( 0.5, B::N );
+	}
 
 
  	void assignField( const DomainFieldT& mv ) {
-//		 op_->assignField( mv- );
  	};
-
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
