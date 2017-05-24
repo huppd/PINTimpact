@@ -116,7 +116,6 @@ int main( int argi, char** argv ) {
 
 		my_CLP.parse(argi,argv);
 
-
 		auto pl = Teuchos::getParametersFromXmlFile( xmlFilename );
 		//pl->print();
 
