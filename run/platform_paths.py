@@ -2,16 +2,19 @@
 import os
 
 # exection path
-exe_path = "/home/huppd/PImpact/release/src_c"
+exe_path = os.path.expanduser("~/Pimpact/release/src_c")  # euler
+# exe_path = os.path.expanduser( "~/PImpact/release/src_c" ) #hpc
 
 # data patch
-data_path = "/home/huppd/data"
+data_path = os.path.expanduser("~/data")
 
 
 # exection command
 def exe_pre(np, ops='', run=0):
     # return( "bsub -n "+str(np)+" "+ops+" -o output"+str(run)+" " )
-    return "bsub -n " + str(np) + ' '+ops+' '+' -oo output'+str(run)+' '
+    # euler
+    return "bsub -n "+str(np)+' '+ops+' '+' -oo output'+str(run)+' mpirun '
+    # return( "mpirun -n "+str(np)+' ' ) # hpc
 
 
 def getPath(path, npa):

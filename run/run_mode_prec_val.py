@@ -68,12 +68,12 @@ for re in RES:
                 TREE.write('parameter3D.xml')
                 nptot = 1
                 for run in RUNS:
-                    print
-                    print CASE_PATH
+                    print()
+                    print(CASE_PATH)
                     exe_str = \
                         pp.exe_pre(nptot,
                                    ' -N -W 8:00 -R "rusage[mem=' +
                                    str(max(1024*4, 1024)) + ']" ', run) +  \
                         pp.exe_path+'/'+EXE
-                    print exe_str
-                    # os.system(exe_str)
+                    print(exe_str)
+                    os.system(exe_str)

@@ -8,14 +8,14 @@ def setParameter(root, name, value):
             child.attrib['value'] = str(value)
 
 
-def set(fname, name, value):
-    print 'deprecated'
-    tree = ET.parse(fname)
-    #
-    root = tree.getroot()
-    #
-    setParameter(root, name, value)
-    tree.write(fname)
+# def set(fname, name, value):
+    # print 'deprecated'
+    # tree = ET.parse(fname)
+    # #
+    # root = tree.getroot()
+    # #
+    # setParameter(root, name, value)
+    # tree.write(fname)
 
 
 def set_parameter(root, plname, pname, pvalue):
