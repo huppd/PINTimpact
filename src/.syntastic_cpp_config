@@ -1,0 +1,12 @@
+-I/home/huppd/trilinos/debug/include
+-I/usr/include/openmpi-x86_64
+-Isrc_c/
+-Isrc_c/AnasaziPimpact
+-Isrc_c/BelosPimpact
+-Isrc_c/EigenSolver
+-Isrc_c/Fields
+-Isrc_c/MultiGrid/
+-Isrc_c/MultiGrid/Transfers
+-Isrc_c/Operators
+-Isrc_c/Space
+-std=c++11
