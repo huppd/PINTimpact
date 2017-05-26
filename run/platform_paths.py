@@ -2,10 +2,10 @@
 import os
 
 # exection path
-exe_path = "/cluster/home04/math/huppd/PImpact/release/src_c"
+exe_path = "/home/huppd/PImpact/release/src_c"
 
 # data patch
-data_path = "/cluster/home04/math/huppd/data"
+data_path = "/home/huppd/data"
 
 
 # exection command

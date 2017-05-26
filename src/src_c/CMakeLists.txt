@@ -46,6 +46,9 @@ TARGET_LINK_LIBRARIES( conv_diff_mg2  ${Pimpact_TPL_LIBRARIES} )
 add_executable( conv_diff2 Pimpact_ConvDiff2.cxx )
 TARGET_LINK_LIBRARIES( conv_diff2  ${Pimpact_TPL_LIBRARIES} )
 
+add_executable( modeConvDiff modeConvDiff.cxx )
+TARGET_LINK_LIBRARIES( modeConvDiff ${Pimpact_TPL_LIBRARIES} )
+
 add_executable( peri_navier3D peri_navier3D.cxx )
 TARGET_LINK_LIBRARIES( peri_navier3D ${Pimpact_TPL_LIBRARIES} ) 
 

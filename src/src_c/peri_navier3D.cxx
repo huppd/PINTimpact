@@ -119,10 +119,10 @@ int main( int argi, char** argv ) {
 		auto pl = Teuchos::getParametersFromXmlFile( xmlFilename );
 		//pl->print();
 
-		/////////////////////////////////////////// end of set up parameters /////////////////////////
+		////////////////////////////////////////// end of set up parameters /////////////////////////
 
 
-		///////////////////////////////////////////  set up initial stuff ////////////////////////////
+		//////////////////////////////////////////  set up initial stuff ////////////////////////////
 
 		std::string initGuess = pl->sublist("Solver").get<std::string>( "initial guess", "zero" );
 
@@ -382,8 +382,8 @@ int main( int argi, char** argv ) {
 					auto zeroInv = Pimpact::createInverseOp(
 							zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
 
-					auto modeOp = Teuchos::rcp( new
-							Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
+					auto modeOp = Teuchos::rcp(
+							new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
 					if( withoutput )
 						pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
@@ -394,7 +394,7 @@ int main( int argi, char** argv ) {
 								"Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
 
 					auto modeInv = Pimpact::createInverseOp(
-							modeOp, Teuchos::sublist( pl, "M_ConvDiff" ) );
+							modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
 					auto mgConvDiff =
 						Pimpact::createMultiGrid<
@@ -414,17 +414,21 @@ int main( int argi, char** argv ) {
 					//if( 0==space->rankST() )
 					//mgConvDiff->print();
 
-					std::string convDiffPrecString = pl->sublist("ConvDiff").get<std::string>( "preconditioner", "right" );
+					std::string convDiffPrecString =
+						pl->sublist("ConvDiff").get<std::string>( "preconditioner", "right" );
 					if( "right" == convDiffPrecString ) 
 						zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 					if( "left" == convDiffPrecString )
 						zeroInv->setLeftPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 
-					std::string modeConvDiffPrecString = pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
+					std::string modeConvDiffPrecString =
+						pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
 					if( "right" == modeConvDiffPrecString ) 
-						modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+						modeInv->setRightPrec(
+								Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 					if( "left" == modeConvDiffPrecString )
-						modeInv->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+						modeInv->setLeftPrec(
+								Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 
 					// create Hinv prec
 					Teuchos::RCP<Pimpact::OperatorBase<MVF> > opV2Vprec = 
@@ -558,9 +562,6 @@ int main( int argi, char** argv ) {
 				//NOX::Solver::buildSolver( group, statusTest, Teuchos::sublist( pl, "NOX Solver" ) );
 				NOX::Solver::buildSolver( group, statusTest, noxSolverPara );
 
-			//Teuchos::writeParameterListToXmlFile( *noxSolverPara, "parameterNOX.xml" );
-
-			//Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
 
 			if( 0==space->rankST() )
 				std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
@@ -668,9 +669,10 @@ int main( int argi, char** argv ) {
 		/******************************************************************************************/
 
 		Teuchos::TimeMonitor::summarize();
-		//if( 0==space->rankST() )
-			//Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
-
+		if( 0==space->rankST() ) {
+			pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
+			Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+		}
 	}
 	MPI_Finalize();
 	return( 0 );

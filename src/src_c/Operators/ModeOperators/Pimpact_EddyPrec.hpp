@@ -33,30 +33,61 @@ protected:
 	Scalar mulC_;
 	Scalar mulL_;
 
+	int type_;
+
  	Teuchos::RCP<OpT> op_;
 
 public:
 
- 	EddyPrec( const Teuchos::RCP<OpT>& op ):
+	EddyPrec(
+			const Teuchos::RCP<OpT>& op,
+			const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
+
 		mulI_(0.),
 		mulC_(1.),
 		mulL_( 1./op->space()->getDomainSize()->getRe() ),
+		type_( pl->get<int>("type", 0) ),
  		op_(op) {};
 
-	void apply( const DomainFieldT& x, RangeFieldT& y ) {
-		applyDTinv( x, y );
-		//applyCDinv( x, y );
-		//applyELinv( x, y );
-		//applyERinv( x, y );
+	void apply(const DomainFieldT& x, RangeFieldT& y) const {
+
+		//std:: cout << type_ << "\n";
+
+		switch(type_) {
+			case 1: {
+								applyDTinv( x, y );
+								break;
+							}
+			case 2: {
+								applyCDinv( x, y );
+								break;
+							}
+			case 3: {
+								applyELinv( x, y );
+								break;
+							}
+			case 4: {
+								applyERinv( x, y );
+								break;
+							}
+			default: {
+								 applyERinv( x, y );
+								 break;
+							 }
+		}
  	}
 
 	/// left/right same
+	/// \todo fix BC
 	void applyDTinv( const DomainFieldT& x, RangeFieldT& y ) const {
+		//std::cout << "applyDTinv\n";
 		y.getCField().add( 0.0,      x.getCField(), -1.0/mulI_, x.getSField(), B::N );
 		y.getSField().add( 1.0/mulI_, x.getCField(), 0.0,      x.getSField(), B::N );
 	}
 
 	void applyCDinv( const DomainFieldT& x, RangeFieldT& y ) const {
+		//std::cout << "applyCDinv\n";
+
 		//set paramters
 		auto pl = Teuchos::parameterList();
 		pl->set<Scalar>( "mulI", 0. );
@@ -68,8 +99,9 @@ public:
 		op_->apply( x.getSField(), y.getSField() );
 	}
 
-	void applyELinv( const DomainFieldT& x, RangeFieldT& y ) {
+	void applyELinv( const DomainFieldT& x, RangeFieldT& y ) const {
 
+		//std::cout << "applyELinv\n";
 		DomainFieldT temp( space() );
 
 		// left
@@ -91,8 +123,9 @@ public:
 		y.scale( 0.5, B::N );
 	}
 
-	void applyERinv( const DomainFieldT& x, RangeFieldT& y ) {
+	void applyERinv( const DomainFieldT& x, RangeFieldT& y ) const {
 
+		//std::cout << "applyERinv\n";
 		DomainFieldT temp( space() );
 
 		// right
@@ -115,8 +148,7 @@ public:
 	}
 
 
- 	void assignField( const DomainFieldT& mv ) {
- 	};
+	void assignField(const DomainFieldT& mv) {};
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
@@ -129,7 +161,6 @@ public:
 			mulC_ = para->get<Scalar>( "mulC" );
 			mulL_ = para->get<Scalar>( "mulL" );
 		}
-
 	}
 
  	bool hasApplyTranspose() const { return( false ); }
@@ -142,7 +173,6 @@ public:
   }
 
 }; // end of class EddyPrec
-
 
 
 } // end of namespace Pimpact

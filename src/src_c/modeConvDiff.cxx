@@ -96,11 +96,11 @@ int main( int argi, char** argv ) {
 		Pimpact::ModeField< Pimpact::VectorField<SpaceT> > sol( space );
 		Pimpact::ModeField< Pimpact::VectorField<SpaceT> > err( space );
 
-		auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
+		//auto
+		Teuchos::RCP<ConvDiffOpT<SpaceT>> zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
-		//Teuchos::RCP<const Pimpact::ModeNonlinearOp<ConvDiffOpT<SpaceT> > modeOp =
-		auto modeOp =
-			Teuchos::rcp( new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >(zeroOp));
+		auto modeOp = Teuchos::rcp(
+				new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
 		pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
 				"Output Stream", Teuchos::rcpFromRef(std::cout) );
@@ -109,7 +109,11 @@ int main( int argi, char** argv ) {
 		auto mgSpaces =
 			Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
-		auto zeroInv = Pimpact::createInverseOp(
+		pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
+				Pimpact::createOstream( zeroOp->getLabel()+".txt", space->rankST() ) );
+
+		auto
+		zeroInv = Pimpact::createInverseOp(
 				zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
 
 		auto mgConvDiff =
@@ -139,12 +143,18 @@ int main( int argi, char** argv ) {
 
 		std::string modeConvDiffPrecString =
 			pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
-		if( "right" == modeConvDiffPrecString ) 
-			modeInv->setRightPrec(
-					Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
-		if( "left" == modeConvDiffPrecString )
-			modeInv->setLeftPrec(
-					Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+
+		auto modePrec =
+			Pimpact::createMultiOperatorBase(
+					Pimpact::create<Pimpact::EddyPrec>(
+						zeroInv,
+						Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
+
+		if("right" == modeConvDiffPrecString) 
+			modeInv->setRightPrec(modePrec);
+
+		if("left" == modeConvDiffPrecString)
+			modeInv->setLeftPrec(modePrec);
 
 		ST iRe = 1./space->getDomainSize()->getRe();
 		ST a2 = space->getDomainSize()->getAlpha2()*iRe;
@@ -269,8 +279,12 @@ int main( int argi, char** argv ) {
 
 		error = err.norm(Belos::InfNorm);
 		std::cout << "\nerror: " << error << "\n";
+
+		if( 0==space->rankST() ) {
+			//pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
+			Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+		}
 	}
 	MPI_Finalize();
 	return( 0 );
-
 }

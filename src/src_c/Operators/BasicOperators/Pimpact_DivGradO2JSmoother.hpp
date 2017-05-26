@@ -61,7 +61,6 @@ public:
 	///   - "omega" - a \c ST damping factor. Default: for 2D 0.8 for 3D 6./7.  /
 	///   - "numIters" - a \c int number of smoothing steps. Default: 4  /
 	///   - "BC smoothing" - a \c int type of BC smoothing 0, 0: Jacbobian, else: direct. Default: 0 /
-	///   - "debth" - for direct BC smoothing only meaning depth in wand normal direction of 2D BC problems. Default: 2 /
 	///   - "level" - a \c bool number of smoothing steps. Default: false  /
   DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
@@ -210,11 +209,10 @@ protected:
 template<template<class> class SmootherT, class OperatorT>
 Teuchos::RCP< SmootherT<OperatorT> >
 create(
-    const Teuchos::RCP<OperatorT>& op,
-    Teuchos::RCP<Teuchos::ParameterList> pl ) {
+		const Teuchos::RCP<OperatorT>& op,
+		const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-  return(
-      Teuchos::rcp( new SmootherT<OperatorT>( op, pl ) ) );
+	return( Teuchos::rcp( new SmootherT<OperatorT>( op, pl ) ) );
 }
 
 
@@ -223,10 +221,9 @@ template<class SmootherT, class OperatorT>
 Teuchos::RCP< SmootherT >
 create(
     const Teuchos::RCP< OperatorT>& op,
-    Teuchos::RCP<Teuchos::ParameterList> pl ) {
+    const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-  return(
-      Teuchos::rcp( new SmootherT( op, pl ) ) );
+	return( Teuchos::rcp( new SmootherT( op, pl ) ) );
 }
 
 

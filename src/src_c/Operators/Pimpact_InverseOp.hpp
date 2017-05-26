@@ -33,6 +33,7 @@ class InverseOp {
 public:
 
 	using OperatorT = OpT;
+	using ProT = ProjectorT<OpT>;
 
 	using SpaceT = typename OperatorT::SpaceT;
 

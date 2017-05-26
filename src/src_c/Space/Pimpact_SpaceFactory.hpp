@@ -29,18 +29,16 @@ create(
 /// \brief creates non const template from non const
 template< template<class> class SpaceObjectT, class SpaceT>
 Teuchos::RCP< SpaceObjectT<SpaceT> >
-create( const Teuchos::RCP< SpaceT>& space ) {
-  return(
-			Teuchos::rcp( new SpaceObjectT<SpaceT>(space) ) );
+create(const Teuchos::RCP<SpaceT>& space) {
+	return Teuchos::rcp( new SpaceObjectT<SpaceT>(space) );
 }
 
 
 /// \brief creates non const from non const
 template< class SpaceObjectT>
 Teuchos::RCP<SpaceObjectT>
-create( const Teuchos::RCP<const typename SpaceObjectT::SpaceT>& space ) {
-  return(
-			Teuchos::rcp( new SpaceObjectT( space ) ) );
+create(const Teuchos::RCP<const typename SpaceObjectT::SpaceT>& space) {
+	return( Teuchos::rcp( new SpaceObjectT(space) ) );
 }
 
 
@@ -48,7 +46,7 @@ create( const Teuchos::RCP<const typename SpaceObjectT::SpaceT>& space ) {
 template< class SpaceObjectT, class SpaceT>
 Teuchos::RCP< SpaceObjectT >
 create( const Teuchos::RCP< SpaceT>& space ) {
-	return( Teuchos::rcp( new SpaceObjectT( space ) ) );
+	return( Teuchos::rcp( new SpaceObjectT(space) ) );
 }
 
 
