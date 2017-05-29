@@ -145,10 +145,10 @@ int main( int argi, char** argv ) {
 			pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
 
 		auto modePrec =
-			Pimpact::createMultiOperatorBase(
-					Pimpact::create<Pimpact::EddyPrec>(
-						zeroInv,
-						Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
+                    Pimpact::createMultiOperatorBase(
+                            Pimpact::create<Pimpact::EddyPrec>(
+                                zeroInv,
+                                Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
 
 		if("right" == modeConvDiffPrecString) 
 			modeInv->setRightPrec(modePrec);

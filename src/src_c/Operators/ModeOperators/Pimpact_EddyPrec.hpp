@@ -54,6 +54,10 @@ public:
 		//std:: cout << type_ << "\n";
 
 		switch(type_) {
+			case 0: {
+								y = x;
+								break;
+							}
 			case 1: {
 								applyDTinv( x, y );
 								break;

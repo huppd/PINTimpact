@@ -23,7 +23,7 @@ RUNS = range(1)
 
 RES = [3, 30, 300]
 ALPHA2S = [0.01, 0.1, 1., 10.]
-PRECS = [1, 2, 3, 4]
+PRECS = [0, 1, 2, 3, 4]
 NXS = [1, 2, 3]
 
 
@@ -55,11 +55,12 @@ for re in RES:
                 #
                 pp.chdir(CASE_PATH, 4)
                 #
+                ma.setParameter(ROOT, 'type', prec)
                 ma.setParameter(ROOT, 'Re', re)
                 ma.setParameter(ROOT, 'alpha2', 2.*pi*alpha2*re)
                 ma.setParameter(ROOT, 'nx', 16*nx+1)
                 ma.setParameter(ROOT, 'ny', 32*nx+1)
-                ma.setParameter(ROOT, 'nz', 2*nx+1)
+                ma.setParameter(ROOT, 'nz', 6*nx+1)
                 ma.setParameter(ROOT, 'nf', 1)
                 ma.setParameter(ROOT, 'NPX', 1)
                 ma.setParameter(ROOT, 'npy', 1)
