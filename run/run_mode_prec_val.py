@@ -27,7 +27,7 @@ PRECS = [1, 2, 3, 4]
 NXS = [1, 2, 3]
 
 
-CASE_PATH = ['', '', '', '', '', '', '', '', '']
+CASE_PATH = ['']*5
 CASE_PATH[0] = '/mode_prec'
 pp.mkdir(CASE_PATH, 0)
 

@@ -10,26 +10,27 @@ data_path = os.path.expanduser("~/data")
 
 
 # exection command
-def exe_pre(np, ops='', run=0):
-    # return( "bsub -n "+str(np)+" "+ops+" -o output"+str(run)+" " )
+def exe_pre(npro, ops='', run=0):
+    """ return pre execution string """
+    # return( "bsub -n "+str(npro)+" "+ops+" -o output"+str(run)+" " )
     # euler
-    return "bsub -n "+str(np)+' '+ops+' '+' -oo output'+str(run)+' mpirun '
-    # return( "mpirun -n "+str(np)+' ' ) # hpc
+    return "bsub -n "+str(npro)+' '+ops+' '+' -oo output'+str(run)+' mpirun '
+    # return( "mpirun -n "+str(npro)+' ' ) # hpc
 
 
-def getPath(path, npa):
-    full_path = data_path
-    for i in range(npa+1):
-        full_path += path[i]
-    return full_path
+def get_path(path, npa):
+    """ creates path string from list """
+    return ''.join(path[:npa])
 
 
 def mkdir(path, npa):
-    full_path = getPath(path, npa)
+    """ makes director from path list """
+    full_path = get_path(path, npa)
     if not os.path.exists(full_path):
         os.mkdir(full_path)
 
 
 def chdir(path, npa):
-    os.chdir(getPath(path, npa))
+    """ changed director path list """
+    os.chdir(get_path(path, npa))
     # os.system( ' rm ./* -r -v  ' )

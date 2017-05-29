@@ -22,6 +22,7 @@
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_StatusTest.hpp"
+#include "NOX_Pimpact_PrePostOperator.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
@@ -547,19 +548,24 @@ int main( int argi, char** argv ) {
 
 			auto nx = NOX::Pimpact::createVector( x );
 
-			auto group = NOX::Pimpact::createGroup( Teuchos::parameterList(), inter, nx );
+			Teuchos::RCP<NOX::Abstract::Group> group =
+				NOX::Pimpact::createGroup( Teuchos::parameterList(), inter, nx );
 
 			// Set up the status tests
 			Teuchos::RCP<NOX::StatusTest::Generic> statusTest =
-				//NOX::StatusTest::buildStatusTests( pl->sublist("NOX Solver").sublist("Status Test"), NOX::Utils() );
 				NOX::StatusTest::buildStatusTests( pl->sublist("NOX Status Test"), NOX::Utils() );
 
 			// Create the solver
-			//Teuchos::RCP<Teuchos::ParameterList> noxSolverPara = Teuchos::parameterList();
-			Teuchos::RCP<Teuchos::ParameterList> noxSolverPara = Teuchos::sublist( pl, "NOX Solver" );
+			Teuchos::RCP<Teuchos::ParameterList> noxSolverPara =
+				Teuchos::sublist(pl, "NOX Solver");
+
+			Teuchos::RCP<NOX::Abstract::PrePostOperator> foo =
+				Teuchos::rcp(new NOX::Pimpact::PrePostOperator<NV>());
+
+			noxSolverPara->sublist("Sovler Options").set<Teuchos::RCP<NOX::Abstract::PrePostOperator>>(
+					"User Defined Pre/Post Operator", foo);
 
 			Teuchos::RCP<NOX::Solver::Generic> solver =
-				//NOX::Solver::buildSolver( group, statusTest, Teuchos::sublist( pl, "NOX Solver" ) );
 				NOX::Solver::buildSolver( group, statusTest, noxSolverPara );
 
 
