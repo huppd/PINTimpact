@@ -294,7 +294,7 @@ int main( int argi, char** argv ) {
 				x->getField(0).getVField().changed();
 				x->getField(0).getSField().changed();
 			}
-			fu->write( 999 );
+			//fu->write( 999 );
 
 
 			if( withoutput )
@@ -560,9 +560,9 @@ int main( int argi, char** argv ) {
 				Teuchos::sublist(pl, "NOX Solver");
 
 			Teuchos::RCP<NOX::Abstract::PrePostOperator> foo =
-				Teuchos::rcp(new NOX::Pimpact::PrePostOperator<NV>());
+				Teuchos::rcp(new NOX::Pimpact::PrePostOperator<NV>( Teuchos::sublist(pl, "NOX write") ));
 
-			noxSolverPara->sublist("Sovler Options").set<Teuchos::RCP<NOX::Abstract::PrePostOperator>>(
+			noxSolverPara->sublist("Solver Options").set<Teuchos::RCP<NOX::Abstract::PrePostOperator>>(
 					"User Defined Pre/Post Operator", foo);
 
 			Teuchos::RCP<NOX::Solver::Generic> solver =
@@ -590,9 +590,9 @@ int main( int argi, char** argv ) {
 			x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
 			if( withoutput ) {
 				//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().level();
-				Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write( refine*1000 );
+				//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write( refine*1000 );
 				//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().write( 500+refine*1000, true );
-				Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getField().write( (refine+1)*1000 );
+				//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getField().write( (refine+1)*1000 );
 			}
 
 			// --- compute error ---

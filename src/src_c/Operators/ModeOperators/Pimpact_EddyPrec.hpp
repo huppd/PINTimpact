@@ -130,8 +130,6 @@ public:
 	void applyERinv( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		//std::cout << "applyERinv\n";
-		DomainFieldT temp( space() );
-
 		// right
 		// set paramters
 		auto pl = Teuchos::parameterList();
@@ -141,12 +139,15 @@ public:
 
 		op_->setParameter( pl );
 
-		op_->apply( x.getCField(), y.getCField() );
-		op_->apply( x.getSField(), y.getSField() );
+		DomainFieldT temp( space() );
 
-		temp = x;
-		temp.getCField().add( 1.0, x.getCField(),  1.0, x.getSField(), B::N );
-		temp.getSField().add( 1.0, x.getCField(), -1.0, x.getSField(), B::N );
+		op_->apply( x.getCField(), temp.getCField() );
+		op_->apply( x.getSField(), temp.getSField() );
+
+		y = temp;
+
+		y.getCField().add( 1.0, temp.getCField(),  1.0, temp.getSField(), B::N );
+		y.getSField().add( 1.0, temp.getCField(), -1.0, temp.getSField(), B::N );
 
 		y.scale( 0.5, B::N );
 	}

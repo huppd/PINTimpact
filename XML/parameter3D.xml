@@ -65,7 +65,7 @@
 				</ParameterList>
 				<ParameterList id="13" name="Test 2">
 					<Parameter docString="" id="91" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-					<Parameter docString="" id="92" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="2" />
+					<Parameter docString="" id="92" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
 				</ParameterList>
 				<ParameterList id="14" name="Test 3">
 					<Parameter docString="" id="93" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
@@ -116,7 +116,7 @@
 		<Parameter docString="" id="116" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
 		<Parameter docString="" id="117" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
 		<ParameterList id="24" name="Solver">
-			<Parameter docString="" id="118" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.000000000000000e-01" />
+			<Parameter docString="" id="118" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="9.000000000000000e-01" />
 			<Parameter docString="" id="119" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="120" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
 			<Parameter docString="" id="121" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="10" />

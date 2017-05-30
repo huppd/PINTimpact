@@ -1,171 +1,193 @@
 <ParameterList id="0" name="ANONYMOUS">
   <ParameterList id="1" name="Space">
-    <Parameter docString="Reynolds number" id="52" isDefault="false" isUsed="true" name="Re" type="double" value="3.00000000000000000e+02" />
-    <Parameter docString="Womersley square alpha^2" id="53" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.88494000000000000e+02" />
+    <Parameter docString="Reynolds number" id="56" isDefault="false" isUsed="true" name="Re" type="double" value="3.00000000000000000e+02" />
+    <Parameter docString="Womersley square alpha^2" id="57" isDefault="false" isUsed="true" name="alpha2" type="double" value="62.83185307179586" />
     <ParameterList id="2" name="boundary conditions">
-      <Parameter docString="" id="54" isDefault="false" isUsed="true" name="lower X" type="int" value="1" />
-      <Parameter docString="" id="55" isDefault="false" isUsed="true" name="upper X" type="int" value="1" />
-      <Parameter docString="" id="56" isDefault="false" isUsed="true" name="lower Y" type="int" value="1" />
-      <Parameter docString="" id="57" isDefault="false" isUsed="true" name="upper Y" type="int" value="1" />
-      <Parameter docString="" id="58" isDefault="false" isUsed="true" name="lower Z" type="int" value="1" />
-      <Parameter docString="" id="59" isDefault="false" isUsed="true" name="upper Z" type="int" value="1" />
+      <Parameter docString="" id="58" isDefault="false" isUsed="true" name="lower X" type="int" value="1" />
+      <Parameter docString="" id="59" isDefault="false" isUsed="true" name="upper X" type="int" value="1" />
+      <Parameter docString="" id="60" isDefault="false" isUsed="true" name="lower Y" type="int" value="1" />
+      <Parameter docString="" id="61" isDefault="false" isUsed="true" name="upper Y" type="int" value="1" />
+      <Parameter docString="" id="62" isDefault="false" isUsed="true" name="lower Z" type="int" value="1" />
+      <Parameter docString="" id="63" isDefault="false" isUsed="true" name="upper Z" type="int" value="1" />
     </ParameterList>
-    <Parameter docString="length in x-direction" id="60" isDefault="false" isUsed="true" name="lx" type="double" value="1.80000000000000000e+01" />
-    <Parameter docString="length in y-direction" id="61" isDefault="false" isUsed="true" name="ly" type="double" value="5.00000000000000000e+01" />
-    <Parameter docString="length in z-direction" id="62" isDefault="false" isUsed="true" name="lz" type="double" value="3.00000000000000000e+01" />
-    <Parameter docString="amount of grid points in x-direction: a*2**q+1" id="63" isDefault="false" isUsed="true" name="nx" type="int" value="61" />
-    <Parameter docString="amount of grid points in y-direction: a*2**q+1" id="64" isDefault="false" isUsed="true" name="ny" type="int" value="121" />
-    <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="65" isDefault="false" isUsed="true" name="nz" type="int" value="97" />
-    <Parameter docString="amount of grid points in f-direction" id="66" isDefault="false" isUsed="true" name="nf" type="int" value="1" />
-    <Parameter docString="amount of processors in x-direction" id="67" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
-    <Parameter docString="amount of processors in y-direction" id="68" isDefault="false" isUsed="true" name="npy" type="int" value="4" />
-    <Parameter docString="amount of processors in z-direction" id="69" isDefault="false" isUsed="true" name="npz" type="int" value="1" />
-    <Parameter docString="amount of processors in f-direction" id="70" isDefault="false" isUsed="true" name="npf" type="int" value="1" />
-    <Parameter docString="" id="71" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="true" />
+    <Parameter docString="length in x-direction" id="64" isDefault="false" isUsed="true" name="lx" type="double" value="1.80000000000000000e+01" />
+    <Parameter docString="length in y-direction" id="65" isDefault="false" isUsed="true" name="ly" type="double" value="5.00000000000000000e+01" />
+    <Parameter docString="length in z-direction" id="66" isDefault="false" isUsed="true" name="lz" type="double" value="3.00000000000000000e+01" />
+    <Parameter docString="amount of grid points in x-direction: a*2**q+1" id="67" isDefault="false" isUsed="true" name="nx" type="int" value="61" />
+    <Parameter docString="amount of grid points in y-direction: a*2**q+1" id="68" isDefault="false" isUsed="true" name="ny" type="int" value="121" />
+    <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="69" isDefault="false" isUsed="true" name="nz" type="int" value="97" />
+    <Parameter docString="amount of grid points in f-direction" id="70" isDefault="false" isUsed="true" name="nf" type="int" value="1" />
+    <Parameter docString="amount of processors in x-direction" id="71" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
+    <Parameter docString="amount of processors in y-direction" id="72" isDefault="false" isUsed="true" name="npy" type="int" value="4" />
+    <Parameter docString="amount of processors in z-direction" id="73" isDefault="false" isUsed="true" name="npz" type="int" value="1" />
+    <Parameter docString="amount of processors in f-direction" id="74" isDefault="false" isUsed="true" name="npf" type="int" value="1" />
+    <Parameter docString="" id="75" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="true" />
     <ParameterList id="3" name="Stretching in X">
-      <Parameter docString="" id="72" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="parabola" />
-      <Parameter docString="" id="73" isDefault="true" isUsed="true" name="alpha" type="double" value="1.00e-02" />
+      <Parameter docString="" id="76" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="parabola" />
+      <Parameter docString="" id="77" isDefault="true" isUsed="true" name="alpha" type="double" value="1.00e-02" />
     </ParameterList>
     <ParameterList id="4" name="Stretching in Y">
-      <Parameter docString="" id="74" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
+      <Parameter docString="" id="78" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
     </ParameterList>
     <ParameterList id="5" name="Stretching in Z">
-      <Parameter docString="" id="75" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
+      <Parameter docString="" id="79" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
     </ParameterList>
-    <Parameter docString="" id="76" isDefault="true" isUsed="true" name="origin x" type="double" value="0.00000000000000000e+00" />
-    <Parameter docString="" id="77" isDefault="true" isUsed="true" name="origin y" type="double" value="0.00000000000000000e+00" />
-    <Parameter docString="" id="78" isDefault="true" isUsed="true" name="origin z" type="double" value="1.50000000000000000e+01" />
+    <Parameter docString="" id="80" isDefault="true" isUsed="true" name="origin x" type="double" value="0.00000000000000000e+00" />
+    <Parameter docString="" id="81" isDefault="true" isUsed="true" name="origin y" type="double" value="0.00000000000000000e+00" />
+    <Parameter docString="" id="82" isDefault="true" isUsed="true" name="origin z" type="double" value="1.50000000000000000e+01" />
   </ParameterList>
   <ParameterList id="6" name="Solver">
-    <Parameter docString="" id="79" isDefault="false" isUsed="true" name="withprec" type="int" value="3" />
-    <Parameter docString="" id="80" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
-    <Parameter docString="" id="81" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
-    <Parameter docString="" id="82" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
-    <Parameter docString="" id="83" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-    <Parameter docString="" id="84" isDefault="false" isUsed="true" name="initial guess" type="string" value="bla" />
+    <Parameter docString="" id="83" isDefault="false" isUsed="true" name="withprec" type="int" value="3" />
+    <Parameter docString="" id="84" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
+    <Parameter docString="" id="85" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
+    <Parameter docString="" id="86" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
+    <Parameter docString="" id="87" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
+    <Parameter docString="" id="88" isDefault="false" isUsed="true" name="initial guess" type="string" value="bla" />
   </ParameterList>
   <ParameterList id="7" name="Multi Grid">
-    <Parameter docString="" id="85" isDefault="false" isUsed="true" name="maxGrids" type="int" value="6" />
+    <Parameter docString="" id="89" isDefault="false" isUsed="true" name="maxGrids" type="int" value="6" />
   </ParameterList>
-	<ParameterList id="9" name="NOX Status Test">
-		<Parameter docString="" id="89" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
-		<Parameter docString="" id="90" isDefault="false" isUsed="true" name="Combo Type" type="string" value="OR" />
-		<Parameter docString="" id="91" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="3" />
-		<ParameterList id="11" name="Test 0">
-			<Parameter docString="" id="92" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormF" />
-			<Parameter docString="" id="93" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.99999999999999955e-07" />
-			<Parameter docString="" id="94" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
-			<Parameter docString="" id="95" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
+  <ParameterList id="8" name="NOX write">
+    <ParameterList id="9" name="sol">
+      <ParameterList id="10" name="iter">
+        <Parameter docString="" id="90" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
+        <Parameter docString="" id="91" isDefault="true" isUsed="true" name="pre" type="bool" value="true" />
+      </ParameterList>
+      <ParameterList id="11" name="solv">
+        <Parameter docString="" id="92" isDefault="true" isUsed="true" name="post" type="bool" value="true" />
+        <Parameter docString="" id="93" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
+      </ParameterList>
+    </ParameterList>
+    <ParameterList id="12" name="res">
+      <ParameterList id="13" name="iter">
+        <Parameter docString="" id="94" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
+        <Parameter docString="" id="95" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
+      </ParameterList>
+      <ParameterList id="14" name="solv">
+        <Parameter docString="" id="96" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
+        <Parameter docString="" id="97" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
+      </ParameterList>
+    </ParameterList>
+  </ParameterList>
+	<ParameterList id="15" name="NOX Status Test">
+		<Parameter docString="" id="98" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
+		<Parameter docString="" id="99" isDefault="false" isUsed="true" name="Combo Type" type="string" value="OR" />
+		<Parameter docString="" id="100" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="3" />
+		<ParameterList id="16" name="Test 0">
+			<Parameter docString="" id="101" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormF" />
+			<Parameter docString="" id="102" isDefault="false" isUsed="true" name="Tolerance" type="double" value="9.99999999999999955e-07" />
+			<Parameter docString="" id="103" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
+			<Parameter docString="" id="104" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
 		</ParameterList>
-		<ParameterList id="12" name="Test 1">
-			<Parameter docString="" id="96" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" />
-			<Parameter docString="" id="97" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.0e-12" />
-			<Parameter docString="" id="98" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
-			<Parameter docString="" id="99" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
+		<ParameterList id="17" name="Test 1">
+			<Parameter docString="" id="105" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" />
+			<Parameter docString="" id="106" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.0e-12" />
+			<Parameter docString="" id="107" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
+			<Parameter docString="" id="108" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
 		</ParameterList>
-		<ParameterList id="13" name="Test 2">
-			<Parameter docString="" id="100" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-			<Parameter docString="" id="101" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
+		<ParameterList id="18" name="Test 2">
+			<Parameter docString="" id="109" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
+			<Parameter docString="" id="110" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
 		</ParameterList>
 	</ParameterList>
-	<ParameterList id="8" name="NOX Solver">
-		<Parameter docString="" id="109" isDefault="false" isUsed="true" name="Nonlinear Solver" type="string" value="Line Search Based" />
-		<ParameterList id="16" name="Direction">
-			<Parameter docString="" id="110" isDefault="false" isUsed="true" name="Method" type="string" value="Newton" />
-			<ParameterList id="17" name="Newton">
-				<Parameter docString="" id="111" isDefault="true" isUsed="true" name="Rescue Bad Newton Solve" type="bool" value="true" />
-				<Parameter docString="" id="113" isDefault="true" isUsed="true" name="Forcing Term Method" type="string" value="Constant" />
-				<ParameterList id="18" name="Linear Solver">
-					<Parameter docString="" id="112" isDefault="true" isUsed="true" name="Tolerance" type="double" value="-1.0000000000000000e+1" />
+	<ParameterList id="19" name="NOX Solver">
+		<Parameter docString="" id="111" isDefault="false" isUsed="true" name="Nonlinear Solver" type="string" value="Line Search Based" />
+		<ParameterList id="20" name="Direction">
+			<Parameter docString="" id="112" isDefault="false" isUsed="true" name="Method" type="string" value="Newton" />
+			<ParameterList id="21" name="Newton">
+				<Parameter docString="" id="113" isDefault="true" isUsed="true" name="Rescue Bad Newton Solve" type="bool" value="true" />
+				<Parameter docString="" id="114" isDefault="true" isUsed="true" name="Forcing Term Method" type="string" value="Constant" />
+				<ParameterList id="22" name="Linear Solver">
+					<Parameter docString="" id="115" isDefault="true" isUsed="true" name="Tolerance" type="double" value="-1.0000000000000000e+1" />
 				</ParameterList>
 			</ParameterList>
 		</ParameterList>
-		<ParameterList id="19" name="Line Search">
-			<Parameter docString="" id="114" isDefault="false" isUsed="true" name="Method" type="string" value="Backtrack" />
-			<ParameterList id="20" name="Backtrack">
-				<Parameter docString="" id="115" isDefault="false" isUsed="true" name="Recovery Step" type="double" value="9.99999999999999955e-07" />
-				<Parameter docString="" id="116" isDefault="true" isUsed="true" name="Minimum Step" type="double" value="9.99999999999999980e-13" />
-				<Parameter docString="" id="117" isDefault="true" isUsed="true" name="Default Step" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="118" isDefault="true" isUsed="true" name="Max Iters" type="int" value="100" />
-				<Parameter docString="" id="119" isDefault="true" isUsed="true" name="Reduction Factor" type="double" value="5.00000000000000000e-01" />
+		<ParameterList id="23" name="Line Search">
+			<Parameter docString="" id="116" isDefault="false" isUsed="true" name="Method" type="string" value="Backtrack" />
+			<ParameterList id="24" name="Backtrack">
+				<Parameter docString="" id="117" isDefault="false" isUsed="true" name="Recovery Step" type="double" value="9.99999999999999955e-07" />
+				<Parameter docString="" id="118" isDefault="true" isUsed="true" name="Minimum Step" type="double" value="9.99999999999999980e-13" />
+				<Parameter docString="" id="119" isDefault="true" isUsed="true" name="Default Step" type="double" value="1.00000000000000000e+00" />
+				<Parameter docString="" id="120" isDefault="true" isUsed="true" name="Max Iters" type="int" value="100" />
+				<Parameter docString="" id="121" isDefault="true" isUsed="true" name="Reduction Factor" type="double" value="5.00000000000000000e-01" />
 			</ParameterList>
 		</ParameterList>
-		<ParameterList id="21" name="Printing">
-			<Parameter docString="" id="120" isDefault="true" isUsed="true" name="Output Information" type="int" value="15" />
-			<Parameter docString="" id="121" isDefault="true" isUsed="true" name="Output Processor" type="int" value="0" />
-			<Parameter docString="" id="122" isDefault="true" isUsed="true" name="Output Precision" type="int" value="3" />
+		<ParameterList id="25" name="Printing">
+			<Parameter docString="" id="122" isDefault="true" isUsed="true" name="Output Information" type="int" value="15" />
+			<Parameter docString="" id="123" isDefault="true" isUsed="true" name="Output Processor" type="int" value="0" />
+			<Parameter docString="" id="124" isDefault="true" isUsed="true" name="Output Precision" type="int" value="3" />
 		</ParameterList>
-		<ParameterList id="22" name="Solver Options">
-			<Parameter docString="" id="123" isDefault="true" isUsed="true" name="Status Test Check Type" type="string" value="Minimal" />
+		<ParameterList id="26" name="Solver Options">
+			<Parameter docString="" id="125" isDefault="true" isUsed="true" name="Status Test Check Type" type="string" value="Minimal" />
 		</ParameterList>
-		<ParameterList id="23" name="Output">
-			<Parameter docString="" id="124" isDefault="false" isUsed="true" name="Nonlinear Iterations" type="int" value="4" />
-			<Parameter docString="" id="125" isDefault="false" isUsed="true" name="2-Norm of Residual" type="double" value="5.31560894784400384e-01" />
+		<ParameterList id="27" name="Output">
+			<Parameter docString="" id="126" isDefault="false" isUsed="true" name="Nonlinear Iterations" type="int" value="4" />
+			<Parameter docString="" id="127" isDefault="false" isUsed="true" name="2-Norm of Residual" type="double" value="5.31560894784400384e-01" />
 		</ParameterList>
 	</ParameterList>
-	<ParameterList id="24" name="Picard Solver">
-		<Parameter docString="" id="126" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
-		<Parameter docString="" id="127" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
-		<Parameter docString="" id="128" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
-		<Parameter docString="" id="129" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-1" />
-		<ParameterList id="25" name="Solver">
-			<Parameter docString="" id="131" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
-			<Parameter docString="" id="259" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
-			<!--<Parameter docString="" id="9155" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="9156" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
-			<Parameter docString="" id="130" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
-			<Parameter docString="" id="132" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
-			<Parameter docString="" id="133" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
-			<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
-			<Parameter docString="" id="135" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
-			<Parameter docString="" id="136" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
+	<ParameterList id="28" name="Picard Solver">
+		<Parameter docString="" id="128" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
+		<Parameter docString="" id="129" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="130" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
+		<Parameter docString="" id="131" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-1" />
+		<ParameterList id="29" name="Solver">
+			<Parameter docString="" id="132" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+			<Parameter docString="" id="133" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
+			
+			
+			<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
+			<Parameter docString="" id="135" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
+			<Parameter docString="" id="136" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
+			<Parameter docString="" id="137" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
+			<Parameter docString="" id="138" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
+			<Parameter docString="" id="139" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
 		</ParameterList>
-		<Parameter docString="" id="138" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="139" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
-		<Parameter docString="" id="140" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
-		<Parameter docString="" id="141" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
+		<Parameter docString="" id="140" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+		<Parameter docString="" id="141" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
+		<Parameter docString="" id="142" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
+		<Parameter docString="" id="143" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
 	</ParameterList>
-	<ParameterList id="26" name="DivGrad">
-		<Parameter docString="" id="142" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
-		<Parameter docString="" id="143" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
-		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="145" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
-		<Parameter docString="" id="146" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
-		<Parameter docString="" id="147" isDefault="true" isUsed="true" name="scaling" type="string" value="none" />
-		<Parameter docString="" id="148" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true" />
-		<Parameter docString="" id="192" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
-		<Parameter docString="" id="193" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
-		<ParameterList id="27" name="Solver">
-			<Parameter docString="" id="149" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
-			<Parameter docString="" id="151" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000002e-02" />
-			<Parameter docString="" id="152" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
-			<Parameter docString="" id="153" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="false" />
-			<Parameter docString="" id="154" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
-			<!--<Parameter docString="" id="155" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="156" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
-			<Parameter docString="" id="157" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
-			<Parameter docString="" id="158" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
-			<Parameter docString="" id="159" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
-			<Parameter docString="" id="160" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
+	<ParameterList id="30" name="DivGrad">
+		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
+		<Parameter docString="" id="145" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
+		<Parameter docString="" id="146" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+		<Parameter docString="" id="147" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
+		<Parameter docString="" id="148" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="149" isDefault="true" isUsed="true" name="scaling" type="string" value="none" />
+		<Parameter docString="" id="150" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true" />
+		<Parameter docString="" id="151" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
+		<Parameter docString="" id="152" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
+		<ParameterList id="31" name="Solver">
+			<Parameter docString="" id="153" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+			<Parameter docString="" id="154" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000002e-02" />
+			<Parameter docString="" id="155" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
+			<Parameter docString="" id="156" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="false" />
+			<Parameter docString="" id="157" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
+			
+			
+			<Parameter docString="" id="158" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
+			<Parameter docString="" id="159" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
+			<Parameter docString="" id="160" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
+			<Parameter docString="" id="161" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
 		</ParameterList>
-		<ParameterList id="28" name="Multi Grid">
+		<ParameterList id="32" name="Multi Grid">
 			<Parameter docString="" id="162" isDefault="false" isUsed="true" name="numCycles" type="int" value="1" />
 			<Parameter docString="" id="163" isDefault="false" isUsed="true" name="init zero" type="bool" value="true" />
-			<Parameter docString="" id="190" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false" />
-			<Parameter docString="" id="191" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
-			<ParameterList id="29" name="Smoother">
-				<Parameter docString="" id="164" isDefault="false" isUsed="true" name="numIters" type="int" value="2" />
-				<Parameter docString="" id="165" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
-				<Parameter docString="" id="166" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+			<Parameter docString="" id="164" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false" />
+			<Parameter docString="" id="165" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
+			<ParameterList id="33" name="Smoother">
+				<Parameter docString="" id="166" isDefault="false" isUsed="true" name="numIters" type="int" value="2" />
+				<Parameter docString="" id="167" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
+				<Parameter docString="" id="168" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 			</ParameterList>
-			<ParameterList id="30" name="Coarse Grid Solver">
-				<Parameter docString="" id="167" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
-				<Parameter docString="" id="168" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />
-				<ParameterList id="31" name="Solver">
-					<Parameter docString="" id="169" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
-					<Parameter docString="" id="170" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="1" />
-					<!--<Parameter docString="" id="171" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-					<!--<Parameter docString="" id="172" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
+			<ParameterList id="34" name="Coarse Grid Solver">
+				<Parameter docString="" id="169" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
+				<Parameter docString="" id="170" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />
+				<ParameterList id="35" name="Solver">
+					<Parameter docString="" id="171" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
+					<Parameter docString="" id="172" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="1" />
+					
+					
 					<Parameter docString="" id="173" isDefault="false" isUsed="true" name="Deflation Quorum" type="int" value="-1" />
 					<Parameter docString="" id="174" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />
 					<Parameter docString="" id="175" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
@@ -175,7 +197,7 @@
 					<Parameter docString="" id="179" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
 					<Parameter docString="" id="180" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
 				</ParameterList>
-				<ParameterList id="32" name="Preconditioner">
+				<ParameterList id="36" name="Preconditioner">
 					<Parameter docString="" id="181" isDefault="false" isUsed="true" name="level" type="bool" value="true" />
 					<Parameter docString="" id="182" isDefault="false" isUsed="true" name="numIters" type="int" value="1" />
 					<Parameter docString="" id="183" isDefault="false" isUsed="true" name="omega" type="double" value="1.00000000000000000e+00" />
@@ -189,149 +211,148 @@
 			</ParameterList>
 		</ParameterList>
 	</ParameterList>
-	<ParameterList id="33" name="ConvDiff">
-		<Parameter docString="" id="194" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
-		<Parameter docString="" id="195" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="196" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
-		<Parameter docString="" id="197" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
-		<Parameter docString="" id="198" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
-		<Parameter docString="" id="199" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
-		<Parameter docString="" id="200" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
-		<Parameter docString="" id="201" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
-		<ParameterList id="34" name="Solver">
-			<Parameter docString="" id="202" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
-			<Parameter docString="" id="203" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
-			<Parameter docString="" id="204" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
-			<!--<Parameter docString="" id="205" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="206" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
-			<Parameter docString="" id="207" isDefault="false" isUsed="true" name="Deflation Quorum" type="int" value="-1" />
-			<Parameter docString="" id="208" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />
-			<Parameter docString="" id="209" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0000000000000000e-02" />
-			<Parameter docString="" id="210" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
-			<Parameter docString="" id="211" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ConvectionDiffusionVOp" />
-			<Parameter docString="" id="212" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
-			<Parameter docString="" id="213" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
-			<Parameter docString="" id="214" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
+	<ParameterList id="37" name="ConvDiff">
+		<Parameter docString="" id="190" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
+		<Parameter docString="" id="191" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+		<Parameter docString="" id="192" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
+		<Parameter docString="" id="193" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
+		<Parameter docString="" id="194" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
+		<Parameter docString="" id="195" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
+		<Parameter docString="" id="196" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="197" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
+		<ParameterList id="38" name="Solver">
+			<Parameter docString="" id="198" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+			<Parameter docString="" id="199" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
+			<Parameter docString="" id="200" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
+			
+			
+			<Parameter docString="" id="201" isDefault="false" isUsed="true" name="Deflation Quorum" type="int" value="-1" />
+			<Parameter docString="" id="202" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />
+			<Parameter docString="" id="203" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0000000000000000e-02" />
+			<Parameter docString="" id="204" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
+			<Parameter docString="" id="205" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ConvectionDiffusionVOp" />
+			<Parameter docString="" id="206" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
+			<Parameter docString="" id="207" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
+			<Parameter docString="" id="208" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
 		</ParameterList>
-		<ParameterList id="35" name="Multi Grid">
-			<Parameter docString="" id="236" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
-			<Parameter docString="" id="216" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false" />
-			<Parameter docString="" id="217" isDefault="true" isUsed="true" name="init zero" type="bool" value="true" />
-			<Parameter docString="" id="233" isDefault="true" isUsed="true" name="numCycles" type="int" value="1" />
-			<ParameterList id="36" name="Coarse Grid Solver">
-				<Parameter docString="" id="218" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
-				<Parameter docString="" id="219" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />
-				<ParameterList id="37" name="Solver">
-					<Parameter docString="" id="220" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
-					<Parameter docString="" id="221" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="5.00000000000000006e-02" />
-					<Parameter docString="" id="222" isDefault="false" isUsed="true" name="Verbosity" type="int" value="0" />
-					<Parameter docString="" id="223" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Coarse Grid Solver(ConvectionDiffusionVOp)" />
-					<Parameter docString="" id="224" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
-					<Parameter docString="" id="225" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
+		<ParameterList id="39" name="Multi Grid">
+			<Parameter docString="" id="209" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
+			<Parameter docString="" id="210" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false" />
+			<Parameter docString="" id="211" isDefault="true" isUsed="true" name="init zero" type="bool" value="true" />
+			<Parameter docString="" id="212" isDefault="true" isUsed="true" name="numCycles" type="int" value="1" />
+			<ParameterList id="40" name="Coarse Grid Solver">
+				<Parameter docString="" id="213" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
+				<Parameter docString="" id="214" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />
+				<ParameterList id="41" name="Solver">
+					<Parameter docString="" id="215" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+					<Parameter docString="" id="216" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="5.00000000000000006e-02" />
+					<Parameter docString="" id="217" isDefault="false" isUsed="true" name="Verbosity" type="int" value="0" />
+					<Parameter docString="" id="218" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Coarse Grid Solver(ConvectionDiffusionVOp)" />
+					<Parameter docString="" id="219" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
+					<Parameter docString="" id="220" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
 				</ParameterList>
-				<ParameterList id="38" name="Preconditioner">
-					<Parameter docString="" id="226" isDefault="false" isUsed="true" name="numIters" type="int" value="1" />
-					<Parameter docString="" id="227" isDefault="false" isUsed="true" name="omega" type="double" value="1.00000000000000000e+00" />
+				<ParameterList id="42" name="Preconditioner">
+					<Parameter docString="" id="221" isDefault="false" isUsed="true" name="numIters" type="int" value="1" />
+					<Parameter docString="" id="222" isDefault="false" isUsed="true" name="omega" type="double" value="1.00000000000000000e+00" />
 				</ParameterList>
-				<Parameter docString="" id="228" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-				<Parameter docString="" id="229" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
-				<Parameter docString="" id="230" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
-				<Parameter docString="" id="231" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
-				<Parameter docString="" id="232" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
+				<Parameter docString="" id="223" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+				<Parameter docString="" id="224" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
+				<Parameter docString="" id="225" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
+				<Parameter docString="" id="226" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
+				<Parameter docString="" id="227" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
 			</ParameterList>
-			<ParameterList id="39" name="Smoother">
-				<Parameter docString="" id="234" isDefault="true" isUsed="true" name="omega" type="double" value="5.00000000000000000e-01" />
-				<Parameter docString="" id="235" isDefault="true" isUsed="true" name="numIters" type="int" value="2" />
+			<ParameterList id="43" name="Smoother">
+				<Parameter docString="" id="228" isDefault="true" isUsed="true" name="omega" type="double" value="5.00000000000000000e-01" />
+				<Parameter docString="" id="229" isDefault="true" isUsed="true" name="numIters" type="int" value="2" />
 			</ParameterList>
 		</ParameterList>
 	</ParameterList>
-	<ParameterList id="40" name="M_ConvDiff">
-		<Parameter docString="" id="237" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
-		<Parameter docString="" id="238" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="239" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
-		<Parameter docString="" id="240" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
-		<Parameter docString="" id="999127" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
-		<Parameter docString="" id="241" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
-		<Parameter docString="" id="242" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
-		<Parameter docString="" id="243" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
-		<ParameterList id="41" name="Solver">
-			<Parameter docString="" id="244" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="80" />
-			<Parameter docString="" id="245" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="40" />
-			<Parameter docString="" id="246" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
-			<Parameter docString="" id="247" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
-			<!--<Parameter docString="" id="248" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="249" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
-			<Parameter docString="" id="250" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
-			<Parameter docString="" id="251" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ModeNonlinearOp_ConvectionDiffusionVOp" />
-			<Parameter docString="" id="252" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
-			<Parameter docString="" id="253" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
-			<Parameter docString="" id="254" isDefault="false" isUsed="true" name="Output Stream" type="any" value="Teuchos::RCP&lt;std::ostream&gt;{ptr=0x1f4f610,node=0x1f1a460,strong_count=1,weak_count=0}" />
-			<Parameter docString="" id="255" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
+	<ParameterList id="44" name="M_ConvDiff">
+		<Parameter docString="" id="230" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
+		<Parameter docString="" id="231" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+		<Parameter docString="" id="232" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
+		<Parameter docString="" id="233" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
+		<Parameter docString="" id="234" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="235" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
+		<Parameter docString="" id="236" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
+		<Parameter docString="" id="237" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
+		<ParameterList id="45" name="Solver">
+			<Parameter docString="" id="238" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="80" />
+			<Parameter docString="" id="239" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="40" />
+			<Parameter docString="" id="240" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
+			<Parameter docString="" id="241" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
+			
+			
+			<Parameter docString="" id="242" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
+			<Parameter docString="" id="243" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ModeNonlinearOp_ConvectionDiffusionVOp" />
+			<Parameter docString="" id="244" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
+			<Parameter docString="" id="245" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
+			<Parameter docString="" id="246" isDefault="false" isUsed="true" name="Output Stream" type="any" value="Teuchos::RCP&lt;std::ostream&gt;{ptr=0x1f4f610,node=0x1f1a460,strong_count=1,weak_count=0}" />
+			<Parameter docString="" id="247" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
 		</ParameterList>
 	</ParameterList>
-	<ParameterList id="42" name="MH_ConvDiff">
-		<Parameter docString="" id="256" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
-		<!--<Parameter docString="" id="256" isDefault="true" isUsed="true" name="Solver name" type="string" value="TFQMR" />-->
-		<Parameter docString="" id="257" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
-		<Parameter docString="" id="258" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-3" />
-		<Parameter docString="" id="274" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="275" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
-		<Parameter docString="" id="276" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
-		<Parameter docString="" id="277" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
-		<Parameter docString="" id="278" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
-		<ParameterList id="43" name="Solver">
-			<Parameter docString="" id="267" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
-			<Parameter docString="" id="99259" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="1" />
-			<!--<Parameter docString="" id="260" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />-->
-			<Parameter docString="" id="261" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />
-			<!--<Parameter docString="" id="262" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />-->
-			<!--<Parameter docString="" id="263" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />-->
-			<!--<Parameter docString="" id="264" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="265" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="266" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />-->
-			<Parameter docString="" id="268" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000002e-01" />
-			<Parameter docString="" id="269" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
-			<Parameter docString="" id="270" isDefault="false" isUsed="true" name="Timer Label" type="string" value="MHDtConvectionDiffusion" />
-			<Parameter docString="" id="271" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
-			<Parameter docString="" id="272" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
-			<!--<Parameter docString="" id="273" isDefault="false" isUsed="true" name="Output Stream" type="any" value="Teuchos::RCP&lt;std::ostream&gt;{ptr=0x1ec7760,node=0x1ec7970,strong_count=1,weak_count=0}" />-->
+	<ParameterList id="46" name="MH_ConvDiff">
+		<Parameter docString="" id="248" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
+		
+		<Parameter docString="" id="249" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="250" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-3" />
+		<Parameter docString="" id="251" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+		<Parameter docString="" id="252" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false" />
+		<Parameter docString="" id="253" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
+		<Parameter docString="" id="254" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
+		<Parameter docString="" id="255" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
+		<ParameterList id="47" name="Solver">
+			<Parameter docString="" id="256" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
+			<Parameter docString="" id="257" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="1" />
+			
+			<Parameter docString="" id="258" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />
+			
+			
+			
+			
+			
+			<Parameter docString="" id="259" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000002e-01" />
+			<Parameter docString="" id="260" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
+			<Parameter docString="" id="261" isDefault="false" isUsed="true" name="Timer Label" type="string" value="MHDtConvectionDiffusion" />
+			<Parameter docString="" id="262" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
+			<Parameter docString="" id="263" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
+			
 		</ParameterList>
 	</ParameterList>
-	<ParameterList id="44" name="Base flow">
-		<ParameterList id="45" name="0 mode">
-			<Parameter docString="" id="279" isDefault="true" isUsed="true" name="Type" type="string" value="swept hiemenz flow" />
-			<Parameter docString="" id="280" isDefault="true" isUsed="true" name="attack angle" type="double" value="0.00000000000000000e+00" />
-			<Parameter docString="" id="281" isDefault="true" isUsed="true" name="seep angle" type="double" value="4.50000000000000000e+01" />
-			<Parameter docString="" id="282" isDefault="true" isUsed="true" name="kappa" type="double" value="0.00000000000000000e+00" />
-			<Parameter docString="" id="283" isDefault="true" isUsed="true" name="nonDim" type="int" value="0" />
-		</ParameterList>
-		<ParameterList id="46" name="cos mode">
-			<Parameter docString="" id="284" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
-		</ParameterList>
-		<ParameterList id="47" name="sin mode">
-			<Parameter docString="" id="285" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
-		</ParameterList>
-	</ParameterList>
-	<ParameterList id="48" name="Force">
-		<Parameter docString="" id="286" isDefault="true" isUsed="true" name="force type" type="string" value="force" />
+	<ParameterList id="48" name="Base flow">
 		<ParameterList id="49" name="0 mode">
-			<Parameter docString="" id="287" isDefault="true" isUsed="true" name="Type" type="string" value="disturbance" />
-			<Parameter docString="" id="288" isDefault="true" isUsed="true" name="xc" type="double" value="3.00000000000000000e+00" />
-			<Parameter docString="" id="289" isDefault="true" isUsed="true" name="zc" type="double" value="1.50000000000000000e+00" />
-			<Parameter docString="" id="290" isDefault="true" isUsed="true" name="b" type="double" value="3.00000000000000000e+00" />
-			<Parameter docString="" id="291" isDefault="true" isUsed="true" name="A" type="double" value="1.00000000000000006e-01" />
+			<Parameter docString="" id="264" isDefault="true" isUsed="true" name="Type" type="string" value="swept hiemenz flow" />
+			<Parameter docString="" id="265" isDefault="true" isUsed="true" name="attack angle" type="double" value="0.00000000000000000e+00" />
+			<Parameter docString="" id="266" isDefault="true" isUsed="true" name="seep angle" type="double" value="4.50000000000000000e+01" />
+			<Parameter docString="" id="267" isDefault="true" isUsed="true" name="kappa" type="double" value="0.00000000000000000e+00" />
+			<Parameter docString="" id="268" isDefault="true" isUsed="true" name="nonDim" type="int" value="0" />
 		</ParameterList>
 		<ParameterList id="50" name="cos mode">
-			<Parameter docString="" id="292" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
+			<Parameter docString="" id="269" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
 		</ParameterList>
 		<ParameterList id="51" name="sin mode">
-			<Parameter docString="" id="293" isDefault="true" isUsed="true" name="Type" type="string" value="disturbance" />
-			<Parameter docString="" id="294" isDefault="true" isUsed="true" name="xc" type="double" value="3.00000000000000000e+00" />
-			<Parameter docString="" id="295" isDefault="true" isUsed="true" name="zc" type="double" value="1.50000000000000000e+00" />
-			<Parameter docString="" id="296" isDefault="true" isUsed="true" name="b" type="double" value="3.00000000000000000e+00" />
-			<Parameter docString="" id="297" isDefault="true" isUsed="true" name="A" type="double" value="1.00000000000000002e-03" />
+			<Parameter docString="" id="270" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
+		</ParameterList>
+	</ParameterList>
+	<ParameterList id="52" name="Force">
+		<Parameter docString="" id="271" isDefault="true" isUsed="true" name="force type" type="string" value="force" />
+		<ParameterList id="53" name="0 mode">
+			<Parameter docString="" id="272" isDefault="true" isUsed="true" name="Type" type="string" value="disturbance" />
+			<Parameter docString="" id="273" isDefault="true" isUsed="true" name="xc" type="double" value="3.00000000000000000e+00" />
+			<Parameter docString="" id="274" isDefault="true" isUsed="true" name="zc" type="double" value="1.50000000000000000e+00" />
+			<Parameter docString="" id="275" isDefault="true" isUsed="true" name="b" type="double" value="3.00000000000000000e+00" />
+			<Parameter docString="" id="276" isDefault="true" isUsed="true" name="A" type="double" value="1.00000000000000006e-01" />
+		</ParameterList>
+		<ParameterList id="54" name="cos mode">
+			<Parameter docString="" id="277" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
+		</ParameterList>
+		<ParameterList id="55" name="sin mode">
+			<Parameter docString="" id="278" isDefault="true" isUsed="true" name="Type" type="string" value="disturbance" />
+			<Parameter docString="" id="279" isDefault="true" isUsed="true" name="xc" type="double" value="3.00000000000000000e+00" />
+			<Parameter docString="" id="280" isDefault="true" isUsed="true" name="zc" type="double" value="1.50000000000000000e+00" />
+			<Parameter docString="" id="281" isDefault="true" isUsed="true" name="b" type="double" value="3.00000000000000000e+00" />
+			<Parameter docString="" id="282" isDefault="true" isUsed="true" name="A" type="double" value="1.00000000000000002e-03" />
 		</ParameterList>
 	</ParameterList>
 	<Validators />
 </ParameterList>
-

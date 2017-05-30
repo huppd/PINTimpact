@@ -82,7 +82,7 @@ public:
 				*eStream << error << "\n";
 		}
 
-		x.write();
+		//x.write();
 		op_->assignField( x );
 		op_->apply( x, f );
 		f.add( 1., f, -1., *fu_ );
