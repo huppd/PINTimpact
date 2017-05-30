@@ -7,6 +7,7 @@ exe_path = os.path.expanduser("~/Pimpact/release/src_c")  # euler
 
 # data patch
 data_path = os.path.expanduser("~/data")
+DATA_PATH = os.path.expanduser("~/data")
 
 
 # exection command
@@ -20,7 +21,7 @@ def exe_pre(npro, ops='', run=0):
 
 def get_path(path, npa):
     """ creates path string from list """
-    return ''.join(path[:npa])
+    return ''.join(path[:npa+1])
 
 
 def mkdir(path, npa):

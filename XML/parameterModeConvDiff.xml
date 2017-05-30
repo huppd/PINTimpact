@@ -102,21 +102,21 @@
     <Parameter docString="" id="85" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES"/>
     <Parameter docString="" id="86" isDefault="true" isUsed="true" name="preconditioner" type="string" value="left"/>
     <!--<Parameter docString="" id="87" isDefault="true" isUsed="true" name="preconditioner type" type="int" value="0"/>-->
-    <ParameterList id="94" name="Solver">
-      <Parameter docString="" id="88" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000005e-04"/>
-			<Parameter docString="" id="9945" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="40"/>
-      <Parameter docString="" id="89" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111"/>
-      <Parameter docString="" id="90" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ModeNonlinearOp_ConvectionDiffusionVOp"/>
-      <Parameter docString="" id="91" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1"/>
-      <Parameter docString="" id="92" isDefault="false" isUsed="true" name="Output Style" type="int" value="1"/>
-      <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Output Stream" type="any" value="Teuchos::RCP&lt;std::ostream>{ptr=0x7f5596521700,node=0x2bd9430,strong_count=1,weak_count=0}"/>
-    </ParameterList>
     <Parameter docString="" id="95" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
     <Parameter docString="" id="96" isDefault="true" isUsed="true" name="initZero" type="bool" value="false"/>
     <Parameter docString="" id="97" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
     <Parameter docString="" id="98" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
     <Parameter docString="" id="99" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
     <Parameter docString="" id="100" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.00000000000000000e+00"/>
+    <ParameterList id="94" name="Solver">
+      <Parameter docString="" id="88" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000005e-05"/>
+      <Parameter docString="" id="9945" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="80"/>
+      <Parameter docString="" id="89" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111"/>
+      <Parameter docString="" id="90" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ModeNonlinearOp_ConvectionDiffusionVOp"/>
+      <Parameter docString="" id="91" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1"/>
+      <Parameter docString="" id="92" isDefault="false" isUsed="true" name="Output Style" type="int" value="1"/>
+      <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Output Stream" type="any" value="Teuchos::RCP&lt;std::ostream>{ptr=0x7f5596521700,node=0x2bd9430,strong_count=1,weak_count=0}"/>
+    </ParameterList>
     <ParameterList id="102" name="Eddy prec">
       <Parameter docString="" id="101" isDefault="true" isUsed="true" name="type" type="int" value="4"/>
     </ParameterList>
