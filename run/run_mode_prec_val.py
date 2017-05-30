@@ -24,15 +24,15 @@ RUNS = range(1)
 
 RES = 3.*10.**np.linspace(0, 2, 3)
 ALPHA2S = 3.*10.**np.linspace(0, 3, 4)
-PRECS = [1, 2, 3, 4]
-NXS = [1, 2, 3]
+PRECS = [2, 3, 4]
+NXS = [3]
 
 
 CASE_PATH = ['']*6
 
 
-for pre in ['left', 'right']:
-    CASE_PATH[0] = pp.DATA_PATH + '/mode_prec_' + pre
+for side in ['left', 'right']:
+    CASE_PATH[0] = pp.DATA_PATH + '/mode_prec_' + side
     pp.mkdir(CASE_PATH, 0)
     for i_re, re in enumerate(RES):
         CASE_PATH[1] = '/re_'+str(i_re)
@@ -57,6 +57,7 @@ for pre in ['left', 'right']:
                     #
                     pp.chdir(CASE_PATH, 4)
                     #
+                    ma.setParameter(ROOT, 'preconditioner', side)
                     ma.setParameter(ROOT, 'type', prec)
                     ma.setParameter(ROOT, 'Re', re)
                     ma.setParameter(ROOT, 'alpha2', 2.*pi*alpha2)
