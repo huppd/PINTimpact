@@ -22,9 +22,9 @@ os.system('make ' + EXE + ' -j4')
 
 RUNS = range(1)
 
-RES = 3.*10.**np.linspace(0, 2, 5) # [3, 30, 300]
-ALPHA2S = 10.**np.linspace(-2, 1, 7) # [0.01, 0.1, 1., 10.]
-PRECS = [0, 1, 2, 3, 4]
+RES = 3.*10.**np.linspace(0, 2, 3)
+ALPHA2S = 3.*10.**np.linspace(0, 3, 4)
+PRECS = [1, 2, 3, 4]
 NXS = [1, 2, 3]
 
 
