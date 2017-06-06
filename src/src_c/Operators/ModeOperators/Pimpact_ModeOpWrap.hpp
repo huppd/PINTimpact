@@ -24,48 +24,58 @@ class ModeOpWrap {
 
 public:
 
-	using DomainFieldT = ModeField<typename Operator::DomainFieldT>;
-	using RangeFieldT = ModeField<typename Operator::RangeFieldT>;
+  using DomainFieldT = ModeField<typename Operator::DomainFieldT>;
+  using RangeFieldT = ModeField<typename Operator::RangeFieldT>;
 
   using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 
-	Teuchos::RCP<Operator> op_;
+  Teuchos::RCP<Operator> op_;
 
 public:
 
-	ModeOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
-	ModeOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};
-	~ModeOpWrap() {op_=Teuchos::null;};
+  ModeOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
+  ModeOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};
+  ~ModeOpWrap() {
+    op_=Teuchos::null;
+  };
 
 
-	/// \note todo apply for helmholtx k=...
-	void apply( const DomainFieldT& x, RangeFieldT& y,
-			const Belos::ETrans& trans=Belos::NOTRANS) const {
+  /// \note todo apply for helmholtx k=...
+  void apply( const DomainFieldT& x, RangeFieldT& y,
+              const Belos::ETrans& trans=Belos::NOTRANS) const {
 
-	  op_->apply( x.getCField(), y.getCField() );
+    op_->apply( x.getCField(), y.getCField() );
     op_->apply( x.getSField(), y.getSField() );
-	}
+  }
 
   void assignField( const DomainFieldT& mv ) {
     op_->assignField( mv.getConstCField() );
   };
 
 
-	bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
+  bool hasApplyTranspose() const {
+    return( op_->hasApplyTranspose() );
+  }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
+  constexpr const Teuchos::RCP<const SpaceT>& space() const {
+    return(op_->space());
+  };
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+  void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-	Teuchos::RCP<Operator> getOperatorPtr() { return( op_ ); }
+  Teuchos::RCP<Operator> getOperatorPtr() {
+    return( op_ );
+  }
 
-	const std::string getLabel() const { return( "ModeOpWrap( "+op_->getLabel()+" ) " ); };
+  const std::string getLabel() const {
+    return( "ModeOpWrap( "+op_->getLabel()+" ) " );
+  };
 
   void print( std::ostream& out=std::cout ) const {
-		out << getLabel() << ":\n";
-		op_->print( out );
+    out << getLabel() << ":\n";
+    op_->print( out );
   }
 
 }; // end of class ModeOpWrap
@@ -76,7 +86,7 @@ public:
 /// \relates ModeOpWrap
 template<class Operator>
 Teuchos::RCP< ModeOpWrap<Operator> > createModeOpWrap( const Teuchos::RCP<Operator>& op ) {
-    return( Teuchos::rcp( new ModeOpWrap<Operator>( op ) ) );
+  return( Teuchos::rcp( new ModeOpWrap<Operator>( op ) ) );
 }
 
 

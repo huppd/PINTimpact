@@ -57,7 +57,7 @@ NOX::Pimpact::createStatusTest( int maxI, double tolF, double tolUpdate ) {
   nstep.set( "N", 2 );
   //  Teuchos::RCP<NOX::StatusTest::Generic>
   Teuchos::RCP< NOX::StatusTest::Generic > status_tests =
-      NOX::StatusTest::buildStatusTests( stl, NOX::Utils() );
+    NOX::StatusTest::buildStatusTests( stl, NOX::Utils() );
 
   return( status_tests );
 
@@ -67,10 +67,10 @@ NOX::Pimpact::createStatusTest( int maxI, double tolF, double tolUpdate ) {
 
 Teuchos::RCP<Teuchos::ParameterList>
 NOX::Pimpact::createNOXSolverParameter(
-    const std::string& solverName,
-    const std::string& lineSearchName ) {
+  const std::string& solverName,
+  const std::string& lineSearchName ) {
 
-	Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr = Teuchos::parameterList( solverName );
+  Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr = Teuchos::parameterList( solverName );
   solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
 
   // Create the directions parameters sublist

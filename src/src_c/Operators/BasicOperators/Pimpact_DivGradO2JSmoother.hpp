@@ -11,7 +11,7 @@
 
 
 
-namespace Pimpact{
+namespace Pimpact {
 
 
 
@@ -36,92 +36,96 @@ protected:
   using ST = typename SpaceT::Scalar;
   using OT = typename SpaceT::Ordinal;
 
-	using SolverT = TeuchosSolver<OperatorT>;
+  using SolverT = TeuchosSolver<OperatorT>;
 
   ST omega_;
   int nIter_;
 
-	bool levelYes_;
+  bool levelYes_;
 
   const Teuchos::RCP<const OperatorT> op_;
 
 public:
 
-	DivGradO2JSmoother( const Teuchos::RCP<const SpaceT>& space ):
+  DivGradO2JSmoother( const Teuchos::RCP<const SpaceT>& space ):
     omega_( (2==SpaceT::sdim)?0.8:6./7. ),
     nIter_( 4 ),
     levelYes_( false ),
     op_( Teuchos::rcp( new OperatorT(space) ) ) {}
 
-	/// \brief constructor
-	///
-	/// \param[in] op pointer to operator that is smoothed
-	/// \param[in] pl  Parameter list of options for the multi grid solver.
-	///   These are the options accepted by the solver manager:
-	///   - "omega" - a \c ST damping factor. Default: for 2D 0.8 for 3D 6./7.  /
-	///   - "numIters" - a \c int number of smoothing steps. Default: 4  /
-	///   - "BC smoothing" - a \c int type of BC smoothing 0, 0: Jacbobian, else: direct. Default: 0 /
-	///   - "level" - a \c bool number of smoothing steps. Default: false  /
+  /// \brief constructor
+  ///
+  /// \param[in] op pointer to operator that is smoothed
+  /// \param[in] pl  Parameter list of options for the multi grid solver.
+  ///   These are the options accepted by the solver manager:
+  ///   - "omega" - a \c ST damping factor. Default: for 2D 0.8 for 3D 6./7.  /
+  ///   - "numIters" - a \c int number of smoothing steps. Default: 4  /
+  ///   - "BC smoothing" - a \c int type of BC smoothing 0, 0: Jacbobian, else: direct. Default: 0 /
+  ///   - "level" - a \c bool number of smoothing steps. Default: false  /
   DivGradO2JSmoother(
-      const Teuchos::RCP<const OperatorT>& op,
-      const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
+    const Teuchos::RCP<const OperatorT>& op,
+    const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
     omega_( pl->get<ST>("omega", (2==SpaceT::sdim)?0.8:6./7. ) ),
     nIter_( pl->get<int>( "numIters", 2 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-		op_(op) {}
+    op_(op) {}
 
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
-	void apply(const DomainFieldT& b, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply(const DomainFieldT& b, RangeFieldT& y, const Add& add=Add::N ) const {
 
-		DomainFieldT temp( space() );
+    DomainFieldT temp( space() );
 
-		for( int i=0; i<nIter_; ++i) {
+    for( int i=0; i<nIter_; ++i) {
 
       y.exchange();
 
-			if( 3==SpaceT::sdim )
-				for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-					for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-						for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
-							temp(i,j,k) = innerStenc3D( b, y, i,j,k);
-						}
-			else
-				for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-					for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-						for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
-							temp(i,j,k) = innerStenc2D( b, y, i,j,k);
-						}
-			
-			temp.changed();
-			temp.exchange();
+      if( 3==SpaceT::sdim )
+        for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+          for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+            for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+              temp(i,j,k) = innerStenc3D( b, y, i,j,k);
+            }
+      else
+        for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+          for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+            for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+              temp(i,j,k) = innerStenc2D( b, y, i,j,k);
+            }
 
-			if( 3==SpaceT::sdim )
-				for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-					for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-						for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
-							y(i,j,k) = innerStenc3D( b, temp, i,j,k);
-						}
-			else
-				for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-					for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-						for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
-							y(i,j,k) = innerStenc2D( b, temp, i,j,k);
-						}
+      temp.changed();
+      temp.exchange();
 
-			y.changed();
-		}
-		if( levelYes_ )
-			y.level();
-	}
+      if( 3==SpaceT::sdim )
+        for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+          for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+            for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+              y(i,j,k) = innerStenc3D( b, temp, i,j,k);
+            }
+      else
+        for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+          for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+            for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+              y(i,j,k) = innerStenc2D( b, temp, i,j,k);
+            }
+
+      y.changed();
+    }
+    if( levelYes_ )
+      y.level();
+  }
 
   void assignField( const DomainFieldT& mv ) {};
 
-  bool hasApplyTranspose() const { return( false ); }
+  bool hasApplyTranspose() const {
+    return( false );
+  }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
+  constexpr const Teuchos::RCP<const SpaceT>& space() const {
+    return(op_->space());
+  };
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+  void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
@@ -130,78 +134,80 @@ public:
     op_->print( out );
   }
 
-	const std::string getLabel() const { return( "DivGradO2JSmoother" ); };
+  const std::string getLabel() const {
+    return( "DivGradO2JSmoother" );
+  };
 
 protected:
 
-	constexpr ST innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
-			const OT& i, const OT& j, const OT& k ) const { 
+  constexpr ST innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
+                             const OT& i, const OT& j, const OT& k ) const {
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
-		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
-		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
-		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
-		           (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
+    const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
+                     (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
+    const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
+                     (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
+    const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
+                     (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-		//const ST& eps = 0.1;
-		const ST& eps = 1./static_cast<ST>(OperatorT::epsI);
+    //const ST& eps = 0.1;
+    const ST& eps = 1./static_cast<ST>(OperatorT::epsI);
 
-		const ST epsX = (bcY||bcZ)?eps:1.;
-		const ST epsY = (bcX||bcZ)?eps:1.;
-		const ST epsZ = (bcX||bcY)?eps:1.;
+    const ST epsX = (bcY||bcZ)?eps:1.;
+    const ST epsY = (bcX||bcZ)?eps:1.;
+    const ST epsZ = (bcX||bcY)?eps:1.;
 
-		ST diag = epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0);
+    ST diag = epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0);
 
-		diag = (diag==0.)?1.:diag;
-		return(
-				(1.-omega_)*x(i,j,k) +
-				omega_/ diag *(
-					b(i,j,k) - 
-				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) - 
-				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) - 
-				epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) - epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) ) );
-	} 
+    diag = (diag==0.)?1.:diag;
+    return(
+            (1.-omega_)*x(i,j,k) +
+            omega_/ diag *(
+              b(i,j,k) -
+              epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) -
+              epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) -
+              epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) - epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) ) );
+  }
 
-	constexpr ST innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
-			const OT& i, const OT& j, const OT& k ) const { 
+  constexpr ST innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
+                             const OT& i, const OT& j, const OT& k ) const {
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
-		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
-		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
+    const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
+                     (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
+    const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
+                     (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-		//const ST& eps = 0.1;
-		const ST& eps = 1./static_cast<ST>(OperatorT::epsI);
+    //const ST& eps = 0.1;
+    const ST& eps = 1./static_cast<ST>(OperatorT::epsI);
 
-		const ST epsX = bcY?eps:1.;
-		const ST epsY = bcX?eps:1.;
+    const ST epsX = bcY?eps:1.;
+    const ST epsY = bcX?eps:1.;
 
-		ST diag = (epsX*getC(X,i,0) + epsY*getC(Y,j,0));
-		diag = (diag!=0.)?diag:1.;
-		return(
-				(1.-omega_)*x(i,j,k) +
-				omega_/diag*( b(i,j,k) - 
-				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) - 
-				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) ) );
-	} 
+    ST diag = (epsX*getC(X,i,0) + epsY*getC(Y,j,0));
+    diag = (diag!=0.)?diag:1.;
+    return(
+            (1.-omega_)*x(i,j,k) +
+            omega_/diag*( b(i,j,k) -
+                          epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) -
+                          epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) ) );
+  }
 
-	constexpr const ST* getC( const ECoord& dir) const  { 
-		return( op_->getC( dir ) ); 
-	} 
+  constexpr const ST* getC( const ECoord& dir) const  {
+    return( op_->getC( dir ) );
+  }
 
-	constexpr const ST* getC( const int& dir) const  { 
-		return( op_->getC( dir ) ); 
-	} 
+  constexpr const ST* getC( const int& dir) const  {
+    return( op_->getC( dir ) );
+  }
 
-	constexpr const ST& getC( const ECoord& dir, OT i, OT off ) const  { 
-		return( op_->getC( dir, i, off ) ); 
-	} 
+  constexpr const ST& getC( const ECoord& dir, OT i, OT off ) const  {
+    return( op_->getC( dir, i, off ) );
+  }
 
-	constexpr const ST& getC( const int& dir, OT i, OT off ) const  { 
-		return( op_->getC( dir, i, off ) ); 
-	} 
-	
+  constexpr const ST& getC( const int& dir, OT i, OT off ) const  {
+    return( op_->getC( dir, i, off ) );
+  }
+
 }; // end of class DivGradO2JSmoother
 
 
@@ -209,10 +215,10 @@ protected:
 template<template<class> class SmootherT, class OperatorT>
 Teuchos::RCP< SmootherT<OperatorT> >
 create(
-		const Teuchos::RCP<OperatorT>& op,
-		const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
+  const Teuchos::RCP<OperatorT>& op,
+  const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-	return( Teuchos::rcp( new SmootherT<OperatorT>( op, pl ) ) );
+  return( Teuchos::rcp( new SmootherT<OperatorT>( op, pl ) ) );
 }
 
 
@@ -220,10 +226,10 @@ create(
 template<class SmootherT, class OperatorT>
 Teuchos::RCP< SmootherT >
 create(
-    const Teuchos::RCP< OperatorT>& op,
-    const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
+  const Teuchos::RCP< OperatorT>& op,
+  const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-	return( Teuchos::rcp( new SmootherT( op, pl ) ) );
+  return( Teuchos::rcp( new SmootherT( op, pl ) ) );
 }
 
 

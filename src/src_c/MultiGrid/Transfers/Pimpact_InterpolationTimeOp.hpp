@@ -23,68 +23,74 @@ class InterpolationTimeOp  {
 
 public:
 
-	using DomainFieldT = TimeField<typename OperatorT::DomainFieldT>;
-	using RangeFieldT = TimeField<typename OperatorT::RangeFieldT>;
+  using DomainFieldT = TimeField<typename OperatorT::DomainFieldT>;
+  using RangeFieldT = TimeField<typename OperatorT::RangeFieldT>;
 
-	using SpaceT = typename DomainFieldT::SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
-	using FSpaceT = SpaceT;
-	using CSpaceT = SpaceT;
+  using FSpaceT = SpaceT;
+  using CSpaceT = SpaceT;
 
-	using Ordinal = typename SpaceT::Ordinal;
+  using Ordinal = typename SpaceT::Ordinal;
 
 protected:
 
   Teuchos::RCP<OperatorT> op_; //  interpolation operator in space
-    
+
 public:
-    
-    InterpolationTimeOp(
-                        const Teuchos::RCP<const SpaceT>& spaceC,
-                        const Teuchos::RCP<const SpaceT>& spaceF):
-    op_(Teuchos::rcp(new OperatorT(spaceC,spaceF)))
-    {};
+
+  InterpolationTimeOp(
+    const Teuchos::RCP<const SpaceT>& spaceC,
+    const Teuchos::RCP<const SpaceT>& spaceF):
+    op_(Teuchos::rcp(new OperatorT(spaceC,spaceF))) {
+  };
 
   /// \brief default apply
-	void apply( const DomainFieldT& x, RangeFieldT& y) const {
-      
-		Ordinal d = (spaceF()->nLoc(3)) / (spaceC()->nLoc(3));
-	
-		x.exchange();
+  void apply( const DomainFieldT& x, RangeFieldT& y) const {
 
-		for( Ordinal i=spaceC()->si(F::S,3); i <= spaceC()->ei(F::S,3); ++i ) { 
-			Ordinal iF = d*( i-spaceC()->si(F::S,3) ) + spaceF()->si(F::S,3);
-			op_->apply( x( i ), y( iF ) );
-			if (spaceC()->nLoc(3)==1 && d>1) 
-				op_->apply( x(1), y(2) );
-		}
+    Ordinal d = (spaceF()->nLoc(3)) / (spaceC()->nLoc(3));
 
-		if (d > 1 && spaceC()->nLoc(3)>1) { 
+    x.exchange();
 
-			for( int i=spaceF()->si(F::S,3) + 1; i < spaceF()->ei(F::S,3) ; i=i+d ) {
-				y(i).add( 0.5, y(i-1), 0.5, y(i+1) ); 
-			}		
-		}
-	
-		y.changed(); 
+    for( Ordinal i=spaceC()->si(F::S,3); i <= spaceC()->ei(F::S,3); ++i ) {
+      Ordinal iF = d*( i-spaceC()->si(F::S,3) ) + spaceF()->si(F::S,3);
+      op_->apply( x( i ), y( iF ) );
+      if (spaceC()->nLoc(3)==1 && d>1)
+        op_->apply( x(1), y(2) );
+    }
+
+    if (d > 1 && spaceC()->nLoc(3)>1) {
+
+      for( int i=spaceF()->si(F::S,3) + 1; i < spaceF()->ei(F::S,3) ; i=i+d ) {
+        y(i).add( 0.5, y(i-1), 0.5, y(i+1) );
+      }
+    }
+
+    y.changed();
   }
 
-	Teuchos::RCP<const SpaceT> spaceC() const { return( op_->spaceC() ); };
-	Teuchos::RCP<const SpaceT> spaceF() const { return( op_->spaceF() ); };
+  Teuchos::RCP<const SpaceT> spaceC() const {
+    return( op_->spaceC() );
+  };
+  Teuchos::RCP<const SpaceT> spaceF() const {
+    return( op_->spaceF() );
+  };
 
-	Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
+  Teuchos::RCP<OperatorT> getOperatorPtr() {
+    return( op_ );
+  }
 
 
 }; // end of class InterpolationTimeOp
 
-    
+
 
 /// \relates
 template< class OpT >
 Teuchos::RCP< InterpolationTimeOp<OpT> > createInterpolationTimeOp(
-    const Teuchos::RCP<const typename OpT::CSpaceT>& spaceC, const Teuchos::RCP<const typename OpT::FSpaceT>& spaceF ) {
+  const Teuchos::RCP<const typename OpT::CSpaceT>& spaceC, const Teuchos::RCP<const typename OpT::FSpaceT>& spaceF ) {
 
-	return( Teuchos::rcp( new InterpolationTimeOp<OpT>( spaceC,spaceF ) ) );
+  return( Teuchos::rcp( new InterpolationTimeOp<OpT>( spaceC,spaceF ) ) );
 
 }
 

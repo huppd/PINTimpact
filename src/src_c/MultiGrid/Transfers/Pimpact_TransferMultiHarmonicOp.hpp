@@ -22,70 +22,70 @@ class TransferMultiHarmonicOp {
 
 public:
 
-	using FSpaceT = typename InterT::FSpaceT;
-	using CSpaceT = typename InterT::CSpaceT;
+  using FSpaceT = typename InterT::FSpaceT;
+  using CSpaceT = typename InterT::CSpaceT;
 
-	using SpaceT = typename InterT::SpaceT;
+  using SpaceT = typename InterT::SpaceT;
 
-	using DomainFieldT = MultiHarmonicField<typename InterT::DomainFieldT>;
-	using RangeFieldT = MultiHarmonicField<typename InterT::RangeFieldT>;
-	
+  using DomainFieldT = MultiHarmonicField<typename InterT::DomainFieldT>;
+  using RangeFieldT = MultiHarmonicField<typename InterT::RangeFieldT>;
+
 protected:
 
-	using Ordinal = typename SpaceT::Ordinal;
+  using Ordinal = typename SpaceT::Ordinal;
 
-	Teuchos::RCP<InterT> op_;
+  Teuchos::RCP<InterT> op_;
 
 public:
 
-	TransferMultiHarmonicOp(
-			const Teuchos::RCP<const FSpaceT>& spaceC,
-			const Teuchos::RCP<const CSpaceT>& spaceF ):
-		op_( Teuchos::rcp( new InterT( spaceC, spaceF ) ) ) {}
+  TransferMultiHarmonicOp(
+    const Teuchos::RCP<const FSpaceT>& spaceC,
+    const Teuchos::RCP<const CSpaceT>& spaceF ):
+    op_( Teuchos::rcp( new InterT( spaceC, spaceF ) ) ) {}
 
-	TransferMultiHarmonicOp(
-			const Teuchos::RCP<const FSpaceT>& spaceC,
-			const Teuchos::RCP<const CSpaceT>& spaceF,
-			const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
-		op_( Teuchos::rcp( new InterT( spaceC, spaceF, nb ) ) ) {}
+  TransferMultiHarmonicOp(
+    const Teuchos::RCP<const FSpaceT>& spaceC,
+    const Teuchos::RCP<const CSpaceT>& spaceF,
+    const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
+    op_( Teuchos::rcp( new InterT( spaceC, spaceF, nb ) ) ) {}
 
 
-	
-	template<class DT, class RT>
-	void apply( const DT& x, RT& y ) const {
 
-		x.exchange();
+  template<class DT, class RT>
+  void apply( const DT& x, RT& y ) const {
 
-		if( y.space()->si(F::U,3)<0 )
-			op_->apply( x.get0Field(), y.get0Field() );
+    x.exchange();
 
-		//    int m = std::min( x.space()->nGlo(3), y.space()->nGlo(3) );
-		//    for( int i=0; i<m; ++i ) {
+    if( y.space()->si(F::U,3)<0 )
+      op_->apply( x.get0Field(), y.get0Field() );
 
-		Ordinal iS = std::max( y.space()->si(F::U,3), 0 );
-		Ordinal iE = std::min( x.space()->nGlo(3), y.space()->ei(F::U,3) );
+    //    int m = std::min( x.space()->nGlo(3), y.space()->nGlo(3) );
+    //    for( int i=0; i<m; ++i ) {
 
-		for( Ordinal i=iS; i<iE; ++i ) {
-			op_->apply( x.getCField(i), y.getCField(i) );
-			op_->apply( x.getSField(i), y.getSField(i) );
-		}
+    Ordinal iS = std::max( y.space()->si(F::U,3), 0 );
+    Ordinal iE = std::min( x.space()->nGlo(3), y.space()->ei(F::U,3) );
 
-		iS = std::max(x.space()->nGlo(3),y.space()->si(F::U,3));
-		iE = y.space()->ei(F::U,3);
-		for( Ordinal i=iS; i<iE; ++i ) {
-			y.getCField(i).init();
-			y.getSField(i).init();
-		}
+    for( Ordinal i=iS; i<iE; ++i ) {
+      op_->apply( x.getCField(i), y.getCField(i) );
+      op_->apply( x.getSField(i), y.getSField(i) );
+    }
 
-		y.changed();
+    iS = std::max(x.space()->nGlo(3),y.space()->si(F::U,3));
+    iE = y.space()->ei(F::U,3);
+    for( Ordinal i=iS; i<iE; ++i ) {
+      y.getCField(i).init();
+      y.getSField(i).init();
+    }
 
-	}
+    y.changed();
+
+  }
 
 
   void print(  std::ostream& out=std::cout ) const {
 
-		out << "=== TransferMultiHarmonicOP ===\n";
-		op_->print( out );
+    out << "=== TransferMultiHarmonicOP ===\n";
+    op_->print( out );
   }
 
 

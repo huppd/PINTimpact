@@ -18,7 +18,7 @@ namespace Pimpact {
 
 
 /// \tparam MultiFieldT has to be of type \c Pimpact::MultiField
-/// 
+///
 /// \deprecated
 template< class MultiFieldT >
 class LinearProblem {
@@ -38,9 +38,9 @@ public:
 
   /// constructor
   LinearProblem(
-      Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver,
-      Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem ):
-        solver_(solver),problem_(problem) {};
+    Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver,
+    Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem ):
+    solver_(solver),problem_(problem) {};
 
 
   /// \name base methods
@@ -67,13 +67,13 @@ public:
     return( problem_ );
   }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() {
-		return( problem_->getOperator()->space() );
-	};
+  constexpr const Teuchos::RCP<const SpaceT>& space() {
+    return( problem_->getOperator()->space() );
+  };
 
-	constexpr Teuchos::RCP<const Op> getOperatorPtr() {
-		return( getProblem()->getOperator() );
-	};
+  constexpr Teuchos::RCP<const Op> getOperatorPtr() {
+    return( getProblem()->getOperator() );
+  };
 
   //@}
   /// \name setter methods
@@ -97,9 +97,9 @@ public:
 
 
   //@}
-	
+
   void print( std::ostream& out=std::cout ) const {
-		problem_->getOperator()->print( out );
+    problem_->getOperator()->print( out );
   }
 
 }; // end of class LinearProblem
@@ -108,29 +108,29 @@ public:
 /// \relates LinearProblem
 template<class MF>
 Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
-    const Teuchos::RCP<const OperatorBase<MF> >& A,
-    const Teuchos::RCP<MF>& x,
-    const Teuchos::RCP<const MF>& b,
-    const Teuchos::RCP<Teuchos::ParameterList>& param,
-    const std::string& solvername="GMRES" ) {
+  const Teuchos::RCP<const OperatorBase<MF> >& A,
+  const Teuchos::RCP<MF>& x,
+  const Teuchos::RCP<const MF>& b,
+  const Teuchos::RCP<Teuchos::ParameterList>& param,
+  const std::string& solvername="GMRES" ) {
 
-	using S = typename MF::SpaceT::Scalar;
-	using Op = OperatorBase<MF>;
+  using S = typename MF::SpaceT::Scalar;
+  using Op = OperatorBase<MF>;
 
-	Belos::SolverFactory<S,MF,Op> factory;
+  Belos::SolverFactory<S,MF,Op> factory;
 
-	Teuchos::RCP<Belos::SolverManager<S,MF,Op> > solver =
-		factory.create( solvername, param );
+  Teuchos::RCP<Belos::SolverManager<S,MF,Op> > solver =
+    factory.create( solvername, param );
 
-	Teuchos::RCP<Belos::LinearProblem<S,MF,Op> > problem =
-		Teuchos::rcp( new Belos::LinearProblem<S,MF,Op> (A, x, b) );
+  Teuchos::RCP<Belos::LinearProblem<S,MF,Op> > problem =
+    Teuchos::rcp( new Belos::LinearProblem<S,MF,Op> (A, x, b) );
 
 //	if( !param->isParameter("Timer Label") )
-	problem->setLabel( A->getLabel() );
+  problem->setLabel( A->getLabel() );
 
-	solver->setProblem(problem);
+  solver->setProblem(problem);
 
-	return( Teuchos::rcp( new LinearProblem<MF>(solver,problem) ) );
+  return( Teuchos::rcp( new LinearProblem<MF>(solver,problem) ) );
 }
 
 } // end of namespace Pimpact

@@ -10,7 +10,7 @@
 
 
 
-namespace Pimpact{
+namespace Pimpact {
 
 
 /// \brief forcing operator.
@@ -41,31 +41,37 @@ public:
     forcing_ = forcing;
   }
 
-	void setMultiplicator( const Scalar& mul ) { mul_ = mul; }
+  void setMultiplicator( const Scalar& mul ) {
+    mul_ = mul;
+  }
 
   /// \brief \f[ y = force*x \f]
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
-		if( std::abs(mul_-1.) < Teuchos::ScalarTraits<Scalar>::eps() ) {
-			y = x;
-		}
-		else
-			y.add( mul_, x, 0., y );
+    if( std::abs(mul_-1.) < Teuchos::ScalarTraits<Scalar>::eps() ) {
+      y = x;
+    } else
+      y.add( mul_, x, 0., y );
     y.scale( *forcing_ );
   }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const {
-		return( forcing_->space() ); };
+  constexpr const Teuchos::RCP<const SpaceT>& space() const {
+    return( forcing_->space() );
+  };
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+  void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void assignField( const DomainFieldT& field ) {};
 
-  bool hasApplyTranspose() const { return( false ); }
+  bool hasApplyTranspose() const {
+    return( false );
+  }
 
-	const std::string getLabel() const { return( "Forcing" ); };
+  const std::string getLabel() const {
+    return( "Forcing" );
+  };
 
   void print( std::ostream& out=std::cout ) const {
-		out << getLabel() << ":\n";
+    out << getLabel() << ":\n";
   }
 
 }; // end of ForcingOp
@@ -75,10 +81,10 @@ public:
 /// \relates ForcingOp
 template<class F>
 Teuchos::RCP<ForcingOp<F> > createForcingOp(
-    const Teuchos::RCP<F>& forcing, typename F::SpaceT::Scalar mul=1. ) {
+  const Teuchos::RCP<F>& forcing, typename F::SpaceT::Scalar mul=1. ) {
   return(
-      Teuchos::rcp( new ForcingOp<F>( forcing, mul ) )
-  );
+          Teuchos::rcp( new ForcingOp<F>( forcing, mul ) )
+        );
 }
 
 

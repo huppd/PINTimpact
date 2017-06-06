@@ -24,75 +24,79 @@ class MGOperators {
 
 public:
 
-	using MGSpacesT = MGST;
+  using MGSpacesT = MGST;
 
-	using FSpaceT = typename MGSpacesT::FSpaceT;
-	using CSpaceT = typename MGSpacesT::CSpaceT;
+  using FSpaceT = typename MGSpacesT::FSpaceT;
+  using CSpaceT = typename MGSpacesT::CSpaceT;
 
-	using FOperatorT = FOT<FSpaceT>;
-	using COperatorT = COT<CSpaceT>;
+  using FOperatorT = FOT<FSpaceT>;
+  using COperatorT = COT<CSpaceT>;
 
 protected:
 
-	// why?
-	//  template< template<class> class FOTT, template<class> class COTT, class MGSpacesTT >
-	//  friend
-	//  Teuchos::RCP<const MGOperators<MGSpacesTT,FOTT,COTT> >
-	//  createMGOperators( const Teuchos::RCP<const MGSpacesTT>& space );
-	//  template<template<class> class FOTT, template<class> class COTT, class MGSTT >
-	//  friend Teuchos::RCP<const MGOperators<MGSTT,FOTT,COTT> >
-	//  createMGOperators(
-	//      const Teuchos::RCP<const MGSTT>& mgSpaces );
+  // why?
+  //  template< template<class> class FOTT, template<class> class COTT, class MGSpacesTT >
+  //  friend
+  //  Teuchos::RCP<const MGOperators<MGSpacesTT,FOTT,COTT> >
+  //  createMGOperators( const Teuchos::RCP<const MGSpacesTT>& space );
+  //  template<template<class> class FOTT, template<class> class COTT, class MGSTT >
+  //  friend Teuchos::RCP<const MGOperators<MGSTT,FOTT,COTT> >
+  //  createMGOperators(
+  //      const Teuchos::RCP<const MGSTT>& mgSpaces );
 
-	Teuchos::RCP<const MGSpacesT> mgSpaces_;
+  Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
-	Teuchos::RCP< FOperatorT >               fOperator_;
-	std::vector< Teuchos::RCP<COperatorT> >  cOperator_;
+  Teuchos::RCP< FOperatorT >               fOperator_;
+  std::vector< Teuchos::RCP<COperatorT> >  cOperator_;
 
 public:
 
-	MGOperators( const Teuchos::RCP<const MGSpacesT>& mgSpaces  ):
-		mgSpaces_(mgSpaces),
-		fOperator_( Teuchos::rcp( new FOperatorT( mgSpaces_->get() ) ) ),
-		cOperator_( mgSpaces_->getNGrids() ) {
+  MGOperators( const Teuchos::RCP<const MGSpacesT>& mgSpaces  ):
+    mgSpaces_(mgSpaces),
+    fOperator_( Teuchos::rcp( new FOperatorT( mgSpaces_->get() ) ) ),
+    cOperator_( mgSpaces_->getNGrids() ) {
 
-			for( int i=0; i<mgSpaces_->getNGrids(); ++i )
-				if( mgSpaces_->participating(i) )
-					cOperator_[i] = Teuchos::rcp( new COperatorT( mgSpaces_->get(i) ) );
+    for( int i=0; i<mgSpaces_->getNGrids(); ++i )
+      if( mgSpaces_->participating(i) )
+        cOperator_[i] = Teuchos::rcp( new COperatorT( mgSpaces_->get(i) ) );
 
-			// not working on brutus
-			//cOperator_.shrink_to_fit();
-		}
+    // not working on brutus
+    //cOperator_.shrink_to_fit();
+  }
 
-	constexpr const Teuchos::RCP<const MGSpacesT>& getMGSpaces() const { return( mgSpaces_ ); }
+  constexpr const Teuchos::RCP<const MGSpacesT>& getMGSpaces() const {
+    return( mgSpaces_ );
+  }
 
-	constexpr const Teuchos::RCP<FOperatorT>& get() const { return( fOperator_ ); }
+  constexpr const Teuchos::RCP<FOperatorT>& get() const {
+    return( fOperator_ );
+  }
 
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
-	constexpr const Teuchos::RCP<COperatorT>& get( int i ) const {
-		if( i<0 )
-			return( cOperator_[mgSpaces_->getNGrids()+i] );
-		else
-			return( cOperator_[i] );
-	}
+  constexpr const Teuchos::RCP<COperatorT>& get( int i ) const {
+    if( i<0 )
+      return( cOperator_[mgSpaces_->getNGrids()+i] );
+    else
+      return( cOperator_[i] );
+  }
 
-	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) const {
+  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) const {
 
-		fOperator_->setParameter( para );
+    fOperator_->setParameter( para );
 
-		for( int i=0; i<mgSpaces_->getNGrids(); ++i )
-			if( mgSpaces_->participating(i) )
-				cOperator_[i]->setParameter( para );
-	}
+    for( int i=0; i<mgSpaces_->getNGrids(); ++i )
+      if( mgSpaces_->participating(i) )
+        cOperator_[i]->setParameter( para );
+  }
 
   void print(  std::ostream& out=std::cout ) const {
 
-		fOperator_->print();
+    fOperator_->print();
     for( int i=0; i<mgSpaces_->getNGrids(); ++i ) {
-			std::cout << "\n\n --- level: " << i << " ---\n\n";
-			get(i)->print();
-		}
-	}
+      std::cout << "\n\n --- level: " << i << " ---\n\n";
+      get(i)->print();
+    }
+  }
 
 }; // end of class MGOperators
 
@@ -102,11 +106,11 @@ public:
 template<template<class> class FOperatorT, template<class> class COperatorT=FOperatorT, class MGSpacesT >
 Teuchos::RCP<const MGOperators<MGSpacesT,FOperatorT,COperatorT> >
 createMGOperators(
-    const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
+  const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
 
   return(
-      Teuchos::rcp(
-          new MGOperators<MGSpacesT,FOperatorT,COperatorT>(
+          Teuchos::rcp(
+            new MGOperators<MGSpacesT,FOperatorT,COperatorT>(
               mgSpaces ) ) );
 }
 

@@ -39,47 +39,51 @@ protected:
   using ST = typename SpaceT::Scalar;
   using Ordinal =typename SpaceT::Ordinal;
 
-	using ScalarArray =  ST*;
+  using ScalarArray =  ST*;
 
-	using AF =  AbstractField<SpaceT>;
+  using AF =  AbstractField<SpaceT>;
 
-	const bool owning_;
+  const bool owning_;
 
-	IFT fieldc_;
+  IFT fieldc_;
   IFT fields_;
 
-	ScalarArray s_;
+  ScalarArray s_;
 
 private:
 
-	void allocate() {
-		setStoragePtr( new ST[ fieldc_.getStorageSize()+fields_.getStorageSize() ] );
-	}
+  void allocate() {
+    setStoragePtr( new ST[ fieldc_.getStorageSize()+fields_.getStorageSize() ] );
+  }
 
 public:
 
-	constexpr Ordinal getStorageSize() { return( fieldc_.getStorageSize()+fields_.getStorageSize() ); }
+  constexpr Ordinal getStorageSize() {
+    return( fieldc_.getStorageSize()+fields_.getStorageSize() );
+  }
 
-	constexpr ST* getRawPtr() { return( s_ ); }
+  constexpr ST* getRawPtr() {
+    return( s_ );
+  }
 
   void setStoragePtr( ST*  array ) {
     s_ = array;
-		fieldc_.setStoragePtr( s_                             );
-		fields_.setStoragePtr( s_ + fieldc_.getStorageSize() );
+    fieldc_.setStoragePtr( s_                             );
+    fields_.setStoragePtr( s_ + fieldc_.getStorageSize() );
   }
 
 
-	ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
-		AF( space ),
-		owning_(owning),
-		fieldc_( space, false ),
-		fields_( space, false ) {
+  ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
+    AF( space ),
+    owning_(owning),
+    fieldc_( space, false ),
+    fields_( space, false ) {
 
-			if( owning_ ) {
-				allocate();
-				init();
-			}
-	};
+    if( owning_ ) {
+      allocate();
+      init();
+    }
+  };
 
 
   /// \brief copy constructor.
@@ -89,38 +93,40 @@ public:
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
   ModeField( const ModeField& vF, ECopy copyType=ECopy::Deep ):
     AF( vF.space() ),
-		owning_( vF.owning_ ),
+    owning_( vF.owning_ ),
     fieldc_( vF.fieldc_, copyType ),
-		fields_( vF.fields_, copyType ) {
+    fields_( vF.fields_, copyType ) {
 
-			if( owning_ ) {
+    if( owning_ ) {
 
-				allocate();
+      allocate();
 
-				switch( copyType ) {
-					case ECopy::Shallow:
-						init();
-						break;
-					case ECopy::Deep:
-						*this = vF;
-						break;
-				}
-			}
-	};
+      switch( copyType ) {
+      case ECopy::Shallow:
+        init();
+        break;
+      case ECopy::Deep:
+        *this = vF;
+        break;
+      }
+    }
+  };
 
-	~ModeField() { if( owning_ ) delete[] s_; }
+  ~ModeField() {
+    if( owning_ ) delete[] s_;
+  }
 
   Teuchos::RCP<ModeField> clone( ECopy cType=ECopy::Deep ) const {
 
-		Teuchos::RCP<ModeField> mv = Teuchos::rcp( new ModeField( space() ) );
+    Teuchos::RCP<ModeField> mv = Teuchos::rcp( new ModeField( space() ) );
 
-		switch( cType ) {
-			case ECopy::Shallow:
-				break;
-			case ECopy::Deep:
-					*mv = *this;
-				break;
-		}
+    switch( cType ) {
+    case ECopy::Shallow:
+      break;
+    case ECopy::Deep:
+      *mv = *this;
+      break;
+    }
 
     return( mv );
   }
@@ -128,15 +134,27 @@ public:
   /// \name Attribute methods
   /// \{
 
-  IFT& getCField() { return( fieldc_ ); }
-  IFT& getSField() { return( fields_ ); }
+  IFT& getCField() {
+    return( fieldc_ );
+  }
+  IFT& getSField() {
+    return( fields_ );
+  }
 
-  constexpr const IFT& getCField() { return( fieldc_ ); }
-  constexpr const IFT& getSField() { return( fields_ ); }
+  constexpr const IFT& getCField() {
+    return( fieldc_ );
+  }
+  constexpr const IFT& getSField() {
+    return( fields_ );
+  }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() { return( AF::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() {
+    return( AF::space_ );
+  }
 
-  constexpr const MPI_Comm& comm() { return( fieldc_.comm() ); }
+  constexpr const MPI_Comm& comm() {
+    return( fieldc_.comm() );
+  }
 
   /// \brief returns the length of Field.
   constexpr Ordinal getLength() {
@@ -208,11 +226,11 @@ public:
   }
 
 
-	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr ST dot( const ModeField& y ) {
+  /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+  constexpr ST dot( const ModeField& y ) {
 
-		return( this->reduce( comm(), dotLoc( y ) ) );
-	}
+    return( this->reduce( comm(), dotLoc( y ) ) );
+  }
 
   /// \}
   /// \name Norm method
@@ -220,27 +238,27 @@ public:
 
   constexpr ST normLoc( Belos::NormType type=Belos::TwoNorm ) {
 
-    ST normvec = 
-			(Belos::InfNorm==type)?
-			std::fmax( fieldc_.normLoc(type), fields_.normLoc(type) ):
+    ST normvec =
+      (Belos::InfNorm==type)?
+      std::fmax( fieldc_.normLoc(type), fields_.normLoc(type) ):
       ( fieldc_.normLoc(type) + fields_.normLoc(type) );
 
     return( normvec );
   }
 
-	/// \brief compute the norm
-	/// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+  /// \brief compute the norm
+  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
   constexpr ST norm( Belos::NormType type = Belos::TwoNorm ) {
 
-		ST normvec = this->reduce(
-				comm(),
-				normLoc( type ),
-				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+    ST normvec = this->reduce(
+                   comm(),
+                   normLoc( type ),
+                   (Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
 
-		normvec =
-			(Belos::TwoNorm==type) ?
-				std::sqrt(normvec) :
-				normvec;
+    normvec =
+      (Belos::TwoNorm==type) ?
+      std::sqrt(normvec) :
+      normvec;
 
     return( normvec );
   }
@@ -252,11 +270,11 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr ST normLoc(const ModeField& weights ) {
-		 return(
-				 fieldc_.normLoc( weights.fieldc_ ) +
-				 fields_.normLoc( weights.fields_ )
-				 );
-	}
+    return(
+            fieldc_.normLoc( weights.fieldc_ ) +
+            fields_.normLoc( weights.fields_ )
+          );
+  }
 
   /// \brief Weighted 2-Norm.
   ///
@@ -265,8 +283,8 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr ST norm( const ModeField& weights ) {
-		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
-	}
+    return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+  }
 
 
   /// \}
@@ -275,13 +293,13 @@ public:
 
   /// \brief *this := a
   /// Assign (deep copy) A into mv.
-	ModeField& operator=( const ModeField& a ) {
+  ModeField& operator=( const ModeField& a ) {
 
-		fieldc_ = a.fieldc_;
-		fields_ = a.fields_;
+    fieldc_ = a.fieldc_;
+    fields_ = a.fields_;
 
-		return *this;
-	}
+    return *this;
+  }
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
@@ -295,7 +313,7 @@ public:
     fields_.init(alpha,wB);
   }
 
-	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+  void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
     fieldc_.extrapolateBC( trans );
     fields_.extrapolateBC( trans );
   }
@@ -321,7 +339,7 @@ public:
   /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
   ///
   /// \{
-	
+
   void exchange() const {
     fieldc_.exchange();
     fields_.exchange();

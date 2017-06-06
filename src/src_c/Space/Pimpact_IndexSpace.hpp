@@ -56,10 +56,10 @@ class IndexSpace {
   template<class O, int sd, int d, int dimNC>
   friend Teuchos::RCP<const IndexSpace<O,d> >
   createIndexSpace(
-      const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
-      const Teuchos::RCP<const GridSizeLocal<O,sd,d> >& gL,
-      const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
-		 	const Teuchos::RCP<const ProcGrid<O,d> >& pG );
+    const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
+    const Teuchos::RCP<const GridSizeLocal<O,sd,d> >& gL,
+    const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
+    const Teuchos::RCP<const ProcGrid<O,d> >& pG );
 
 public:
 
@@ -81,18 +81,18 @@ protected:
   Teuchos::Tuple<OrdinalT,dimension> shift_;
 
   /// \brief constructor
-	///
-	/// \tparam dimNC stencil widths
+  ///
+  /// \tparam dimNC stencil widths
   /// \param sW with of differenct stencils
   /// \param gridSizeLocal amount of grid points stored localy on this node
   /// \param bc local boundary conditions
-	/// \param procGrid processor grid
+  /// \param procGrid processor grid
   template<int sd, int dimNC>
   IndexSpace(
-      const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& sW,
-      const Teuchos::RCP<const GridSizeLocal<OrdinalT,sd,dimension> >& gridSizeLocal,
-      const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& bc,
-		 	const Teuchos::RCP<const ProcGrid<OrdinalT,dimension> >& procGrid ) {
+    const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& sW,
+    const Teuchos::RCP<const GridSizeLocal<OrdinalT,sd,dimension> >& gridSizeLocal,
+    const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& bc,
+    const Teuchos::RCP<const ProcGrid<OrdinalT,dimension> >& procGrid ) {
 
     // ------------------init IndS_--------------------
     for( int i=0; i<3; ++i ) {
@@ -110,50 +110,49 @@ protected:
 
     // time direction automatically periodic BC
     if( 4==dimension ) {
-			if( sW->spectralT() ) {
+      if( sW->spectralT() ) {
 
-				OrdinalT nl  = (gridSizeLocal->get(3)+1)/procGrid->getNP(3);
-				OrdinalT rem = (gridSizeLocal->get(3)+1)%procGrid->getNP(3);
-				int rank = procGrid->getIB(3)-1;
-				OrdinalT sI =       rank   *nl + (( rank   <rem)? rank   :rem);
-				OrdinalT eI = -1 + (rank+1)*nl + (((rank+1)<rem)?(rank+1):rem);
+        OrdinalT nl  = (gridSizeLocal->get(3)+1)/procGrid->getNP(3);
+        OrdinalT rem = (gridSizeLocal->get(3)+1)%procGrid->getNP(3);
+        int rank = procGrid->getIB(3)-1;
+        OrdinalT sI =       rank   *nl + (( rank   <rem)? rank   :rem);
+        OrdinalT eI = -1 + (rank+1)*nl + (((rank+1)<rem)?(rank+1):rem);
 
 //				std::cout << "\tnl: " << nl << "\trem: " << rem << "\trank: " << rank << "\tsI: " << sI << "\teI: " << eI << "\n";
-				sIndS_[3] = sI;
-				eIndS_[3] = eI;
-				for( int i=0; i<3; ++i ) {
-					sIndU_[i][3] = sI;
-					eIndU_[i][3] = eI;
-				}
-				for( int i=0; i<3; ++i ) {
-					sIndUB_[i][3] = sI;
-					eIndUB_[i][3] = eI;
-				}
-			}
-			else{
-				OrdinalT sI = 0 - sW->getBL(3);
-				OrdinalT eI = gridSizeLocal->get(3) - sW->getBL(3)-1;
-				sIndS_[3] = sI;
-				eIndS_[3] = eI;
-				for( int i=0; i<3; ++i ) {
-					sIndU_[i][3] = sI;
-					eIndU_[i][3] = eI;
-				}
-				for( int i=0; i<3; ++i ) {
-					sIndUB_[i][3] = sI;
-					eIndUB_[i][3] = eI;
-				}
-			}
+        sIndS_[3] = sI;
+        eIndS_[3] = eI;
+        for( int i=0; i<3; ++i ) {
+          sIndU_[i][3] = sI;
+          eIndU_[i][3] = eI;
+        }
+        for( int i=0; i<3; ++i ) {
+          sIndUB_[i][3] = sI;
+          eIndUB_[i][3] = eI;
+        }
+      } else {
+        OrdinalT sI = 0 - sW->getBL(3);
+        OrdinalT eI = gridSizeLocal->get(3) - sW->getBL(3)-1;
+        sIndS_[3] = sI;
+        eIndS_[3] = eI;
+        for( int i=0; i<3; ++i ) {
+          sIndU_[i][3] = sI;
+          eIndU_[i][3] = eI;
+        }
+        for( int i=0; i<3; ++i ) {
+          sIndUB_[i][3] = sI;
+          eIndUB_[i][3] = eI;
+        }
+      }
     }
 
-		//
+    //
     // --- init IndU_ -------------------------------
-		//
+    //
     for( int field=0; field<3; ++field )
       for( int dir=0; dir<3; ++dir ) {
         sIndU_[field][dir] = 2              + sW->getLS(dir);
         eIndU_[field][dir] = gridSizeLocal->get(dir) + sW->getLS(dir);
-    }
+      }
 
     // Lower index in x-direction
     if( bc->getBCL(0) > 0 ) {
@@ -211,9 +210,9 @@ protected:
       eIndU_[2][2] = gridSizeLocal->get(2)-1;
     }
 
-		//
+    //
     // --- init IndUB_ -------------------------------
-		// 
+    //
     for( int i=0; i<3; ++i ) {
       sIndUB_[0][i] = 2            + sW->getLS(i);
       eIndUB_[0][i] = gridSizeLocal->get(i) + sW->getLS(i);
@@ -282,9 +281,9 @@ protected:
     }
 
 
-		//
+    //
     // --- computes index offset -----------------------------------
-		//
+    //
     for( int i=0; i<3; ++i )
       shift_[i] = (procGrid->getIB(i)-1)*( gridSizeLocal->get(i)-1 );
     if( 4==dimension )
@@ -294,59 +293,63 @@ protected:
 public:
 
   constexpr const OrdinalT* sInd( const F& ft ) const {
-		return(
-				( F::S==ft )?
-				sIndS_.getRawPtr():
-				sIndU_[static_cast<int>(ft)].getRawPtr() );
-	}
+    return(
+            ( F::S==ft )?
+            sIndS_.getRawPtr():
+            sIndU_[static_cast<int>(ft)].getRawPtr() );
+  }
   constexpr const OrdinalT* eInd( const F& ft ) const {
-		return(
-				( F::S==ft )?
-				eIndS_.getRawPtr():
-				eIndU_[static_cast<int>(ft)].getRawPtr() );
+    return(
+            ( F::S==ft )?
+            eIndS_.getRawPtr():
+            eIndU_[static_cast<int>(ft)].getRawPtr() );
   }
 
   constexpr const OrdinalT* sIndB( const F& ft ) const {
     return(
-				( F::S==ft )?
-				sIndS_.getRawPtr():
-				sIndUB_[static_cast<int>(ft)].getRawPtr() );
+            ( F::S==ft )?
+            sIndS_.getRawPtr():
+            sIndUB_[static_cast<int>(ft)].getRawPtr() );
   }
   constexpr const OrdinalT* eIndB( const F& ft ) const {
     return(
-				( F::S== ft )?
-				eIndS_.getRawPtr():
-				eIndUB_[static_cast<int>(ft)].getRawPtr() );
+            ( F::S== ft )?
+            eIndS_.getRawPtr():
+            eIndUB_[static_cast<int>(ft)].getRawPtr() );
   }
 
   constexpr const OrdinalT& sInd( const F& ft, const int& dir ) const {
     return(
-				( F::S==ft )?
-				sIndS_[dir]:
-				sIndU_[static_cast<int>(ft)][dir] );
+            ( F::S==ft )?
+            sIndS_[dir]:
+            sIndU_[static_cast<int>(ft)][dir] );
   }
   constexpr const OrdinalT& eInd(  const F& ft, const int& dir ) const {
-		return(
-				( F::S==ft )?
-				eIndS_[dir]:
-				eIndU_[static_cast<int>(ft)][dir] );
+    return(
+            ( F::S==ft )?
+            eIndS_[dir]:
+            eIndU_[static_cast<int>(ft)][dir] );
   }
 
   constexpr const OrdinalT& sIndB( const F& ft, const int& dir ) const {
-		return(
-				( F::S==ft )?
-				sIndS_[dir]:
-				sIndUB_[static_cast<int>(ft)][dir] );
+    return(
+            ( F::S==ft )?
+            sIndS_[dir]:
+            sIndUB_[static_cast<int>(ft)][dir] );
   }
   constexpr const OrdinalT& eIndB( const F& ft, const int& dir ) const {
     return(
-				( F::S==ft )?
-				eIndS_[dir]:
-				eIndUB_[static_cast<int>(ft)][dir] );
+            ( F::S==ft )?
+            eIndS_[dir]:
+            eIndUB_[static_cast<int>(ft)][dir] );
   }
 
-	constexpr const int& getShift( const int& i ) const { return( shift_[i] ); }
-	constexpr const int* getShift() const { return( shift_.getRawPtr() ); }
+  constexpr const int& getShift( const int& i ) const {
+    return( shift_[i] );
+  }
+  constexpr const int* getShift() const {
+    return( shift_.getRawPtr() );
+  }
 
   void print( std::ostream& out=std::cout ) const {
     out << "\t---IndexSpace: ---\n";
@@ -363,7 +366,7 @@ public:
       out << "\tsInd: " << sIndUB_[field] << "\n";
       out << "\teInd: " << eIndUB_[field] << "\n";
     }
-		out << "\toffset: " << shift_ << "\n";
+    out << "\toffset: " << shift_ << "\n";
   }
 
 }; // end of class IndexSpace
@@ -373,15 +376,15 @@ public:
 template<class OT, int sd, int d, int dimNC>
 Teuchos::RCP<const IndexSpace<OT,d> >
 createIndexSpace(
-    const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
-    const Teuchos::RCP<const GridSizeLocal<OT,sd,d> >& gSL,
-    const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
-		const Teuchos::RCP<const ProcGrid<OT,d> >& pG ) {
+  const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
+  const Teuchos::RCP<const GridSizeLocal<OT,sd,d> >& gSL,
+  const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
+  const Teuchos::RCP<const ProcGrid<OT,d> >& pG ) {
   return(
-      Teuchos::rcp(
-          new IndexSpace<OT,d>( sW, gSL, bc,pG )
-      )
-  );
+          Teuchos::rcp(
+            new IndexSpace<OT,d>( sW, gSL, bc,pG )
+          )
+        );
 
 }
 

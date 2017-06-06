@@ -24,31 +24,31 @@ class NonlinearSmoother {
 
 public:
 
-	using SpaceT = typename ConvVOpT::SpaceT;
+  using SpaceT = typename ConvVOpT::SpaceT;
 
-	using DomainFieldT = VectorField<SpaceT>;
-	using RangeFieldT = VectorField<SpaceT>;
+  using DomainFieldT = VectorField<SpaceT>;
+  using RangeFieldT = VectorField<SpaceT>;
 
-	using SSmootherT = SmootherT<typename ConvVOpT::ConvSOpT>;
+  using SSmootherT = SmootherT<typename ConvVOpT::ConvSOpT>;
 
 protected:
 
-	Teuchos::RCP< NonlinearWrap<SSmootherT> > convVWrap_;
+  Teuchos::RCP< NonlinearWrap<SSmootherT> > convVWrap_;
 
-	Teuchos::RCP< ConvectionField<SpaceT> > convField_;
+  Teuchos::RCP< ConvectionField<SpaceT> > convField_;
 
 public:
 
-	NonlinearSmoother(
-			const Teuchos::RCP<const ConvVOpT>& op,
-			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-		convVWrap_( create<NonlinearWrap<SSmootherT> >( create<SSmootherT>( op->getSOp(), pl ) ) ),
-		convField_( op->getConvField() ) {};
+  NonlinearSmoother(
+    const Teuchos::RCP<const ConvVOpT>& op,
+    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
+    convVWrap_( create<NonlinearWrap<SSmootherT> >( create<SSmootherT>( op->getSOp(), pl ) ) ),
+    convField_( op->getConvField() ) {};
 
 
-	/// NOFX should not be already assigned in Operators.
-	void assignField( const DomainFieldT& mv ) const {
-	};
+  /// NOFX should not be already assigned in Operators.
+  void assignField( const DomainFieldT& mv ) const {
+  };
 
 
   /// \note Operator's wind has to be assigned correctly
@@ -58,25 +58,31 @@ public:
   }
 
 
-	Teuchos::RCP< ConvectionField<SpaceT> > getConvField() const {
-		return( convField_ );
-	}
+  Teuchos::RCP< ConvectionField<SpaceT> > getConvField() const {
+    return( convField_ );
+  }
 
 
-  bool hasApplyTranspose() const { return( false ); }
+  bool hasApplyTranspose() const {
+    return( false );
+  }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(convVWrap_->space()); };
+  constexpr const Teuchos::RCP<const SpaceT>& space() const {
+    return(convVWrap_->space());
+  };
 
-	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		convVWrap_->setParameter( para );
-	}
+  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+    convVWrap_->setParameter( para );
+  }
 
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
     convVWrap_->print(out);
   }
 
-	const std::string getLabel() const { return( convVWrap_->getLabel() ); };
+  const std::string getLabel() const {
+    return( convVWrap_->getLabel() );
+  };
 
 }; // end of class NonlinearSmoother
 

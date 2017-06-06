@@ -13,11 +13,11 @@ class EmptyProjector {
 
 public:
 
-	EmptyProjector() {}
-	EmptyProjector( const Teuchos::RCP<const OperatorT>& op ) {}
-	void operator()( typename OperatorT::RangeFieldT& rhs ) const {}
+  EmptyProjector() {}
+  EmptyProjector( const Teuchos::RCP<const OperatorT>& op ) {}
+  void operator()( typename OperatorT::RangeFieldT& rhs ) const {}
 
-}; // end of class EmptyProjector 
+}; // end of class EmptyProjector
 
 
 } // end of namespace Pimpact

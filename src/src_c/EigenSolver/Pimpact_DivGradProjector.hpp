@@ -14,128 +14,128 @@ namespace Pimpact {
 template<class OperatorT>
 class DGProjector {
 
-	using RangeFieldT = typename OperatorT::RangeFieldT;
-	using SpaceT = typename RangeFieldT::SpaceT;
-	using ST = typename SpaceT::Scalar;
-	using OT = typename SpaceT::Ordinal;
+  using RangeFieldT = typename OperatorT::RangeFieldT;
+  using SpaceT = typename RangeFieldT::SpaceT;
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
 
-	RangeFieldT nullspace_;
+  RangeFieldT nullspace_;
 
 public:
 
-	DGProjector() {}
-	DGProjector( const Teuchos::RCP<const OperatorT>& op):
-		nullspace_( op->space() ) {
-		
-		DivGradNullSpace<DivOp<SpaceT> > compNullspace;
+  DGProjector() {}
+  DGProjector( const Teuchos::RCP<const OperatorT>& op):
+    nullspace_( op->space() ) {
 
-		compNullspace.computeNullSpace( op->getDivOp(), nullspace_ );
-	}
+    DivGradNullSpace<DivOp<SpaceT> > compNullspace;
 
-	void operator()( RangeFieldT& rhs ) const {
+    compNullspace.computeNullSpace( op->getDivOp(), nullspace_ );
+  }
 
-		auto space = nullspace_.space();
+  void operator()( RangeFieldT& rhs ) const {
 
-		ST bla = -nullspace_.dot( rhs );
+    auto space = nullspace_.space();
 
-		if( 0==space->rankST() )
-			std::cout << "DivGrad^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
+    ST bla = -nullspace_.dot( rhs );
 
-		if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() )
-			rhs.add( 1., rhs, bla, nullspace_ );
+    if( 0==space->rankST() )
+      std::cout << "DivGrad^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
 
-		// set corners zero
-		
-		////if( 0 < space()->bcl(X) ) {
-			////OT i = space()->si(F::S,X,B::Y);
-			////for( OT k=space()->si(F::S,Z, B::Y); k<=space()->ei(F::S,Z,B::Y); ++k )
-				////for( OT j=space()->si(F::S,Y,B::Y); j<=space()->ei(F::S,Y,B::Y); ++j ) 
-					////rhs(i,j,k) = 0.;
-		////}
-		////if( BC::Neumann==space()->bcu(X) ) {
-			////std::cout << "hell\n";
-			////OT i = space()->ei(F::S,X,B::Y);
-			////for( OT k=space()->si(F::S,Z, B::Y); k<=space()->ei(F::S,Z,B::Y); ++k )
-				////for( OT j=space()->si(F::S,Y,B::Y); j<=space()->ei(F::S,Y,B::Y); ++j ) {
-					////rhs(i,j,k) = 0.;
-				////}
-		////}
-		//if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCL(Y)>0 ) {
-			//OT i = space->si(F::S,X,B::Y);
-			//OT j = space->si(F::S,Y,B::Y);
-			//for( OT k=space->si(F::S,Z,B::Y); k<=space->ei(F::S,Z,B::Y); ++k )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCU(Y)>0 ) {
-			//OT i = space->si(F::S,X,B::Y);
-			//OT j = space->ei(F::S,Y,B::Y);
-			//for( OT k=space->si(F::S,Z,B::Y); k<=space->ei(F::S,Z,B::Y); ++k )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCL(Y)>0 ) {
-			//OT i = space->ei(F::S,X,B::Y);
-			//OT j = space->si(F::S,Y,B::Y);
-			//for( OT k=space->si(F::S,Z,B::Y); k<=space->ei(F::S,Z,B::Y); ++k )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCU(Y)>0 ) {
-			//OT i = space->ei(F::S,X,B::Y);
-			//OT j = space->ei(F::S,Y,B::Y);
-			//for( OT k=space->si(F::S,Z,B::Y); k<=space->ei(F::S,Z,B::Y); ++k )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
-			//OT i = space->si(F::S,X,B::Y);
-			//OT k = space->si(F::S,Z,B::Y);
-			//for( OT j=space->si(F::S,Y,B::Y); j<=space->ei(F::S,Y,B::Y); ++j )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
-			//OT i = space->si(F::S,X,B::Y);
-			//OT k = space->ei(F::S,Z,B::Y);
-			//for( OT j=space->si(F::S,Y,B::Y); j<=space->ei(F::S,Y,B::Y); ++j )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
-			//OT i = space->ei(F::S,X,B::Y);
-			//OT k = space->si(F::S,Z,B::Y);
-			//for( OT j=space->si(F::S,Y,B::Y); j<=space->ei(F::S,Y,B::Y); ++j )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
-			//OT i = space->ei(F::S,X,B::Y);
-			//OT k = space->ei(F::S,Z,B::Y);
-			//for( OT j=space->si(F::S,Y,B::Y); j<=space->ei(F::S,Y,B::Y); ++j )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCL(Y)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
-			//OT j = space->si(F::S,Y,B::Y);
-			//OT k = space->si(F::S,Z,B::Y);
-			//for( OT i=space->si(F::S,X,B::Y); i<=space->ei(F::S,X,B::Y); ++i )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCL(Y)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
-			//OT j = space->si(F::S,Y,B::Y);
-			//OT k = space->ei(F::S,Z,B::Y);
-			//for( OT i=space->si(F::S,X,B::Y); i<=space->ei(F::S,X,B::Y); ++i )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCU(Y)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
-			//OT j = space->ei(F::S,Y,B::Y);
-			//OT k = space->si(F::S,Z,B::Y);
-			//for( OT i=space->si(F::S,X,B::Y); i<=space->ei(F::S,X,B::Y); ++i )
-				//rhs(i,j,k) = 0.;
-		//}
-		//if( space()->getBCLocal()->getBCU(Y)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
-			//OT j = space->ei(F::S,Y,B::Y);
-			//OT k = space->ei(F::S,Z,B::Y);
-			//for( OT i=space->si(F::S,X,B::Y); i<=space->ei(F::S,X,B::Y); ++i )
-				//rhs(i,j,k) = 0.;
-		//}
+    if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() )
+      rhs.add( 1., rhs, bla, nullspace_ );
 
-	}
+    // set corners zero
 
-}; // end of class EmptyProjector 
+    ////if( 0 < space()->bcl(X) ) {
+    ////OT i = space()->si(F::S,X,B::Y);
+    ////for( OT k=space()->si(F::S,Z, B::Y); k<=space()->ei(F::S,Z,B::Y); ++k )
+    ////for( OT j=space()->si(F::S,Y,B::Y); j<=space()->ei(F::S,Y,B::Y); ++j )
+    ////rhs(i,j,k) = 0.;
+    ////}
+    ////if( BC::Neumann==space()->bcu(X) ) {
+    ////std::cout << "hell\n";
+    ////OT i = space()->ei(F::S,X,B::Y);
+    ////for( OT k=space()->si(F::S,Z, B::Y); k<=space()->ei(F::S,Z,B::Y); ++k )
+    ////for( OT j=space()->si(F::S,Y,B::Y); j<=space()->ei(F::S,Y,B::Y); ++j ) {
+    ////rhs(i,j,k) = 0.;
+    ////}
+    ////}
+    //if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCL(Y)>0 ) {
+    //OT i = space->si(F::S,X,B::Y);
+    //OT j = space->si(F::S,Y,B::Y);
+    //for( OT k=space->si(F::S,Z,B::Y); k<=space->ei(F::S,Z,B::Y); ++k )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCU(Y)>0 ) {
+    //OT i = space->si(F::S,X,B::Y);
+    //OT j = space->ei(F::S,Y,B::Y);
+    //for( OT k=space->si(F::S,Z,B::Y); k<=space->ei(F::S,Z,B::Y); ++k )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCL(Y)>0 ) {
+    //OT i = space->ei(F::S,X,B::Y);
+    //OT j = space->si(F::S,Y,B::Y);
+    //for( OT k=space->si(F::S,Z,B::Y); k<=space->ei(F::S,Z,B::Y); ++k )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCU(Y)>0 ) {
+    //OT i = space->ei(F::S,X,B::Y);
+    //OT j = space->ei(F::S,Y,B::Y);
+    //for( OT k=space->si(F::S,Z,B::Y); k<=space->ei(F::S,Z,B::Y); ++k )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
+    //OT i = space->si(F::S,X,B::Y);
+    //OT k = space->si(F::S,Z,B::Y);
+    //for( OT j=space->si(F::S,Y,B::Y); j<=space->ei(F::S,Y,B::Y); ++j )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
+    //OT i = space->si(F::S,X,B::Y);
+    //OT k = space->ei(F::S,Z,B::Y);
+    //for( OT j=space->si(F::S,Y,B::Y); j<=space->ei(F::S,Y,B::Y); ++j )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
+    //OT i = space->ei(F::S,X,B::Y);
+    //OT k = space->si(F::S,Z,B::Y);
+    //for( OT j=space->si(F::S,Y,B::Y); j<=space->ei(F::S,Y,B::Y); ++j )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
+    //OT i = space->ei(F::S,X,B::Y);
+    //OT k = space->ei(F::S,Z,B::Y);
+    //for( OT j=space->si(F::S,Y,B::Y); j<=space->ei(F::S,Y,B::Y); ++j )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCL(Y)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
+    //OT j = space->si(F::S,Y,B::Y);
+    //OT k = space->si(F::S,Z,B::Y);
+    //for( OT i=space->si(F::S,X,B::Y); i<=space->ei(F::S,X,B::Y); ++i )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCL(Y)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
+    //OT j = space->si(F::S,Y,B::Y);
+    //OT k = space->ei(F::S,Z,B::Y);
+    //for( OT i=space->si(F::S,X,B::Y); i<=space->ei(F::S,X,B::Y); ++i )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCU(Y)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
+    //OT j = space->ei(F::S,Y,B::Y);
+    //OT k = space->si(F::S,Z,B::Y);
+    //for( OT i=space->si(F::S,X,B::Y); i<=space->ei(F::S,X,B::Y); ++i )
+    //rhs(i,j,k) = 0.;
+    //}
+    //if( space()->getBCLocal()->getBCU(Y)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
+    //OT j = space->ei(F::S,Y,B::Y);
+    //OT k = space->ei(F::S,Z,B::Y);
+    //for( OT i=space->si(F::S,X,B::Y); i<=space->ei(F::S,X,B::Y); ++i )
+    //rhs(i,j,k) = 0.;
+    //}
+
+  }
+
+}; // end of class EmptyProjector
 
 } // end of namespace Pimpact
 

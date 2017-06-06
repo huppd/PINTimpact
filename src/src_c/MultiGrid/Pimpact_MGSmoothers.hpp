@@ -38,31 +38,31 @@ protected:
 public:
 
   MGSmoothers(
-      const Teuchos::RCP<const MGOperatorsT>& mgOperators,
-      Teuchos::RCP<Teuchos::ParameterList> pl ):
+    const Teuchos::RCP<const MGOperatorsT>& mgOperators,
+    Teuchos::RCP<Teuchos::ParameterList> pl ):
     mgSpaces_( mgOperators->getMGSpaces() ),
     smoothers_( mgSpaces_->getNGrids()-1 ) {
 
     for( int i=0; i<mgSpaces_->getNGrids()-1; ++i )
-			if( mgSpaces_->participating(i) )
-				smoothers_[i] = Teuchos::rcp( new SmootherT( mgOperators->get(i), pl ) );
+      if( mgSpaces_->participating(i) )
+        smoothers_[i] = Teuchos::rcp( new SmootherT( mgOperators->get(i), pl ) );
 
-	// not working on brutus
+    // not working on brutus
     //smoothers_.shrink_to_fit();
   }
 
 //public:
 
   /// \brief gets ith smoother, similar to python i=-1 is gets you the coarses space
-	const Teuchos::RCP<SmootherT>& get( int i ) const {
-		assert( -1!=i );
-		if( i<0 )
-			return( smoothers_[mgSpaces_->getNGrids()+i] );
-		else
-			return( smoothers_[i] );
-	}
+  const Teuchos::RCP<SmootherT>& get( int i ) const {
+    assert( -1!=i );
+    if( i<0 )
+      return( smoothers_[mgSpaces_->getNGrids()+i] );
+    else
+      return( smoothers_[i] );
+  }
 
-	//  void print(  std::ostream& out=std::cout ) const { }
+  //  void print(  std::ostream& out=std::cout ) const { }
 
 }; // end of class MGSmoothers
 
@@ -72,14 +72,14 @@ public:
 template< template<class> class SmootherT, class MGOperatorsT >
 Teuchos::RCP<const MGSmoothers< MGOperatorsT, SmootherT> >
 createMGSmoothers(
-    const Teuchos::RCP<const MGOperatorsT>& mgOperators,
-    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) {
+  const Teuchos::RCP<const MGOperatorsT>& mgOperators,
+  Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) {
 
   return(
-      Teuchos::rcp(
-          new MGSmoothers<MGOperatorsT,SmootherT>(
+          Teuchos::rcp(
+            new MGSmoothers<MGOperatorsT,SmootherT>(
               mgOperators,
-							pl ) ) );
+              pl ) ) );
 }
 
 

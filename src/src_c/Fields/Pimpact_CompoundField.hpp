@@ -47,28 +47,28 @@ protected:
 public:
 
   CompoundField( const Teuchos::RCP<const SpaceT>& space, F dummy=F::S ):
-        AF( space ),
-        vfield_( create<VField>(space) ),
-        sfield_( create<SField>(space) ) {};
+    AF( space ),
+    vfield_( create<VField>(space) ),
+    sfield_( create<SField>(space) ) {};
 
   CompoundField(
-      const Teuchos::RCP<VField>& vfield,
-      const Teuchos::RCP<SField>& sfield ):
-        AF( vfield->space() ),
-        vfield_(vfield),
-        sfield_(sfield) {};
+    const Teuchos::RCP<VField>& vfield,
+    const Teuchos::RCP<SField>& sfield ):
+    AF( vfield->space() ),
+    vfield_(vfield),
+    sfield_(sfield) {};
 
 
   /// \brief copy constructor.
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-  /// \param field 
+  /// \param field
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
   CompoundField( const CompoundField& field, ECopy copyType=ECopy::Deep ):
     AF( field.space() ),
     vfield_( Teuchos::rcp( new VField( *field.vfield_, copyType ) ) ),
-    sfield_( Teuchos::rcp( new SField( *field.sfield_, copyType ) ) )
-	{};
+    sfield_( Teuchos::rcp( new SField( *field.sfield_, copyType ) ) ) {
+  };
 
 
   Teuchos::RCP<CompoundField> clone( ECopy ctype=ECopy::Deep ) const {
@@ -78,15 +78,27 @@ public:
   /// \name Attribute methods
   /// \{
 
-  VField& getVField() { return( *vfield_ ); }
-  SField& getSField() { return( *sfield_ ); }
+  VField& getVField() {
+    return( *vfield_ );
+  }
+  SField& getSField() {
+    return( *sfield_ );
+  }
 
-  constexpr const VField& getVField() { return( *vfield_ ); }
-  constexpr const SField& getSField() { return( *sfield_ ); }
+  constexpr const VField& getVField() {
+    return( *vfield_ );
+  }
+  constexpr const SField& getSField() {
+    return( *sfield_ );
+  }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() { return( AF::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() {
+    return( AF::space_ );
+  }
 
-  constexpr const MPI_Comm& comm() { return(vfield_->comm()); }
+  constexpr const MPI_Comm& comm() {
+    return(vfield_->comm());
+  }
 
 
   /// \brief get Vect length
@@ -129,7 +141,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const CompoundField& y){
+  void reciprocal( const CompoundField& y) {
     vfield_->reciprocal( *y.vfield_ );
     sfield_->reciprocal( *y.sfield_ );
   }
@@ -164,11 +176,11 @@ public:
   }
 
 
-	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const CompoundField& y ) {
+  /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+  constexpr Scalar dot( const CompoundField& y ) {
 
-		return( this->reduce( comm(), dotLoc( y ) ) );
-	}
+    return( this->reduce( comm(), dotLoc( y ) ) );
+  }
 
 
   /// \}
@@ -178,25 +190,25 @@ public:
   /// \brief Compute the norm of the field.
   constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) {
 
-		return(
-			(Belos::InfNorm==type)?
-			std::max(vfield_->normLoc(type), sfield_->normLoc(type) ):
-			(vfield_->normLoc(type) + sfield_->normLoc(type)) );
+    return(
+            (Belos::InfNorm==type)?
+            std::max(vfield_->normLoc(type), sfield_->normLoc(type) ):
+            (vfield_->normLoc(type) + sfield_->normLoc(type)) );
   }
 
- /// \brief compute the norm
+/// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
   constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) {
 
-		Scalar normvec = this->reduce(
-				comm(),
-				normLoc( type ),
-				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+    Scalar normvec = this->reduce(
+                       comm(),
+                       normLoc( type ),
+                       (Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
 
-		normvec =
-			(Belos::TwoNorm==type) ?
-				std::sqrt(normvec) :
-				normvec;
+    normvec =
+      (Belos::TwoNorm==type) ?
+      std::sqrt(normvec) :
+      normvec;
 
     return( normvec );
   }
@@ -208,9 +220,9 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr Scalar normLoc( const CompoundField& weights ) {
-		return(
-				vfield_->normLoc( *weights.vfield_ ) +
-				sfield_->normLoc( *weights.sfield_ ) );
+    return(
+            vfield_->normLoc( *weights.vfield_ ) +
+            sfield_->normLoc( *weights.sfield_ ) );
   }
 
   /// \brief Weighted 2-Norm.
@@ -220,8 +232,8 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr Scalar norm( const CompoundField& weights ) {
-		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
-	}
+    return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+  }
 
 
   /// \}
@@ -230,13 +242,13 @@ public:
 
   /// \brief *this := a
   /// Assign (deep copy) a into mv.
-	CompoundField& operator=( const CompoundField& a ) {
+  CompoundField& operator=( const CompoundField& a ) {
 
     *vfield_ = *a.vfield_;
     *sfield_ = *a.sfield_;
 
-		return *this;
-	}
+    return *this;
+  }
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
@@ -252,12 +264,12 @@ public:
   }
 
 
-	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
-		vfield_->extrapolateBC( trans );
+  void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+    vfield_->extrapolateBC( trans );
     sfield_->extrapolateBC( trans );
   }
 
-	void level() const {
+  void level() const {
     vfield_->level();
     sfield_->level();
   }
@@ -293,10 +305,10 @@ public:
 /// \relates CompoundField
 template<class VField, class SField>
 Teuchos::RCP< CompoundField<VField,SField> > createCompoundField(
-    const Teuchos::RCP<VField>&  vfield, const Teuchos::RCP<SField>& sfield ) {
+  const Teuchos::RCP<VField>&  vfield, const Teuchos::RCP<SField>& sfield ) {
 
   return( Teuchos::RCP<CompoundField<VField,SField> > (
-      new CompoundField<VField,SField>( vfield, sfield ) ) );
+            new CompoundField<VField,SField>( vfield, sfield ) ) );
 }
 
 

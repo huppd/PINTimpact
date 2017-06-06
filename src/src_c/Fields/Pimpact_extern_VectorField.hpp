@@ -10,23 +10,23 @@ namespace Pimpact {
 
 extern "C" {
 
-extern "C" void OP_extrapolateBC2(
-		const int& m,         
-    const int* const N,         
+  extern "C" void OP_extrapolateBC2(
+    const int& m,
+    const int* const N,
     const int* const bL,
-		const int* const bU,     
+    const int* const bU,
     const int& dL,
-		const int& dU,     
-		const int& BC_L,
-		const int& BC_U, 
-		const int* const SB,
-		const int* const NB,
-		const double* const c,    
-		const double*       phi );
+    const int& dU,
+    const int& BC_L,
+    const int& BC_U,
+    const int* const SB,
+    const int* const NB,
+    const double* const c,
+    const double*       phi );
 
-void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
+  void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
-void VF_init_2DPulsatileX(
+  void VF_init_2DPulsatileX(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -42,7 +42,7 @@ void VF_init_2DPulsatileX(
     const double& re, const double& alpha, const double& px,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_2DPulsatileXC(
+  void VF_init_2DPulsatileXC(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -57,7 +57,7 @@ void VF_init_2DPulsatileXC(
     const double& re, const double& om, const double& px,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_2DPulsatileYC(
+  void VF_init_2DPulsatileYC(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -72,7 +72,7 @@ void VF_init_2DPulsatileYC(
     const double& re, const double& om, const double& px,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_2DPulsatileXS(
+  void VF_init_2DPulsatileXS(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -87,7 +87,7 @@ void VF_init_2DPulsatileXS(
     const double& re, const double& om, const double& px,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_2DPulsatileYS(
+  void VF_init_2DPulsatileYS(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -102,7 +102,7 @@ void VF_init_2DPulsatileYS(
     const double& re, const double& om, const double& px,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_StreamingC(
+  void VF_init_StreamingC(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -117,7 +117,7 @@ void VF_init_StreamingC(
     const double& amp,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_StreamingS(
+  void VF_init_StreamingS(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -132,7 +132,7 @@ void VF_init_StreamingS(
     const double& amp,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_RankineVortex(
+  void VF_init_RankineVortex(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -149,7 +149,7 @@ void VF_init_RankineVortex(
     const double* const x2v,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_GaussianForcing1D(
+  void VF_init_GaussianForcing1D(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -163,7 +163,7 @@ void VF_init_GaussianForcing1D(
     const double* const x1u,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_BoundaryFilter1D(
+  void VF_init_BoundaryFilter1D(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -177,7 +177,7 @@ void VF_init_BoundaryFilter1D(
     const double* const x1u,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_GaussianForcing2D(
+  void VF_init_GaussianForcing2D(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -194,7 +194,7 @@ void VF_init_GaussianForcing2D(
     const double* const x2v,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_BoundaryFilter2D(
+  void VF_init_BoundaryFilter2D(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -211,7 +211,7 @@ void VF_init_BoundaryFilter2D(
     const double* const x2v,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_Vpoint(
+  void VF_init_Vpoint(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -227,7 +227,7 @@ void VF_init_Vpoint(
     const double& sig,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_Disc(
+  void VF_init_Disc(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -245,7 +245,7 @@ void VF_init_Disc(
     const double& xm, const double& ym, const double& rad,const double& sca,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_RotatingDisc(
+  void VF_init_RotatingDisc(
     const int* const N,
     const int* const bL,
     const int* const bU,
@@ -260,63 +260,63 @@ void VF_init_RotatingDisc(
     const double& xm, const double& ym, const double& omega,
     double* const phiU, double* const phiV, double* const phiW );
 
-void VF_init_SHBF( 
-		const int& rank,      
-		const int& iShift,    
-		const int& IB1,       
-		const int* const M,         
-		const int* const N,         
-		const int* const bL,
-		const int* const bU,     
-		const int* const dL,
-		const int* const dU,     
-		const int* const SU,
-		const int* const NU,     
-		const int* const SV,
-		const int* const NV,     
-		const int* const SW,
-		const int* const NW,     
-		const double* const y1p,       
-		const double* const y1u,       
-		const double* const x3w,       
-		const double* const cIup,      
-		const double& Re,        
-		const int& nonDim,    
-		const double& kappa,     
-		const double& sweep_angle_degrees,  
-		const double& sweep_angle,          
-		const double& angle_attack,         
-		double* const velU,
-		double* const velV,
-		double* const velW ); 
-
-
-void VF_init_Dist(
-		const int& rank,      
-    const int* const N,         
+  void VF_init_SHBF(
+    const int& rank,
+    const int& iShift,
+    const int& IB1,
+    const int* const M,
+    const int* const N,
     const int* const bL,
-		const int* const bU,     
+    const int* const bU,
+    const int* const dL,
+    const int* const dU,
     const int* const SU,
-		const int* const NU,     
+    const int* const NU,
     const int* const SV,
-		const int* const NV,     
+    const int* const NV,
     const int* const SW,
-		const int* const NW,     
-    const int& BC_3L_global,       
-    const double* const x1u,                
-    const double* const x1p,                
-    const double* const x2p,                
-    const double* const x3w,                
-    const double* const x3p,                
-		const int& dist_type,          
-		const double& vortex_ampli_prim,  
-		const double& vortex_x1pos,       
-		const double& vortex_x3pos,       
-		const double& vortex_radius,      
-		const double& vortex_band,        
-		double* const velU,
-		double* const velV,
-		double* const velW ); 
+    const int* const NW,
+    const double* const y1p,
+    const double* const y1u,
+    const double* const x3w,
+    const double* const cIup,
+    const double& Re,
+    const int& nonDim,
+    const double& kappa,
+    const double& sweep_angle_degrees,
+    const double& sweep_angle,
+    const double& angle_attack,
+    double* const velU,
+    double* const velV,
+    double* const velW );
+
+
+  void VF_init_Dist(
+    const int& rank,
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SU,
+    const int* const NU,
+    const int* const SV,
+    const int* const NV,
+    const int* const SW,
+    const int* const NW,
+    const int& BC_3L_global,
+    const double* const x1u,
+    const double* const x1p,
+    const double* const x2p,
+    const double* const x3w,
+    const double* const x3p,
+    const int& dist_type,
+    const double& vortex_ampli_prim,
+    const double& vortex_x1pos,
+    const double& vortex_x3pos,
+    const double& vortex_radius,
+    const double& vortex_band,
+    double* const velU,
+    double* const velV,
+    double* const velW );
 
 
 } // end of extern 'C'

@@ -36,22 +36,22 @@ protected:
 public:
 
   MultiHarmonicOpWrap( const Teuchos::RCP<const SpaceT>& space ):
-		op_( Teuchos::rcp( new OpT(space) ) ) {};
+    op_( Teuchos::rcp( new OpT(space) ) ) {};
 
   MultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op ): op_(op) {};
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
-		if( 0==space()->si(F::U,3) )
-			op_->apply( x.get0Field(), y.get0Field(), add );
+    if( 0==space()->si(F::U,3) )
+      op_->apply( x.get0Field(), y.get0Field(), add );
 
-		for( typename SpaceT::Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+    for( typename SpaceT::Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
       op_->apply( x.getCField(i), y.getCField(i), add );
       op_->apply( x.getSField(i), y.getSField(i), add );
     }
 
-		y.changed();
+    y.changed();
   };
 
 
@@ -59,20 +59,28 @@ public:
     op_->assignField( mv.get0Field() );
   };
 
-  bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
+  bool hasApplyTranspose() const {
+    return( op_->hasApplyTranspose() );
+  }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
+  constexpr const Teuchos::RCP<const SpaceT>& space() const {
+    return(op_->space());
+  };
 
-	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		op_->setParameter( para );
-	}
+  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+    op_->setParameter( para );
+  }
 
-  Teuchos::RCP<OpT> getOperatorPtr() { return( op_ ); }
+  Teuchos::RCP<OpT> getOperatorPtr() {
+    return( op_ );
+  }
 
-	const std::string getLabel() const { return( "MH_"+op_->getLabel() ); };
+  const std::string getLabel() const {
+    return( "MH_"+op_->getLabel() );
+  };
 
   void print( std::ostream& out=std::cout ) const {
-		out <<  getLabel() << ":\n";
+    out <<  getLabel() << ":\n";
     op_->print( out );
   }
 

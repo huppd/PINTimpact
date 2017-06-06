@@ -30,151 +30,150 @@ template<class T> using MOP = Pimpact::InverseOp<T>;
 
 int main( int argi, char** argv ) {
 
-	// intialize MPI
-	MPI_Init( &argi, &argv );
+  // intialize MPI
+  MPI_Init( &argi, &argv );
 
-	auto pl = Teuchos::parameterList();
-	pl->set("npy",1);
-	pl->set("npx",1);
+  auto pl = Teuchos::parameterList();
+  pl->set("npy",1);
+  pl->set("npx",1);
 
-	pl->set( "domain", 1);
+  pl->set( "domain", 1);
 
-	int nwinds = 1;
-
-
-	for( S re=1.; re<1e6; re*=10 ) {
-		pl->set<S>( "Re", re );
+  int nwinds = 1;
 
 
-		pl->set<O>( "nx", 513 );
-		pl->set<O>( "ny", 513 );
-
-		auto space = Pimpact::create< SpaceT >( pl );
-
-		auto mgSpaces = Pimpact::createMGSpaces<CS>( space, 5 );
-
-		Pimpact::VectorField<SpaceT> wind( space );
-		Pimpact::VectorField<SpaceT> y( space );
-		Pimpact::VectorField<SpaceT> z( space );
-		Pimpact::VectorField<SpaceT> z2( space );
-
-		auto op = Pimpact::create<ConvDiffOpT>( space );
-
-		for(short int dirx=1; dirx<4; dirx+=2 ) {
-			for(short int diry=1; diry<2; diry+=2 ) {
-
-				auto pls = Teuchos::parameterList();
-				pls->sublist("Smoother").set( "omega", 1. );
-				pls->sublist("Smoother").set( "numIters", ((dirx==3)?1:4)*1 );
-				pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:0 );
-				pls->sublist("Smoother").set<short int>( "dir X", dirx );
-				pls->sublist("Smoother").set<short int>( "dir Y", diry );
-				pls->sublist("Smoother").set<short int>( "dir Z", 1 );
-
-				auto smoother =
-					Pimpact::createMultiGrid<
-					Pimpact::VectorField,
-					TransVF,
-					RestrVF,
-					InterVF,
-					ConvDiffOpT,
-					ConvDiffOpT,
-					//ConvDiffJT,
-					ConvDiffSORT,
-					//ConvDiffSORT
-					MOP > ( mgSpaces, pls );
-
-				std::ofstream phifile;
-
-				if( space()->rankST()==0 ) {
-					std::string fname = "blaphin.txt";
-					if( 3==dirx )
-						fname.insert( 4, std::to_string( (long long)8 ) );
-					else
-						fname.insert( 4, std::to_string( (long long)dirx+diry*2+3 ) );
-					phifile.open( fname, std::ofstream::out | std::ofstream::app );
-				}
-
-				for( int phii=0; phii<nwinds; ++phii ) {
-
-					if( space()->rankST()==0 )
-						phifile << re << "\t";
-
-					// init solution
-					y(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
-					y(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
-
-					auto sol = y.clone( Pimpact::ECopy::Deep );
-
-					wind(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
-					wind(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
-
-					op->assignField( wind );
-					smoother->assignField( wind );
-
-					z.init();
-
-					// constructing rhs
-					op->apply( y, z );
-					{
-						y.init(0);
-						auto bc = z.clone( Pimpact::ECopy::Shallow );
-						op->apply( y, *bc );
-						z.add( 1., z, -1., *bc );
-					}
-
-					y.init();
-
-					std::ofstream ofs;
-					std::string filename = "MG.txt";
-					if( space()->rankST()==0 ) {
-						if( 3==dirx )
-							filename.insert( 2, std::to_string( (long long)8 ) );
-						else
-							filename.insert( 2, std::to_string( (long long)dirx+diry*2+3 ) );
-					}
-
-					if( space()->rankST()==0 )
-						ofs.open(filename, std::ofstream::out);
-
-					S error;
-					int iter=0;
-					do {
-
-						smoother->apply( z, y );
-
-						z2.add( -1, *sol, 1, y );
-
-						error = z2.norm()/sol->norm();
-
-						if( space()->rankST()==0 ) ofs << error << "\n";
-						if( space()->rankST()==0 ) std::cout <<"iter: " <<iter <<" " << error << "\n";
-
-						iter++;
-						if( iter>1000) error=-1;
-						if( error>1e12){
-							error=-1;
-							iter=1000;
-						}	
-					}
-					while( error>1.e-6 );
-
-					if( space()->rankST()==0 )
-						//					phifile << error << "\n";
-						phifile << iter << "\n";
+  for( S re=1.; re<1e6; re*=10 ) {
+    pl->set<S>( "Re", re );
 
 
-					if( space()->rankST()==0 )
-						ofs.close();
-				}
-				if( space()->rankST()==0 )
-					phifile.close();
-			}
+    pl->set<O>( "nx", 513 );
+    pl->set<O>( "ny", 513 );
 
-		}
-	}
+    auto space = Pimpact::create< SpaceT >( pl );
 
-	MPI_Finalize();
-	return( 0 );
+    auto mgSpaces = Pimpact::createMGSpaces<CS>( space, 5 );
+
+    Pimpact::VectorField<SpaceT> wind( space );
+    Pimpact::VectorField<SpaceT> y( space );
+    Pimpact::VectorField<SpaceT> z( space );
+    Pimpact::VectorField<SpaceT> z2( space );
+
+    auto op = Pimpact::create<ConvDiffOpT>( space );
+
+    for(short int dirx=1; dirx<4; dirx+=2 ) {
+      for(short int diry=1; diry<2; diry+=2 ) {
+
+        auto pls = Teuchos::parameterList();
+        pls->sublist("Smoother").set( "omega", 1. );
+        pls->sublist("Smoother").set( "numIters", ((dirx==3)?1:4)*1 );
+        pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:0 );
+        pls->sublist("Smoother").set<short int>( "dir X", dirx );
+        pls->sublist("Smoother").set<short int>( "dir Y", diry );
+        pls->sublist("Smoother").set<short int>( "dir Z", 1 );
+
+        auto smoother =
+          Pimpact::createMultiGrid<
+          Pimpact::VectorField,
+          TransVF,
+          RestrVF,
+          InterVF,
+          ConvDiffOpT,
+          ConvDiffOpT,
+          //ConvDiffJT,
+          ConvDiffSORT,
+          //ConvDiffSORT
+          MOP > ( mgSpaces, pls );
+
+        std::ofstream phifile;
+
+        if( space()->rankST()==0 ) {
+          std::string fname = "blaphin.txt";
+          if( 3==dirx )
+            fname.insert( 4, std::to_string( (long long)8 ) );
+          else
+            fname.insert( 4, std::to_string( (long long)dirx+diry*2+3 ) );
+          phifile.open( fname, std::ofstream::out | std::ofstream::app );
+        }
+
+        for( int phii=0; phii<nwinds; ++phii ) {
+
+          if( space()->rankST()==0 )
+            phifile << re << "\t";
+
+          // init solution
+          y(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
+          y(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
+
+          auto sol = y.clone( Pimpact::ECopy::Deep );
+
+          wind(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
+          wind(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
+
+          op->assignField( wind );
+          smoother->assignField( wind );
+
+          z.init();
+
+          // constructing rhs
+          op->apply( y, z );
+          {
+            y.init(0);
+            auto bc = z.clone( Pimpact::ECopy::Shallow );
+            op->apply( y, *bc );
+            z.add( 1., z, -1., *bc );
+          }
+
+          y.init();
+
+          std::ofstream ofs;
+          std::string filename = "MG.txt";
+          if( space()->rankST()==0 ) {
+            if( 3==dirx )
+              filename.insert( 2, std::to_string( (long long)8 ) );
+            else
+              filename.insert( 2, std::to_string( (long long)dirx+diry*2+3 ) );
+          }
+
+          if( space()->rankST()==0 )
+            ofs.open(filename, std::ofstream::out);
+
+          S error;
+          int iter=0;
+          do {
+
+            smoother->apply( z, y );
+
+            z2.add( -1, *sol, 1, y );
+
+            error = z2.norm()/sol->norm();
+
+            if( space()->rankST()==0 ) ofs << error << "\n";
+            if( space()->rankST()==0 ) std::cout <<"iter: " <<iter <<" " << error << "\n";
+
+            iter++;
+            if( iter>1000) error=-1;
+            if( error>1e12) {
+              error=-1;
+              iter=1000;
+            }
+          } while( error>1.e-6 );
+
+          if( space()->rankST()==0 )
+            //					phifile << error << "\n";
+            phifile << iter << "\n";
+
+
+          if( space()->rankST()==0 )
+            ofs.close();
+        }
+        if( space()->rankST()==0 )
+          phifile.close();
+      }
+
+    }
+  }
+
+  MPI_Finalize();
+  return( 0 );
 
 }

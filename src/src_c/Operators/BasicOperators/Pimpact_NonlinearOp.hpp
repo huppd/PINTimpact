@@ -38,27 +38,29 @@ protected:
 
 public:
 
-	NonlinearOp( const Teuchos::RCP<const SpaceT>& space ):
-		convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>(space) ) ),
-		convField_( create<ConvectionField>( space ) ) {};
+  NonlinearOp( const Teuchos::RCP<const SpaceT>& space ):
+    convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>(space) ) ),
+    convField_( create<ConvectionField>( space ) ) {};
 
-	template< class ConvSOpTT >
-	NonlinearOp( const Teuchos::RCP<ConvSOpTT>& op ):
-		convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>( op->space() ) ) ),
-		convField_( op->getConvField() ) {}
+  template< class ConvSOpTT >
+  NonlinearOp( const Teuchos::RCP<ConvSOpTT>& op ):
+    convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>( op->space() ) ) ),
+    convField_( op->getConvField() ) {}
 
-	void assignField( const DomainFieldT& mv ) const { convField_->assignField( mv ); };
+  void assignField( const DomainFieldT& mv ) const {
+    convField_->assignField( mv );
+  };
 
-	/// \note Operator's wind has to be assigned correctly
-	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
-		convVWrap_->apply( convField_->get(), x, y );
-	}
+  /// \note Operator's wind has to be assigned correctly
+  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+    convVWrap_->apply( convField_->get(), x, y );
+  }
 
 
-	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
-		apply( x, res );
-		res.add( 1., b, -1., res );
-	}
+  void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
+    apply( x, res );
+    res.add( 1., b, -1., res );
+  }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
     return( convVWrap_->space() );
@@ -75,18 +77,22 @@ public:
   }
 
 
-	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		convVWrap_->setParameter( para );
-	}
+  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+    convVWrap_->setParameter( para );
+  }
 
 
-  bool hasApplyTranspose() const { return( false ); }
+  bool hasApplyTranspose() const {
+    return( false );
+  }
 
   void print( std::ostream& out=std::cout ) const {
     convVWrap_->print(out);
   }
 
-	const std::string getLabel() const { return( convVWrap_->getSOp()->getLabel() + "VOp" ); };
+  const std::string getLabel() const {
+    return( convVWrap_->getSOp()->getLabel() + "VOp" );
+  };
 
 }; // end of class NonlinearOp
 
@@ -96,10 +102,10 @@ public:
 template<class SpaceT>
 Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > >
 createNonlinearOp(
-    const Teuchos::RCP<const SpaceT>& space ) {
+  const Teuchos::RCP<const SpaceT>& space ) {
 
-	Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > > sop =
-		Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
+  Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > > sop =
+    Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
 
   return( Teuchos::rcp( new NonlinearOp< ConvectionSOp<SpaceT> >( sop ) ) );
 }

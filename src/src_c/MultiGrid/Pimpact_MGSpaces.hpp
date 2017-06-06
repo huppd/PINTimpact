@@ -27,36 +27,40 @@ public:
 
 protected:
 
-	template<class CoarsenStrategyT>
-	friend Teuchos::RCP<const MGSpaces<typename CoarsenStrategyT::SpaceT,
-				 typename CoarsenStrategyT::CSpaceT> >
-	 createMGSpaces( const Teuchos::RCP<const typename CoarsenStrategyT::SpaceT>&
-			 space, int nGridsMax );
+  template<class CoarsenStrategyT>
+  friend Teuchos::RCP<const MGSpaces<typename CoarsenStrategyT::SpaceT,
+         typename CoarsenStrategyT::CSpaceT> >
+         createMGSpaces( const Teuchos::RCP<const typename CoarsenStrategyT::SpaceT>&
+                         space, int nGridsMax );
 
   Teuchos::RCP<const FSpaceT> space_;
   std::vector< Teuchos::RCP<const CSpaceT> > spaces_;
 
 
   MGSpaces(
-      const Teuchos::RCP<const FSpaceT>& space,
-      const std::vector<Teuchos::RCP<const CSpaceT> >& spaces ):
+    const Teuchos::RCP<const FSpaceT>& space,
+    const std::vector<Teuchos::RCP<const CSpaceT> >& spaces ):
     space_(space),
     spaces_(spaces) {}
 
 public:
 
-	/// \brief get number of grids
-	///
-	/// \return  number of grids
-  constexpr int getNGrids() const { return( spaces_.size() ); }
+  /// \brief get number of grids
+  ///
+  /// \return  number of grids
+  constexpr int getNGrids() const {
+    return( spaces_.size() );
+  }
 
-  constexpr const Teuchos::RCP<const FSpaceT>&  get()        const { return( space_ ); }
+  constexpr const Teuchos::RCP<const FSpaceT>&  get()        const {
+    return( space_ );
+  }
 
   /// \brief gets ith space, similar to python i=-1 is gets you the coarses space
-	///
-	/// \param i index of space level if negative it is counted from coarsest space
-	///
-	/// \return ith space
+  ///
+  /// \param i index of space level if negative it is counted from coarsest space
+  ///
+  /// \return ith space
   constexpr const Teuchos::RCP<const CSpaceT>&  get( int i ) const {
     if( i<0 )
       return( spaces_[ getNGrids()+i ] );
@@ -65,9 +69,9 @@ public:
   }
 
 
-	constexpr bool participating( int i ) const {
-		return( get(i)->getProcGrid()->participating() );
-	}
+  constexpr bool participating( int i ) const {
+    return( get(i)->getProcGrid()->participating() );
+  }
 
   void print(  std::ostream& out=std::cout ) const {
 
@@ -87,16 +91,16 @@ public:
 template<class CoarsenStrategy>
 Teuchos::RCP<const MGSpaces<typename CoarsenStrategy::SpaceT, typename CoarsenStrategy::CSpaceT> >
 createMGSpaces(
-    const Teuchos::RCP<const typename CoarsenStrategy::SpaceT>& space,
-    int maxGrids=10 ) {
+  const Teuchos::RCP<const typename CoarsenStrategy::SpaceT>& space,
+  int maxGrids=10 ) {
 
   std::vector<Teuchos::RCP<const typename CoarsenStrategy::CSpaceT> > spaces =
-      CoarsenStrategy::getMultiSpace( space, maxGrids );
+    CoarsenStrategy::getMultiSpace( space, maxGrids );
 
   return(
-      Teuchos::rcp(
-          new MGSpaces<typename CoarsenStrategy::SpaceT, typename CoarsenStrategy::CSpaceT>(
-							space, spaces ) ) );
+          Teuchos::rcp(
+            new MGSpaces<typename CoarsenStrategy::SpaceT, typename CoarsenStrategy::CSpaceT>(
+              space, spaces ) ) );
 }
 
 

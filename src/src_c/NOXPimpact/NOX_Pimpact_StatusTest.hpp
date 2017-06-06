@@ -15,16 +15,16 @@
 
 
 
-namespace NOX{
+namespace NOX {
 namespace Pimpact {
 
-	Teuchos::RCP< NOX::StatusTest::Generic >
-		createStatusTest( int maxI=10, double tolF=1.e-6, double tolUpdate=1.e-6 );
+Teuchos::RCP< NOX::StatusTest::Generic >
+createStatusTest( int maxI=10, double tolF=1.e-6, double tolUpdate=1.e-6 );
 
-	Teuchos::RCP<Teuchos::ParameterList>
-		createNOXSolverParameter(
-				const std::string& solverName = "NonlinearCG",
-				const std::string& lineSearchName = "NonlinearCG" ); 
+Teuchos::RCP<Teuchos::ParameterList>
+createNOXSolverParameter(
+  const std::string& solverName = "NonlinearCG",
+  const std::string& lineSearchName = "NonlinearCG" );
 
 } // end of namespace Pimpact
 } // end of namespace NOX

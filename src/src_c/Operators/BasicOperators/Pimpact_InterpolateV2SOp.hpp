@@ -19,7 +19,7 @@
 
 
 
-namespace Pimpact{
+namespace Pimpact {
 
 
 
@@ -44,137 +44,141 @@ class InterpolateV2S {
 
 public:
 
-	using SpaceT = Space<Scalar,Ordinal,sdim,dimension,dimNC>;
+  using SpaceT = Space<Scalar,Ordinal,sdim,dimension,dimNC>;
 
-	using DomainFieldT = ScalarField< SpaceT >;
-	using RangeFieldT = ScalarField< SpaceT >;
+  using DomainFieldT = ScalarField< SpaceT >;
+  using RangeFieldT = ScalarField< SpaceT >;
 
 protected:
 
-	using SW = StencilWidths<dimension,dimNC>;
+  using SW = StencilWidths<dimension,dimNC>;
 
-	using Stenc = Stencil< Scalar, Ordinal, 0, SW::DL(0), SW::DU(0) >;
-	using TS = const Teuchos::Tuple< Stenc, sdim >;
+  using Stenc = Stencil< Scalar, Ordinal, 0, SW::DL(0), SW::DU(0) >;
+  using TS = const Teuchos::Tuple< Stenc, sdim >;
 
-	TS c_;
-	//TS cm_;
+  TS c_;
+  //TS cm_;
 
 public:
 
-	InterpolateV2S(
-			const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >&  indexSpace,
-			const Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dimension> >& gridSizeLocal,
-			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
-			const Teuchos::RCP<const DomainSize<Scalar,sdim> >& domainSize,
-			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
-			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ) {
+  InterpolateV2S(
+    const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >&  indexSpace,
+    const Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dimension> >& gridSizeLocal,
+    const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
+    const Teuchos::RCP<const DomainSize<Scalar,sdim> >& domainSize,
+    const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
+    const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ) {
 
-		//const bool mapping = true; // order ~4
-		const bool mapping = false; // order ~6
+    //const bool mapping = true; // order ~4
+    const bool mapping = false; // order ~6
 
-		for( int i=0; i<sdim; ++i ) {
+    for( int i=0; i<sdim; ++i ) {
 
-			c_[i]  = Stenc( gridSizeLocal->get(i) );
+      c_[i]  = Stenc( gridSizeLocal->get(i) );
 
-			F fi = static_cast<F>( i );
-			
-			FD_getDiffCoeff(
-					1,
-					gridSizeLocal->get(i),
-					stencilWidths->getBL(i),
-					stencilWidths->getBU(i),
-					stencilWidths->getDL(i),
-					stencilWidths->getDU(i),
-					boundaryConditionsLocal->getBCL(i),
-					boundaryConditionsLocal->getBCU(i),
-					indexSpace->getShift(i),
-					3,
-					i+1,  // direction
-					0,    // 0-derivative
-					0,    // central
-					mapping, // mapping, works with interpolateV2S
-					stencilWidths->getDimNcbD(i),
-					stencilWidths->getNcbD(i),
-					coordinatesLocal->getX( fi, i ),
-					coordinatesLocal->getX( F::S, i ),
-					c_[i].get() );
-		}
-	};
+      F fi = static_cast<F>( i );
 
-
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
-
-		assert( x.getType() != F::S );
-		assert( y.getType() == F::S );
-
-		Teuchos::RCP<const SpaceT> space = x.space();
-
-		ECoord m = static_cast<ECoord>( x.getType() );
-		
-		x.exchange( m );
-
-		if( X==m ) {
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
-						if( Add::N==add ) y(i,j,k) = 0.;
-						for( Ordinal ii=c_[m].bl(); ii<=c_[m].bu(); ++ii )
-							y(i,j,k) += getC( m, i, ii )*x(i+ii,j,k);
-					}
-		}
-
-		if( Y==m ) {
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
-						if( Add::N==add ) y(i,j,k) = 0.;
-						for( Ordinal jj=c_[m].bl(); jj<=c_[m].bu(); ++jj )
-							y(i,j,k) += getC( m, j, jj )*x(i,j+jj,k);
-					}
-		}
-
-		if( Z==m ) {
-			for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
-				for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
-					for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
-						if( Add::N==add ) y(i,j,k) = 0.;
-						for( Ordinal kk=c_[m].bl(); kk<=c_[m].bu(); ++kk )
-							y(i,j,k) += getC( m, k, kk )*x(i,j,k+kk);
-					}
-		}
-
-		y.changed();
-	}
+      FD_getDiffCoeff(
+        1,
+        gridSizeLocal->get(i),
+        stencilWidths->getBL(i),
+        stencilWidths->getBU(i),
+        stencilWidths->getDL(i),
+        stencilWidths->getDU(i),
+        boundaryConditionsLocal->getBCL(i),
+        boundaryConditionsLocal->getBCU(i),
+        indexSpace->getShift(i),
+        3,
+        i+1,  // direction
+        0,    // 0-derivative
+        0,    // central
+        mapping, // mapping, works with interpolateV2S
+        stencilWidths->getDimNcbD(i),
+        stencilWidths->getNcbD(i),
+        coordinatesLocal->getX( fi, i ),
+        coordinatesLocal->getX( F::S, i ),
+        c_[i].get() );
+    }
+  };
 
 
-	void assignField( const RangeFieldT& mv ) {};
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
-	bool hasApplyTranspose() const { return( false ); }
+    assert( x.getType() != F::S );
+    assert( y.getType() == F::S );
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+    Teuchos::RCP<const SpaceT> space = x.space();
 
-	void print( std::ostream& out=std::cout ) const {
-		out << "--- " << getLabel() << " ---\n";
-		for( int dir=0; dir<sdim; ++dir ) {
-			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
-			c_[dir].print( out );
-		}
-	}
+    ECoord m = static_cast<ECoord>( x.getType() );
 
-	constexpr const Scalar* getC( const int& dir ) const  {
-		return( c_[dir].get() );
-	}
-	//constexpr const Scalar* getCM( const int& dir ) const  {
-		//return( cm_[dir].get() );
-	//}
-	constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const {
-		return( c_[dir]( i, off ) );
-	}
-	//constexpr const Scalar& getCM( const int& dir, Ordinal i, Ordinal off ) const {
-		//return( cm_[dir]( i, off ) );
-	//}
+    x.exchange( m );
 
-	const std::string getLabel() const { return( "InterpolateV2S" ); };
+    if( X==m ) {
+      for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+        for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+          for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+            if( Add::N==add ) y(i,j,k) = 0.;
+            for( Ordinal ii=c_[m].bl(); ii<=c_[m].bu(); ++ii )
+              y(i,j,k) += getC( m, i, ii )*x(i+ii,j,k);
+          }
+    }
+
+    if( Y==m ) {
+      for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+        for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+          for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+            if( Add::N==add ) y(i,j,k) = 0.;
+            for( Ordinal jj=c_[m].bl(); jj<=c_[m].bu(); ++jj )
+              y(i,j,k) += getC( m, j, jj )*x(i,j+jj,k);
+          }
+    }
+
+    if( Z==m ) {
+      for( Ordinal k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+        for( Ordinal j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+          for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+            if( Add::N==add ) y(i,j,k) = 0.;
+            for( Ordinal kk=c_[m].bl(); kk<=c_[m].bu(); ++kk )
+              y(i,j,k) += getC( m, k, kk )*x(i,j,k+kk);
+          }
+    }
+
+    y.changed();
+  }
+
+
+  void assignField( const RangeFieldT& mv ) {};
+
+  bool hasApplyTranspose() const {
+    return( false );
+  }
+
+  void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
+  void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
+    for( int dir=0; dir<sdim; ++dir ) {
+      out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
+      c_[dir].print( out );
+    }
+  }
+
+  constexpr const Scalar* getC( const int& dir ) const  {
+    return( c_[dir].get() );
+  }
+  //constexpr const Scalar* getCM( const int& dir ) const  {
+  //return( cm_[dir].get() );
+  //}
+  constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const {
+    return( c_[dir]( i, off ) );
+  }
+  //constexpr const Scalar& getCM( const int& dir, Ordinal i, Ordinal off ) const {
+  //return( cm_[dir]( i, off ) );
+  //}
+
+  const std::string getLabel() const {
+    return( "InterpolateV2S" );
+  };
 
 };
 
@@ -183,22 +187,22 @@ public:
 /// \relates InterpolateV2S
 template< class S, class O, int sd,int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
-		const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
-		const Teuchos::RCP<const GridSizeLocal<O,sd,d> >& gridSizeLocal,
-		const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
-		const Teuchos::RCP<const DomainSize<S,sd> >& domainSize,
-		const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
-		const Teuchos::RCP<const CoordinatesLocal<S,O,d,dimNC> >& coordinatesLocal ) {
+  const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
+  const Teuchos::RCP<const GridSizeLocal<O,sd,d> >& gridSizeLocal,
+  const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
+  const Teuchos::RCP<const DomainSize<S,sd> >& domainSize,
+  const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
+  const Teuchos::RCP<const CoordinatesLocal<S,O,d,dimNC> >& coordinatesLocal ) {
 
-	return(
-			Teuchos::rcp(
-				new InterpolateV2S<S,O,sd,d,dimNC>(
-					iS,
-					gridSizeLocal,
-					stencilWidths,
-					domainSize,
-					boundaryConditionsLocal,
-					coordinatesLocal ) ) );
+  return(
+          Teuchos::rcp(
+            new InterpolateV2S<S,O,sd,d,dimNC>(
+              iS,
+              gridSizeLocal,
+              stencilWidths,
+              domainSize,
+              boundaryConditionsLocal,
+              coordinatesLocal ) ) );
 }
 
 
@@ -206,9 +210,9 @@ Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
 /// \relates InterpolateV2S
 template< class S, class O, int sd, int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
-		const Teuchos::RCP<const Space<S,O,sd,d,dimNC> >& space ) {
+  const Teuchos::RCP<const Space<S,O,sd,d,dimNC> >& space ) {
 
-	return( space->getInterpolateV2S() );
+  return( space->getInterpolateV2S() );
 }
 
 

@@ -35,18 +35,18 @@ protected:
 
 public:
 
-	MultiOpWrap( const Teuchos::RCP<const SpaceT>& space ):
-		op_( Teuchos::rcp( new OperatorT(space) ) ) {}
+  MultiOpWrap( const Teuchos::RCP<const SpaceT>& space ):
+    op_( Teuchos::rcp( new OperatorT(space) ) ) {}
 
-	MultiOpWrap( const Teuchos::RCP<OperatorT>& op ):op_(op) {}
+  MultiOpWrap( const Teuchos::RCP<OperatorT>& op ):op_(op) {}
 
 //	template<class IOperatorT>
 //	MultiOpWrap( const Teuchos::RCP< MultiOpWrap<IOperatorT> >& op ):
 //		op_( Teuchos::rcp( new OperatorT( op->getOperatorPtr() ) ) ) {}
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-			trans=Belos::NOTRANS) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
+              trans=Belos::NOTRANS) const {
 
     assert( x.getNumberVecs()==y.getNumberVecs() );
 
@@ -61,17 +61,25 @@ public:
   };
 
 
-  bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
+  bool hasApplyTranspose() const {
+    return( op_->hasApplyTranspose() );
+  }
 
-  Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
+  Teuchos::RCP<OperatorT> getOperatorPtr() {
+    return( op_ );
+  }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( op_->space() ); };
+  constexpr const Teuchos::RCP<const SpaceT>& space() const {
+    return( op_->space() );
+  };
 
-	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		op_->setParameter( para );
-	}
+  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+    op_->setParameter( para );
+  }
 
-	const std::string getLabel() const { return( op_->getLabel()  ); };
+  const std::string getLabel() const {
+    return( op_->getLabel()  );
+  };
 
   void print( std::ostream& out=std::cout ) const {
     op_->print( out );
@@ -86,7 +94,7 @@ public:
 template<class OperatorT>
 Teuchos::RCP< MultiOpWrap<OperatorT> > createMultiOpWrap( const Teuchos::RCP<OperatorT>& op ) {
 
-	return( Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) ) );
+  return( Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) ) );
 }
 
 

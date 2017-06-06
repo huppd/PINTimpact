@@ -44,23 +44,27 @@ protected:
 
 public:
 
-	MGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces ):
-		mgSpaces_(mgSpaces),
-		fField_( mgSpaces_->get() ),
-		cFields_() {
+  MGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces ):
+    mgSpaces_(mgSpaces),
+    fField_( mgSpaces_->get() ),
+    cFields_() {
 
-			for( int i=0; i<mgSpaces_->getNGrids(); ++i )
-				//			if( 0==i || mgSpaces_->participating(i-1) )
-				cFields_.push_back( CFieldT( mgSpaces_->get(i) ) );
+    for( int i=0; i<mgSpaces_->getNGrids(); ++i )
+      //			if( 0==i || mgSpaces_->participating(i-1) )
+      cFields_.push_back( CFieldT( mgSpaces_->get(i) ) );
 
-			// not working on brutus
-			//cFields_.shrink_to_fit();
-	}
+    // not working on brutus
+    //cFields_.shrink_to_fit();
+  }
 
 public:
 
-  constexpr const FFieldT& get() { return( fField_ ); }
-  FFieldT& get() { return( fField_ ); }
+  constexpr const FFieldT& get() {
+    return( fField_ );
+  }
+  FFieldT& get() {
+    return( fField_ );
+  }
 
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
   constexpr const CFieldT& get( int i ) const {
@@ -69,13 +73,13 @@ public:
     else
       return( cFields_[i] );
   }
-	
+
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
-	CFieldT& get( int i )  {
-		if( i<0 )
-			return( cFields_[mgSpaces_->getNGrids()+i] );
-		else
-			return( cFields_[i] );
+  CFieldT& get( int i )  {
+    if( i<0 )
+      return( cFields_[mgSpaces_->getNGrids()+i] );
+    else
+      return( cFields_[i] );
   }
 
 
@@ -92,7 +96,7 @@ template< template<class> class FieldT, class MGSpacesT >
 Teuchos::RCP< MGFields<MGSpacesT,FieldT> >
 createMGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
 
-	return( Teuchos::rcp( new MGFields<MGSpacesT,FieldT>( mgSpaces ) ) );
+  return( Teuchos::rcp( new MGFields<MGSpacesT,FieldT>( mgSpaces ) ) );
 }
 
 

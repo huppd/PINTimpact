@@ -37,17 +37,17 @@ protected:
 
 public:
 
-	TimeOpWrap( const Teuchos::RCP<const SpaceT>& space ):
-		op_( create<OperatorT>(space) ) {};
+  TimeOpWrap( const Teuchos::RCP<const SpaceT>& space ):
+    op_( create<OperatorT>(space) ) {};
 
-	TimeOpWrap( const Teuchos::RCP<OperatorT>& op ): op_(op) {};
+  TimeOpWrap( const Teuchos::RCP<OperatorT>& op ): op_(op) {};
 
   /// \brief default apply
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
     if( true==CNyes ) {
 
-			typename OperatorT::RangeFieldT temp( space() );
+      typename OperatorT::RangeFieldT temp( space() );
 
       x.exchange();
       for( int i=0; i <=space()->ei(F::S,3); ++i ) {
@@ -60,8 +60,7 @@ public:
         if( i+1<=space()->ei(F::S,3) )
           y(i+1).add( 0., y(i+1), 0.5, temp );
       }
-    }
-    else{
+    } else {
       for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
         op_->apply( x(i) , y(i), add );
     }
@@ -70,20 +69,28 @@ public:
 
   void assignField( const DomainFieldT& mv ) {};
 
-  bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
+  bool hasApplyTranspose() const {
+    return( op_->hasApplyTranspose() );
+  }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
+  constexpr const Teuchos::RCP<const SpaceT>& space() const {
+    return(op_->space());
+  };
 
-  Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
-	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		op_->setParameter( para );
-	}
+  Teuchos::RCP<OperatorT> getOperatorPtr() {
+    return( op_ );
+  }
+  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+    op_->setParameter( para );
+  }
 
   void print( std::ostream& out=std::cout ) const {
-		op_->print(out);
-	}
+    op_->print(out);
+  }
 
-	const std::string getLabel() const { return( "TimeOpWrap (" ); };
+  const std::string getLabel() const {
+    return( "TimeOpWrap (" );
+  };
 
 }; // end of class TimeOpWrap
 
@@ -92,9 +99,9 @@ public:
 /// \relates TimeOpWrap
 template< class OpT, bool CNY=false >
 Teuchos::RCP< TimeOpWrap<OpT,CNY> > createTimeOpWrap(
-		const Teuchos::RCP<OpT>& op ) {
+  const Teuchos::RCP<OpT>& op ) {
 
-	return( Teuchos::rcp( new TimeOpWrap<OpT,CNY>( op ) ) );
+  return( Teuchos::rcp( new TimeOpWrap<OpT,CNY>( op ) ) );
 }
 
 

@@ -28,13 +28,13 @@ class Group : public virtual NOX::Abstract::Group {
 
 public:
 
-	using FieldT = typename Interface::FieldT;
-	using VectorT = NOX::Pimpact::Vector<FieldT>;
+  using FieldT = typename Interface::FieldT;
+  using VectorT = NOX::Pimpact::Vector<FieldT>;
 
 protected:
 
-	/// Printing Utilities object
-	const NOX::Utils utils;
+  /// Printing Utilities object
+  const NOX::Utils utils;
 
   /// @name Vectors
   //@{
@@ -86,104 +86,104 @@ protected:
   /// @name Shared Operators
   //@{
   /// Pointer to shared Interface
-	Teuchos::RCP< NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >
-		> sharedInterfacePtr;
+  Teuchos::RCP< NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >
+  > sharedInterfacePtr;
 
   /// Reference to shared Interface
-	NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >&
-		sharedInterface;
+  NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >&
+  sharedInterface;
 
   //@}
 
   // Internal flag to disable linear resid computation. False unless set.
   bool linearResidCompDisabled;
 
-	Teuchos::RCP<Teuchos::Time> noxCompF_;
-	Teuchos::RCP<Teuchos::Time> noxUpdateX_;
-	Teuchos::RCP<Teuchos::Time> noxCompdx_;
-	Teuchos::RCP<Teuchos::Time> noxAssign_;
+  Teuchos::RCP<Teuchos::Time> noxCompF_;
+  Teuchos::RCP<Teuchos::Time> noxUpdateX_;
+  Teuchos::RCP<Teuchos::Time> noxCompdx_;
+  Teuchos::RCP<Teuchos::Time> noxAssign_;
 
 public:
 
-	/// \brief Constructor with NO linear system.
-	///
-	/// \warning: If this constructor is used, then methods that require
-	/// a Jacobian or preconditioning will not be available.  You will be
-	/// limited to simple algorithms like nonlinear-CG with no
-	/// preconditioning.
-	Group(
-			Teuchos::ParameterList& printingParams,
-			const Teuchos::RCP<Interface>& i,
-			const VectorT& x):
-		utils(printingParams),
-		xVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(DeepCopy))),
-		xVector(*xVectorPtr),
-		RHSVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(ShapeCopy))),
-		RHSVector(*RHSVectorPtr),
-		gradVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(ShapeCopy))),
-		gradVector(*gradVectorPtr),
-		NewtonVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(ShapeCopy))),
-		NewtonVector(*NewtonVectorPtr),
-		normNewtonSolveResidual(0),
-		conditionNumber(0.0),
-		sharedInterfacePtr(Teuchos::rcp(new NOX::SharedObject<Interface, NOX::Pimpact::Group<Interface> >(i))),
-		sharedInterface(*sharedInterfacePtr),
-		linearResidCompDisabled(false),
-		noxCompF_( Teuchos::TimeMonitor::getNewCounter("NOX: compute F") ),
-		noxUpdateX_( Teuchos::TimeMonitor::getNewCounter("NOX: update X") ),
-		noxCompdx_( Teuchos::TimeMonitor::getNewCounter("NOX: solve dx") ),
-		noxAssign_( Teuchos::TimeMonitor::getNewCounter("NOX: assign DF") ) {
+  /// \brief Constructor with NO linear system.
+  ///
+  /// \warning: If this constructor is used, then methods that require
+  /// a Jacobian or preconditioning will not be available.  You will be
+  /// limited to simple algorithms like nonlinear-CG with no
+  /// preconditioning.
+  Group(
+    Teuchos::ParameterList& printingParams,
+    const Teuchos::RCP<Interface>& i,
+    const VectorT& x):
+    utils(printingParams),
+    xVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(DeepCopy))),
+    xVector(*xVectorPtr),
+    RHSVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(ShapeCopy))),
+    RHSVector(*RHSVectorPtr),
+    gradVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(ShapeCopy))),
+    gradVector(*gradVectorPtr),
+    NewtonVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(ShapeCopy))),
+    NewtonVector(*NewtonVectorPtr),
+    normNewtonSolveResidual(0),
+    conditionNumber(0.0),
+    sharedInterfacePtr(Teuchos::rcp(new NOX::SharedObject<Interface, NOX::Pimpact::Group<Interface> >(i))),
+    sharedInterface(*sharedInterfacePtr),
+    linearResidCompDisabled(false),
+    noxCompF_( Teuchos::TimeMonitor::getNewCounter("NOX: compute F") ),
+    noxUpdateX_( Teuchos::TimeMonitor::getNewCounter("NOX: update X") ),
+    noxCompdx_( Teuchos::TimeMonitor::getNewCounter("NOX: solve dx") ),
+    noxAssign_( Teuchos::TimeMonitor::getNewCounter("NOX: assign DF") ) {
 
-			// Set all isValid flags to false
-			resetIsValid();
-	}
+    // Set all isValid flags to false
+    resetIsValid();
+  }
 
 
-	/// \brief Copy constructor. If type is DeepCopy, takes ownership of valid
-	/// shared linear system.
-	Group( const NOX::Pimpact::Group<Interface>& source, NOX::CopyType type = NOX::DeepCopy ):
-		utils(source.utils),
-		xVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.xVector.clone(type))),
-		xVector(*xVectorPtr),
-		RHSVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.RHSVector.clone(type))),
-		RHSVector(*RHSVectorPtr),
-		gradVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.gradVector.clone(type))),
-		gradVector(*gradVectorPtr),
-		NewtonVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.NewtonVector.clone(type))),
-		NewtonVector(*NewtonVectorPtr),
-		sharedInterfacePtr( source.sharedInterfacePtr ),
-		sharedInterface(*sharedInterfacePtr),
-		linearResidCompDisabled(source.linearResidCompDisabled),
-		noxCompF_( Teuchos::TimeMonitor::getNewCounter("NOX: compute F") ),
-		noxUpdateX_( Teuchos::TimeMonitor::getNewCounter("NOX: update X") ),
-		noxCompdx_( Teuchos::TimeMonitor::getNewCounter("NOX: solve dx") ),
-		noxAssign_( Teuchos::TimeMonitor::getNewCounter("NOX: assign DF") ) {
+  /// \brief Copy constructor. If type is DeepCopy, takes ownership of valid
+  /// shared linear system.
+  Group( const NOX::Pimpact::Group<Interface>& source, NOX::CopyType type = NOX::DeepCopy ):
+    utils(source.utils),
+    xVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.xVector.clone(type))),
+    xVector(*xVectorPtr),
+    RHSVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.RHSVector.clone(type))),
+    RHSVector(*RHSVectorPtr),
+    gradVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.gradVector.clone(type))),
+    gradVector(*gradVectorPtr),
+    NewtonVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.NewtonVector.clone(type))),
+    NewtonVector(*NewtonVectorPtr),
+    sharedInterfacePtr( source.sharedInterfacePtr ),
+    sharedInterface(*sharedInterfacePtr),
+    linearResidCompDisabled(source.linearResidCompDisabled),
+    noxCompF_( Teuchos::TimeMonitor::getNewCounter("NOX: compute F") ),
+    noxUpdateX_( Teuchos::TimeMonitor::getNewCounter("NOX: update X") ),
+    noxCompdx_( Teuchos::TimeMonitor::getNewCounter("NOX: solve dx") ),
+    noxAssign_( Teuchos::TimeMonitor::getNewCounter("NOX: assign DF") ) {
 
-			switch (type) {
-				case DeepCopy:
-					isValidRHS = source.isValidRHS;
-					isValidJacobian = source.isValidJacobian;
-					isValidGrad = source.isValidGrad;
-					isValidNewton = source.isValidNewton;
-					isValidNormNewtonSolveResidual = source.isValidNormNewtonSolveResidual;
-					isValidConditionNumber = source.isValidConditionNumber;
-					normNewtonSolveResidual = source.normNewtonSolveResidual;
-					conditionNumber = source.conditionNumber;
-					isValidPreconditioner = source.isValidPreconditioner;
-					isValidSolverJacOp = source.isValidSolverJacOp;
+    switch (type) {
+    case DeepCopy:
+      isValidRHS = source.isValidRHS;
+      isValidJacobian = source.isValidJacobian;
+      isValidGrad = source.isValidGrad;
+      isValidNewton = source.isValidNewton;
+      isValidNormNewtonSolveResidual = source.isValidNormNewtonSolveResidual;
+      isValidConditionNumber = source.isValidConditionNumber;
+      normNewtonSolveResidual = source.normNewtonSolveResidual;
+      conditionNumber = source.conditionNumber;
+      isValidPreconditioner = source.isValidPreconditioner;
+      isValidSolverJacOp = source.isValidSolverJacOp;
 
-					// New copy takes ownership of the shared Jacobian for DeepCopy
-					if (isValidJacobian)
-						sharedInterface.getObject(this);
-					break;
-				case ShapeCopy:
-					resetIsValid();
-					break;
-				default:
-					std::cerr << "ERROR: Invalid ConstructorType for group copy constructor." << std::endl;
-					throw "NOX Error";
-			}
-		}
+      // New copy takes ownership of the shared Jacobian for DeepCopy
+      if (isValidJacobian)
+        sharedInterface.getObject(this);
+      break;
+    case ShapeCopy:
+      resetIsValid();
+      break;
+    default:
+      std::cerr << "ERROR: Invalid ConstructorType for group copy constructor." << std::endl;
+      throw "NOX Error";
+    }
+  }
 
 
   /// Destructor.
@@ -235,10 +235,10 @@ public:
 
     linearResidCompDisabled = source.linearResidCompDisabled;
 
-		noxCompF_   = source.noxCompF_  ;
-		noxUpdateX_ = source.noxUpdateX_;
-		noxCompdx_  = source.noxCompdx_ ;
-		noxAssign_  = source.noxAssign_ ;
+    noxCompF_   = source.noxCompF_  ;
+    noxUpdateX_ = source.noxUpdateX_;
+    noxCompdx_  = source.noxCompdx_ ;
+    noxAssign_  = source.noxAssign_ ;
 
     return( *this );
   }
@@ -262,8 +262,8 @@ public:
 
 
   virtual void computeX( const Group& grp,
-      const VectorT& d,
-      double step ) {
+                         const VectorT& d,
+                         double step ) {
     //    if( isPreconditioner() )
     //      sharedLinearSystem.getObject(this)->destroyPreconditioner();
     resetIsValid();
@@ -271,10 +271,10 @@ public:
     return;
   }
   virtual void computeX( const NOX::Abstract::Group& grp,
-      const NOX::Abstract::Vector& d,
-      double step ) {
+                         const NOX::Abstract::Vector& d,
+                         double step ) {
 
-		Teuchos::TimeMonitor bla(*noxUpdateX_);
+    Teuchos::TimeMonitor bla(*noxUpdateX_);
 
     // Cast to appropriate type, then call the "native" computeX
     const Group& pimpgrp = dynamic_cast<const Group&>( grp );
@@ -287,7 +287,7 @@ public:
 
   virtual NOX::Abstract::Group::ReturnType computeF() {
 
-		Teuchos::TimeMonitor bla(*noxCompF_);
+    Teuchos::TimeMonitor bla(*noxCompF_);
 
     if( isF() )
       return( Abstract::Group::Ok );
@@ -298,7 +298,7 @@ public:
 
     if (status != Abstract::Group::Ok ) {
       std::cout << "ERROR: Pimpact::Group::computeF() - fill failed!!!"
-          << std::endl;
+                << std::endl;
       throw "NOX Error: Fill Failed";
     }
 
@@ -310,7 +310,7 @@ public:
 
   virtual NOX::Abstract::Group::ReturnType computeJacobian() {
 
-		Teuchos::TimeMonitor bla(*noxAssign_);
+    Teuchos::TimeMonitor bla(*noxAssign_);
 
     // Skip if the Jacobian is already valid
     if (isJacobian())
@@ -322,7 +322,7 @@ public:
 
     if (status != NOX::Abstract::Group::Ok) {
       std::cout << "ERROR: NOX::Pimpact::Group::computeJacobian() - fill failed!!!"
-          << std::endl;
+                << std::endl;
       throw "NOX Error: Fill Failed";
     }
     // Update status of Jacobian wrt solution vector
@@ -362,7 +362,7 @@ public:
 
   virtual NOX::Abstract::Group::ReturnType computeNewton( Teuchos::ParameterList& params ) {
 
-		Teuchos::TimeMonitor bla( *noxCompdx_ );
+    Teuchos::TimeMonitor bla( *noxCompdx_ );
 
     if (isNewton())
       return( Abstract::Group::Ok );
@@ -465,7 +465,7 @@ public:
   /// <li> NOX::Abstract::Group::NotDefined - Returned by default implementation
   /// in NOX::Abstract::Group
   /// <li> NOX::Abstract::Group::BadDependency - If \f$J\f$ has not been computed
-	/// <li> NOX::Abstract::Group::NotConverged - If the linear solve fails to satisfy the "Tolerance"
+  /// <li> NOX::Abstract::Group::NotConverged - If the linear solve fails to satisfy the "Tolerance"
   /// specified in \c params
   /// <li> NOX::Abstract::Group::Failed - If the computation fails
   /// <li> NOX::Abstract::Group::Ok - Otherwise
@@ -519,10 +519,10 @@ public:
 
   virtual NOX::Abstract::Group::ReturnType
   applyRightPreconditioning(
-			bool useTranspose,
-			Teuchos::ParameterList& params,
-			const VectorT& input,
-			VectorT& result ) const {
+    bool useTranspose,
+    Teuchos::ParameterList& params,
+    const VectorT& input,
+    VectorT& result ) const {
 
     //    params.print();
     //    std::cout << "Call applyRightPrecon.... !!!!!!\n";
@@ -532,9 +532,9 @@ public:
 
   virtual NOX::Abstract::Group::ReturnType
   applyRightPreconditioning(bool useTranspose,
-      Teuchos::ParameterList& params,
-      const NOX::Abstract::Vector& input,
-      NOX::Abstract::Vector& result) const {
+                            Teuchos::ParameterList& params,
+                            const NOX::Abstract::Vector& input,
+                            NOX::Abstract::Vector& result) const {
     //    return( Abstract::Group::NotDefined );
     const VectorT& pimpInput = dynamic_cast<const VectorT&>(input);
     VectorT& pimpResult = dynamic_cast<VectorT&>(result);
@@ -551,10 +551,18 @@ public:
   /// computeX).
   //@{
 
-  virtual bool isF() const { return( isValidRHS ); }
-  virtual bool isJacobian() const { return( ((sharedInterface.isOwner(this)) && (isValidJacobian)) ); }
-  virtual bool isGradient() const { return( isValidGrad ); }
-  virtual bool isNewton() const { return( isValidNewton ); }
+  virtual bool isF() const {
+    return( isValidRHS );
+  }
+  virtual bool isJacobian() const {
+    return( ((sharedInterface.isOwner(this)) && (isValidJacobian)) );
+  }
+  virtual bool isGradient() const {
+    return( isValidGrad );
+  }
+  virtual bool isNewton() const {
+    return( isValidNewton );
+  }
 
 
   /// \brief Returns true if the value of the Norm of the linear model.
@@ -634,10 +642,18 @@ public:
   }
 
 
-  inline virtual Teuchos::RCP< const NOX::Abstract::Vector > getXPtr() const {return( xVectorPtr );};
-  inline virtual Teuchos::RCP< const NOX::Abstract::Vector > getFPtr() const {return( RHSVectorPtr );};
-  inline virtual Teuchos::RCP< const NOX::Abstract::Vector > getGradientPtr() const {return( gradVectorPtr );};
-  inline virtual Teuchos::RCP< const NOX::Abstract::Vector > getNewtonPtr() const {return( NewtonVectorPtr );};
+  inline virtual Teuchos::RCP< const NOX::Abstract::Vector > getXPtr() const {
+    return( xVectorPtr );
+  };
+  inline virtual Teuchos::RCP< const NOX::Abstract::Vector > getFPtr() const {
+    return( RHSVectorPtr );
+  };
+  inline virtual Teuchos::RCP< const NOX::Abstract::Vector > getGradientPtr() const {
+    return( gradVectorPtr );
+  };
+  inline virtual Teuchos::RCP< const NOX::Abstract::Vector > getNewtonPtr() const {
+    return( NewtonVectorPtr );
+  };
 
 
   /// \brief Returns the 2-norm of the residual of the linear model used in the.
@@ -655,8 +671,8 @@ public:
     // wrt this solution group
     if( utils.isPrintType(Utils::Warning) ) {
       std::cout << "ERROR: NOX::Epetra::Group::getNormLastLinearSolveResidual() - "
-          << "Group has not performed a Newton solve corresponding to this "
-          << "solution vector, or disableLinearSolveResidual(true) was set!" << std::endl;
+                << "Group has not performed a Newton solve corresponding to this "
+                << "solution vector, or disableLinearSolveResidual(true) was set!" << std::endl;
     }
     return( NOX::Abstract::Group::BadDependency );
   }
@@ -667,7 +683,7 @@ public:
   virtual Teuchos::RCP<NOX::Abstract::Group>
   clone(CopyType type = DeepCopy) const {
     Teuchos::RCP<NOX::Abstract::Group> newgrp =
-        Teuchos::rcp( new NOX::Pimpact::Group<Interface>( *this, type ) );
+      Teuchos::rcp( new NOX::Pimpact::Group<Interface>( *this, type ) );
     return( newgrp );
   }
 
@@ -800,9 +816,9 @@ protected:
 /// \relates Group
 template< class Interface >
 Teuchos::RCP<NOX::Pimpact::Group<Interface> > createGroup(
-    const Teuchos::RCP<Teuchos::ParameterList>& list,
-    const Teuchos::RCP<Interface>& i,
-    const Teuchos::RCP<typename NOX::Pimpact::Group<Interface>::VectorT>& x ) {
+  const Teuchos::RCP<Teuchos::ParameterList>& list,
+  const Teuchos::RCP<Interface>& i,
+  const Teuchos::RCP<typename NOX::Pimpact::Group<Interface>::VectorT>& x ) {
 
   return( Teuchos::rcp( new NOX::Pimpact::Group<Interface>( *list, i, *x ) ) );
 }
@@ -815,40 +831,40 @@ Teuchos::RCP<NOX::Pimpact::Group<Interface> > createGroup(
 #ifdef COMPILE_ETI
 #include "NOX_Pimpact_Interface.hpp"
 extern template class NOX::Pimpact::Group<
-	NOX::Pimpact::Interface<
-		Pimpact::MultiField<
-			Pimpact::VectorField<Pimpact::Space<double,int,3,2> >
-		>
-	>
->; 
+  NOX::Pimpact::Interface<
+    Pimpact::MultiField<
+      Pimpact::VectorField<Pimpact::Space<double,int,3,2> >
+      >
+    >
+  >;
 extern template class NOX::Pimpact::Group<
-	NOX::Pimpact::Interface<
-		Pimpact::CompoundField<
-			Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > > >,
-			Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > >
-		>
-	>
->; 
+  NOX::Pimpact::Interface<
+    Pimpact::CompoundField<
+      Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > > >,
+      Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > >
+      >
+    >
+  >;
 extern template class NOX::Pimpact::Group<
-	NOX::Pimpact::Interface<
-		Pimpact::MultiField<
-			Pimpact::CompoundField<
-				Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > >,
-				Pimpact::MultiHarmonicField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > 
-			>
-		>
-	>
->; 
+  NOX::Pimpact::Interface<
+    Pimpact::MultiField<
+      Pimpact::CompoundField<
+        Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > >,
+        Pimpact::MultiHarmonicField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > >
+        >
+      >
+    >
+  >;
 extern template class NOX::Pimpact::Group<
-	NOX::Pimpact::Interface<
-		Pimpact::MultiField<
-			Pimpact::CompoundField<
-				Pimpact::TimeField<Pimpact::VectorField<Pimpact::Space<double,int,4,4> > >,
-				Pimpact::TimeField<Pimpact::ScalarField<Pimpact::Space<double,int,4,4> > > 
-			>
-		>
-	>
->; 
+  NOX::Pimpact::Interface<
+    Pimpact::MultiField<
+      Pimpact::CompoundField<
+        Pimpact::TimeField<Pimpact::VectorField<Pimpact::Space<double,int,4,4> > >,
+        Pimpact::TimeField<Pimpact::ScalarField<Pimpact::Space<double,int,4,4> > >
+        >
+      >
+    >
+  >;
 #endif
 
 #endif // end of #ifndef NOX_PIMPACT_GROUP_HPP

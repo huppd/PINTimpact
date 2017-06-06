@@ -39,20 +39,19 @@ protected:
 public:
 
   CompositionOp(
-      const Teuchos::RCP<OP1>& op1,
-      const Teuchos::RCP<OP2>& op2 ):
-        op1_(op1),
-				op2_(op2) {};
+    const Teuchos::RCP<OP1>& op1,
+    const Teuchos::RCP<OP2>& op2 ):
+    op1_(op1),
+    op2_(op2) {};
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-			trans=Belos::NOTRANS ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
+              trans=Belos::NOTRANS ) const {
 
-		TempFieldT temp( space() );
+    TempFieldT temp( space() );
 
     if( op1_.is_null() ) {
 //      op2_->apply( x, y );
-    }
-    else {
+    } else {
       op2_->apply( x, temp );
       op1_->apply( temp, y );
     }
@@ -61,25 +60,31 @@ public:
   void assignField( const DomainFieldT& field ) {
     if( !op1_.is_null() )
 //      op1_->assignField( field );
-    if( !op2_.is_null() )
-      op2_->assignField( field );
+      if( !op2_.is_null() )
+        op2_->assignField( field );
   };
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op1_->space()); };
+  constexpr const Teuchos::RCP<const SpaceT>& space() const {
+    return(op1_->space());
+  };
 
-	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
     if( !op1_.is_null() ) op1_->setParameter( para );
     if( !op2_.is_null() ) op2_->setParameter( para );
-	}
+  }
 
-  bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() /*&& op3_->hasApplyTranspose()*/ ); }
+  bool hasApplyTranspose() const {
+    return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() /*&& op3_->hasApplyTranspose()*/ );
+  }
 
-	const std::string getLabel() const { return( op1_->getLabel() + std::string("*") + op2_->getLabel() ); };
+  const std::string getLabel() const {
+    return( op1_->getLabel() + std::string("*") + op2_->getLabel() );
+  };
 
   void print( std::ostream& out=std::cout ) const {
-		out << getLabel() << ":\n";
-		op1_->print( out );
-		op2_->print( out );
+    out << getLabel() << ":\n";
+    op1_->print( out );
+    op2_->print( out );
   }
 
 }; // end of class CompositionOp
@@ -89,9 +94,9 @@ public:
 /// \relates CompositionOp
 template<class OP1, class OP2>
 Teuchos::RCP< CompositionOp<OP1, OP2> > createCompositionOp(
-    const Teuchos::RCP<OP1>& op1=Teuchos::null,
-    const Teuchos::RCP<OP2>& op2=Teuchos::null
-      ) {
+  const Teuchos::RCP<OP1>& op1=Teuchos::null,
+  const Teuchos::RCP<OP2>& op2=Teuchos::null
+) {
   return( Teuchos::rcp( new CompositionOp<OP1,OP2>( op1, op2 ) ) );
 }
 

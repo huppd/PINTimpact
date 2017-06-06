@@ -9,7 +9,7 @@
 
 
 
-namespace Pimpact{
+namespace Pimpact {
 
 
 /// \brief Transfers fields from "coarse" to "fine" spaces, necessary when \c Space::dimNC is  different.
@@ -47,25 +47,25 @@ protected:
 public:
 
   TransferOp(
-      const Teuchos::RCP<const FSpaceT>& fSpace,
-      const Teuchos::RCP<const CSpaceT>& cSpace ):
-        fSpace_(fSpace),cSpace_(cSpace) {}
+    const Teuchos::RCP<const FSpaceT>& fSpace,
+    const Teuchos::RCP<const CSpaceT>& cSpace ):
+    fSpace_(fSpace),cSpace_(cSpace) {}
 
 
   template< class SP1T, class SP2T>
   void apply( const ScalarField<SP1T>& x, ScalarField<SP2T>& y ) const {
 
-		const F& fType = x.getType();
+    const F& fType = x.getType();
 
     assert( fType == y.getType() );
 
     for( int i=0; i<SpaceT::sdim; ++i )
       assert( x.space()->nLoc(i) == y.space()->nLoc(i) );
 
-		for( Ordinal k=x.space()->si(fType,Z,B::Y); k<=x.space()->ei(fType,Z,B::Y); ++k )
-			for( Ordinal j=x.space()->si(fType,Y,B::Y); j<=x.space()->ei(fType,Y,B::Y); ++j )
-				for( Ordinal i=x.space()->si(fType,X,B::Y); i<=x.space()->ei(fType,X,B::Y); ++i )
-					y(i,j,k) = x(i,j,k);
+    for( Ordinal k=x.space()->si(fType,Z,B::Y); k<=x.space()->ei(fType,Z,B::Y); ++k )
+      for( Ordinal j=x.space()->si(fType,Y,B::Y); j<=x.space()->ei(fType,Y,B::Y); ++j )
+        for( Ordinal i=x.space()->si(fType,X,B::Y); i<=x.space()->ei(fType,X,B::Y); ++i )
+          y(i,j,k) = x(i,j,k);
 
     y.changed();
   }
@@ -73,15 +73,19 @@ public:
 
   void assignField( const RangeFieldT& mv ) {};
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+  void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  bool hasApplyTranspose() const { return( false ); }
+  bool hasApplyTranspose() const {
+    return( false );
+  }
 
-  void print( std::ostream& out=std::cout ) const { 
+  void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
-	}
+  }
 
-	const std::string getLabel() const { return( "TransferOp" ); };
+  const std::string getLabel() const {
+    return( "TransferOp" );
+  };
 
 }; // end of class TransferOp
 

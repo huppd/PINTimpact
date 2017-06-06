@@ -65,243 +65,241 @@ using NV = NOX::Pimpact::Vector<MF>;
 
 
 template<class T> using FT =
-Pimpact::CompoundField<
-Pimpact::MultiHarmonicField< Pimpact::VectorField<T> >,
-	Pimpact::MultiHarmonicField< Pimpact::ScalarField<T> > >;
+  Pimpact::CompoundField<
+  Pimpact::MultiHarmonicField< Pimpact::VectorField<T> >,
+  Pimpact::MultiHarmonicField< Pimpact::ScalarField<T> > >;
 
 template<class T1,class T2>
 using TransF = Pimpact::TransferCompoundOp<
-Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::TransferOp<T1,T2>  >  >,
-	Pimpact::TransferMultiHarmonicOp<                             Pimpact::TransferOp<T1,T2>  >  >;
+               Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::TransferOp<T1,T2>  >  >,
+               Pimpact::TransferMultiHarmonicOp<                             Pimpact::TransferOp<T1,T2>  >  >;
 
 
-template<class T>     
+template<class T>
 using RestrF = Pimpact::TransferCompoundOp<
-Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::RestrictionVFOp<T> > >,
-	Pimpact::TransferMultiHarmonicOp<                             Pimpact::RestrictionSFOp<T> > >;
+               Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::RestrictionVFOp<T> > >,
+               Pimpact::TransferMultiHarmonicOp<                             Pimpact::RestrictionSFOp<T> > >;
 
 
-template<class T> 
+template<class T>
 using InterF = Pimpact::TransferCompoundOp<
-Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<T> > >,
-	Pimpact::TransferMultiHarmonicOp<                             Pimpact::InterpolationOp<T> > >;
+               Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<T> > >,
+               Pimpact::TransferMultiHarmonicOp<                             Pimpact::InterpolationOp<T> > >;
 
 
 template<class T> using DTConvDiffOpT =
-Pimpact::CompoundOpWrap<
-Pimpact::MultiDtConvectionDiffusionOp<T>,
-	Pimpact::MultiHarmonicOpWrap< Pimpact::GradOp<T> >,
-	Pimpact::MultiHarmonicOpWrap< Pimpact::DivOp<T > > >;
+  Pimpact::CompoundOpWrap<
+  Pimpact::MultiDtConvectionDiffusionOp<T>,
+  Pimpact::MultiHarmonicOpWrap< Pimpact::GradOp<T> >,
+  Pimpact::MultiHarmonicOpWrap< Pimpact::DivOp<T > > >;
 
 template<class T> using MOP = Pimpact::InverseOp< T >;
 
 template<class OpT>
 using Smoother =
-Pimpact::CompoundSmoother<
-OpT,
-	MOP,
-	//		Pimpact::MultiHarmonicOpWrap< Pimpact::DivGradO2JSmoother<Pimpact::DivGradO2Op<CSpaceT> > >//
-	Pimpact::MultiHarmonicOpWrap< MOP<Pimpact::DivGradO2Op<CSpaceT> > >//
-	>;
+  Pimpact::CompoundSmoother<
+  OpT,
+  MOP,
+  //		Pimpact::MultiHarmonicOpWrap< Pimpact::DivGradO2JSmoother<Pimpact::DivGradO2Op<CSpaceT> > >//
+  Pimpact::MultiHarmonicOpWrap< MOP<Pimpact::DivGradO2Op<CSpaceT> > >//
+  >;
 
 
-	//template<class T> using SmootherT =
-	//	Pimpact::InverseTriangularOp<
-	//
-	//		,Pimpact::MultiHarmonicOpWrap<Pimpact::GradOp<T> >,
-	//		,Pimpact::MultiHarmonicOpWrap<Pimpact::DivGradO2JSmoother<Pimpact::DivGradO2Op<T>	> > >;
-
-
-
+//template<class T> using SmootherT =
+//	Pimpact::InverseTriangularOp<
+//
+//		,Pimpact::MultiHarmonicOpWrap<Pimpact::GradOp<T> >,
+//		,Pimpact::MultiHarmonicOpWrap<Pimpact::DivGradO2JSmoother<Pimpact::DivGradO2Op<T>	> > >;
 
 
 
-	int main(int argi, char** argv ) {
 
 
-		/////////////////////////////////////////// set up parameters ///////////////////////////
-		// intialize MPI
-		MPI_Init( &argi, &argv );
 
-		Teuchos::CommandLineProcessor my_CLP;
-
-		std::string xmlFilename = "parameterSMG.xml";
-		my_CLP.setOption("filename", &xmlFilename, "file name of the input xml parameterlist");
-
-		my_CLP.recogniseAllOptions(true);
-		my_CLP.throwExceptions(true);
-
-		my_CLP.parse(argi,argv);
+int main(int argi, char** argv ) {
 
 
-		auto pl = Teuchos::getParametersFromXmlFile( xmlFilename );
-		pl->print();
+  /////////////////////////////////////////// set up parameters ///////////////////////////
+  // intialize MPI
+  MPI_Init( &argi, &argv );
 
-		/////////////////////////////////////////// end of set up parameters ///////////////////////////
+  Teuchos::CommandLineProcessor my_CLP;
 
-		///////////////////////////////////////////  set up initial stuff //////////////////////////////
+  std::string xmlFilename = "parameterSMG.xml";
+  my_CLP.setOption("filename", &xmlFilename, "file name of the input xml parameterlist");
 
-		int initZero = pl->sublist("Solver").get<int>("initZero");
+  my_CLP.recogniseAllOptions(true);
+  my_CLP.throwExceptions(true);
 
-		auto space = Pimpact::create< Pimpact::Space<S,O,3,3,4> >( Teuchos::sublist( pl, "Space", true) );
-
-		// init vectors
-		auto x = Pimpact::create<MF>( space );
-
-		// init Fields
-		x->getField(0).getVField().initField( pl->sublist("Base flow") );
-
-		if( 0==initZero )
-			x->init(0.);
-		else if( 1==initZero ) {
-			x->getField(0).getVField().random();
-			x->getField(0).getSField().init(0.);
-			x->scale(1.e-32);
-		}
-		else if( 2==initZero )
-			x->random();
-
-		////////////////////////////////////// end of set up initial stuff //////////////////////////////
-
-		/******************************************************************************************/
-		int refinement=pl->sublist("Solver").get<int>("refinement");
-		int withprec=pl->sublist("Solver").get<int>("withprec");
-
-		for( int refine=0; refine<refinement; ++refine ) {
-
-			std::string rl = "";
-			if( refinement>1 )
-				rl = std::to_string( (long long)refine ); // long long needed on brutus(intel)
-
-			auto fu   = x->clone( Pimpact::ECopy::Shallow );
-			if( 0==pl->get<int>("forcing", 1) )
-				fu->init( 0. );
-			else {
-				//			S re = space->getDomainSize()->getRe();
-				fu->getField(0).getVField().get0Field( )(Pimpact::F::U).initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
-				fu->getField(0).getVField().getCField(0)(Pimpact::F::V).initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
-				fu->getField(0).getVField().getCField(0)(Pimpact::F::W).initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );
-				//		fu->getField(0).getVField().getSField(0)(Pimpact::F::W).initField( Pimpact::FPoint, 1. );
-			}
-			//	fu->getField(0).getVField().write( 700,true );
+  my_CLP.parse(argi,argv);
 
 
-			auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
-			auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
-			auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
+  auto pl = Teuchos::getParametersFromXmlFile( xmlFilename );
+  pl->print();
 
-			auto op = Pimpact::createCompoundOpWrap(
-					opV2V,
-					opS2V,
-					opV2S );
+  /////////////////////////////////////////// end of set up parameters ///////////////////////////
 
-			pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
+  ///////////////////////////////////////////  set up initial stuff //////////////////////////////
 
-			auto opInv = Pimpact::createInverseOp( op, Teuchos::sublist( pl, "Picard Solver" ) );
+  int initZero = pl->sublist("Solver").get<int>("initZero");
 
+  auto space = Pimpact::create< Pimpact::Space<S,O,3,3,4> >( Teuchos::sublist( pl, "Space", true) );
 
-			/*** init preconditioner *******************************************************************/
-			if( withprec>0 ) {
+  // init vectors
+  auto x = Pimpact::create<MF>( space );
 
-				auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
+  // init Fields
+  x->getField(0).getVField().initField( pl->sublist("Base flow") );
 
-				auto pls = Teuchos::sublist( pl, "Multi Grid" );
+  if( 0==initZero )
+    x->init(0.);
+  else if( 1==initZero ) {
+    x->getField(0).getVField().random();
+    x->getField(0).getSField().init(0.);
+    x->scale(1.e-32);
+  } else if( 2==initZero )
+    x->random();
 
-				auto mg =
-					Pimpact::createMultiGrid<
-					FT,
-					TransF,
-					RestrF,
-					InterF,
-					DTConvDiffOpT,
-					DTConvDiffOpT,
-					//					MOP,
-					Smoother,
-					MOP > ( mgSpaces, pls ) ;
+  ////////////////////////////////////// end of set up initial stuff //////////////////////////////
 
-				mg->print();
+  /******************************************************************************************/
+  int refinement=pl->sublist("Solver").get<int>("refinement");
+  int withprec=pl->sublist("Solver").get<int>("withprec");
 
-				opInv->setRightPrec( Pimpact::createMultiOperatorBase( mg ) );
-			}
+  for( int refine=0; refine<refinement; ++refine ) {
 
-			/*** end of init preconditioner ************************************************************/
+    std::string rl = "";
+    if( refinement>1 )
+      rl = std::to_string( (long long)refine ); // long long needed on brutus(intel)
 
-			auto inter = NOX::Pimpact::createInterface( fu, Pimpact::createMultiOpWrap(op), Pimpact::createMultiOpWrap(opInv) );
-
-			auto nx = NOX::Pimpact::createVector( x );
-
-			auto bla = Teuchos::parameterList();
-
-			auto group = NOX::Pimpact::createGroup( bla, inter, nx );
-
-			// Set up the status tests
-			auto statusTest =
-				NOX::StatusTest::buildStatusTests( pl->sublist("NOX Solver").sublist("Status Test"), NOX::Utils() );
+    auto fu   = x->clone( Pimpact::ECopy::Shallow );
+    if( 0==pl->get<int>("forcing", 1) )
+      fu->init( 0. );
+    else {
+      //			S re = space->getDomainSize()->getRe();
+      fu->getField(0).getVField().get0Field( )(Pimpact::F::U).initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
+      fu->getField(0).getVField().getCField(0)(Pimpact::F::V).initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
+      fu->getField(0).getVField().getCField(0)(Pimpact::F::W).initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );
+      //		fu->getField(0).getVField().getSField(0)(Pimpact::F::W).initField( Pimpact::FPoint, 1. );
+    }
+    //	fu->getField(0).getVField().write( 700,true );
 
 
-			// Create the solver
-			Teuchos::RCP<NOX::Solver::Generic> solver =
-				NOX::Solver::buildSolver( group, statusTest, Teuchos::sublist( pl, "NOX Solver" ) );
+    auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
+    auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
+    auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-			if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
+    auto op = Pimpact::createCompoundOpWrap(
+                opV2V,
+                opS2V,
+                opV2S );
 
-			// Solve the nonlinear system
-			{
-				Teuchos::TimeMonitor LocalTimer(*Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time"));
-				try{
-					solver->solve();
-				}
-				catch( std::logic_error & e ) {
-					std::cout << e.what() << "\n";
-				}
-			}
+    pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
-			Teuchos::TimeMonitor::summarize();
+    auto opInv = Pimpact::createInverseOp( op, Teuchos::sublist( pl, "Picard Solver" ) );
 
-			// Get the answer
-			*group = solver->getSolutionGroup();
 
-			if( pl->sublist("Solver").get<int>("withoutput") ) {
-				x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-				Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write( 800 );
-				Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().write( 400, true );
-				//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstField().write(900);
-			}
+    /*** init preconditioner *******************************************************************/
+    if( withprec>0 ) {
 
-			// spectral refinement of x, fu
-			if( refinement>1 ) {
-				auto spaceF =
-					Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
-							//						space, Teuchos::tuple( false,false,false,true ) );
-					space, Teuchos::tuple(1,1,1,1) );
+      auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
-				auto refineOp =
-					Teuchos::rcp(
-							new Pimpact::TransferCompoundOp<
-							Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<SpaceT> > >,
-							Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp<SpaceT> >
-							>( space, spaceF ) );
-				//		refineOp->print();
+      auto pls = Teuchos::sublist( pl, "Multi Grid" );
 
-				auto xf = Pimpact::create<CF>( spaceF );
-				// init Fields
-				//		boundaries
-				xf->getVField().initField( pl->sublist("Base flow") );
-				auto temp = Pimpact::create<CF>( spaceF );
+      auto mg =
+        Pimpact::createMultiGrid<
+        FT,
+        TransF,
+        RestrF,
+        InterF,
+        DTConvDiffOpT,
+        DTConvDiffOpT,
+        //					MOP,
+        Smoother,
+        MOP > ( mgSpaces, pls ) ;
 
-				refineOp->apply( x->getField(0), *temp );
+      mg->print();
 
-				xf->add( 1., *temp, 0., *temp );
+      opInv->setRightPrec( Pimpact::createMultiOperatorBase( mg ) );
+    }
 
-				x = Pimpact::wrapMultiField( xf );
-				space = spaceF;
-			}
-		} 
-		/******************************************************************************************/
+    /*** end of init preconditioner ************************************************************/
 
-		Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+    auto inter = NOX::Pimpact::createInterface( fu, Pimpact::createMultiOpWrap(op), Pimpact::createMultiOpWrap(opInv) );
 
-		MPI_Finalize();
-		return( 0 );
+    auto nx = NOX::Pimpact::createVector( x );
 
-	}
+    auto bla = Teuchos::parameterList();
+
+    auto group = NOX::Pimpact::createGroup( bla, inter, nx );
+
+    // Set up the status tests
+    auto statusTest =
+      NOX::StatusTest::buildStatusTests( pl->sublist("NOX Solver").sublist("Status Test"), NOX::Utils() );
+
+
+    // Create the solver
+    Teuchos::RCP<NOX::Solver::Generic> solver =
+      NOX::Solver::buildSolver( group, statusTest, Teuchos::sublist( pl, "NOX Solver" ) );
+
+    if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
+
+    // Solve the nonlinear system
+    {
+      Teuchos::TimeMonitor LocalTimer(*Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time"));
+      try {
+        solver->solve();
+      } catch( std::logic_error & e ) {
+        std::cout << e.what() << "\n";
+      }
+    }
+
+    Teuchos::TimeMonitor::summarize();
+
+    // Get the answer
+    *group = solver->getSolutionGroup();
+
+    if( pl->sublist("Solver").get<int>("withoutput") ) {
+      x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
+      Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write( 800 );
+      Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().write( 400, true );
+      //		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstField().write(900);
+    }
+
+    // spectral refinement of x, fu
+    if( refinement>1 ) {
+      auto spaceF =
+        Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
+          //						space, Teuchos::tuple( false,false,false,true ) );
+          space, Teuchos::tuple(1,1,1,1) );
+
+      auto refineOp =
+        Teuchos::rcp(
+          new Pimpact::TransferCompoundOp<
+          Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<SpaceT> > >,
+          Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp<SpaceT> >
+          >( space, spaceF ) );
+      //		refineOp->print();
+
+      auto xf = Pimpact::create<CF>( spaceF );
+      // init Fields
+      //		boundaries
+      xf->getVField().initField( pl->sublist("Base flow") );
+      auto temp = Pimpact::create<CF>( spaceF );
+
+      refineOp->apply( x->getField(0), *temp );
+
+      xf->add( 1., *temp, 0., *temp );
+
+      x = Pimpact::wrapMultiField( xf );
+      space = spaceF;
+    }
+  }
+  /******************************************************************************************/
+
+  Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+
+  MPI_Finalize();
+  return( 0 );
+
+}

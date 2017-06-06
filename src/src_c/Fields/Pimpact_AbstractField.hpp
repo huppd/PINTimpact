@@ -29,18 +29,18 @@ public:
 
 protected:
 
-	using ST = typename SpaceT::Scalar;
+  using ST = typename SpaceT::Scalar;
 
   Teuchos::RCP<const SpaceT> space_;
 
-	/// \note openMPI is picky her with const references :(
-	/// \note think about making pubplic
-	constexpr ST reduce( const MPI_Comm& comm, ST normLocal, const MPI_Op& op=MPI_SUM )  {
+  /// \note openMPI is picky her with const references :(
+  /// \note think about making pubplic
+  constexpr ST reduce( const MPI_Comm& comm, ST normLocal, const MPI_Op& op=MPI_SUM )  {
 
-		ST normGlob;
-		MPI_Allreduce( &normLocal, &normGlob, 1, MPI_REAL8, op, comm );
-		return( normGlob );
-	}
+    ST normGlob;
+    MPI_Allreduce( &normLocal, &normGlob, 1, MPI_REAL8, op, comm );
+    return( normGlob );
+  }
 
 }; // end of class AbstractField
 

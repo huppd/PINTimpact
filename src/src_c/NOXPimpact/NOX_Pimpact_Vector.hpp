@@ -15,8 +15,8 @@
 
 
 // Forward declaration of MultiVector class
-namespace NOX{
-namespace Pimpact{
+namespace NOX {
+namespace Pimpact {
 class MultiVector;
 }
 }
@@ -24,7 +24,7 @@ class MultiVector;
 
 
 //! Nonlinear solvers package namespace
-namespace NOX{
+namespace NOX {
 
 /// \brief %NOX PIMPACT interface for Vector
 namespace Pimpact {
@@ -41,13 +41,17 @@ class Vector : public virtual NOX::Abstract::Vector {
 public:
 
   /// %PIMPACT %Vector constructor (does nothing)
-  Vector() { field_ = Teuchos::null; };
+  Vector() {
+    field_ = Teuchos::null;
+  };
 
   /// constructor from \c Field
   Vector( const Teuchos::RCP<Field>& field):field_(field) {};
 
   /// %PIMPACT %Vector destructor
-  virtual ~Vector() { field_ = Teuchos::null; };
+  virtual ~Vector() {
+    field_ = Teuchos::null;
+  };
 
 
   //@{ \name Initialization methods.
@@ -111,11 +115,11 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  virtual NOX::Abstract::Vector& reciprocal(const Vector<Field>& y){
+  virtual NOX::Abstract::Vector& reciprocal(const Vector<Field>& y) {
     field_->reciprocal( *y.field_ );
     return( *this );
   }
-  virtual NOX::Abstract::Vector& reciprocal(const NOX::Abstract::Vector& y){
+  virtual NOX::Abstract::Vector& reciprocal(const NOX::Abstract::Vector& y) {
     return( reciprocal( dynamic_cast<const Vector<Field>& >(y) ) );
   }
 
@@ -170,22 +174,22 @@ public:
   /// \return Reference to this object
   /// \test me
   virtual NOX::Abstract::Vector& update(
-      double alpha, const Vector<Field>& a,
-      double beta, const Vector<Field>& b,
-      double gamma = 0.0) {
+    double alpha, const Vector<Field>& a,
+    double beta, const Vector<Field>& b,
+    double gamma = 0.0) {
     field_->add( alpha, *a.field_, gamma,* field_);
     field_->add( beta,  *b.field_, 1.,* field_);
     return( *this);
   }
   virtual NOX::Abstract::Vector& update(
-      double alpha, const NOX::Abstract::Vector& a,
-      double beta, const NOX::Abstract::Vector& b,
-      double gamma = 0.0) {
+    double alpha, const NOX::Abstract::Vector& a,
+    double beta, const NOX::Abstract::Vector& b,
+    double gamma = 0.0) {
     return(
-        update(
-            alpha, dynamic_cast<const Vector<Field>& >(a),
-            beta,  dynamic_cast<const Vector<Field>& >(b),
-            gamma ) );
+            update(
+              alpha, dynamic_cast<const Vector<Field>& >(a),
+              beta,  dynamic_cast<const Vector<Field>& >(b),
+              gamma ) );
   }
 
 
@@ -203,15 +207,15 @@ public:
   /// \return Pointer to newly created vector or NULL if clone is not supported.
   virtual Teuchos::RCP<NOX::Abstract::Vector>
   clone(NOX::CopyType type = NOX::DeepCopy) const {
-		switch(type) {
-			case NOX::DeepCopy:
-				return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Deep) ) ) );
-			case NOX::ShapeCopy:
-				return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Shallow) ) ) );
-			default: // just to make the compliler happy
-				return( Teuchos::null );
-		}
-	}
+    switch(type) {
+    case NOX::DeepCopy:
+      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Deep) ) ) );
+    case NOX::ShapeCopy:
+      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Shallow) ) ) );
+    default: // just to make the compliler happy
+      return( Teuchos::null );
+    }
+  }
 
 
   /// \brief Create a MultiVector with \c numVecs+1 columns out of an array of
@@ -247,13 +251,18 @@ public:
   /// </uL>
   /// \return \f$\|x\|\f$
   virtual double norm( NOX::Abstract::Vector::NormType type=NOX::Abstract::Vector::TwoNorm) const {
-		switch( type ) {
-			case OneNorm: return( field_->norm( Belos::OneNorm ) );
-			case TwoNorm: return( field_->norm( Belos::TwoNorm ) );
-			case MaxNorm: return( field_->norm( Belos::InfNorm ) );
-			default: std::cout << "!!! Warning unknown NOX::Pimpact::Vector::NormType:\t" << type << "\n"; return(0.); // unnecssary but surpresses compiler warning
-		}
-	}
+    switch( type ) {
+    case OneNorm:
+      return( field_->norm( Belos::OneNorm ) );
+    case TwoNorm:
+      return( field_->norm( Belos::TwoNorm ) );
+    case MaxNorm:
+      return( field_->norm( Belos::InfNorm ) );
+    default:
+      std::cout << "!!! Warning unknown NOX::Pimpact::Vector::NormType:\t" << type << "\n";
+      return(0.); // unnecssary but surpresses compiler warning
+    }
+  }
 
 
   /// \brief Weighted 2-Norm.
@@ -304,12 +313,22 @@ public:
   }
 
 
-  Teuchos::RCP<Field> getFieldPtr() { return( field_ ); };
-  Teuchos::RCP<const Field> getConstFieldPtr() const { return( field_ ); };
-  Field& getField() { return( *field_ ); };
-  const Field& getConstField() const { return( *field_ ); };
+  Teuchos::RCP<Field> getFieldPtr() {
+    return( field_ );
+  };
+  Teuchos::RCP<const Field> getConstFieldPtr() const {
+    return( field_ );
+  };
+  Field& getField() {
+    return( *field_ );
+  };
+  const Field& getConstField() const {
+    return( *field_ );
+  };
 
-  void level() const {  field_->level(); };
+  void level() const {
+    field_->level();
+  };
 
 protected:
   Teuchos::RCP<Field> field_;
@@ -320,7 +339,7 @@ protected:
 
 /// \relates Vector
 template<class Field>
-Teuchos::RCP< Vector<Field> > createVector( const Teuchos::RCP<Field>& field ){
+Teuchos::RCP< Vector<Field> > createVector( const Teuchos::RCP<Field>& field ) {
   return( Teuchos::rcp( new Vector<Field>(field) ) );
 }
 
@@ -332,30 +351,30 @@ Teuchos::RCP< Vector<Field> > createVector( const Teuchos::RCP<Field>& field ){
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Fields.hpp"
 extern template class NOX::Pimpact::Vector<
-Pimpact::MultiField<Pimpact::VectorField<Pimpact::Space<double,int,3,2>
-> > >; 
+  Pimpact::MultiField<Pimpact::VectorField<Pimpact::Space<double,int,3,2>
+                      > > >;
 extern template class NOX::Pimpact::Vector<
-		Pimpact::CompoundField<
-			Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > > >,
-			Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > >
-		>
-	>; 
+  Pimpact::CompoundField<
+    Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > > >,
+    Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > >
+    >
+  >;
 extern template class NOX::Pimpact::Vector<
-		Pimpact::MultiField<
-			Pimpact::CompoundField<
-				Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > >,
-				Pimpact::MultiHarmonicField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > 
-			>
-		>
-	>; 
+  Pimpact::MultiField<
+    Pimpact::CompoundField<
+      Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > >,
+      Pimpact::MultiHarmonicField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > >
+      >
+    >
+  >;
 extern template class NOX::Pimpact::Vector<
-		Pimpact::MultiField<
-			Pimpact::CompoundField<
-				Pimpact::TimeField<Pimpact::VectorField<Pimpact::Space<double,int,4,4> > >,
-				Pimpact::TimeField<Pimpact::ScalarField<Pimpact::Space<double,int,4,4> > > 
-			>
-		>
-	>; 
+  Pimpact::MultiField<
+    Pimpact::CompoundField<
+      Pimpact::TimeField<Pimpact::VectorField<Pimpact::Space<double,int,4,4> > >,
+      Pimpact::TimeField<Pimpact::ScalarField<Pimpact::Space<double,int,4,4> > >
+      >
+    >
+  >;
 #endif
 
 #endif //end of #ifndef NOX_PIMPACT_VECTOR_HPP

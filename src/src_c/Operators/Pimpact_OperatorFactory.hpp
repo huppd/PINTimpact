@@ -34,9 +34,9 @@ Teuchos::RCP< OperatorBase< MultiField<typename Op::DomainFieldT>,MultiField<typ
 createMultiOperatorBase( const Teuchos::RCP<Op>& op ) {
 
   return(
-			Teuchos::rcp_dynamic_cast< OperatorBase<MultiField<typename Op::DomainFieldT>,MultiField<typename Op::RangeFieldT> > >(
-				Teuchos::rcp( new OperatorPimpl< MultiOpWrap<Op> >(
-						createMultiOpWrap<Op>(op) ) ) ));
+          Teuchos::rcp_dynamic_cast< OperatorBase<MultiField<typename Op::DomainFieldT>,MultiField<typename Op::RangeFieldT> > >(
+            Teuchos::rcp( new OperatorPimpl< MultiOpWrap<Op> >(
+                            createMultiOpWrap<Op>(op) ) ) ));
 }
 
 
@@ -46,7 +46,7 @@ createMultiOperatorBase( const Teuchos::RCP<Op>& op ) {
 template<class MF, class Op>
 Teuchos::RCP<const OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos::RCP<Op>& op ) {
 
-	return( createOperatorBase( createMultiOpWrap( createModeOpWrap(op) ) ) );
+  return( createOperatorBase( createMultiOpWrap( createModeOpWrap(op) ) ) );
 }
 
 

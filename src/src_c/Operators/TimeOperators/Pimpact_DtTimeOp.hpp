@@ -12,7 +12,7 @@
 
 
 
-namespace Pimpact{
+namespace Pimpact {
 
 
 /// \ingroup TimeOperator
@@ -37,34 +37,40 @@ protected:
 
 public:
 
-	DtTimeOp( const Teuchos::RCP<const SpaceT>& space ):
-		space_(space) {
+  DtTimeOp( const Teuchos::RCP<const SpaceT>& space ):
+    space_(space) {
 
-			Scalar pi = 4.*std::atan(1.);
-			Scalar idt = (static_cast<Scalar>(space_->nGlo(3)))/2./pi;
-			mulI_ =
-				space_->getDomainSize()->getAlpha2()*idt/space_->getDomainSize()->getRe();
-		};
+    Scalar pi = 4.*std::atan(1.);
+    Scalar idt = (static_cast<Scalar>(space_->nGlo(3)))/2./pi;
+    mulI_ =
+      space_->getDomainSize()->getAlpha2()*idt/space_->getDomainSize()->getRe();
+  };
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		x.exchange();
+    x.exchange();
 
-		for( Ordinal i=space_->si(F::S,3); i<=space_->ei(F::S,3); ++i ) {
-			y(i).add( mulI_, x(i), -mulI_, x(i-1) );
-		}
+    for( Ordinal i=space_->si(F::S,3); i<=space_->ei(F::S,3); ++i ) {
+      y(i).add( mulI_, x(i), -mulI_, x(i-1) );
+    }
 
-		y.changed();
-	}
+    y.changed();
+  }
 
   void assignField( const DomainFieldT& mv ) {};
 
-  bool hasApplyTranspose() const { return( false ); }
+  bool hasApplyTranspose() const {
+    return( false );
+  }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
+  constexpr const Teuchos::RCP<const SpaceT>& space() const {
+    return(space_);
+  };
 
-	const std::string getLabel() const { return( "DtTimeOp " ); };
+  const std::string getLabel() const {
+    return( "DtTimeOp " );
+  };
 
 }; // end of class DtTimeOp
 
