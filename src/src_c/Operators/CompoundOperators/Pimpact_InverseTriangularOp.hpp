@@ -21,8 +21,8 @@ namespace Pimpact {
 template<class OpV2V,class OpS2V, class OpS2S>
 class InverseTriangularOp {
 
-  using VF = typename OpS2V::RangeFieldT;
-  using SF = typename OpS2V::DomainFieldT;
+  using VF = typename OpV2V::RangeFieldT;
+  using SF = typename OpS2S::RangeFieldT;
 
 public:
 
@@ -58,6 +58,7 @@ public:
 		//opS2S_->apply( x.getSField(),  y.getSField() );
 		//y.getSField().scale( -1. );
 
+		// upper triangular
 		opS2S_->apply( x.getSField(),  y.getSField() );
 		y.getSField().scale( -1. );
 
@@ -68,6 +69,15 @@ public:
 		tempv.add( -1., tempv, 1., x.getVField() );
 
 		opV2V_->apply( tempv, y.getVField() );
+
+		// lower triangular
+		//opV2V_->apply( x.getVField(), y.getVField() );
+
+		//auto temps = x.getSField().clone( ECopy::Deep );
+		//opS2V_->apply( y.getVField(), *temps, Add::Y );
+
+		//opS2S_->apply( *temps,  y.getSField() );
+		//y.getSField().scale( -1. );
 	}
 
 

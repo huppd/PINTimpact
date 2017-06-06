@@ -19,7 +19,7 @@ namespace Pimpact {
 extern "C" {
 
 void OP_TimeNS( 
-		const int dimens,
+		const int& dimens,
 		const int* const N,
 		const int* const bl, const int* const bu,
 		const int* const cL, const int* const cU,
@@ -119,8 +119,10 @@ public:
 			xp(i).exchange();
 		}
 
+		int dimens = SpaceT::sdim;
+
 		OP_TimeNS( 
-				SpaceT::sdim,
+				dimens,
 				space()->nLoc(),
 				space()->bl(),
 				space()->bu(),

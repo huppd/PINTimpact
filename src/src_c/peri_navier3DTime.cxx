@@ -22,6 +22,7 @@
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_StatusTest.hpp"
+#include "NOX_Pimpact_PrePostWriter.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
@@ -42,6 +43,17 @@
 
 #include "Pimpact_DivGradNullSpace.hpp"
 
+
+// full MG includes
+#include "Pimpact_IntResCompoundOp.hpp"
+#include "Pimpact_TransferCompoundOp.hpp"
+#include "Pimpact_TransferTimeOp.hpp"
+#include "Pimpact_TimeStokesBSmoother.hpp"
+
+#include "Pimpact_InterpolationTimeOp.hpp"
+#include "Pimpact_RestrictionTimeOp.hpp"
+#include "Pimpact_CoarsenStrategy.hpp"
+#include "Pimpact_CoarsenStrategyGlobal.hpp"
 
 
 
@@ -96,9 +108,27 @@ template<class T> using POP3  = Pimpact::PrecInverseOp< T, ConvDiffSORT >;
 
 
 
+// full MG
+template<class SpaceT> 
+using CVF = Pimpact::CompoundField<
+	Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
+	Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
 
+template<class SpaceT>
+using INT = Pimpact::IntResCompoundOp<
+	Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
+	Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<SpaceT> > >;
 
+template<class SpaceT>
+using RES = Pimpact::IntResCompoundOp<
+	Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<SpaceT>
+	> >, Pimpact::RestrictionTimeOp< Pimpact::RestrictionSFOp<SpaceT> > >;
 
+template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
+	Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
+	Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >;
+
+using CS4L = Pimpact::CoarsenStrategy<SpaceT,CSpaceT>;
 
 int main( int argi, char** argv ) {
 
@@ -356,7 +386,8 @@ int main( int argi, char** argv ) {
 
 		std::string picardPrecString = pl->sublist("Picard Solver").get<std::string>( "preconditioner", "none" );
 
-		if( "none" != picardPrecString ) { 
+		if( false ) {
+		//if( "none" != picardPrecString ) { 
 
 			// create Multi space
 			auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
@@ -524,28 +555,69 @@ int main( int argi, char** argv ) {
 			if( "left" == picardPrecString ) 
 				opInv->setLeftPrec( Pimpact::createMultiOperatorBase( invTriangOp ) );
 		}
+		//if( false ) {
+		if( "none" != picardPrecString ) { 
+
+			auto mgSpaces = Pimpact::createMGSpaces<CS4L>( space, 10);
+
+			auto mgPL = Teuchos::parameterList();
+			//mgPL->sublist("Smoother").set<std::string>("Solver name", "GMRES" );
+			//mgPL->sublist("Smoother").set( "Solver",
+					//*Pimpact::createLinSolverParameter( "GMRES", 1.e-16, -1,
+						//Teuchos::rcp<std::ostream>( new Teuchos::oblackholestream() ), 4 ) );
+
+			mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+			mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
+			mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
+			mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
+			mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance" , 1.e-1 );
+
+			auto mg = Pimpact::createMultiGrid<
+				CVF,
+				TCO,
+				RES,
+				INT,
+				Pimpact::TimeNSOp,
+				Pimpact::TimeNSOp,								
+				MOP, 
+				//Pimpact::TimeNS4DBSmoother,
+				//									Pimpact::TimeStokesBSmoother
+				MOP > ( mgSpaces, mgPL );
+
+			if( "right" == picardPrecString ) 
+				opInv->setRightPrec( Pimpact::createMultiOperatorBase(mg) );
+			//if( "left" == picardPrecString ) 
+				//opInv->setLeftPrec( Pimpact::createMultiOperatorBase( invTriangOp ) );
+		}
 		// end of init preconditioner *************************************************************
 
 		auto inter = NOX::Pimpact::createInterface(
 				fu,
 				Pimpact::createMultiOpWrap(op),
-				Pimpact::createMultiOpWrap(opInv),
-				withoutput?sol:Teuchos::null );
+				Pimpact::createMultiOpWrap(opInv) );
 
 		auto nx = NOX::Pimpact::createVector( x );
 
 		auto group = NOX::Pimpact::createGroup( Teuchos::parameterList(), inter, nx );
 
 		// Set up the status tests
-		auto statusTest =
-			NOX::StatusTest::buildStatusTests( pl->sublist("NOX Solver").sublist("Status Test"), NOX::Utils() );
+		Teuchos::RCP<NOX::StatusTest::Generic> statusTest =
+			NOX::StatusTest::buildStatusTests( pl->sublist("NOX Status Test"), NOX::Utils() );
 
 		// Create the solver
+		Teuchos::RCP<Teuchos::ParameterList> noxSolverPara =
+			Teuchos::sublist(pl, "NOX Solver");
+
+		Teuchos::RCP<NOX::Abstract::PrePostOperator> foo =
+			Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ));
+
+		noxSolverPara->sublist("Solver Options").set<Teuchos::RCP<NOX::Abstract::PrePostOperator>>(
+				"User Defined Pre/Post Operator", foo);
+
 		Teuchos::RCP<NOX::Solver::Generic> solver =
-			NOX::Solver::buildSolver( group, statusTest, Teuchos::sublist( pl, "NOX Solver" ) );
+			NOX::Solver::buildSolver( group, statusTest, noxSolverPara );
 
 
-		Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
 		if( 0==space->rankST() )
 			std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
 
@@ -583,8 +655,10 @@ int main( int argi, char** argv ) {
 
 		Teuchos::TimeMonitor::summarize();
 
-		if( 0==space->rankST() )
+		if( 0==space->rankST() ) {
+			pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
 			Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+		}
 
 	}
 	MPI_Finalize();

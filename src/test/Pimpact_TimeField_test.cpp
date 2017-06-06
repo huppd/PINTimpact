@@ -702,130 +702,172 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 
 	auto op = Pimpact::create<OpT>( space );
 
-	auto x = Pimpact::create<typename OpT::DomainFieldT>( space );
-	auto y = Pimpact::create<typename OpT::RangeFieldT>( space );
+	typename OpT::DomainFieldT e( space );
+	typename OpT::RangeFieldT  y( space );
+	typename OpT::DomainFieldT  sol( space );
+	typename OpT::RangeFieldT  fu( space );
 
-	// Const diffusion test in X
-	Pimpact::initVectorTimeField( x->getVField(), Pimpact::Poiseuille_inX );
+	ST pi2 = 2.*std::acos(-1.);
+	ST A =   0.5;
+	ST B =  -0.5;
+	ST C =   0.;
+	ST a =   1.;
+	ST b =   1.;
+	ST c =   1.;
 
-	//	x->write(1000);
-	y->random();
+	for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
+		{
+			// init RHS
+			ST timei = space->getCoordinatesLocal()->getX(Pimpact::F::U,3,i);
+			ST timeim =space->getCoordinatesLocal()->getX(Pimpact::F::U,3,i-1);
+			//std::cout << time << "\n";
+			//ST ctime = (std::cos( timei )+std::cos( timeim ))/2.;
+			ST ctime = std::cos( (timei+timeim)/2. );
+			ST stime = (std::sin( timei )+std::sin( timeim ))/2.;
+			fu.getVField()(i)(Pimpact::F::U).initFromFunction(
+					[=]( ST x, ST y, ST z ) ->ST {
+					return(
+						alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*(ctime)									// \alpha^2 dt u
+						+2.*A/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*(1.+stime) ); } );	// -\lap u
 
-	op->apply( *x, *y );
-	//	y->write(0);
+			fu.getVField()(i)(Pimpact::F::V).initFromFunction(
+					[=]( ST x, ST y, ST z ) ->ST {
+					return(
+						alpha2/re*B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*ctime									// \alpha^2 dt v
+						+2.*B/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*(1.+stime) ); } );	// -\lap u
 
-	initVectorTimeField( x->getVField(), Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
-	x->add( 1., *x, -1., *y );
-	//	x->write(100);
 
-	std::cout << "error in x: " << x->norm() << "\n";
-	TEST_EQUALITY( x->norm()<eps, true );
+		}
+		// init sol
+		{
+			ST time = space->getCoordinatesLocal()->getX(Pimpact::F::U,3,i);
+			//std::cout<< time << "\n";
+			ST stime = std::sin( time );
+			sol.getVField()(i)(Pimpact::F::U).initFromFunction(
+					[=]( ST x, ST y, ST z ) ->ST {
+					return( A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*(1.+stime) ); } );
+			sol.getVField()(i)(Pimpact::F::V).initFromFunction(
+					[=]( ST x, ST y, ST z ) ->ST {
+					return( B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*(1.+stime) ); } );
+		}
 
-	// Const diffusion test in Y
-	Pimpact::initVectorTimeField( x->getVField(), Pimpact::Poiseuille_inY );
-
-	//	x->write(1000);
-	y->random();
-
-	op->apply( *x, *y );
-	//	y->write(0);
-
-	Pimpact::initVectorTimeField( x->getVField(), Pimpact::Const2DFlow, 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2)/re, 0. );
-	x->add( 1., *x, -1., *y );
-	//	x->write(100);
-
-	std::cout << "error in Y: " << x->norm() << "\n";
-	TEST_EQUALITY( x->norm()<eps, true );
-
-	// Gradient test in X
-	Pimpact::initVectorTimeField( x->getVField(), Pimpact::Zero2DFlow );
-	for( OT i=space->si(Pimpact::F::U,3); i<space->ei(Pimpact::F::U,3); ++i ) {
-		x->getSField()(i).initField( Pimpact::Grad2D_inX );
 	}
-//	x->write();
-	y->random();
+	sol.getVField().changed();
+	fu.getVField().changed();
+
+	op->apply( sol, y );
+
+	e.add( 1., fu, -1., y );
+
+	ST error = e.norm()/sol.norm();
+	std::cout << "error in x: " << error << "\n";
+	TEST_EQUALITY( error<eps, true );
+
+	//// Const diffusion test in Y
+	//Pimpact::initVectorTimeField( x->getVField(), Pimpact::Poiseuille_inY );
+
+	////	x->write(1000);
+	//y->random();
+
+	//op->apply( *x, *y );
+	////	y->write(0);
+
+	////Pimpact::initVectorTimeField( x->getVField(), Pimpact::Const2DFlow, 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2)/re, 0. );
+	//x->add( 1., *x, -1., *y );
+	////	x->write(100);
+
+	//std::cout << "error in Y: " << x->norm() << "\n";
+	//TEST_EQUALITY( x->norm()<eps, true );
+
+	//// Gradient test in X
+	//Pimpact::initVectorTimeField( x->getVField(), Pimpact::Zero2DFlow );
+	//for( OT i=space->si(Pimpact::F::U,3); i<space->ei(Pimpact::F::U,3); ++i ) {
+		//x->getSField()(i).initField( Pimpact::Grad2D_inX );
+	//}
+////	x->write();
+	//y->random();
 	
-	op->apply( *x, *y );
-//	y->write(100);
-	Pimpact::initVectorTimeField( x->getVField(), Pimpact::Const2DFlow, 1., 0., 0. );
-	x->getSField().init( 0. );
-	x->add( 1., *x, -1., *y );
-//	x->write(200);
+	//op->apply( *x, *y );
+////	y->write(100);
+	//Pimpact::initVectorTimeField( x->getVField(), Pimpact::Const2DFlow, 1., 0., 0. );
+	//x->getSField().init( 0. );
+	//x->add( 1., *x, -1., *y );
+////	x->write(200);
 
-	std::cout << "error grad in X: " << x->norm() << "\n";
-	TEST_EQUALITY( x->norm()<eps, true );
+	//std::cout << "error grad in X: " << x->norm() << "\n";
+	//TEST_EQUALITY( x->norm()<eps, true );
 
-	// Gradient test in Y
-	Pimpact::initVectorTimeField( x->getVField(), Pimpact::Zero2DFlow );
-	for( OT i=space->si(Pimpact::F::U,3); i<space->ei(Pimpact::F::U,3); ++i ) {
-		x->getSField()(i).initField( Pimpact::Grad2D_inY );
-	}
-//	x->write();
-	y->random();
+	//// Gradient test in Y
+	//Pimpact::initVectorTimeField( x->getVField(), Pimpact::Zero2DFlow );
+	//for( OT i=space->si(Pimpact::F::U,3); i<space->ei(Pimpact::F::U,3); ++i ) {
+		//x->getSField()(i).initField( Pimpact::Grad2D_inY );
+	//}
+////	x->write();
+	//y->random();
 	
-	op->apply( *x, *y );
-	//	y->write(100);
-	Pimpact::initVectorTimeField( x->getVField(), Pimpact::Const2DFlow, 0., 1., 0. );
-	x->getSField().init( 0. );
-	x->add( 1., *x, -1., *y );
-	//	x->write(200);
+	//op->apply( *x, *y );
+	////	y->write(100);
+	//Pimpact::initVectorTimeField( x->getVField(), Pimpact::Const2DFlow, 0., 1., 0. );
+	//x->getSField().init( 0. );
+	//x->add( 1., *x, -1., *y );
+	////	x->write(200);
 
-	std::cout << "error grad in Y: " << x->norm() << "\n";
-	TEST_EQUALITY( x->norm()<eps, true );
+	//std::cout << "error grad in Y: " << x->norm() << "\n";
+	//TEST_EQUALITY( x->norm()<eps, true );
 
-	// Gradient test in Z
-	Pimpact::initVectorTimeField( x->getVField(), Pimpact::Zero2DFlow );
-	for( OT i=space->si(Pimpact::F::U,3); i<space->ei(Pimpact::F::U,3); ++i ) {
-		x->getSField()(i).initField( Pimpact::Grad2D_inZ );
-	}
-	//	x->write();
-	y->random();
+	//// Gradient test in Z
+	//Pimpact::initVectorTimeField( x->getVField(), Pimpact::Zero2DFlow );
+	//for( OT i=space->si(Pimpact::F::U,3); i<space->ei(Pimpact::F::U,3); ++i ) {
+		//x->getSField()(i).initField( Pimpact::Grad2D_inZ );
+	//}
+	////	x->write();
+	//y->random();
 	
-	op->apply( *x, *y );
-//	y->write(100);
-	Pimpact::initVectorTimeField( x->getVField(), Pimpact::Const2DFlow, 0., 0., 1. );
-	x->getSField().init( 0. );
-	x->add( 1., *x, -1., *y );
-//	x->write(200);
+	//op->apply( *x, *y );
+////	y->write(100);
+	//Pimpact::initVectorTimeField( x->getVField(), Pimpact::Const2DFlow, 0., 0., 1. );
+	//x->getSField().init( 0. );
+	//x->add( 1., *x, -1., *y );
+////	x->write(200);
 
-	std::cout << "error grad in Z: " << x->norm() << "\n";
-	TEST_EQUALITY( x->norm()<eps, true );
+	//std::cout << "error grad in Z: " << x->norm() << "\n";
+	//TEST_EQUALITY( x->norm()<eps, true );
 
 
-	// test against flow dir
-	auto wind   = Pimpact::create<typename OpT::DomainFieldT>( space );
-	auto field  = Pimpact::create<typename OpT::DomainFieldT>( space );
-	auto field1 = Pimpact::create<typename OpT::DomainFieldT>( space );
-	auto field2 = Pimpact::create<typename OpT::DomainFieldT>( space );
+	//// test against flow dir
+	//auto wind   = Pimpact::create<typename OpT::DomainFieldT>( space );
+	//auto field  = Pimpact::create<typename OpT::DomainFieldT>( space );
+	//auto field1 = Pimpact::create<typename OpT::DomainFieldT>( space );
+	//auto field2 = Pimpact::create<typename OpT::DomainFieldT>( space );
 
-	for( OT i=space->si(Pimpact::F::U,3); i<space->ei(Pimpact::F::U,3); ++i ) {
-		wind->getVField()(i)( Pimpact::F::U ).initField( Pimpact::ConstField, 2. );
-		wind->getVField()(i)( Pimpact::F::V ).initField( Pimpact::ConstField, 2. );
-		wind->getVField()(i)( Pimpact::F::W ).initField( Pimpact::ConstField, 2. );
-		field1->getVField()(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
-		field1->getVField()(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inZ );
-		field1->getVField()(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inX );
-		field2->getVField()(i).init( 2. );
-		wind->getVField().changed();
-		field1->getVField().changed();
-		field2->getVField().changed();
-	}
+	//for( OT i=space->si(Pimpact::F::U,3); i<space->ei(Pimpact::F::U,3); ++i ) {
+		//wind->getVField()(i)( Pimpact::F::U ).initField( Pimpact::ConstField, 2. );
+		//wind->getVField()(i)( Pimpact::F::V ).initField( Pimpact::ConstField, 2. );
+		//wind->getVField()(i)( Pimpact::F::W ).initField( Pimpact::ConstField, 2. );
+		//field1->getVField()(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
+		//field1->getVField()(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inZ );
+		//field1->getVField()(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inX );
+		//field2->getVField()(i).init( 2. );
+		//wind->getVField().changed();
+		//field1->getVField().changed();
+		//field2->getVField().changed();
+	//}
 
-//	wind->write();
-//	field1->write(10);
-//	field2->write(20);
+////	wind->write();
+////	field1->write(10);
+////	field2->write(20);
 
- op->assignField( *wind );
- op->apply( *field1, *field );
+ //op->assignField( *wind );
+ //op->apply( *field1, *field );
 
-//	field->write(30);
+////	field->write(30);
 
-	field->add( 1., *field, -1., *field2 );
+	//field->add( 1., *field, -1., *field2 );
 
-//	field->write(40);
+////	field->write(40);
 
-	std::cout << "conv errorV: " << field()->getVField().norm() << "\n";
-	std::cout << "conv errorS: " << field()->getSField().norm() << "\n";
+	//std::cout << "conv errorV: " << field()->getVField().norm() << "\n";
+	//std::cout << "conv errorS: " << field()->getSField().norm() << "\n";
 }
 
 

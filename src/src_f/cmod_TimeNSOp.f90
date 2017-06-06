@@ -1,8 +1,8 @@
-!************************************************************************************************
+!*********************************************************************************************
 !* IMPACT                                                                                        
 !* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)         
 !* Mai 2005 - Dec 2011                                                                           
-!************************************************************************************************
+!*********************************************************************************************
 
 
 
@@ -188,17 +188,17 @@ contains
     real(c_double), intent(in)  :: mulI
     real(c_double), intent(in)  :: mulL
 
-    real(c_double), intent(in)  :: windU ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
-    real(c_double), intent(in)  :: windV ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
-    real(c_double), intent(in)  :: windW ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(in)  :: windU ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, bL(4):(N(4)+bU(4)) )
+    real(c_double), intent(in)  :: windV ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, bL(4):(N(4)+bU(4)) )
+    real(c_double), intent(in)  :: windW ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, bL(4):(N(4)+bU(4)) )
 
-    real(c_double), intent(in)  :: veln ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(in)  :: veln ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, bL(4):(N(4)+bU(4)) )
 
-    real(c_double), intent(in)  :: pn   ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(in)  :: pn   ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      bL(4):(N(4)+bU(4)) )
 
-    real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, bL(4):(N(4)+bU(4)) )
 
-    real(c_double), intent(out) :: r_p  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(out) :: r_p  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      bL(4):(N(4)+bU(4)) )
 
 
     real(c_double)              :: dd1
@@ -208,19 +208,19 @@ contains
     integer(c_int)              ::  k, kk
     integer(c_int)              ::  t 
 
-    !===========================================================================================================
+    !=========================================================================================
 
-    do t = SS(4), N(4)
+    do t = SS(4), NN(4)
       do k = SS(3), NN(3)
         do j = SS(2), NN(2)
           do i = SS(1), NN(1)
-            !===========================================================================================================
-            !=== computing velocity residual in x-direction ============================================================
-            !===========================================================================================================
+            !=================================================================================
+            !=== computing velocity residual in x-direction ==================================
+            !=================================================================================
             if( SU(1)<=i .and. i<=NU(1) .and. SU(2)<=j .and. j<=NU(2) .and. SU(3)<=k .and. k<=NU(3) ) then
-              !--- compute time derivative ----------------------------------------------------------------------------- 
+              !!--- compute time derivative --------------------------------------------------
               r_vel(i,j,k,1,t) =  mulI*( veln(i,j,k,1,t) - veln(i,j,k,1,t-1) )
-              !--- compute convection -----------------------------------------------------------------------------------
+              !------ compute convection ------
               !--- u*d/dx ---
               if( windU(i,j,k,1,t) >= 0. ) then
                 !pgi$ unroll = n:8
@@ -245,23 +245,22 @@ contains
                   r_vel(i,j,k,1,t) = r_vel(i,j,k,1,t) + windV(i,j,k,1,t)*c2pD(jj,j)*veln(i,j+jj,k,1,t)
                 end do
               end if
-              !--- w*d/dz ---
+              !!--- w*d/dz ---
               if (dimens == 3) then
 
                 if( windW(i,j,k,1,t) >= 0. ) then
                   !pgi$ unroll = n:8
                   do kk = cL(3), cU(3)
                     r_vel(i,j,k,1,t) = r_vel(i,j,k,1,t) + windW(i,j,k,1,t)*c3pU(kk,k)*veln(i,j,k+kk,1,t)
-                  end do                                                                        
-                else                                                                            
-                  !pgi$ unroll = n:8                                                            
-                  do kk = cL(3), cU(3)                                                          
+                  end do
+                else
+                  !pgi$ unroll = n:8
+                  do kk = cL(3), cU(3)
                     r_vel(i,j,k,1,t) = r_vel(i,j,k,1,t) + windW(i,j,k,1,t)*c3pD(kk,k)*veln(i,j,k+kk,1,t)
                   end do
                 end if
-
               endif
-              !--- compute diffusion -----------------------------------------------------------------------------------
+              ! ------ compute diffusion ------
               dd1 = c11u(bL(1),i)*veln(i+bL(1),j,k,1,t)
               !pgi$ unroll = n:8
               do ii = bL(1)+1, bU(1)
@@ -279,7 +278,7 @@ contains
               endif
               r_vel(i,j,k,1,t) = r_vel(i,j,k,1,t) - mulL*dd1
 
-              !--- compute gradient ------------------------------------------------------------------------------------ 
+              ! ------ compute gradient ------ 
               !pgi$ unroll = n:8
               do ii = gL(1), gU(1)
                 r_vel(i,j,k,1,t) = r_vel(i,j,k,1,t) + cG1(ii,i)*pn(i+ii,j,k,t)
@@ -287,13 +286,13 @@ contains
 
             endif
 
-            !===========================================================================================================
-            !=== computing velocity residual in y-direction ============================================================
-            !===========================================================================================================
+            !!================================================================================
+            !!=== computing velocity residual in y-direction =================================
+            !!================================================================================
             if( SV(1)<=i .and. i<=NV(1) .and. SV(2)<=j .and. j<=NV(2) .and. SV(3)<=k .and. k<=NV(3) ) then
-              !--- compute time derivative ----------------------------------------------------------------------------- 
+              ! ------ compute time derivative ------ 
               r_vel(i,j,k,2,t) =  mulI*( veln(i,j,k,2,t) - veln(i,j,k,2,t-1) )
-              !--- compute convection -----------------------------------------------------------------------------------
+              !--- compute convection -------
               !--- u*d/dx ---
               if( windU(i,j,k,2,t) >= 0. ) then
                 !pgi$ unroll = n:8
@@ -318,7 +317,7 @@ contains
                   r_vel(i,j,k,2,t) = r_vel(i,j,k,2,t) + windV(i,j,k,2,t)*c2vD(jj,j)*veln(i,j+jj,k,2,t)
                 end do
               end if
-              !--- w*d/dz ---
+              !!--- w*d/dz ---
               if (dimens == 3) then
 
                 if( windW(i,j,k,2,t) >= 0. ) then
@@ -334,7 +333,7 @@ contains
                 end if
 
               endif
-              !--- compute diffusion ----------------------------------------------------------------------------------- 
+              !!--- compute diffusion 
               dd1 = c11p(bL(1),i)*veln(i+bL(1),j,k,2,t)
 
               !pgi$ unroll = n:8
@@ -345,7 +344,7 @@ contains
               do jj = bL(2), bU(2)
                 dd1 = dd1 + c22v(jj,j)*veln(i,j+jj,k,2,t)
               end do
-              if( 3==dimens) then
+              if( 3==dimens ) then
                 !pgi$ unroll = n:8
                 do kk = bL(3), bU(3)
                   dd1 = dd1 + c33p(kk,k)*veln(i,j,k+kk,2,t)
@@ -353,122 +352,122 @@ contains
               endif
               r_vel(i,j,k,2,t) = r_vel(i,j,k,2,t) - mulL*dd1
 
-              !--- compute gradient ------------------------------------------------------------------------------------ 
+              !--- compute gradient 
               !pgi$ unroll = n:8
               do jj = gL(2), gU(2)
                 r_vel(i,j,k,2,t) = r_vel(i,j,k,2,t) + cG2(jj,j)*pn(i,j+jj,k,t)
               end do
             endif
 
-            !===========================================================================================================
-            !=== computing velocity residual in z-direction ============================================================
-            !===========================================================================================================
+            !================================================================================
+            !=== computing velocity residual in z-direction =================================
+            !================================================================================
             if( 3==dimens .and. SW(1)<=i .and. i<=NW(1) .and. SW(2)<=j .and. j<=NW(2) .and. SW(3)<=k .and. k<=NW(3) ) then
-              !--- compute time derivative ----------------------------------------------------------------------------- 
-              r_vel(i,j,k,3,t) =  mulI*( veln(i,j,k,3,t) - veln(i,j,k,3,t-1) )
-              !--- compute convection -----------------------------------------------------------------------------------
-              !--- u*d/dx ---
-              if( windU(i,j,k,3,t) >= 0. ) then
-                !pgi$ unroll = n:8
-                do ii = cL(1), cU(1)
-                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windU(i,j,k,3,t)*c1pU(ii,i)*veln(i+ii,j,k,3,t)
-                end do
-              else
-                !pgi$ unroll = n:8
-                do ii = cL(1), cU(1)
-                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windU(i,j,k,3,t)*c1pD(ii,i)*veln(i+ii,j,k,3,t)
-                end do
-              end if
-              !--- v*d/dy ---
-              if( windV(i,j,k,3,t) >= 0. ) then
-                !pgi$ unroll = n:8
-                do jj = cL(2), cU(2)
-                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windV(i,j,k,3,t)*c2pU(jj,j)*veln(i,j+jj,k,3,t)
-                end do
-              else
-                !pgi$ unroll = n:8
-                do jj = cL(2), cU(2)
-                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windV(i,j,k,3,t)*c2pD(jj,j)*veln(i,j+jj,k,3,t)
-                end do
-              end if
-              !--- w*d/dz ---
-              if( windW(i,j,k,3,t) >= 0. ) then
-                !pgi$ unroll = n:8
-                do kk = cL(3), cU(3)
-                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windW(i,j,k,3,t)*c3wU(kk,k)*veln(i,j,k+kk,3,t)
-                end do                                                                       
-              else                                                                           
-                !pgi$ unroll = n:8                                                           
-                do kk = cL(3), cU(3)                                                         
-                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windW(i,j,k,3,t)*c3wD(kk,k)*veln(i,j,k+kk,3,t)
-                end do
-              end if
-              !--- compute diffusion ----------------------------------------------------------------------------------- 
-              dd1 = c11p(bL(1),i)*veln(i+bL(1),j,k,3,t)
+            !--- compute time derivative --------------------------------------------------
+            r_vel(i,j,k,3,t) =  mulI*( veln(i,j,k,3,t) - veln(i,j,k,3,t-1) )
+            !--- compute convection -------------------------------------------------------
+            !--- u*d/dx ---
+            if( windu(i,j,k,3,t) >= 0. ) then
               !pgi$ unroll = n:8
-              do ii = bL(1)+1, bU(1)
-                dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,3,t)
+              do ii = cl(1), cu(1)
+                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windu(i,j,k,3,t)*c1pu(ii,i)*veln(i+ii,j,k,3,t)
               end do
+            else
               !pgi$ unroll = n:8
-              do jj = bL(2), bU(2)
-                dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,3,t)
+              do ii = cl(1), cu(1)
+                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windu(i,j,k,3,t)*c1pd(ii,i)*veln(i+ii,j,k,3,t)
               end do
-              if( 3==dimens) then
-                !pgi$ unroll = n:8
-                do kk = bL(3), bU(3)
-                  dd1 = dd1 + c33w(kk,k)*veln(i,j,k+kk,3,t)
-                end do
-              endif
-              r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) - mulL*dd1
-
-              !--- compute gradient ------------------------------------------------------------------------------------ 
+            end if
+            !--- v*d/dy ---
+            if( windv(i,j,k,3,t) >= 0. ) then
               !pgi$ unroll = n:8
-              do kk = gL(3), gU(3)
-                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + cG3(kk,k)*pn(i,j,k+kk,t)
+              do jj = cl(2), cu(2)
+                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windv(i,j,k,3,t)*c2pu(jj,j)*veln(i,j+jj,k,3,t)
+              end do
+            else
+              !pgi$ unroll = n:8
+              do jj = cl(2), cu(2)
+                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windv(i,j,k,3,t)*c2pd(jj,j)*veln(i,j+jj,k,3,t)
+              end do
+            end if
+            !--- w*d/dz ---
+            if( windw(i,j,k,3,t) >= 0. ) then
+              !pgi$ unroll = n:8
+              do kk = cl(3), cu(3)
+                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windw(i,j,k,3,t)*c3wu(kk,k)*veln(i,j,k+kk,3,t)
+              end do                                                                       
+            else                                                                           
+              !pgi$ unroll = n:8                                                           
+              do kk = cl(3), cu(3)                                                         
+                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windw(i,j,k,3,t)*c3wd(kk,k)*veln(i,j,k+kk,3,t)
+              end do
+            end if
+            !--- compute diffusion --------------------------------------------------------
+            dd1 = c11p(bL(1),i)*veln(i+bL(1),j,k,3,t)
+            !pgi$ unroll = n:8
+            do ii = bL(1)+1, bU(1)
+              dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,3,t)
+            end do
+            !pgi$ unroll = n:8
+            do jj = bL(2), bU(2)
+              dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,3,t)
+            end do
+            if( 3==dimens) then
+              !pgi$ unroll = n:8
+              do kk = bL(3), bU(3)
+                dd1 = dd1 + c33w(kk,k)*veln(i,j,k+kk,3,t)
               end do
             endif
+            r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) - mulL*dd1
 
-            !===========================================================================================================
-            !=== computing pressure residual ===========================================================================
-            !===========================================================================================================
-            if( 3==dimens ) then
+            !--- compute gradient --------------------------------------------------------
+            !pgi$ unroll = n:8
+            do kk = gL(3), gU(3)
+              r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + cG3(kk,k)*pn(i,j,k+kk,t)
+            end do
+          endif
 
-              r_p(i,j,k,t) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
-              !pgi$ unroll = n:8
-              do ii = dL(1)+1, dU(1)
-                r_p(i,j,k,t) = r_p(i,j,k,t) + cD1(ii,i)*veln(i+ii,j,k,1,t)
-              end do
-              !pgi$ unroll = n:8
-              do jj = dL(2), dU(2)
-                r_p(i,j,k,t) = r_p(i,j,k,t) + cD2(jj,j)*veln(i,j+jj,k,2,t)
-              end do
-              !pgi$ unroll = n:8
-              do kk = dL(3), dU(3)
-                r_p(i,j,k,t) = r_p(i,j,k,t) + cD3(kk,k)*veln(i,j,k+kk,3,t)
-              end do
+          !!================================================================================
+          !!=== computing pressure residual ================================================
+          !!================================================================================
+          if( 3==dimens ) then
 
-            else
+            r_p(i,j,k,t) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
+            !pgi$ unroll = n:8
+            do ii = dL(1)+1, dU(1)
+              r_p(i,j,k,t) = r_p(i,j,k,t) + cD1(ii,i)*veln(i+ii,j,k,1,t)
+            end do
+            !pgi$ unroll = n:8
+            do jj = dL(2), dU(2)
+              r_p(i,j,k,t) = r_p(i,j,k,t) + cD2(jj,j)*veln(i,j+jj,k,2,t)
+            end do
+            !pgi$ unroll = n:8
+            do kk = dL(3), dU(3)
+              r_p(i,j,k,t) = r_p(i,j,k,t) + cD3(kk,k)*veln(i,j,k+kk,3,t)
+            end do
 
-              r_p(i,j,k,t) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
-              !pgi$ unroll = n:8
-              do ii = dL(1)+1, dU(1)
-                r_p(i,j,k,t) = r_p(i,j,k,t) + cD1(ii,i)*veln(i+ii,j,k,1,t)
-              end do
-              !pgi$ unroll = n:8
-              do jj = dL(2), dU(2)
-                r_p(i,j,k,t) = r_p(i,j,k,t) + cD2(jj,j)*veln(i,j+jj,k,2,t)
-              end do
+          else
 
-            end if
+            r_p(i,j,k,t) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
+            !pgi$ unroll = n:8
+            do ii = dL(1)+1, dU(1)
+              r_p(i,j,k,t) = r_p(i,j,k,t) + cD1(ii,i)*veln(i+ii,j,k,1,t)
+            end do
+            !pgi$ unroll = n:8
+            do jj = dL(2), dU(2)
+              r_p(i,j,k,t) = r_p(i,j,k,t) + cD2(jj,j)*veln(i,j+jj,k,2,t)
+            end do
 
-          end do
+          end if
+
         end do
       end do
     end do
+  end do
 
-    !===========================================================================================================
+  !===========================================================================================================
 
-  end subroutine OP_TimeNS
+end subroutine OP_TimeNS
 
 
 

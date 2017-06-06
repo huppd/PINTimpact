@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PIMPACT_EDDYPREC_HPP
 #define PIMPACT_EDDYPREC_HPP
 
@@ -46,7 +46,7 @@ public:
 		mulI_(0.),
 		mulC_(1.),
 		mulL_( 1./op->space()->getDomainSize()->getRe() ),
-		type_( pl->get<int>("type", 0) ),
+		type_( pl->get<int>("type", 2) ),
  		op_(op) {};
 
 	void apply(const DomainFieldT& x, RangeFieldT& y) const {

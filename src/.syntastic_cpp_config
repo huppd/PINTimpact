@@ -7,6 +7,12 @@
 -Isrc_c/Fields
 -Isrc_c/MultiGrid/
 -Isrc_c/MultiGrid/Transfers
+-Isrc_c/NOXPimpact
 -Isrc_c/Operators
+-Isrc_c/Operators/BasicOperators
+-Isrc_c/Operators/CompoundOperators
+-Isrc_c/Operators/ModeOperators
+-Isrc_c/Operators/MultiHarmonicOperators
+-Isrc_c/Operators/TimeOperators
 -Isrc_c/Space
 -std=c++11

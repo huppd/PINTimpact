@@ -9,7 +9,7 @@
 namespace Pimpact {
 
 extern "C" void OP_TimeNS4DBSmoother(
-		const int dimens,
+		const int& dimens,
 		const int* const N,
 		const int* const bl,
 		const int* const bu,
@@ -90,7 +90,7 @@ protected:
 public:
 
 	/// \note todo constructor from space
-	TimeNS4DBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
+	TimeNS4DBSmoother( const Teuchos::RCP<const OperatorT>& op, Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
 		op_( op ),
 		numIters_( pl->get<int>("numIters",4) )	{};
 

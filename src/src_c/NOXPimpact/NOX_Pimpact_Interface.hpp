@@ -42,11 +42,8 @@ public:
 protected:
 
 	Teuchos::RCP<FieldT> fu_;
-	Teuchos::RCP<FieldT> sol_;
 	Teuchos::RCP<OpT>    op_;
 	Teuchos::RCP<IOpT>   jopInv_;
-
-	Teuchos::RCP<std::ostream> eStream;
 
 public:
 
@@ -54,33 +51,14 @@ public:
 	Interface(
 			Teuchos::RCP<FieldT> fu=Teuchos::null,
 			Teuchos::RCP<OpT>    op=Teuchos::null,
-			Teuchos::RCP<IOpT>   jop=Teuchos::null,
-			Teuchos::RCP<FieldT> sol=Teuchos::null	):
+			Teuchos::RCP<IOpT>   jop=Teuchos::null ):
 		fu_( fu ),
-		sol_( sol ),
 		op_(op),
-		jopInv_(jop) {
+		jopInv_(jop) {};
 
-			int world_rank;
-			MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-			if( sol_!=Teuchos::null && world_rank==0 )
-				eStream = Teuchos::rcp( new std::ofstream( "errorIter.txt" ) );
-			else
-				eStream = Teuchos::null;
-		};
 
 	/// Compute the function, F, given the specified input vector x.
 	NOX::Abstract::Group::ReturnType computeF( const FieldT& x, FieldT& f ) {
-
-		if( !sol_.is_null() ) {
-			auto temp = x.getField(0).getVField().clone();
-			double solNorm = sol_->getField(0).getVField().norm();
-			temp->add( 1., sol_->getField(0).getVField(), -1., x.getField(0).getVField() );
-			//temp->add( 1., *sol_, -1., x );
-			double error = temp->norm()/solNorm;
-			if( eStream!=Teuchos::null )
-				*eStream << error << "\n";
-		}
 
 		//x.write();
 		op_->assignField( x );
@@ -134,10 +112,9 @@ template<class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::
 Teuchos::RCP< Interface<FT,OpT,IOpT> > createInterface(
     Teuchos::RCP<FT> fu=Teuchos::null,
     Teuchos::RCP<OpT>  op=Teuchos::null,
-    Teuchos::RCP<IOpT> jop=Teuchos::null,
-    Teuchos::RCP<FT> sol=Teuchos::null	) {
+    Teuchos::RCP<IOpT> jop=Teuchos::null ) {
 
-	return( Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop,sol) ) );
+	return( Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop) ) );
 }
 
 

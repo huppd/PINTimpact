@@ -62,8 +62,10 @@ using O = int;
 using SpaceT = Pimpact::Space<S,O,3,4,4>;
 using CSpaceT = Pimpact::Space<S,O,3,4,2>;
 
-template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
-	Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
+template<class SpaceT> using CVF =
+	Pimpact::CompoundField<
+		Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
+		Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
 
 template<class SpaceT> using INT = Pimpact::IntResCompoundOp<
 	Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,

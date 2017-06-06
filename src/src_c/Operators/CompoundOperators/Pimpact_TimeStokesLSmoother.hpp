@@ -10,7 +10,7 @@ namespace Pimpact {
 extern "C" {
 
 void OP_TimeStokesLSmoother( 
-		const int dimens,
+		const int& dimens,
 		const int* const N,
 		const int* const bl,
 		const int* const bu,

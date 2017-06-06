@@ -22,7 +22,7 @@
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_StatusTest.hpp"
-#include "NOX_Pimpact_PrePostOperator.hpp"
+#include "NOX_Pimpact_PrePostWriter.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
@@ -157,9 +157,7 @@ int main( int argi, char** argv ) {
 			auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
 			auto op = Pimpact::createCompoundOpWrap(
-					opV2V,
-					opS2V,
-					opV2S );
+					opV2V, opS2V, opV2S );
 
 			if( 0==space->rankST() ) std::cout << "create RHS:\n";
 			if( 0==space->rankST() ) std::cout << "\tdiv test\n";
@@ -424,12 +422,18 @@ int main( int argi, char** argv ) {
 
 					std::string modeConvDiffPrecString =
 						pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
-					if( "right" == modeConvDiffPrecString ) 
-						modeInv->setRightPrec(
-								Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
-					if( "left" == modeConvDiffPrecString )
-						modeInv->setLeftPrec(
-								Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+
+					auto modePrec =
+						Pimpact::createMultiOperatorBase(
+								Pimpact::create<Pimpact::EddyPrec>(
+									zeroInv,
+									Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
+
+					if("right" == modeConvDiffPrecString) 
+						modeInv->setRightPrec(modePrec);
+
+					if("left" == modeConvDiffPrecString)
+						modeInv->setLeftPrec(modePrec);
 
 					// create Hinv prec
 					Teuchos::RCP<Pimpact::OperatorBase<MVF> > opV2Vprec = 
@@ -531,6 +535,7 @@ int main( int argi, char** argv ) {
 					Pimpact::createInverseTriangularOp(
 							opV2Vinv,
 							opS2V,
+							//opV2S,
 							opS2Sinv );
 
 				if( "right" == picardPrecString ) 
@@ -538,7 +543,7 @@ int main( int argi, char** argv ) {
 				if( "left" == picardPrecString ) 
 					opInv->setLeftPrec( Pimpact::createMultiOperatorBase( invTriangOp ) );
 			}
-			//** end of init preconditioner ***************************************************************
+			//** end of init preconditioner ***********************************************************
 
 			auto inter = NOX::Pimpact::createInterface(
 					fu,
@@ -560,7 +565,7 @@ int main( int argi, char** argv ) {
 				Teuchos::sublist(pl, "NOX Solver");
 
 			Teuchos::RCP<NOX::Abstract::PrePostOperator> foo =
-				Teuchos::rcp(new NOX::Pimpact::PrePostOperator<NV>( Teuchos::sublist(pl, "NOX write") ));
+				Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ));
 
 			noxSolverPara->sublist("Solver Options").set<Teuchos::RCP<NOX::Abstract::PrePostOperator>>(
 					"User Defined Pre/Post Operator", foo);
@@ -675,6 +680,7 @@ int main( int argi, char** argv ) {
 		/******************************************************************************************/
 
 		Teuchos::TimeMonitor::summarize();
+
 		if( 0==space->rankST() ) {
 			pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
 			Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
