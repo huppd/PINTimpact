@@ -375,8 +375,6 @@ int main( int argi, char** argv ) {
     ////nullspace->write(999);
     ////auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
     ////nullspace->print( *out );
-
-    //opInv->setNullspace( nullspace );
     //}
     //// --- end nullspace
 

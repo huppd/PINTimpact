@@ -62,9 +62,6 @@ protected:
 
   const ProjectorT<OpT> projector_;
 
-  /// \deprecated
-  Teuchos::RCP<const RangeFieldT> nullspace_;
-
 public:
 
   /// should be avoided( used in peri_navierSMGXML)
@@ -129,13 +126,9 @@ public:
     if( initZero_ ) y.init( );
 
     if( nullspaceOrtho_ ) {
-      for( int i=0; i<rhs.getNumberVecs(); ++i ) {
-        //ST bla = -nullspace_->dot( rhs.getField(i) );
-        //if( 0==space()->rankST() ) std::cout << getLabel()<< ": nullspace contributtion[" << i<< "]: " << std::abs(bla)  << "\n";
-        //if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() )
-        //const_cast<MF&>(rhs).getField(i).add( 1., rhs.getField(i), bla, *nullspace_ );
+      for( int i=0; i<rhs.getNumberVecs(); ++i )
         projector_( const_cast<RangeFieldT&>(rhs.getField(i)) );
-      }
+
       if( 0==space()->rankST() ) std::cout << "\n";
     }
 
@@ -177,12 +170,6 @@ public:
       opPrec->assignField( *mv );
     }
   };
-
-
-  void setNullspace( const Teuchos::RCP<const RangeFieldT>& nullspace ) {
-    nullspaceOrtho_ = true;
-    nullspace_ = nullspace;
-  }
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {

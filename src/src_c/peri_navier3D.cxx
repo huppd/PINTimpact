@@ -328,12 +328,10 @@ int main( int argi, char** argv ) {
           nullspace->getVField().getSField(i) =
             nullspace->getVField().get0Field();
         }
-
-        opInv->setNullspace( nullspace );
       }
       //// --- end nullspace
 
-      /*** init preconditioner *******************************************************************/
+      /*** init preconditioner **********************************************************/
 
       std::string picardPrecString = pl->sublist("Picard Solver").get<std::string>( "preconditioner", "none" );
 
@@ -437,7 +435,7 @@ int main( int argi, char** argv ) {
         }
 
 
-        /////////////////////////////////////////end of opv2v//////////////////////////////////////
+        /////////////////////////////////////////end of opv2v////////////////////////////////////
         ////--- inverse DivGrad
 
         if( withoutput )
