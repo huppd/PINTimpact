@@ -577,9 +577,9 @@ int main( int argi, char** argv ) {
                 INT,
                 Pimpact::TimeNSOp,
                 Pimpact::TimeNSOp,
-                MOP,
-                //Pimpact::TimeNS4DBSmoother,
-                //									Pimpact::TimeStokesBSmoother
+                //MOP,
+								Pimpact::TimeNS4DBSmoother,
+								//Pimpact::TimeStokesBSmoother,
                 MOP > ( mgSpaces, mgPL );
 
       if( "right" == picardPrecString )

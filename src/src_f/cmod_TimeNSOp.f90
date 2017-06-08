@@ -363,150 +363,147 @@ contains
             !=== computing velocity residual in z-direction =================================
             !================================================================================
             if( 3==dimens .and. SW(1)<=i .and. i<=NW(1) .and. SW(2)<=j .and. j<=NW(2) .and. SW(3)<=k .and. k<=NW(3) ) then
-            !--- compute time derivative --------------------------------------------------
-            r_vel(i,j,k,3,t) =  mulI*( veln(i,j,k,3,t) - veln(i,j,k,3,t-1) )
-            !--- compute convection -------------------------------------------------------
-            !--- u*d/dx ---
-            if( windu(i,j,k,3,t) >= 0. ) then
+              !--- compute time derivative --------------------------------------------------
+              r_vel(i,j,k,3,t) =  mulI*( veln(i,j,k,3,t) - veln(i,j,k,3,t-1) )
+              !--- compute convection -------------------------------------------------------
+              !--- u*d/dx ---
+              if( windu(i,j,k,3,t) >= 0. ) then
+                !pgi$ unroll = n:8
+                do ii = cl(1), cu(1)
+                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windu(i,j,k,3,t)*c1pu(ii,i)*veln(i+ii,j,k,3,t)
+                end do
+              else
+                !pgi$ unroll = n:8
+                do ii = cl(1), cu(1)
+                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windu(i,j,k,3,t)*c1pd(ii,i)*veln(i+ii,j,k,3,t)
+                end do
+              end if
+              !--- v*d/dy ---
+              if( windv(i,j,k,3,t) >= 0. ) then
+                !pgi$ unroll = n:8
+                do jj = cl(2), cu(2)
+                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windv(i,j,k,3,t)*c2pu(jj,j)*veln(i,j+jj,k,3,t)
+                end do
+              else
+                !pgi$ unroll = n:8
+                do jj = cl(2), cu(2)
+                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windv(i,j,k,3,t)*c2pd(jj,j)*veln(i,j+jj,k,3,t)
+                end do
+              end if
+              !--- w*d/dz ---
+              if( windw(i,j,k,3,t) >= 0. ) then
+                !pgi$ unroll = n:8
+                do kk = cl(3), cu(3)
+                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windw(i,j,k,3,t)*c3wu(kk,k)*veln(i,j,k+kk,3,t)
+                end do                                                                       
+              else                                                                           
+                !pgi$ unroll = n:8                                                           
+                do kk = cl(3), cu(3)                                                         
+                  r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windw(i,j,k,3,t)*c3wd(kk,k)*veln(i,j,k+kk,3,t)
+                end do
+              end if
+              !--- compute diffusion --------------------------------------------------------
+              dd1 = c11p(bL(1),i)*veln(i+bL(1),j,k,3,t)
               !pgi$ unroll = n:8
-              do ii = cl(1), cu(1)
-                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windu(i,j,k,3,t)*c1pu(ii,i)*veln(i+ii,j,k,3,t)
+              do ii = bL(1)+1, bU(1)
+                dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,3,t)
               end do
-            else
               !pgi$ unroll = n:8
-              do ii = cl(1), cu(1)
-                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windu(i,j,k,3,t)*c1pd(ii,i)*veln(i+ii,j,k,3,t)
+              do jj = bL(2), bU(2)
+                dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,3,t)
               end do
-            end if
-            !--- v*d/dy ---
-            if( windv(i,j,k,3,t) >= 0. ) then
+              if( 3==dimens) then
+                !pgi$ unroll = n:8
+                do kk = bL(3), bU(3)
+                  dd1 = dd1 + c33w(kk,k)*veln(i,j,k+kk,3,t)
+                end do
+              endif
+              r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) - mulL*dd1
+
+              !--- compute gradient --------------------------------------------------------
               !pgi$ unroll = n:8
-              do jj = cl(2), cu(2)
-                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windv(i,j,k,3,t)*c2pu(jj,j)*veln(i,j+jj,k,3,t)
-              end do
-            else
-              !pgi$ unroll = n:8
-              do jj = cl(2), cu(2)
-                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windv(i,j,k,3,t)*c2pd(jj,j)*veln(i,j+jj,k,3,t)
-              end do
-            end if
-            !--- w*d/dz ---
-            if( windw(i,j,k,3,t) >= 0. ) then
-              !pgi$ unroll = n:8
-              do kk = cl(3), cu(3)
-                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windw(i,j,k,3,t)*c3wu(kk,k)*veln(i,j,k+kk,3,t)
-              end do                                                                       
-            else                                                                           
-              !pgi$ unroll = n:8                                                           
-              do kk = cl(3), cu(3)                                                         
-                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + windw(i,j,k,3,t)*c3wd(kk,k)*veln(i,j,k+kk,3,t)
-              end do
-            end if
-            !--- compute diffusion --------------------------------------------------------
-            dd1 = c11p(bL(1),i)*veln(i+bL(1),j,k,3,t)
-            !pgi$ unroll = n:8
-            do ii = bL(1)+1, bU(1)
-              dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,3,t)
-            end do
-            !pgi$ unroll = n:8
-            do jj = bL(2), bU(2)
-              dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,3,t)
-            end do
-            if( 3==dimens) then
-              !pgi$ unroll = n:8
-              do kk = bL(3), bU(3)
-                dd1 = dd1 + c33w(kk,k)*veln(i,j,k+kk,3,t)
+              do kk = gL(3), gU(3)
+                r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + cG3(kk,k)*pn(i,j,k+kk,t)
               end do
             endif
-            r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) - mulL*dd1
 
-            !--- compute gradient --------------------------------------------------------
-            !pgi$ unroll = n:8
-            do kk = gL(3), gU(3)
-              r_vel(i,j,k,3,t) = r_vel(i,j,k,3,t) + cG3(kk,k)*pn(i,j,k+kk,t)
-            end do
-          endif
+            !!================================================================================
+            !!=== computing pressure residual ================================================
+            !!================================================================================
+            if( 3==dimens ) then
 
-          !!================================================================================
-          !!=== computing pressure residual ================================================
-          !!================================================================================
-          if( 3==dimens ) then
+              r_p(i,j,k,t) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
+              !pgi$ unroll = n:8
+              do ii = dL(1)+1, dU(1)
+                r_p(i,j,k,t) = r_p(i,j,k,t) + cD1(ii,i)*veln(i+ii,j,k,1,t)
+              end do
+              !pgi$ unroll = n:8
+              do jj = dL(2), dU(2)
+                r_p(i,j,k,t) = r_p(i,j,k,t) + cD2(jj,j)*veln(i,j+jj,k,2,t)
+              end do
+              !pgi$ unroll = n:8
+              do kk = dL(3), dU(3)
+                r_p(i,j,k,t) = r_p(i,j,k,t) + cD3(kk,k)*veln(i,j,k+kk,3,t)
+              end do
 
-            r_p(i,j,k,t) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
-            !pgi$ unroll = n:8
-            do ii = dL(1)+1, dU(1)
-              r_p(i,j,k,t) = r_p(i,j,k,t) + cD1(ii,i)*veln(i+ii,j,k,1,t)
-            end do
-            !pgi$ unroll = n:8
-            do jj = dL(2), dU(2)
-              r_p(i,j,k,t) = r_p(i,j,k,t) + cD2(jj,j)*veln(i,j+jj,k,2,t)
-            end do
-            !pgi$ unroll = n:8
-            do kk = dL(3), dU(3)
-              r_p(i,j,k,t) = r_p(i,j,k,t) + cD3(kk,k)*veln(i,j,k+kk,3,t)
-            end do
+            else
 
-          else
+              r_p(i,j,k,t) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
+              !pgi$ unroll = n:8
+              do ii = dL(1)+1, dU(1)
+                r_p(i,j,k,t) = r_p(i,j,k,t) + cD1(ii,i)*veln(i+ii,j,k,1,t)
+              end do
+              !pgi$ unroll = n:8
+              do jj = dL(2), dU(2)
+                r_p(i,j,k,t) = r_p(i,j,k,t) + cD2(jj,j)*veln(i,j+jj,k,2,t)
+              end do
 
-            r_p(i,j,k,t) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
-            !pgi$ unroll = n:8
-            do ii = dL(1)+1, dU(1)
-              r_p(i,j,k,t) = r_p(i,j,k,t) + cD1(ii,i)*veln(i+ii,j,k,1,t)
-            end do
-            !pgi$ unroll = n:8
-            do jj = dL(2), dU(2)
-              r_p(i,j,k,t) = r_p(i,j,k,t) + cD2(jj,j)*veln(i,j+jj,k,2,t)
-            end do
+            end if
 
-          end if
-
+          end do
         end do
       end do
     end do
-  end do
 
-  !===========================================================================================================
+    !=========================================================================================
 
-end subroutine OP_TimeNS
-
+  end subroutine OP_TimeNS
 
 
-  !> \brief computes Time dependent NS operator
-  !! is used for inner field
-  !! todo implement: generate small systems solve them, update solution
+
   subroutine OP_TimeNSBSmoother(  &
-      dimens,               &
-      N,                    &
-      bL,bU,                &
-      BCL,BCU,              &
-      cL,cU,                &
-      dL,dU,                &
-      gL,gU,                &
-      SS,NN,                &
-      SU,NU,                &
-      SV,NV,                &
-      SW,NW,                &
-      c1uD,c2vD,c3wD,       &
-      c1uU,c2vU,c3wU,       &
-      c1pD,c2pD,c3pD,       &
-      c1pU,c2pU,c3pU,       &
-      c11p,c22p,c33p,       &
-      c11u,c22v,c33w,       &
-      cD1,                  &
-      cD2,                  &
-      cD3,                  &
-      cG1,                  &
-      cG2,                  &
-      cG3,                  &
-      mulI,                 &
-      mulL,                 &
-      windU,                &
-      windV,                &
-      windW,                &
-      rhs_vel,              &
-      rhs_p,                &
-      vel,                  &
-      p,                    &
+      dimens,                     &
+      N,                          &
+      bL,bU,                      &
+      BCL,BCU,                    &
+      cL,cU,                      &
+      dL,dU,                      &
+      gL,gU,                      &
+      SS,NN,                      &
+      SU,NU,                      &
+      SV,NV,                      &
+      SW,NW,                      &
+      c1uD,c2vD,c3wD,             &
+      c1uU,c2vU,c3wU,             &
+      c1pD,c2pD,c3pD,             &
+      c1pU,c2pU,c3pU,             &
+      c11p,c22p,c33p,             &
+      c11u,c22v,c33w,             &
+      cD1,                        &
+      cD2,                        &
+      cD3,                        &
+      cG1,                        &
+      cG2,                        &
+      cG3,                        &
+      mulI,                       &
+      mulL,                       &
+      windU,                      &
+      windV,                      &
+      windW,                      &
+      rhs_vel,                    &
+      rhs_p,                      &
+      vel,                        &
+      p,                          &
       direction_flag ) bind (c,name='OP_TimeNSBSmoother')
 
 
@@ -597,7 +594,7 @@ end subroutine OP_TimeNS
     integer(c_int)              ::  k
     integer(c_int)              ::  t
 
-    !===========================================================================================================
+    !=========================================================================================
 
     integer(c_int)       ::  i_start, i_end, j_start, j_end, k_start,k_end, increment             
 
@@ -614,7 +611,7 @@ end subroutine OP_TimeNS
 
     omega = 1
 
-    do t = SS(4), N(4)
+    do t = SS(4), NN(4)
 
       if ( MOD(direction_flag,2) == 1) then
 
@@ -851,12 +848,12 @@ end subroutine OP_TimeNS
 
               b = b - mulL*(/ c11u(bU(1),i)*vel(i+bU(1),j,k,1,t),c11u(bL(1),i-1)*vel(i-1+bL(1),j,k,1,t),&
                 c22v(bU(2),j)*vel(i,j+bU(2),k,2,t),c22v(bL(2),j-1)*vel(i,j-1+bL(2),k,2,t),&
-                c33w(bU(3),k)*vel(i,j,k+bU(3),3,t),c33w(bL(3),k-1)*vel(i,j,k-1+bL(3),3,t), 0. /)
+                c33w(bU(3),k)*vel(i,j,k+bU(3),3,t),c33w(bL(3),k-1)*vel(i,j,k-1+bL(3),3,t), 0.d+1 /)
 
               ! pressure gradient
               b = b + (/ cG1(gU(1),i)*p(i+gU(1),j,k,t),cG1(gL(1),i-1)*p(i-1+gL(1),j,k,t),&
                 cG2(gU(2),j)*p(i,j+gU(2),k,t),cG2(gL(2),j-1)*p(i,j-1+gL(2),k,t),&
-                cG3(gU(3),k)*p(i,j,k+gU(3),t),cG3(gL(3),k-1)*p(i,j,k-1+gL(3),t), 0. /)
+                cG3(gU(3),k)*p(i,j,k+gU(3),t),cG3(gL(3),k-1)*p(i,j,k-1+gL(3),t), 0.d+1 /)
 
               ! time stencil
               b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
@@ -977,39 +974,41 @@ end subroutine OP_TimeNS
 
   end subroutine OP_TimeNSBSmoother
 
+
+
   subroutine OP_TimeNS4DBSmoother(  &
-      dimens,               &
-      N,                    &
-      bL,bU,                &
-      BCL,BCU,              &
-      cL,cU,                &
-      dL,dU,                &
-      gL,gU,                &
-      SS,NN,                &
-      SU,NU,                &
-      SV,NV,                &
-      SW,NW,                &
-      c1uD,c2vD,c3wD,       &
-      c1uU,c2vU,c3wU,       &
-      c1pD,c2pD,c3pD,       &
-      c1pU,c2pU,c3pU,       &
-      c11p,c22p,c33p,       &
-      c11u,c22v,c33w,       &
-      cD1,                  &
-      cD2,                  &
-      cD3,                  &
-      cG1,                  &
-      cG2,                  &
-      cG3,                  &
-      mulI,                 &
-      mulL,                 &
-      windU,                &
-      windV,                &
-      windW,                &
-      rhs_vel,              &
-      rhs_p,                &
-      vel,                  &
-      p,                    &
+      dimens,                       &
+      N,                            &
+      bL,bU,                        &
+      BCL,BCU,                      &
+      cL,cU,                        &
+      dL,dU,                        &
+      gL,gU,                        &
+      SS,NN,                        &
+      SU,NU,                        &
+      SV,NV,                        &
+      SW,NW,                        &
+      c1uD,c2vD,c3wD,               &
+      c1uU,c2vU,c3wU,               &
+      c1pD,c2pD,c3pD,               &
+      c1pU,c2pU,c3pU,               &
+      c11p,c22p,c33p,               &
+      c11u,c22v,c33w,               &
+      cD1,                          &
+      cD2,                          &
+      cD3,                          &
+      cG1,                          &
+      cG2,                          &
+      cG3,                          &
+      mulI,                         &
+      mulL,                         &
+      windU,                        &
+      windV,                        &
+      windW,                        &
+      rhs_vel,                      &
+      rhs_p,                        &
+      vel,                          &
+      p,                            &
       direction_flag) bind (c,name='OP_TimeNS4DBSmoother')
 
 
@@ -1101,7 +1100,7 @@ end subroutine OP_TimeNS
     integer(c_int)              ::  k
     integer(c_int)              ::  t
 
-    !===========================================================================================================
+    !=========================================================================================
 
     integer(c_int)       ::  i_start, i_end, j_start, j_end, k_start, k_end, increment
 
@@ -1119,7 +1118,7 @@ end subroutine OP_TimeNS
 
     omega = 1
 
-    do t = SS(4), N(4)-1
+    do t = SS(4), NN(4)
 
       if ( MOD(direction_flag,2) == 1) then
 
@@ -1386,7 +1385,7 @@ end subroutine OP_TimeNS
                 c22v(bL(2),j-1)*vel(i        ,j-1+bL(2),k        ,2,t+1),&
                 c33w(bU(3),k  )*vel(i        ,j        ,k+bU(3)  ,3,t+1),&
                 c33w(bL(3),k-1)*vel(i        ,j        ,k-1+bL(3),3,t+1),&
-                0., 0. /) ! -> divergence
+                0.d+1, 0.d+1 /) ! -> divergence
 
               ! pressure gradient
               b = b + (/ cG1(gU(1),i  )*p(i+gU(1)  ,j        ,k        ,t  ),&
@@ -1401,7 +1400,7 @@ end subroutine OP_TimeNS
                 cG2(gL(2),j-1)*p(i        ,j-1+gL(2),k        ,t+1),&
                 cG3(gU(3),k  )*p(i        ,j        ,k+gU(3)  ,t+1),&
                 cG3(gL(3),k-1)*p(i        ,j        ,k-1+gL(3),t+1),&
-                0., 0. /) ! -> divergence
+                0.d+1, 0.d+1 /) ! -> divergence
 
               ! time stencil (just in the first time slice)
               b(1:6) = b(1:6) - mulI*(/ vel(i  ,j  ,k  ,1,t-1),&

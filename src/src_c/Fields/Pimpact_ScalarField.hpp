@@ -27,7 +27,6 @@
 namespace Pimpact {
 
 
-
 /// \brief important basic Vector class
 /// vector for a scalar field, e.g.: pressure,
 /// \ingroup Field
@@ -69,11 +68,12 @@ public:
     exchangedState_( Teuchos::tuple( true, true, true ) ),
     fType_(fType) {
 
-    if( owning_ ) {
-      allocate();
-      init();
-    }
-  };
+      if( owning_ ) {
+        allocate();
+        init();
+      }
+    };
+
 
   /// \brief copy constructor.
   ///
@@ -86,20 +86,20 @@ public:
     exchangedState_( sF.exchangedState_ ),
     fType_( sF.fType_ ) {
 
-    if( owning_ ) {
+      if( owning_ ) {
 
-      allocate();
+        allocate();
 
-      switch( copyType ) {
-      case ECopy::Shallow:
-        init();
-        break;
-      case ECopy::Deep:
-        *this = sF;
-        break;
+        switch( copyType ) {
+          case ECopy::Shallow:
+            init();
+            break;
+          case ECopy::Deep:
+            *this = sF;
+            break;
+        }
       }
-    }
-  };
+    };
 
 
   ~ScalarField() {

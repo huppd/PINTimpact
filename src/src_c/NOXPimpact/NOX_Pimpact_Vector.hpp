@@ -40,6 +40,8 @@ class Vector : public virtual NOX::Abstract::Vector {
 
 public:
 
+  using FieldT = Field;
+
   /// %PIMPACT %Vector constructor (does nothing)
   Vector() {
     field_ = Teuchos::null;

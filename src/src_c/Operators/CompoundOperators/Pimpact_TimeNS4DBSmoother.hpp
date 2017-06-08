@@ -5,6 +5,10 @@
 
 #include "Teuchos_RCP.hpp"
 
+#include "Pimpact_CompoundField.hpp"
+#include "Pimpact_TimeField.hpp"
+
+
 
 namespace Pimpact {
 
@@ -78,8 +82,11 @@ public:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  using DomainFieldT = CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >;
-  using RangeFieldT = CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >;
+  using DomainFieldT = CompoundField<TimeField<VectorField<SpaceT>>,
+        TimeField<ScalarField<SpaceT>>>;
+
+  using RangeFieldT = CompoundField<TimeField<VectorField<SpaceT>>,
+        TimeField<ScalarField<SpaceT>>>;
 
 
 protected:
@@ -122,8 +129,10 @@ public:
         xp(i).exchange();
       }
 
+      int dimens = SpaceT::sdim;
+
       OP_TimeNS4DBSmoother(
-        SpaceT::sdim,
+        dimens,
         space()->nLoc(),
         space()->bl(),
         space()->bu(),

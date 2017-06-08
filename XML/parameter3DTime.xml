@@ -109,20 +109,22 @@
 		</ParameterList>
 	</ParameterList>
 	<ParameterList id="22" name="Solver">
-		<Parameter docString="" id="106" isDefault="true" isUsed="true" name="initial guess" type="string" value="exact" />
+		<Parameter docString="" id="106" isDefault="true" isUsed="true" name="initial guess"
+      type="string" value="distrubed" />
 		<Parameter docString="" id="107" isDefault="true" isUsed="true" name="withoutput" type="int" value="1" />
 	</ParameterList>
 	<ParameterList id="23" name="Multi Grid">
-		<Parameter docString="" id="108" isDefault="false" isUsed="true" name="maxGrids" type="int" value="6" />
+		<Parameter docString="" id="108" isDefault="false" isUsed="true" name="maxGrids" type="int" value="2" />
 	</ParameterList>
 	<ParameterList id="999923" name="Picard Solver">
-		<Parameter docString="" id="118" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
-		<Parameter docString="" id="119" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="118" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
+		<Parameter docString="" id="119" isDefault="true" isUsed="true" name="preconditioner"
+      type="string" value="none" />
 		<ParameterList id="24" name="Solver">
-			<Parameter docString="" id="99148" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
-			<Parameter docString="" id="99140" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="6" />
-			<!--<Parameter docString="" id="99137" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
-			<!--<Parameter docString="" id="99147" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="None" />-->
+			<Parameter docString="" id="99148" isDefault="false" isUsed="true" name="Maximum Iterations"
+        type="int" value="400" />
+			<Parameter docString="" id="99140" isDefault="false" isUsed="true" name="Num Blocks"
+        type="int" value="10" />
 			<Parameter docString="" id="120" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.000000000000000e-02" />
 			<Parameter docString="" id="121" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="122" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Picard" />

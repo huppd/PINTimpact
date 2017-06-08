@@ -7,9 +7,12 @@
 #include "Pimpact_ScalarField.hpp"
 
 #include "Pimpact_CompoundField.hpp"
+#include "Pimpact_ConvectionSOp.hpp"
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
-#include "Pimpact_ConvectionSOp.hpp"
+#include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_InterpolateS2VOp.hpp"
+#include "Pimpact_TimeField.hpp"
 
 
 
@@ -50,8 +53,8 @@ extern "C" {
     const double* const pn,
     double* const r_vel,
     double* const r_p );
-
 }
+
 
 /// \ingroup CompoundOperator
 ///
@@ -76,16 +79,16 @@ protected:
 
   static const int dimNC = SpaceT::dimNC;
 
-  Teuchos::RCP< TimeField<VectorField<ST> > > windU_;
-  Teuchos::RCP< TimeField<VectorField<ST> > > windV_;
-  Teuchos::RCP< TimeField<VectorField<ST> > > windW_;
+  Teuchos::RCP<TimeField<VectorField<ST>>> windU_;
+  Teuchos::RCP<TimeField<VectorField<ST>>> windV_;
+  Teuchos::RCP<TimeField<VectorField<ST>>> windW_;
 
-  Teuchos::RCP<const InterpolateS2V<ST> > interpolateS2V_;
-  Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,sdim,dimension,dimNC> > interpolateV2S_;
-  Teuchos::RCP<const ConvectionSOp<ST> > conv_;
-  Teuchos::RCP<const HelmholtzOp<ST>   > helm_;
-  Teuchos::RCP<const GradOp<ST>        > grad_;
-  Teuchos::RCP<const DivOp<ST>         > div_;
+  Teuchos::RCP<const InterpolateS2V<ST>> interpolateS2V_;
+  Teuchos::RCP<const InterpolateV2S<Scalar, Ordinal, sdim, dimension, dimNC>> interpolateV2S_;
+  Teuchos::RCP<const ConvectionSOp<ST>> conv_;
+  Teuchos::RCP<const HelmholtzOp<ST>> helm_;
+  Teuchos::RCP<const GradOp<ST>> grad_;
+  Teuchos::RCP<const DivOp<ST>>  div_;
 
 public:
 
@@ -99,6 +102,7 @@ public:
     helm_( create< HelmholtzOp<ST>   >(space) ),
     grad_( create< GradOp<ST>        >(space) ),
     div_ ( create< DivOp<ST>         >(space) ) {};
+
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 

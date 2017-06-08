@@ -16,12 +16,14 @@
 #include "BelosTypes.hpp"
 
 #include "NOX.H"
+#include "NOX_PrePostOperator_Vector.H"
 
 #include "BelosPimpactAdapter.hpp"
 #include "NOX_Pimpact_Group.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_StatusTest.hpp"
+#include "NOX_Pimpact_PrePostError.hpp"
 #include "NOX_Pimpact_PrePostWriter.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
@@ -186,7 +188,7 @@ int main( int argi, char** argv ) {
       }
 
       if( 0==space->rankST() ) std::cout << "\tforcing\n";
-      // Taylor Green Vortex
+      // Taylor-Green Vortex
       std::string forceType = pl->sublist("Force").get<std::string>("force type","Dirichlet");
       if( "force"== forceType )
         fu->getField(0).getVField().initField( pl->sublist("Force"), Pimpact::Add::Y );
@@ -205,42 +207,36 @@ int main( int argi, char** argv ) {
         // --- init RHS ---
         if( 0==space->si(Pimpact::F::U,3) ) {
           fu->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b/*+c*c*/)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b+c*c)*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
           fu->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b/*+c*c*/)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
         }
 
         if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
           fu->getField(0).getVField().getCField(1)(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
           fu->getField(0).getVField().getCField(1)(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
-          //fu->getField(0).getVField().getCField(1)(Pimpact::F::W).initFromFunction(
-          //[&]( ST x, ST y, ST z ) ->ST { return( alpha2*C*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
 
           fu->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b/*+c*c*/)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b+c*c)*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
           fu->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b/*+c*c*/)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*//re ); } );
-          //fu->getField(0).getVField().getSField(1)(Pimpact::F::W).initFromFunction(
-          //[&]( ST x, ST y, ST z ) ->ST { return( C*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
         }
 
         // --- init solution ---
         if( 0==space->si(Pimpact::F::U,3) ) {
           sol->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*/ ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2) ); } );
           sol->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*/ ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2) ); } );
         }
 
         if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
           sol->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/* *std::sin(c*z*pi2)*/ ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2) ); } );
           sol->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/* *std::sin(c*z*pi2)*/ ); } );
-          //sol->getSField(1)(Pimpact::F::W).initFromFunction(
-          //[&]( ST x, ST y, ST z ) ->ST { return( C*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2) ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2) ); } );
         }
       }
 
@@ -332,11 +328,6 @@ int main( int argi, char** argv ) {
           nullspace->getVField().getSField(i) =
             nullspace->getVField().get0Field();
         }
-
-
-        //nullspace->write(999);
-        //auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
-        //nullspace->print( *out );
 
         opInv->setNullspace( nullspace );
       }
@@ -547,7 +538,6 @@ int main( int argi, char** argv ) {
                      fu,
                      Pimpact::createMultiOpWrap(op),
                      Pimpact::createMultiOpWrap(opInv) );
-      //, withoutput?sol:Teuchos::null );
 
       auto nx = NOX::Pimpact::createVector( x );
 
@@ -562,11 +552,18 @@ int main( int argi, char** argv ) {
       Teuchos::RCP<Teuchos::ParameterList> noxSolverPara =
         Teuchos::sublist(pl, "NOX Solver");
 
-      Teuchos::RCP<NOX::Abstract::PrePostOperator> foo =
-        Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ));
+      // NOX PrePostOperators
+      Teuchos::RCP<NOX::PrePostOperatorVector> prePostOperators =
+        Teuchos::rcp( new NOX::PrePostOperatorVector() );
+
+      prePostOperators->pushBack( 
+          Teuchos::rcp( new NOX::Pimpact::PrePostErrorCompute<NV>(Teuchos::sublist(pl, "NOX error"), sol)) );
+
+      prePostOperators->pushBack( 
+          Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ) ) );
 
       noxSolverPara->sublist("Solver Options").set<Teuchos::RCP<NOX::Abstract::PrePostOperator>>(
-            "User Defined Pre/Post Operator", foo);
+          "User Defined Pre/Post Operator", prePostOperators);
 
       Teuchos::RCP<NOX::Solver::Generic> solver =
         NOX::Solver::buildSolver( group, statusTest, noxSolverPara );
@@ -597,15 +594,6 @@ int main( int argi, char** argv ) {
         //Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getField().write( (refine+1)*1000 );
       }
 
-      // --- compute error ---
-      //{
-      //ST solNorm = sol->getField(0).getVField().norm();
-      //sol->getField(0).getVField().add( 1., sol->getField(0).getVField(), -1., x->getField(0).getVField() );
-      //ST error = sol->getField(0).getVField().norm()/solNorm;
-      //if( 0==space->rankST() ) std::cout << "error: " << error << "\n";
-      //auto eStream = Pimpact::createOstream("error.txt", space->rankST() );
-      //*eStream << error << "\n";
-      //}
       // compute glob energy in y-dir
       {
 
@@ -670,6 +658,7 @@ int main( int argi, char** argv ) {
         x = Pimpact::wrapMultiField( xf );
         space = spaceF;
       }
+      prePostOperators->clear();
 
     } // end of for( int refine=0; refine<refinement; ++refine ) {
     /******************************************************************************************/

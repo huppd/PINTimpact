@@ -86,9 +86,9 @@ void computeEnergyY( const VectorField<SpaceT>& vel, std::ostream& out=std::cout
     0,                                         // int root,
     space->getProcGrid()->getCommSlice(Y) );   // MPI_Comm communicator);
 
-  std::cout << space->nGlo(Y) << "\n";
-  std::cout << space->nLoc(Y) << "\n";
-  std::cout << space->getProcGrid()->getNP(Y) << "\n";
+  //std::cout << space->nGlo(Y) << "\n";
+  //std::cout << space->nLoc(Y) << "\n";
+  //std::cout << space->getProcGrid()->getNP(Y) << "\n";
 
   std::vector<ST> energyYglobal( space->nGlo(Y), Teuchos::ScalarTraits<ST>::zero() );
 
