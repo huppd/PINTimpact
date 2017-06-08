@@ -49,7 +49,6 @@ protected:
   using ST = typename SpaceT::Scalar;
 
   bool level_;
-  bool levelRHS_;
   bool nullspaceOrtho_;
   bool initZero_;
   bool debug_;
@@ -72,7 +71,6 @@ public:
   /// does not work
   InverseOp( const Teuchos::RCP<const SpaceT>& space ):
     level_(false),
-    levelRHS_(false),
     nullspaceOrtho_(false),
     initZero_(false),
     debug_(false),
@@ -84,7 +82,6 @@ public:
 
   InverseOp( const Teuchos::RCP<OpT>& op ):
     level_(false),
-    levelRHS_(false),
     nullspaceOrtho_(false),
     initZero_(false),
     debug_(false),
@@ -104,7 +101,6 @@ public:
   InverseOp( const Teuchos::RCP<OperatorT>& op,
              const Teuchos::RCP<Teuchos::ParameterList>& pl ):
     level_( pl->get<bool>( "level", false ) ),
-    levelRHS_( pl->get<bool>( "level RHS", false ) ),
     nullspaceOrtho_( pl->get<bool>( "nullspace ortho", false ) ),
     initZero_( pl->get<bool>( "initZero", false ) ),
     debug_( pl->get<bool>( "debug", false ) ),
@@ -130,12 +126,8 @@ public:
   /// \brief MultiField helper (useful for MH ops)
   void apply( const MF& rhs, MF& y, const Add& add=Add::N  ) const {
 
-    if( levelRHS_ ) {
-      rhs.level();
-    }
-    if( initZero_ ) {
-      y.init( );
-    }
+    if( initZero_ ) y.init( );
+
     if( nullspaceOrtho_ ) {
       for( int i=0; i<rhs.getNumberVecs(); ++i ) {
         //ST bla = -nullspace_->dot( rhs.getField(i) );

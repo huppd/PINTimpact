@@ -50,7 +50,6 @@
     <Parameter docString="" id="40" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
     <Parameter docString="" id="41" isDefault="true" isUsed="true" name="initZero" type="bool" value="false"/>
     <Parameter docString="" id="42" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES"/>
-    <Parameter docString="" id="79" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
     <Parameter docString="" id="80" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
     <Parameter docString="" id="81" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
     <Parameter docString="" id="82" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.00000000000000000e+00"/>
@@ -76,7 +75,6 @@
           <Parameter docString="" id="53" isDefault="false" isUsed="true" name="omega" type="double" value="1.00000000000000000e+00"/>
         </ParameterList>
         <Parameter docString="" id="55" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
-        <Parameter docString="" id="56" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
         <Parameter docString="" id="57" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
         <Parameter docString="" id="58" isDefault="true" isUsed="true" name="initZero" type="bool" value="false"/>
         <Parameter docString="" id="59" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
@@ -104,7 +102,6 @@
     <!--<Parameter docString="" id="87" isDefault="true" isUsed="true" name="preconditioner type" type="int" value="0"/>-->
     <Parameter docString="" id="95" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
     <Parameter docString="" id="96" isDefault="true" isUsed="true" name="initZero" type="bool" value="false"/>
-    <Parameter docString="" id="97" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
     <Parameter docString="" id="98" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
     <Parameter docString="" id="99" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
     <Parameter docString="" id="100" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.00000000000000000e+00"/>

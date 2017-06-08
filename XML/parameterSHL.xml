@@ -120,7 +120,6 @@
 		<Parameter docString="" id="99" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right"/>
 		<Parameter docString="" id="100" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
 		<Parameter docString="" id="110" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
-		<Parameter docString="" id="111" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
 		<Parameter docString="" id="112" isDefault="true" isUsed="true" name="initZero" type="bool" value="true"/>
 		<Parameter docString="" id="113" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
 		<ParameterList id="109" name="Solver">
@@ -169,7 +168,6 @@
 				<Parameter docString="" id="140" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES"/>
 				<Parameter docString="" id="141" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false"/>
 				<Parameter docString="" id="160" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
-				<Parameter docString="" id="161" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
 				<Parameter docString="" id="162" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
 				<Parameter docString="" id="163" isDefault="true" isUsed="true" name="initZero" type="bool" value="true"/>
 				<Parameter docString="" id="164" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
@@ -197,7 +195,6 @@
 			<Parameter docString="" id="166" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false"/>
 			<Parameter docString="" id="167" isDefault="true" isUsed="true" name="cycle type" type="int" value="0"/>
 		</ParameterList>
-		<Parameter docString="" id="169" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
 		<Parameter docString="" id="170" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
 	</ParameterList>
 	<ParameterList id="220" name="ConvDiff">
@@ -206,7 +203,6 @@
 		<Parameter docString="" id="173" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
 		<Parameter docString="" id="174" isDefault="true" isUsed="true" name="initZero" type="bool" value="true"/>
 		<Parameter docString="" id="11139" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-2" />
-		<Parameter docString="" id="216" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
 		<Parameter docString="" id="217" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
 		<Parameter docString="" id="218" isDefault="true" isUsed="true" name="debug" type="bool" value="true"/>
 		<Parameter docString="" id="219" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right"/>
@@ -237,7 +233,6 @@
 				<Parameter docString="" id="177" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES"/>
 				<Parameter docString="" id="178" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false"/>
 				<Parameter docString="" id="189" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
-				<Parameter docString="" id="190" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
 				<Parameter docString="" id="191" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
 				<Parameter docString="" id="192" isDefault="true" isUsed="true" name="initZero" type="bool" value="true"/>
 				<Parameter docString="" id="193" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
@@ -267,7 +262,6 @@
 		<Parameter docString="" id="19113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-3" />
 		<Parameter docString="" id="235" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
 		<Parameter docString="" id="236" isDefault="true" isUsed="true" name="initZero" type="bool" value="true"/>
-		<Parameter docString="" id="237" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
 		<Parameter docString="" id="238" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
 		<Parameter docString="" id="239" isDefault="true" isUsed="true" name="debug" type="bool" value="true"/>
 		<ParameterList id="234" name="Solver">
@@ -290,7 +284,6 @@
 		<Parameter docString="" id="242" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right"/>
 		<Parameter docString="" id="91113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-2" />
 		<Parameter docString="" id="259" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
-		<Parameter docString="" id="260" isDefault="true" isUsed="true" name="level RHS" type="bool" value="false"/>
 		<Parameter docString="" id="261" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
 		<Parameter docString="" id="262" isDefault="true" isUsed="true" name="initZero" type="bool" value="true"/>
 		<Parameter docString="" id="263" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
