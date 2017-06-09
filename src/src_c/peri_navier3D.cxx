@@ -37,6 +37,7 @@
 #include "Pimpact_MultiOpSmoother.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorFactory.hpp"
+#include "Pimpact_PicardProjector.hpp"
 #include "Pimpact_RefinementStrategy.hpp"
 #include "Pimpact_TransferCompoundOp.hpp"
 #include "Pimpact_TransferMultiHarmonicOp.hpp"
@@ -296,40 +297,9 @@ int main( int argi, char** argv ) {
         pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
           "Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
 
-      auto opInv = Pimpact::createInverseOp( op, Teuchos::sublist( pl, "Picard Solver" ) );
-
-      ////--- nullspace
-      if( pl->sublist( "Picard Solver" ).get<bool>( "nullspace ortho", true ) ) {
-        auto nullspace = x->getField(0).clone( Pimpact::ECopy::Shallow );
-
-        Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;
-
-        compNullspace.computeNullSpace( opV2S->getOperatorPtr(),
-                                        nullspace->getSField().get0Field(), true );
-
-        nullspace->getVField().get0Field()(Pimpact::F::U).initFromFunction(
-          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::X)&&x<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::X)&&1.<=x)?-1.:0.) ); } );
-        nullspace->getVField().get0Field()(Pimpact::F::V).initFromFunction(
-          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y)&&y<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y)&&1.<=y)?-1.:0.) ); } );
-        nullspace->getVField().get0Field()(Pimpact::F::W).initFromFunction(
-          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z)&&z<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z)&&1.<=z)?-1.:0.) ); } );
-
-        ST blup = std::sqrt( 1./nullspace->dot( *nullspace ) );
-        nullspace->scale( blup );
-
-        for( int i=1; i<=space->nGlo(3); ++i) {
-          nullspace->getSField().getCField(i) =
-            nullspace->getSField().get0Field();
-          nullspace->getSField().getSField(i) =
-            nullspace->getSField().get0Field();
-
-          nullspace->getVField().getCField(i) =
-            nullspace->getVField().get0Field();
-          nullspace->getVField().getSField(i) =
-            nullspace->getVField().get0Field();
-        }
-      }
-      //// --- end nullspace
+      auto opInv =
+        Pimpact::createInverseOp<Pimpact::PicardProjector>(
+            op, Teuchos::sublist( pl, "Picard Solver" ) );
 
       /*** init preconditioner **********************************************************/
 

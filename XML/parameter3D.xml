@@ -14,11 +14,11 @@
 		<Parameter docString="length in y-direction" id="64" isDefault="false" isUsed="true" name="ly" type="double" value="2.00000000000000000e+00" />
 		<Parameter docString="length in z-direction" id="65" isDefault="false" isUsed="true" name="lz" type="double" value="0.50000000000000000e+00" />
 		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="66" isDefault="false"
-      isUsed="true" name="nx" type="int" value="65" />
+      isUsed="true" name="nx" type="int" value="33" />
 		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="67" isDefault="false"
-      isUsed="true" name="ny" type="int" value="65" />
+      isUsed="true" name="ny" type="int" value="33" />
 		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="68" isDefault="false"
-      isUsed="true" name="nz" type="int" value="17" />
+      isUsed="true" name="nz" type="int" value="9" />
 		<Parameter docString="amount of grid points in f-direction" id="69" isDefault="false" isUsed="true" name="nf" type="int" value="1" />
 		<Parameter docString="amount of processors in x-direction" id="70" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
 		<Parameter docString="amount of processors in y-direction" id="71" isDefault="false" isUsed="true" name="npy" type="int" value="1" />
@@ -143,7 +143,8 @@
 			value="Flexible GMRES" />
 		<Parameter docString="" id="131" isDefault="true" isUsed="true" name="preconditioner"
 			type="string" value="right" />
-		<Parameter docString="" id="132" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
+		<Parameter docString="" id="132" isDefault="true" isUsed="true" name="nullspace ortho"
+      type="bool" value="false" />
 		<ParameterList id="31" name="Solver">
 			<Parameter docString="" id="133" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.000000000000000e-01" />
 			<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
@@ -162,7 +163,7 @@
       type="string" value="right" />
 		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="scaling" type="string" value="none" />
 		<Parameter docString="" id="145" isDefault="true" isUsed="true" name="nullspace ortho"
-      type="bool" value="true" />
+      type="bool" value="false" />
 		<ParameterList id="33" name="Solver">
 			<Parameter docString="" id="146" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
 			<!--<Parameter docString="" id="147" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->
