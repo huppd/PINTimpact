@@ -208,36 +208,36 @@ int main( int argi, char** argv ) {
         // --- init RHS ---
         if( 0==space->si(Pimpact::F::U,3) ) {
           fu->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b+c*c)*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
           fu->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b+c*c)*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
         }
 
         if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
           fu->getField(0).getVField().getCField(1)(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( alpha2*A*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
           fu->getField(0).getVField().getCField(1)(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( alpha2*B*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
 
           fu->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b+c*c)*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
           fu->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b+c*c)*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
         }
 
         // --- init solution ---
         if( 0==space->si(Pimpact::F::U,3) ) {
           sol->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2) ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( A*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2) ); } );
           sol->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2) ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( B*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2) ); } );
         }
 
         if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
           sol->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2) ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( A*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2) ); } );
           sol->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-            [&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2) ); } );
+            [&]( ST x, ST y, ST z ) ->ST { return( B*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2) ); } );
         }
       }
 
@@ -503,14 +503,14 @@ int main( int argi, char** argv ) {
       //** end of init preconditioner ***********************************************************
 
       auto inter = NOX::Pimpact::createInterface(
-                     fu,
-                     Pimpact::createMultiOpWrap(op),
-                     Pimpact::createMultiOpWrap(opInv) );
+          fu,
+          Pimpact::createMultiOpWrap(op),
+          Pimpact::createMultiOpWrap(opInv) );
 
       auto nx = NOX::Pimpact::createVector( x );
 
       Teuchos::RCP<NOX::Abstract::Group> group =
-        NOX::Pimpact::createGroup( Teuchos::parameterList(), inter, nx );
+        NOX::Pimpact::createGroup(Teuchos::parameterList(), inter, nx);
 
       // Set up the status tests
       Teuchos::RCP<NOX::StatusTest::Generic> statusTest =

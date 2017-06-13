@@ -210,7 +210,7 @@ contains
     do
       ! -- mjohn 111111
       !! catch values in order to prevent divergence collapse (floating point overflow)
-      if( abs(t(1)) .ge. 1e6 ) then
+      if( abs(t(1)) >= 1e6 ) then
         r = t(2) + cosPhi;
         exit
       end if
@@ -224,13 +224,13 @@ contains
       end if
 
       !! exit condition (compute until full grid is integrated AND 30 is reached)
-      IF (i .gt. n .and. x .ge. upperBound) EXIT
+      IF (i > n .and. x >= upperBound) EXIT
 
       !! standard step size
       dx = 1.e-5
 
       !! reduce step size accordingly if grid point is approached
-      IF (i.le.n .and. x+dx .GT. grid(i)) THEN
+      IF (i<=n .and. x+dx > grid(i)) THEN
         dx = grid(i)-x
         x = grid(i)
       else
@@ -241,7 +241,7 @@ contains
       g = 0.
 
       do k = 1, 3
-        if( x .le. upperBound ) then
+        if( x <= upperBound ) then
           rhs(1) = t(2)
           rhs(2) = t(3)
           rhs(3) = t(3)*t(1) + cosPhi**2 - t(2)**2
@@ -309,7 +309,7 @@ contains
 
     !! w needs special treatment for phi = 90° and kappa = 0, since solution becomes trivial
     !! activate VERY large integration domain for large phi and small kappa
-    if (kappa .LT. 0.01 .AND. sweep_angle_degrees .GT. 85.0) then
+    if (kappa < 0.01 .AND. sweep_angle_degrees > 85.0) then
       upperBound = min(2/(kappa+epsilon(upperbound)),200.0);
     else
       upperBound = 50.0;
@@ -330,10 +330,10 @@ contains
       END IF
 
       !! exit condition
-      IF (i .gt. n .and. x .ge. upperBound) EXIT
+      IF (i > n .and. x >= upperBound) EXIT
       dx = 1.e-5
 
-      IF (i.le.n .and. x+dx .GT. grid(i)) THEN
+      IF (i<=n .and. x+dx > grid(i)) THEN
         dx = grid(i)-x
         x = grid(i)
       ELSE
@@ -363,7 +363,7 @@ contains
       !! carry out first order integral: int_0^\inf (g * (1-g)) dx
       blThick = blThick + (t(4)*(1-t(4))) *dx;
 
-      if(blThick .ge. 0.25 * upperBound) then
+      if(blThick >= 0.25 * upperBound) then
         write(*,*) 'WARNING. B.L. THICKNESS GREATER THAN 25 % OF INTEGRATION INTERVAL. BASE FLOW PROFILE MIGHT BE WRONG.'
       end if
 
@@ -452,7 +452,7 @@ contains
 
     !!!*** solve equation for v
     ! move to VectorField::initField
-    if( kappa.gt.3.0 .or. kappa.LT.0.0 .or. sweep_angle_degrees.GT.90.0  .or. sweep_angle_degrees.LT.0.0 ) then
+    if( kappa>3.0 .or. kappa<0.0 .or. sweep_angle_degrees>90.0  .or. sweep_angle_degrees<0.0 ) then
       WRITE(*,*) 'WARNING: kappa or sweep angle outside allowed interval!! Shooting integration might fail. rank: ', rank
     end if
 
@@ -480,7 +480,7 @@ contains
     do
 
       !!calculate new initial value (only if residuum is large enough!)
-      if( abs(r1) .gt. 1E-13 .and. abs(r0-r1) .gt. 1E-13) then
+      if( abs(r1) > 1E-13 .and. abs(r0-r1) > 1E-13) then
         s1old = s1
         s1 = (r0*s1 - r1*s0)/(r0-r1)
         s0 = s1old
@@ -489,7 +489,7 @@ contains
 
       call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s1,r1)
 
-      if(abs(r1) .le. 1e-10) then
+      if(abs(r1) <= 1e-10) then
         !!goal reached
         exit
       elseif ((s1 == s0) .or. (r1 == r0)) then
@@ -538,7 +538,7 @@ contains
       call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
 
       !!check result
-      IF( abs(r1) .LE. 1E-10 ) THEN
+      IF( abs(r1) <= 1E-10 ) THEN
         !!goal reached
         EXIT
       ELSEIF ((s1 .EQ. s0) .OR. (r1 .EQ. r0)) THEN
@@ -1692,14 +1692,17 @@ contains
   !! \param velv
   !! \param velw
   !!
-  !! \note - baseflow_global(*,1) need to run from 0 to M1, i.e. full axis, on u grid, since interpolated to p grid by init_BC
-  !!       - baseflow_global(*,2) and (*,3) are computed on p grid, since they start exactly on p(1) wall
-  !!
+  !! \note - baseflow_global(*,1) need to run from 0 to M1, i.e. full axis, on u
+  !!         grid, since interpolated to p grid by init_BC
+  !!       - baseflow_global(*,2) and (*,3) are computed on p grid, since they
+  !!         start exactly on p(1) wall !
   !! difficulty: - full u grid serves also negative values below the wall, where shooting integration is invalid
   !! solution:   - compute velocity for y = 0 and y > 0 on u grid, then extrapolate from 0 to first (negative) u value
   !!             - perform extrapolation not on all ranks, but only those which touch the ground
-  !!             - since only one value below the wall is relevant for interpolation, extrapolation formula reads:
-  !!                      base(0,1)|_u = ( base(0,1)|_p - sum_0^d1U{cIup(j,1)*base(1+j,1)|_u} ) / cIup(-1,1)
+  !!             - since only one value below the wall is relevant for
+  !!               interpolation, extrapolation formula reads:
+  !!               base(0,1)|_u = ( base(0,1)|_p - sum_0^d1U{cIup(j,1)*base(1+j,1)|_u} ) /
+  !!               cIup(-1,1)
   subroutine VF_init_SHBF(  &
       rank,                 &
       iShift,               &
@@ -1916,7 +1919,7 @@ contains
 
     else
 
-      if (x1 .ge. -1. .and. x1 .le. 1. .and. x2 .ge. -1. .and. x2 .le. 1.) then
+      if (x1 >= -1. .and. x1 <= 1. .and. x2 >= -1. .and. x2 <= 1.) then
         !! if (dir == 1) fn_val = -sin(pi*x1)*(1.+cos(pi*x2))/2. ! "quatropol" mit sich teilender instabilitaet (eine verbleibt in der symmetriefläche)
         !! if (dir == 2) fn_val =  sin(pi*x2)*(1.+cos(pi*x1))/2.
         !! if (dir == 3) fn_val =  sin(pi*x2)*(1.+cos(pi*x1))/2.
@@ -1930,8 +1933,8 @@ contains
         fn_val = 0.
       end if
 
-      !if (x1 .lt. -1. .or. x1 .gt. 1.) fn_val = 0.
-      !if (x2 .lt. -1. .or. x2 .gt. 1.) fn_val = 0.
+      !if (x1 < -1. .or. x1 > 1.) fn_val = 0.
+      !if (x2 < -1. .or. x2 > 1.) fn_val = 0.
 
     end if
 

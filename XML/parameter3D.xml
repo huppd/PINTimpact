@@ -144,7 +144,7 @@
 		<Parameter docString="" id="131" isDefault="true" isUsed="true" name="preconditioner"
 			type="string" value="right" />
 		<Parameter docString="" id="132" isDefault="true" isUsed="true" name="nullspace ortho"
-      type="bool" value="false" />
+      type="bool" value="true" />
 		<ParameterList id="31" name="Solver">
 			<Parameter docString="" id="133" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.000000000000000e-01" />
 			<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
@@ -155,15 +155,20 @@
 		</ParameterList>
 	</ParameterList>
 	<ParameterList id="32" name="DivGrad">
-		<Parameter docString="" id="139" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
-		<Parameter docString="" id="140" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="141" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
-		<Parameter docString="" id="142" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
+		<Parameter docString="" id="139" isDefault="true" isUsed="true" name="Solver name" type="string"
+      value="GMRES" />
+		<Parameter docString="" id="140" isDefault="true" isUsed="true" name="level" type="bool"
+      value="false" />
+		<Parameter docString="" id="141" isDefault="true" isUsed="true" name="initZero" type="bool"
+      value="true" />
+		<Parameter docString="" id="142" isDefault="true" isUsed="true" name="debug" type="bool"
+      value="false" />
 		<Parameter docString="" id="143" isDefault="true" isUsed="true" name="preconditioner"
       type="string" value="right" />
-		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="scaling" type="string" value="none" />
+		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="scaling" type="string"
+      value="none" />
 		<Parameter docString="" id="145" isDefault="true" isUsed="true" name="nullspace ortho"
-      type="bool" value="false" />
+      type="bool" value="true" />
 		<ParameterList id="33" name="Solver">
 			<Parameter docString="" id="146" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
 			<!--<Parameter docString="" id="147" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="None" />-->

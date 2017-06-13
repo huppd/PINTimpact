@@ -73,7 +73,8 @@ public:
     debug_(false),
     relTol_(1.),
     solverName_( "GMRES" ),
-    solverParameter_( createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 200 ) ),
+    solverParameter_(
+        createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 200 ) ),
     problem_( Teuchos::rcp( new Belos::LinearProblem<ST,MF,MOpT> () )) {}
 
 
@@ -84,7 +85,8 @@ public:
     debug_(false),
     relTol_(1.),
     solverName_( "GMRES" ),
-    solverParameter_( createLinSolverParameter( "GMRES", 1.e-1, -1, Teuchos::rcp( new Teuchos::oblackholestream ),10 ) ),
+    solverParameter_(
+        createLinSolverParameter( "GMRES", 1.e-1, -1, Teuchos::rcp( new Teuchos::oblackholestream ),10 ) ),
     problem_(
       Teuchos::rcp(
         new Belos::LinearProblem<ST,MF,MOpT>(
@@ -141,12 +143,11 @@ public:
     solver->setProblem( problem_ );
     Belos::ReturnType succes = solver->solve();
 
-    if( debug_ && Belos::ReturnType::Unconverged==succes ) {
-      rhs.write();
-      y.write(100);
+    if( debug_ ) {
+      y.write();
+      rhs.write(100);
+      std::cout << getLabel() << ": succes? " << succes << "\n";
       assert( Belos::ReturnType::Converged==succes );
-      //TEUCHOS_TEST_FOR_EXCEPT( false );
-      //TEUCHOS_TEST_FOR_EXCEPT( true );
     }
 
     if( level_ ) y.level();

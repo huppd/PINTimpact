@@ -19,20 +19,26 @@ namespace Pimpact {
 template<class FieldT>
 class PrePostWriter : public NOX::Abstract::PrePostOperator {
 
+
   void writeSol(const NOX::Solver::Generic& solver) {
 
     const NOX::Abstract::Group& group = solver.getSolutionGroup();
 
-    Teuchos::rcp_const_cast<FieldT>( Teuchos::rcp_dynamic_cast<const FieldT>(
-                                       group.getXPtr() ))->getField().write();
+    Teuchos::rcp_const_cast<FieldT>(
+        Teuchos::rcp_dynamic_cast<const FieldT>(
+          group.getXPtr() ))->getField().write();
   };
+
 
   void writeRes(const NOX::Solver::Generic& solver) {
-    //Teuchos::RCP<NOX::Abstract::Group> group = solver.getSolutionGroup();
 
-    //Teuchos::rcp_const_cast<FieldT>(Teuchos::rcp_dynamic_cast<const FieldT>(
-    //group.getFPtr() ))->getField().write();
+    const NOX::Abstract::Group& group = solver.getSolutionGroup();
+
+    Teuchos::rcp_const_cast<FieldT>(
+        Teuchos::rcp_dynamic_cast<const FieldT>(
+          group.getFPtr() ))->getField().write();
   };
+
 
   bool writeSolIterPost_;
   bool writeSolIterPre_;

@@ -16,12 +16,14 @@
 #include "BelosTypes.hpp"
 
 #include "NOX.H"
+#include "NOX_PrePostOperator_Vector.H"
 
 #include "BelosPimpactAdapter.hpp"
 #include "NOX_Pimpact_Group.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_StatusTest.hpp"
+#include "NOX_Pimpact_PrePostError.hpp"
 #include "NOX_Pimpact_PrePostWriter.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
@@ -240,18 +242,16 @@ int main( int argi, char** argv ) {
           ST ctime = std::cos( (timei+timeim)/2. );
           ST stime = (std::sin( timei )+std::sin( timeim ))/2.;
           fu->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
-          [=]( ST x, ST y, ST z ) ->ST {
-            return(
-              alpha2/re*A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*(ctime)									// \alpha^2 dt u
-              +2.*A/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*(1.+stime) ); } );	// -\lap u
+              [=]( ST x, ST y, ST z ) ->ST {
+                return(
+                  alpha2/re*A*        std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::cos(c*pi2*z)*ctime	  	        // \alpha^2 dt u
+                  +(a*a+b*b+c*c)*A/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime) ); } );// -\lap u
 
           fu->getField(0).getVField()(i)(Pimpact::F::V).initFromFunction(
-          [=]( ST x, ST y, ST z ) ->ST {
-            return(
-              alpha2/re*B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*ctime									// \alpha^2 dt v
-              +2.*B/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*(1.+stime) ); } );	// -\lap u
-
-
+              [=]( ST x, ST y, ST z ) ->ST {
+                return(
+                  alpha2/re*B*        std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*ctime			        // \alpha^2 dt v
+                  +(a*a+b*b+c*c)*B/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime) ); } );// -\lap u
         }
         // init sol
         {
@@ -259,20 +259,16 @@ int main( int argi, char** argv ) {
           //std::cout<< time << "\n";
           ST stime = std::sin( time );
           sol->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
-          [=]( ST x, ST y, ST z ) ->ST {
-            return( A*std::cos(a*pi2*x)*std::sin(b*pi2*y)*(1.+stime) ); } );
+              [=]( ST x, ST y, ST z ) ->ST {
+                return( A*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime) ); } );
           sol->getField(0).getVField()(i)(Pimpact::F::V).initFromFunction(
-          [=]( ST x, ST y, ST z ) ->ST {
-            return( B*std::sin(a*pi2*x)*std::cos(b*pi2*y)*(1.+stime) ); } );
+              [=]( ST x, ST y, ST z ) ->ST {
+                return( B*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime) ); } );
         }
-
       }
       sol->getField(0).getVField().changed();
       fu->getField(0).getVField().changed();
     }
-    //if( withoutput ) fu->write( 90000 );
-    //if( withoutput ) fu->getField(0).getVField().get0Field()(Pimpact::F::U).print();
-    //return (0);
 
 
     if( 0==space->rankST() ) std::cout << "set initial conditions\n";
@@ -316,20 +312,6 @@ int main( int argi, char** argv ) {
 
     x->getField(0).getVField().changed();
     x->getField(0).getSField().changed();
-    //x->write();
-    // find the error
-    //{
-    //auto y = x->clone();
-    //auto res = x->clone();
-    //op->assignField(x->getField(0));
-    //op->apply( x->getField(0), y->getField(0) );
-    //res->add( 1., *y, -1., *fu );
-    ////res->write();
-    //std::cout << "res: " << res->norm() << "\n";
-    //for( OT i=space->si(Pimpact::F::U,3); i<=space->ei(Pimpact::F::U,3); ++i ) {
-    //std::cout << i << "\t" << res->getField(0).getVField()(i).norm() << "\n";
-    //}
-    //}
 
     if( withoutput )
       pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
@@ -340,43 +322,6 @@ int main( int argi, char** argv ) {
 
     auto opInv = Pimpact::createInverseOp( op, Teuchos::sublist( pl, "Picard Solver" ) );
 
-    ////--- nullspace
-    //if( pl->sublist( "Picard Solver" ).get<bool>( "nullspace ortho", true ) ) {
-    //auto nullspace = x->getField(0).clone( Pimpact::ECopy::Shallow );
-
-    //Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;
-
-    //compNullspace.computeNullSpace( opV2S->getOperatorPtr(),
-    //nullspace->getSField().get0Field(), true );
-
-    //nullspace->getVField().get0Field()(Pimpact::F::U).initFromFunction(
-    //[&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::X)&&x<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::X)&&1.<=x)?-1.:0.) ); } );
-    //nullspace->getVField().get0Field()(Pimpact::F::V).initFromFunction(
-    //[&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y)&&y<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y)&&1.<=y)?-1.:0.) ); } );
-    //nullspace->getVField().get0Field()(Pimpact::F::W).initFromFunction(
-    //[&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z)&&z<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z)&&1.<=z)?-1.:0.) ); } );
-
-    //ST blup = std::sqrt( 1./nullspace->dot( *nullspace ) );
-    //nullspace->scale( blup );
-
-    //for( int i=1; i<=space->nGlo(3);++i) {
-    //nullspace->getSField().getCField(i) =
-    //nullspace->getSField().get0Field();
-    //nullspace->getSField().getSField(i) =
-    //nullspace->getSField().get0Field();
-
-    //nullspace->getVField().getCField(i) =
-    //nullspace->getVField().get0Field();
-    //nullspace->getVField().getSField(i) =
-    //nullspace->getVField().get0Field();
-    //}
-
-
-    ////nullspace->write(999);
-    ////auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
-    ////nullspace->print( *out );
-    //}
-    //// --- end nullspace
 
     /*** init preconditioner *****************************************************************/
 
@@ -575,7 +520,6 @@ int main( int argi, char** argv ) {
                 INT,
                 Pimpact::TimeNSOp,
                 Pimpact::TimeNSOp,
-                //MOP,
 								Pimpact::TimeNS4DBSmoother,
 								//Pimpact::TimeStokesBSmoother,
                 MOP > ( mgSpaces, mgPL );
@@ -588,13 +532,14 @@ int main( int argi, char** argv ) {
     // end of init preconditioner *************************************************************
 
     auto inter = NOX::Pimpact::createInterface(
-                   fu,
-                   Pimpact::createMultiOpWrap(op),
-                   Pimpact::createMultiOpWrap(opInv) );
+        fu,
+        Pimpact::createMultiOpWrap(op),
+        Pimpact::createMultiOpWrap(opInv) );
 
     auto nx = NOX::Pimpact::createVector( x );
 
-    auto group = NOX::Pimpact::createGroup( Teuchos::parameterList(), inter, nx );
+    Teuchos::RCP<NOX::Abstract::Group> group =
+      NOX::Pimpact::createGroup(Teuchos::parameterList(), inter, nx);
 
     // Set up the status tests
     Teuchos::RCP<NOX::StatusTest::Generic> statusTest =
@@ -604,11 +549,18 @@ int main( int argi, char** argv ) {
     Teuchos::RCP<Teuchos::ParameterList> noxSolverPara =
       Teuchos::sublist(pl, "NOX Solver");
 
-    Teuchos::RCP<NOX::Abstract::PrePostOperator> foo =
-      Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ));
+    // NOX PrePostOperators
+    Teuchos::RCP<NOX::PrePostOperatorVector> prePostOperators =
+      Teuchos::rcp( new NOX::PrePostOperatorVector() );
+
+    prePostOperators->pushBack( 
+        Teuchos::rcp( new NOX::Pimpact::PrePostErrorCompute<NV>(Teuchos::sublist(pl, "NOX error"), sol)) );
+
+    prePostOperators->pushBack( 
+        Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ) ) );
 
     noxSolverPara->sublist("Solver Options").set<Teuchos::RCP<NOX::Abstract::PrePostOperator>>(
-          "User Defined Pre/Post Operator", foo);
+        "User Defined Pre/Post Operator", prePostOperators);
 
     Teuchos::RCP<NOX::Solver::Generic> solver =
       NOX::Solver::buildSolver( group, statusTest, noxSolverPara );
