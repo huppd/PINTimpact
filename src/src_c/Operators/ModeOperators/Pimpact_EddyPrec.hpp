@@ -75,7 +75,10 @@ public:
       break;
     }
     default: {
-      applyERinv( x, y );
+      if( mulI_>=mulC_ && mulI_>=mulL_ )
+        applyCDinv( x, y );
+      else
+        applyERinv( x, y );
       break;
     }
     }
@@ -115,6 +118,7 @@ public:
 
     //// set paramters
     auto pl = Teuchos::parameterList();
+
     pl->set<Scalar>( "mulI", mulI_ );
     pl->set<Scalar>( "mulC", mulC_ );
     pl->set<Scalar>( "mulL", mulL_ );

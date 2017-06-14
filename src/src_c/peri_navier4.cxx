@@ -352,15 +352,6 @@ int main(int argi, char** argv ) {
   //  S idt = ((S)space->nGlo()[3])/2./pi;
 
   /*
-
-  		auto opV2V =
-  		Pimpact::createAdd2Op(
-  		Pimpact::createCompositionOp(
-  		forcingm1Op,
-  		Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,true> >( space )
-  		),
-  		forcingOp );
-
   		auto opS2V =
   		Pimpact::createCompositionOp(
   		forcingm1Op,

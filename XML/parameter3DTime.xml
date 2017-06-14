@@ -13,29 +13,40 @@
       <Parameter docString="" id="57" isDefault="false" isUsed="true" name="lower Z" type="int" value="-1" />
       <Parameter docString="" id="58" isDefault="false" isUsed="true" name="upper Z" type="int" value="-1" />
     </ParameterList>
-    <Parameter docString="length in x-direction" id="59" isDefault="false" isUsed="true" name="lx" type="double" value="6.28318530717958648e+00" />
-    <Parameter docString="length in y-direction" id="60" isDefault="false" isUsed="true" name="ly" type="double" value="6.28318530717958648e+00" />
-    <Parameter docString="length in z-direction" id="61" isDefault="false" isUsed="true" name="lz" type="double" value="6.28318530717958648e+00" />
+    <Parameter docString="length in x-direction" id="59" isDefault="false" isUsed="true" name="lx"
+      type="double" value="6.28318530717958648e+00" />
+    <Parameter docString="length in y-direction" id="60" isDefault="false" isUsed="true" name="ly"
+      type="double" value="6.28318530717958648e+00" />
+    <Parameter docString="length in z-direction" id="61" isDefault="false" isUsed="true" name="lz"
+      type="double" value="6.28318530717958648e+00" />
     <Parameter docString="amount of grid points in x-direction: a*2**q+1" id="62" isDefault="false"
-      isUsed="true" name="nx" type="int" value="33" />
+      isUsed="true" name="nx" type="int" value="65" />
     <Parameter docString="amount of grid points in y-direction: a*2**q+1" id="63" isDefault="false"
-      isUsed="true" name="ny" type="int" value="33" />
+      isUsed="true" name="ny" type="int" value="65" />
     <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="64" isDefault="false" isUsed="true" name="nz" type="int" value="5" />
     <Parameter docString="amount of grid points in f-direction" id="65" isDefault="false"
-      isUsed="true" name="nf" type="int" value="24" />
-    <Parameter docString="amount of processors in x-direction" id="66" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
-    <Parameter docString="amount of processors in y-direction" id="67" isDefault="false" isUsed="true" name="npy" type="int" value="1" />
-    <Parameter docString="amount of processors in z-direction" id="68" isDefault="false" isUsed="true" name="npz" type="int" value="1" />
-    <Parameter docString="amount of processors in f-direction" id="69" isDefault="false" isUsed="true" name="npf" type="int" value="1" />
-    <Parameter docString="" id="70" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="false" />
+      isUsed="true" name="nf" type="int" value="129" />
+    <Parameter docString="amount of processors in x-direction" id="66" isDefault="false"
+      isUsed="true" name="npx" type="int" value="1" />
+    <Parameter docString="amount of processors in y-direction" id="67" isDefault="false"
+      isUsed="true" name="npy" type="int" value="1" />
+    <Parameter docString="amount of processors in z-direction" id="68" isDefault="false"
+      isUsed="true" name="npz" type="int" value="1" />
+    <Parameter docString="amount of processors in f-direction" id="69" isDefault="false"
+      isUsed="true" name="npf" type="int" value="1" />
+    <Parameter docString="" id="70" isDefault="true" isUsed="true" name="spectral in time"
+      type="bool" value="false" />
     <ParameterList id="3" name="Stretching in X">
-			<Parameter docString="" id="71" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
+			<Parameter docString="" id="71" isDefault="false" isUsed="true" name="Stretch Type"
+        type="string" value="none" />
     </ParameterList>
     <ParameterList id="4" name="Stretching in Y">
-      <Parameter docString="" id="72" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
+      <Parameter docString="" id="72" isDefault="false" isUsed="true" name="Stretch Type"
+        type="string" value="none" />
     </ParameterList>
     <ParameterList id="5" name="Stretching in Z">
-      <Parameter docString="" id="73" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
+      <Parameter docString="" id="73" isDefault="false" isUsed="true" name="Stretch Type"
+        type="string" value="none" />
     </ParameterList>
 		<Parameter docString="" id="74" isDefault="true" isUsed="true" name="origin x" type="double" value="0.00000000000000000e+00" />
 		<Parameter docString="" id="75" isDefault="true" isUsed="true" name="origin y" type="double" value="0.00000000000000000e+00" />
@@ -43,33 +54,45 @@
   </ParameterList>
   <ParameterList id="6" name="NOX error">
     <ParameterList id="7" name="iter">
-      <Parameter docString="" id="77" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
-      <Parameter docString="" id="78" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
+      <Parameter docString="" id="77" isDefault="true" isUsed="true" name="post" type="bool"
+        value="false" />
+      <Parameter docString="" id="78" isDefault="true" isUsed="true" name="pre" type="bool"
+        value="true" />
     </ParameterList>
     <ParameterList id="8" name="solv">
-      <Parameter docString="" id="79" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
-      <Parameter docString="" id="80" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
+      <Parameter docString="" id="79" isDefault="true" isUsed="true" name="post" type="bool"
+        value="true" />
+      <Parameter docString="" id="80" isDefault="true" isUsed="true" name="pre" type="bool"
+        value="false" />
     </ParameterList>
   </ParameterList>
     <ParameterList id="9" name="NOX write">
     <ParameterList id="10" name="sol">
       <ParameterList id="11" name="iter">
-        <Parameter docString="" id="81" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
-        <Parameter docString="" id="82" isDefault="true" isUsed="true" name="pre" type="bool" value="true" />
+        <Parameter docString="" id="81" isDefault="true" isUsed="true" name="post" type="bool"
+          value="false" />
+        <Parameter docString="" id="82" isDefault="true" isUsed="true" name="pre" type="bool"
+          value="false" />
       </ParameterList>
       <ParameterList id="12" name="solv">
-        <Parameter docString="" id="83" isDefault="true" isUsed="true" name="post" type="bool" value="true" />
-        <Parameter docString="" id="84" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
+        <Parameter docString="" id="83" isDefault="true" isUsed="true" name="post" type="bool"
+          value="false" />
+        <Parameter docString="" id="84" isDefault="true" isUsed="true" name="pre" type="bool"
+          value="false" />
       </ParameterList>
     </ParameterList>
     <ParameterList id="13" name="res">
       <ParameterList id="14" name="iter">
-        <Parameter docString="" id="85" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
-        <Parameter docString="" id="86" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
+        <Parameter docString="" id="85" isDefault="true" isUsed="true" name="post" type="bool"
+          value="false" />
+        <Parameter docString="" id="86" isDefault="true" isUsed="true" name="pre" type="bool"
+          value="false" />
       </ParameterList>
       <ParameterList id="15" name="solv">
-        <Parameter docString="" id="87" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
-        <Parameter docString="" id="88" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
+        <Parameter docString="" id="87" isDefault="true" isUsed="true" name="post" type="bool"
+          value="false" />
+        <Parameter docString="" id="88" isDefault="true" isUsed="true" name="pre" type="bool"
+          value="false" />
       </ParameterList>
     </ParameterList>
   </ParameterList>
@@ -123,14 +146,19 @@
 			</ParameterList>
 		</ParameterList>
 		<ParameterList id="27" name="Line Search">
-			<Parameter docString="" id="117" isDefault="false" isUsed="true" name="Method" type="string" value="Backtrack" />
-			<ParameterList id="28" name="Backtrack">
-				<Parameter docString="" id="118" isDefault="false" isUsed="true" name="Recovery Step" type="double" value="1.00000000000000000-06" />
-				<Parameter docString="" id="119" isDefault="true" isUsed="true" name="Minimum Step" type="double" value="9.99999999999999980e-13" />
-				<Parameter docString="" id="120" isDefault="true" isUsed="true" name="Default Step" type="double" value="1.00000000000000000e+00" />
-				<Parameter docString="" id="121" isDefault="true" isUsed="true" name="Max Iters" type="int" value="10" />
-				<Parameter docString="" id="122" isDefault="true" isUsed="true" name="Reduction Factor" type="double" value="1.00000000000000000e-01" />
-			</ParameterList>
+      <Parameter docString="" id="120120" isDefault="false" isUsed="true" name="Method" type="string" value="Backtrack" />
+      <ParameterList id="28" name="Backtrack">
+        <Parameter docString="" id="118" isDefault="false" isUsed="true" name="Recovery Step"
+          type="double" value="1.00000000000000000-06" />
+        <Parameter docString="" id="119" isDefault="true" isUsed="true" name="Minimum Step"
+          type="double" value="9.99999999999999980e-13" />
+        <Parameter docString="" id="120" isDefault="true" isUsed="true" name="Default Step"
+          type="double" value="1.00000000000000000e+00" />
+        <Parameter docString="" id="121" isDefault="true" isUsed="true" name="Max Iters" type="int"
+          value="10" />
+        <Parameter docString="" id="122" isDefault="true" isUsed="true" name="Reduction Factor"
+          type="double" value="9.00000000000000000e-01" />
+      </ParameterList>
 		</ParameterList>
 		<ParameterList id="29" name="Printing">
 			<Parameter docString="" id="123" isDefault="true" isUsed="true" name="Output Information" type="int" value="15" />
@@ -154,8 +182,10 @@
 		<Parameter docString="" id="131" isDefault="false" isUsed="true" name="maxGrids" type="int" value="2" />
 	</ParameterList>
 	<ParameterList id="34" name="Picard Solver">
-		<Parameter docString="" id="132" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
-		<Parameter docString="" id="133" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
+		<Parameter docString="" id="132" isDefault="true" isUsed="true" name="Solver name" type="string"
+      value="GMRES" />
+		<Parameter docString="" id="133" isDefault="true" isUsed="true" name="preconditioner"
+      type="string" value="none" />
 		<ParameterList id="35" name="Solver">
 			<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="400" />
 			<Parameter docString="" id="135" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />

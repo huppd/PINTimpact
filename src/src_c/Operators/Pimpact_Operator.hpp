@@ -7,7 +7,6 @@
 
 /// \defgroup Operator Operators
 #include "Pimpact_Add2Op.hpp"
-#include "Pimpact_Add3Op.hpp"
 #include "Pimpact_Chebyshev.hpp"
 #include "Pimpact_CompositionOp.hpp"
 #include "Pimpact_TripleCompositionOp.hpp"

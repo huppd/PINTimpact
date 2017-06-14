@@ -108,11 +108,31 @@ class PicardProjector {
     rhs.changed();
   }
 
+
+  void project( VectorField<SpaceT>& rhs_v, ScalarField<SpaceT>& rhs_s ) const {
+    setCornersZero( rhs_s );
+
+    auto space = nullspace_.space();
+
+    ST bla = -( nullspace_.getVField().dot( rhs_v ) +
+        nullspace_.getSField().dot( rhs_s ) );
+
+    if( 0==space->rankST() )
+      std::cout << "Picard^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
+
+    if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() ) {
+      rhs_v.add( 1., rhs_v, bla, nullspace_.getVField() );
+      rhs_s.add( 1., rhs_s, bla, nullspace_.getSField() );
+    }
+
+    setCornersZero( rhs_s );
+  }
+
 public:
 
   PicardProjector() {}
 
-  /// \todo compile test
+  /// \todo think about normal 
   PicardProjector( const Teuchos::RCP<const OperatorT>& op):
     nullspace_( op->space() ) {
 
@@ -124,13 +144,14 @@ public:
           nullspace_.getSField(), true );
 
       nullspace_.getVField()(Pimpact::F::U).initFromFunction(
-          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::X)&&x<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::X)&&1.<=x)?-1.:0.) ); } );
-      nullspace_.getVField()(Pimpact::F::V).initFromFunction(
-          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y)&&y<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y)&&1.<=y)?-1.:0.) ); } );
-      nullspace_.getVField()(Pimpact::F::W).initFromFunction(
-          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z)&&z<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z)&&1.<=z)?-1.:0.) ); } );
+          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::X)&&x<=0.)?-1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::X)&&1.<=x)?1.:0.) ); } );
+      nullspace_.getVField()(Pimpact::F::V).initFromFunction(                                                     
+          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y)&&y<=0.)?-1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y)&&1.<=y)?1.:0.) ); } );
+      nullspace_.getVField()(Pimpact::F::W).initFromFunction(                                                     
+          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z)&&z<=0.)?-1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z)&&1.<=z)?1.:0.) ); } );
 
-      ST blup = std::sqrt( 1./nullspace_.dot( nullspace_ ) );
+      ST blup =  1./nullspace_.norm();
+      nullspace_.write( 777 );
       nullspace_.scale( blup );
     }
 
@@ -140,53 +161,12 @@ public:
 
     auto space = nullspace_.space();
 
-    if( 0==space->si(F::U,3) ) {
-      setCornersZero( rhs.getSField().get0Field() );
+    if( 0==space->si(F::U,3) )
+      project( rhs.getVField().get0Field(), rhs.getSField().get0Field() );
 
-      ST bla = -nullspace_.getVField().dot( rhs.getVField().get0Field() );
-      bla -= nullspace_.getSField().dot( rhs.getSField().get0Field() );
-
-      if( 0==space->rankST() )
-        std::cout << "Picard^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
-
-      if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() ) {
-        rhs.getVField().get0Field().add( 1., rhs.getVField().get0Field(), bla, nullspace_.getVField() );
-        rhs.getSField().get0Field().add( 1., rhs.getSField().get0Field(), bla, nullspace_.getSField() );
-      }
-
-      setCornersZero( rhs.getSField().get0Field() );
-    }
     for( OT i=std::max(space->si(F::U,3),1); i<=space->ei(F::U,3); ++i ) {
-      {
-        setCornersZero( rhs.getSField().getCField(i) );
-
-        ST bla = -nullspace_.getVField().dot( rhs.getVField().getCField(i) );
-        bla -= nullspace_.getSField().dot( rhs.getSField().getCField(i) );
-
-        if( 0==space->rankST() )
-          std::cout << "Picard^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
-
-        if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() ) {
-          rhs.getVField().getCField(i).add( 1., rhs.getVField().getCField(i), bla, nullspace_.getVField() );
-          rhs.getSField().getCField(i).add( 1., rhs.getSField().getCField(i), bla, nullspace_.getSField() );
-        }
-        setCornersZero( rhs.getSField().getCField(i) );
-      }
-      {
-        setCornersZero( rhs.getSField().getSField(i) );
-
-        ST bla = -nullspace_.getVField().dot( rhs.getVField().getSField(i) );
-        bla -= nullspace_.getSField().dot( rhs.getSField().getSField(i) );
-
-        if( 0==space->rankST() )
-          std::cout << "Picard^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
-
-        if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() ) {
-          rhs.getVField().getSField(i).add( 1., rhs.getVField().getSField(i), bla, nullspace_.getVField() );
-          rhs.getSField().getSField(i).add( 1., rhs.getSField().getSField(i), bla, nullspace_.getSField() );
-        }
-        setCornersZero( rhs.getSField().getSField(i) );
-      }
+      project( rhs.getVField().getCField(i), rhs.getSField().getCField(i) );
+      project( rhs.getVField().getSField(i), rhs.getSField().getSField(i) );
     }
   }
 

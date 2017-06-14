@@ -502,16 +502,14 @@ public:
     for( OT k=space()->si(fType_,Z,bY); k<=space()->ei(fType_,Z,bY); ++k )
       for( OT j=space()->si(fType_,Y,bY); j<=space()->ei(fType_,Y,bY); ++j )
         for( OT i=space()->si(fType_,X,bY); i<=space()->ei(fType_,X,bY); ++i ) {
+          ST val = func(
+                ( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
+                ( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
+                ( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
           if( Add::Y==add )
-            at(i,j,k) += func(
-                           ( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
-                           ( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
-                           ( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
+            at(i,j,k) += val;
           else
-            at(i,j,k) = func(
-                          ( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
-                          ( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
-                          ( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
+            at(i,j,k) = val;
         }
     changed();
   }
