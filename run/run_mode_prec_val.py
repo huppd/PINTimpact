@@ -24,7 +24,8 @@ RUNS = range(1)
 
 RES = 3.*10.**np.linspace(0, 2, 3)
 ALPHA2S = 3.*10.**np.linspace(0, 3, 4)
-PRECS = [2, 3, 4]
+# PRECS = [2, 3, 4]
+PRECS = [4]
 NXS = [3]
 
 

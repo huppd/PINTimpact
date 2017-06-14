@@ -143,7 +143,7 @@
 			<Parameter docString="" id="109" isDefault="false" isUsed="true" name="Test Type"
         type="string" value="MaxIters" />
 			<Parameter docString="" id="110" isDefault="false" isUsed="true" name="Maximum Iterations"
-        type="int" value="3" />
+        type="int" value="5" />
 		</ParameterList>
 	</ParameterList>
 	<ParameterList id="19" name="NOX Solver">
@@ -212,7 +212,7 @@
 			<Parameter docString="" id="137" isDefault="false" isUsed="true" name="Timer Label"
         type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
 			<Parameter docString="" id="138" isDefault="false" isUsed="true" name="Output Frequency"
-        type="int" value="5" />
+        type="int" value="-1" />
 			<Parameter docString="" id="139" isDefault="false" isUsed="true" name="Output Style"
         type="int" value="1" />
 		</ParameterList>
