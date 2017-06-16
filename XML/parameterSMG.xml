@@ -2,8 +2,6 @@
 	<ParameterList id="17" name="Space">
 		<Parameter docString="Reynolds number" id="0" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+02"/>
 		<Parameter docString="Womersley square alpha^2" id="1" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.31932e+02"/>
-		<Parameter docString="Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" id="2" isDefault="false" isUsed="true" name="domain" type="int" value="0"/>
-		<Parameter docString="dimension of problem" id="3" isDefault="false" isUsed="true" name="dim" type="int" value="3"/>
 		<Parameter docString="length in x-direction" id="4" isDefault="false" isUsed="true" name="lx" type="double" value="8.00000000000000000e+00"/>
 		<Parameter docString="length in y-direction" id="5" isDefault="false" isUsed="true" name="ly" type="double" value="2.00000000000000000e+00"/>
 		<Parameter docString="length in z-direction" id="6" isDefault="false" isUsed="true" name="lz" type="double" value="4.00000000000000000e+00"/>
@@ -20,7 +18,6 @@
 	</ParameterList>
 	<Parameter docString="Flow type: depending on main" id="18" isDefault="false" isUsed="true" name="baseflow" type="int" value="1"/>
 	<Parameter docString="Flow type: depending on main" id="19" isDefault="false" isUsed="true" name="flow" type="int" value="0"/>
-	<Parameter docString="forcing, ja?" id="20" isDefault="false" isUsed="true" name="forcing" type="int" value="1"/>
 	<ParameterList id="25" name="Solver">
 		<Parameter docString="" id="21" isDefault="false" isUsed="true" name="withprec" type="int" value="2"/>
 		<Parameter docString="" id="22" isDefault="false" isUsed="true" name="withoutput" type="int" value="0"/>
@@ -140,7 +137,7 @@
 			<Parameter docString="" id="116" isDefault="false" isUsed="true" name="2-Norm of Residual" type="double" value="3.99235855518552611e+01"/>
 		</ParameterList>
 	</ParameterList>
-	<ParameterList id="136" name="Belos Solver">
+	<ParameterList id="136" name="Picard Solver">
 		<Parameter docString="" id="119" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES"/>
 		<ParameterList id="135" name="Solver">
 			<Parameter docString="" id="120" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10"/>

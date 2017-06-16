@@ -522,70 +522,77 @@ public:
       string2enum( para.get<std::string>( "Type", "constant" ) );
 
     switch( type ) {
-    case ConstField : {
-      if( Add::N==add ) init();
-      break;
-    }
-    case Grad2D_inX : {
-      ST a = para.get<ST>( "dx", Teuchos::ScalarTraits<ST>::one() );
-      initFromFunction(
-        [&a] (ST x, ST y, ST z)->ST { return( a*(x-0.5) ); },
-        add );
-      break;
-    }
-    case Grad2D_inY : {
-      ST a = para.get<ST>( "dy", Teuchos::ScalarTraits<ST>::one() );
-      initFromFunction(
-        [&a] (ST x, ST y, ST z)->ST { return( a*(y-0.5) ); },
-        add );
-      break;
-    }
-    case Grad2D_inZ : {
-      ST a = para.get<ST>( "dz", Teuchos::ScalarTraits<ST>::one() );
-      initFromFunction(
-        [&a] (ST x, ST y, ST z)->ST { return( a*(z-0.5) ); },
-        add );
-      break;
-    }
-    case Poiseuille2D_inX : {
-      initFromFunction(
-        [] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); },
-        add );
-      break;
-    }
-    case Poiseuille2D_inY : {
-      initFromFunction(
-        [] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); },
-        add );
-      break;
-    }
-    case Poiseuille2D_inZ : {
-      initFromFunction(
-        [] (ST x, ST y, ST z)->ST { return( 4.*z*(1.-z) ); },
-        add );
-      break;
-    }
-    case FPoint : {
-      ST xc[3] = {
-        para.get<ST>( "c_x", Teuchos::ScalarTraits<ST>::one() ),
-        para.get<ST>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
-        para.get<ST>( "c_z", space()->getDomainSize()->getSize( Z )/2. )
-      };
-      ST amp = para.get<ST>( "amp", Teuchos::ScalarTraits<ST>::one() );
-      ST sig[3] = {
-        para.get<ST>( "sig_x", 0.2 ),
-        para.get<ST>( "sig_y", 0.2 ),
-        para.get<ST>( "sig_z", 0.2 )
-      };
-      initFromFunction(
-      [&xc,&amp,&sig] (ST x, ST y, ST z)->ST {
-        return( amp*std::exp(
-          -std::pow( (x-xc[0])/sig[0], 2 )
-          -std::pow( (x-xc[1])/sig[1], 2 )
-          -std::pow( (x-xc[2])/sig[2], 2 ) ) ); },
-      add );
-      break;
-    }
+      case ConstField : {
+        if( Add::N==add ) init();
+        break;
+      }
+      case Grad2D_inX : {
+        ST a = para.get<ST>( "dx", Teuchos::ScalarTraits<ST>::one() );
+        initFromFunction(
+            [&a] (ST x, ST y, ST z)->ST { return( a*(x-0.5) ); },
+            add );
+        break;
+      }
+      case Grad2D_inY : {
+        ST a = para.get<ST>( "dy", Teuchos::ScalarTraits<ST>::one() );
+        initFromFunction(
+            [&a] (ST x, ST y, ST z)->ST { return( a*(y-0.5) ); },
+            add );
+        break;
+      }
+      case Grad2D_inZ : {
+        ST a = para.get<ST>( "dz", Teuchos::ScalarTraits<ST>::one() );
+        initFromFunction(
+            [&a] (ST x, ST y, ST z)->ST { return( a*(z-0.5) ); },
+            add );
+        break;
+      }
+      case Poiseuille2D_inX : {
+        initFromFunction(
+            [] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); },
+            add );
+        break;
+      }
+      case Poiseuille2D_inY : {
+        initFromFunction(
+            [] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); },
+            add );
+        break;
+      }
+      case Poiseuille2D_inZ : {
+        initFromFunction(
+            [] (ST x, ST y, ST z)->ST { return( 4.*z*(1.-z) ); },
+            add );
+        break;
+      }
+      case FPoint : {
+        ST xc[3] = {
+          para.get<ST>( "c_x", Teuchos::ScalarTraits<ST>::one() ),
+          para.get<ST>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
+          para.get<ST>( "c_z", space()->getDomainSize()->getSize( Z )/2. )
+        };
+        ST amp = para.get<ST>( "amp", Teuchos::ScalarTraits<ST>::one() );
+        ST sig[3] = {
+          para.get<ST>( "sig_x", 0.2 ),
+          para.get<ST>( "sig_y", 0.2 ),
+          para.get<ST>( "sig_z", 0.2 )
+        };
+
+        Teuchos::RCP<const DomainSize<ST,SpaceT::sdim> > domain = space()->getDomainSize();
+
+        initFromFunction(
+            [&xc,&amp,&sig,&domain] (ST x_, ST y_, ST z_)->ST {
+
+            ST x = x_*domain->getSize(X) + domain->getOrigin(X);
+            ST y = y_*domain->getSize(Y) + domain->getOrigin(Y);
+            ST z = z_*domain->getSize(Z) + domain->getOrigin(Z);
+            return( amp*std::exp(
+                -std::pow( (x-xc[0])/sig[0], 2 )
+                -std::pow( (y-xc[1])/sig[1], 2 )
+                -std::pow( (z-xc[2])/sig[2], 2 ) ) ); },
+            add );
+        break;
+      }
     }
 
     if( !space()->getProcGrid()->participating() ) // not sure why?

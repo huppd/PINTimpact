@@ -83,6 +83,24 @@
     <Parameter docString="" id="89" isDefault="false" isUsed="true" name="maxGrids" type="int"
       value="6" />
   </ParameterList>
+  <ParameterList id="6666" name="NOX energy">
+    <Parameter docString="" id="83838383" isDefault="false" isUsed="true" name="dir" type="int"
+      value="1" />
+    <Parameter docString="" id="80808080" isDefault="false" isUsed="true" name="gamma" type="double"
+      value="20.0" />
+    <ParameterList id="777" name="iter">
+      <Parameter docString="" id="97777" isDefault="true" isUsed="true" name="post" type="bool"
+        value="false" />
+      <Parameter docString="" id="7878" isDefault="true" isUsed="true" name="pre" type="bool"
+        value="true" />
+    </ParameterList>
+    <ParameterList id="98888" name="solv">
+      <Parameter docString="" id="7979" isDefault="true" isUsed="true" name="post" type="bool"
+        value="true" />
+      <Parameter docString="" id="8080" isDefault="true" isUsed="true" name="pre" type="bool"
+        value="true" />
+    </ParameterList>
+  </ParameterList>
   <ParameterList id="8" name="NOX write">
     <ParameterList id="9" name="sol">
       <ParameterList id="10" name="iter">
@@ -249,7 +267,7 @@
 			<Parameter docString="" id="164" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false" />
 			<Parameter docString="" id="165" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
 			<ParameterList id="33" name="Smoother">
-				<Parameter docString="" id="166" isDefault="false" isUsed="true" name="numIters" type="int" value="2" />
+				<Parameter docString="" id="166" isDefault="false" isUsed="true" name="numIters" type="int" value="4" />
 				<Parameter docString="" id="167" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
 				<Parameter docString="" id="168" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 			</ParameterList>

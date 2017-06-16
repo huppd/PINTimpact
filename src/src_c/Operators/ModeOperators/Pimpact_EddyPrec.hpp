@@ -46,7 +46,7 @@ public:
     mulI_(0.),
     mulC_(1.),
     mulL_( 1./op->space()->getDomainSize()->getRe() ),
-    type_( pl->get<int>("type", 2) ),
+    type_( pl->get<int>("type", -1) ),
     op_(op) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
@@ -54,33 +54,33 @@ public:
     //std:: cout << type_ << "\n";
 
     switch(type_) {
-    case 0: {
-      y = x;
-      break;
-    }
-    case 1: {
-      applyDTinv( x, y );
-      break;
-    }
-    case 2: {
-      applyCDinv( x, y );
-      break;
-    }
-    case 3: {
-      applyELinv( x, y );
-      break;
-    }
-    case 4: {
-      applyERinv( x, y );
-      break;
-    }
-    default: {
-      if( mulI_>=mulC_ && mulI_>=mulL_ )
+      case 0: {
+        y = x;
+        break;
+      }
+      case 1: {
+        applyDTinv( x, y );
+        break;
+      }
+      case 2: {
         applyCDinv( x, y );
-      else
+        break;
+      }
+      case 3: {
+        applyELinv( x, y );
+        break;
+      }
+      case 4: {
         applyERinv( x, y );
-      break;
-    }
+        break;
+      }
+      default: {
+        if( mulI_>=mulC_ && mulI_>=mulL_ )
+          applyCDinv( x, y );
+        else
+          applyERinv( x, y );
+        break;
+      }
     }
   }
 
