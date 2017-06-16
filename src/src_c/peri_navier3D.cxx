@@ -24,6 +24,7 @@
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_StatusTest.hpp"
 #include "NOX_Pimpact_PrePostError.hpp"
+#include "NOX_Pimpact_PrePostEnergy.hpp"
 #include "NOX_Pimpact_PrePostWriter.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
@@ -132,27 +133,27 @@ int main( int argi, char** argv ) {
 
     int withoutput=pl->sublist("Solver").get<int>( "withoutput", 1 );
 
-    int refinement     = pl->sublist("Solver").get<int>( "refinement level", 1     );
-    ST   refinementTol = pl->sublist("Solver").get<ST>(   "refinement tol",   1.e-6 );
+    int maxRefinement     = pl->sublist("Solver").get<int>( "max refinements", 1     );
+    ST  refinementTol  = pl->sublist("Solver").get<ST>(  "refinement tol",  1.e-6 );
     int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
-    Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(
-                                         Teuchos::sublist( pl, "Space", true ) );
+    Teuchos::RCP<const SpaceT> space =
+      Pimpact::create<SpaceT>( Teuchos::sublist( pl, "Space", true ) );
 
 
     if( 0==space->rankST() ) std::cout << "initial field\n";
 
     // init vectors
-    Teuchos::RCP<MF> x = wrapMultiField(
-                           createCompoundField(
-                             Teuchos::rcp( new VF(space,true) ),
-                             Teuchos::rcp( new SF(space) ) ) ) ;
+    Teuchos::RCP<MF> x =
+      wrapMultiField( createCompoundField(
+            Teuchos::rcp( new VF(space,true) ),
+            Teuchos::rcp( new SF(space) ) ) ) ;
 
     // init Fields
     x->getField(0).getVField().initField( pl->sublist("Base flow") );
 
     /*********************************************************************************/
-    for( int refine=0; refine<refinement; ++refine ) {
+    for( int refine=0; refine<maxRefinement; ++refine ) {
 
       if( 0==space->rankST() ) std::cout << "create operator\n";
       auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
@@ -173,7 +174,7 @@ int main( int argi, char** argv ) {
       }
 
       //std::string rl = "";
-      //if( refinement>1 )
+      //if( maxRefinement>1 )
       //rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
       if( 0==space->rankST() ) std::cout << "\tcreate RHS\n";
@@ -241,7 +242,6 @@ int main( int argi, char** argv ) {
         }
       }
 
-
       if( 0==space->rankST() ) std::cout << "set initial conditions\n";
       if( 0==refine ) {
         if( "zero"==initGuess )
@@ -249,8 +249,15 @@ int main( int argi, char** argv ) {
         else if( "almost zero"==initGuess ) {
           x->random();
           x->scale(1.e-32);
-        } else if( "random"==initGuess )
+        } else if( "random"==initGuess ) {
           x->random();
+        }
+        else if( "exitor"==initGuess ) {
+          for( OT i=std::max(space->si(Pimpact::F::U,3),1); i<=space->ei(Pimpact::F::U,3); ++i ) {
+            x->getField(0).getVField().getField(i).random();
+            x->getField(0).getVField().getField(i).scale(0.1);
+          }
+        }
         else if( "exact"==initGuess || "disturbed"==initGuess ) {
           if( "disturbed"==initGuess ) {
             x->getField(0).getVField().random();
@@ -525,10 +532,18 @@ int main( int argi, char** argv ) {
         Teuchos::rcp( new NOX::PrePostOperatorVector() );
 
       prePostOperators->pushBack( 
-          Teuchos::rcp( new NOX::Pimpact::PrePostErrorCompute<NV>(Teuchos::sublist(pl, "NOX error"), sol)) );
+          Teuchos::rcp(
+            new NOX::Pimpact::PrePostErrorCompute<NV>(Teuchos::sublist(pl, "NOX error"), sol)) );
+
+      prePostOperators->pushBack( 
+          Teuchos::rcp(
+            new NOX::Pimpact::PrePostEnergyCompute<NV>(
+              Teuchos::sublist(pl, "NOX energy"),
+              x->getField(0).getVField().get0Field().clone(Pimpact::ECopy::Deep) )) );
 
       prePostOperators->pushBack( 
           Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ) ) );
+
 
       noxSolverPara->sublist("Solver Options").set<Teuchos::RCP<NOX::Abstract::PrePostOperator>>(
           "User Defined Pre/Post Operator", prePostOperators);
@@ -554,39 +569,12 @@ int main( int argi, char** argv ) {
       // Get the answer
       *group = solver->getSolutionGroup();
 
-      x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-      if( withoutput ) {
-        //Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().level();
-        //Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write( refine*1000 );
-        //Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().write( 500+refine*1000, true );
-        //Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getField().write( (refine+1)*1000 );
-      }
+      x = Teuchos::rcp_const_cast<NV>(
+          Teuchos::rcp_dynamic_cast<const NV>(group->getXPtr()))->getFieldPtr();
 
-      // compute glob energy in y-dir
-      {
-
-        auto vel =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Deep );
-        auto base =  x->getField(0).getVField().get0Field().clone( Pimpact::ECopy::Shallow );
-        base->initField( pl->sublist("Base flow").sublist( "0 mode" ) );
-        vel->add( 1., *vel, -1., *base );
-
-        auto out = Pimpact::createOstream( "energyY_0.txt", space->rankST() );
-        Pimpact::computeEnergyY( *vel, *out );
-
-        for( int i=1; i<=space->nGlo(3); ++i ) {
-          {
-            auto out = Pimpact::createOstream( "energyY_C"+std::to_string(i)+".txt", space->rankST() );
-            Pimpact::computeEnergyY( x->getField(0).getVField().getCField(i), *out );
-          }
-          {
-            auto out = Pimpact::createOstream( "energyY_S"+std::to_string(i)+".txt", space->rankST() );
-            Pimpact::computeEnergyY( x->getField(0).getVField().getSField(i), *out );
-          }
-        }
-      }
 
       // spectral refinement criterion
-      if( refinement>1 ) {
+      if( maxRefinement>1 ) {
 
         x->getField(0).getVField().exchange();
         ST u_nf = x->getField(0).getVField().getField(space->nGlo(3)).norm();
@@ -628,7 +616,7 @@ int main( int argi, char** argv ) {
       }
       prePostOperators->clear();
 
-    } // end of for( int refine=0; refine<refinement; ++refine ) {
+    } // end of for( int refine=0; refine<maxRefinement; ++refine ) {
     /******************************************************************************************/
 
     Teuchos::TimeMonitor::summarize();

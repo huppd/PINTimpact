@@ -49,9 +49,10 @@ typename SpaceT::Scalar computeEnergy( const VectorField<SpaceT>& vel ) {
 /// - compute energy local
 /// - reduce to rank_dim=0
 /// - having two vectors for y and e(z)
-/// \f[ e(y) = \int \int (u^2 + v^2 + z^2 ) \exp( -\frac{x}{\gamma}^2/2 ) \f]
+/// \f[ e(dir) = \int \int (u^2 + v^2 + z^2 ) \exp( -\frac{x}{\gamma}^2/2 ) \f]
 template<class SpaceT>
-void computeEnergyY( const VectorField<SpaceT>& vel, std::ostream& out=std::cout, typename SpaceT::Scalar gamma=10. ) {
+void computeEnergyDir( const VectorField<SpaceT>& vel, std::ostream& out=std::cout,
+    const ECoord dir=ECoord::Y, const typename SpaceT::Scalar gamma=0. ) {
 
   using ST = typename SpaceT::Scalar;
   using OT = typename SpaceT::Ordinal;
@@ -61,7 +62,7 @@ void computeEnergyY( const VectorField<SpaceT>& vel, std::ostream& out=std::cout
 
   ScalarField<SpaceT> temp(space);
 
-  std::vector<ST> energyY( space->nLoc(Y), Teuchos::ScalarTraits<ST>::zero() );
+  std::vector<ST> energy( space->nLoc(dir), Teuchos::ScalarTraits<ST>::zero() );
 
   for( F f=F::U; f<SpaceT::sdim; ++f ) {
 
@@ -70,42 +71,64 @@ void computeEnergyY( const VectorField<SpaceT>& vel, std::ostream& out=std::cout
     for( OT k=space->si(F::S,Z); k<=space->ei(F::S,Z); ++k )
       for( OT j=space->si(F::S,Y); j<=space->ei(F::S,Y); ++j )
         for( OT i=space->si(F::S,X); i<=space->ei(F::S,X); ++i ) {
-          ST volume = coord->dx(F::S,X,i) * coord->dx(F::S,Z,k);
-          energyY[j-space->si(F::S,Y)] += volume * std::pow( temp(i,j,k), 2 )*std::exp( -0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2 ) );
+          ST vel_2 = std::pow( temp(i,j,k), 2 );
+          switch( dir ) {
+            case X: {
+              ST volume = coord->dx(F::S,Y,j) * coord->dx(F::S,Z,k);
+              energy[i-space->si(F::S,X)] +=
+                volume * vel_2 * ((0.==gamma)?1.:std::exp(-0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2)));
+              break;
+            }
+            case Y: {
+              ST volume = coord->dx(F::S,X,i) * coord->dx(F::S,Z,k);
+              energy[j-space->si(F::S,Y)] +=
+                volume * vel_2 * ((0.==gamma)?1.:std::exp(-0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2)));
+              break;
+            }
+            case Z: {
+              ST volume = coord->dx(F::S,X,i) * coord->dx(F::S,Y,j);
+              energy[k-space->si(F::S,Z)] +=
+                volume * vel_2 * ((0.==gamma)?1.:std::exp(-0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2)));
+              break;
+            }
+            case T: {
+              std::cout << "Warning: not implemented!!!\n";
+              break;
+            }
+          }
         }
-
   }
 
   MPI_Reduce(
-    (0==space->getProcGrid()->getRankSlice(Y))?
-    MPI_IN_PLACE:energyY.data(),	           // void* send_data,
-    energyY.data(),                            // void* recv_data,
-    space->nLoc(Y),                            // int count,
-    MPI_REAL8,                                 // MPI_Datatype datatype,
-    MPI_SUM,                                   // MPI_Op op,
-    0,                                         // int root,
-    space->getProcGrid()->getCommSlice(Y) );   // MPI_Comm communicator);
+    (0==space->getProcGrid()->getRankSlice(dir))?
+    MPI_IN_PLACE:energy.data(),	                // void* send_data,
+    energy.data(),                              // void* recv_data,
+    space->nLoc(dir),                           // int count,
+    MPI_REAL8,                                  // MPI_Datatype datatype,
+    MPI_SUM,                                    // MPI_Op op,
+    0,                                          // int root,
+    space->getProcGrid()->getCommSlice(dir) );  // MPI_Comm communicator);
 
-  //std::cout << space->nGlo(Y) << "\n";
-  //std::cout << space->nLoc(Y) << "\n";
-  //std::cout << space->getProcGrid()->getNP(Y) << "\n";
+  //std::cout << space->nGlo(dir) << "\n";
+  //std::cout << space->nLoc(dir) << "\n";
+  //std::cout << space->getProcGrid()->getNP(dir) << "\n";
 
-  std::vector<ST> energyYglobal( space->nGlo(Y), Teuchos::ScalarTraits<ST>::zero() );
+  std::vector<ST> energyGlobal( space->nGlo(dir), Teuchos::ScalarTraits<ST>::zero() );
 
-  if( 0==space->getProcGrid()->getRankSlice(Y) ) {
+  if( 0==space->getProcGrid()->getRankSlice(dir) ) {
     MPI_Gather(
-      energyY.data(),                        // void* send_data,
-      space->nLoc(Y)-1,                        // int send_count,
-      MPI_REAL8,                             // MPI_Datatype send_datatype,
-      energyYglobal.data(),                  // void* recv_data,
-      space->nLoc(Y)-1,                        // int recv_count,
-      MPI_REAL8,                             // MPI_Datatype recv_datatype,
-      0,                                     // int root,
-      space->getProcGrid()->getCommBar(Y) ); // MPI_Comm communicator);
+      energy.data(),                           // void* send_data,
+      space->nLoc(dir)-1,                      // int send_count,
+      MPI_REAL8,                               // MPI_Datatype send_datatype,
+      energyGlobal.data(),                     // void* recv_data,
+      space->nLoc(dir)-1,                      // int recv_count,
+      MPI_REAL8,                               // MPI_Datatype recv_datatype,
+      0,                                       // int root,
+      space->getProcGrid()->getCommBar(dir) ); // MPI_Comm communicator);
 
-    if( 0==space->getProcGrid()->getRankBar(Y) )
-      for( OT j=0; j<space->nGlo(Y); ++j )
-        out << space->getCoordinatesGlobal()->getX(F::S,Y,j+1) << "\t" << energyYglobal[j] << "\n";
+    if( 0==space->getProcGrid()->getRankBar(dir) )
+      for( OT j=0; j<space->nGlo(dir); ++j )
+        out << space->getCoordinatesGlobal()->getX(F::S,dir,j+1) << "\t" << energyGlobal[j] << "\n";
   }
 }
 

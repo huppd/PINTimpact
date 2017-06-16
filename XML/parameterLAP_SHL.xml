@@ -2,8 +2,6 @@
   <ParameterList id="1" name="Space">
     <Parameter docString="Reynolds number" id="20" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+02" />
     <Parameter docString="Womersley square alpha^2" id="21" isDefault="false" isUsed="true" name="alpha2" type="double" value="2.51327412287183449e+02" />
-    <Parameter docString="Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" id="22" isDefault="false" isUsed="true" name="domain" type="int" value="0" />
-    <Parameter docString="dimension of problem" id="23" isDefault="false" isUsed="true" name="dim" type="int" value="3" />
     <Parameter docString="length in x-direction" id="24" isDefault="false" isUsed="true" name="lx" type="double" value="3.00000000000000000e+01" />
     <Parameter docString="length in y-direction" id="25" isDefault="false" isUsed="true" name="ly" type="double" value="3.00000000000000000e+01" />
     <Parameter docString="length in z-direction" id="26" isDefault="false" isUsed="true" name="lz" type="double" value="3.00000000000000000e+01" />
