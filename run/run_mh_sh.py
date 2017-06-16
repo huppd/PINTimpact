@@ -30,10 +30,10 @@ ALPHA2S = [1./60., 1./30., 1./10.]
 # NX = 1
 # npx = 1
 NPY = 4
-NPF = 1
+NPF = 2
 
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimate'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimate2'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
