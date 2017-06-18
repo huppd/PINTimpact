@@ -45,7 +45,7 @@
     <Parameter docString="amount of processors in z-direction" id="73" isDefault="false"
       isUsed="true" name="npz" type="int" value="1" />
     <Parameter docString="amount of processors in f-direction" id="74" isDefault="false"
-      isUsed="true" name="npf" type="int" value="1" />
+      isUsed="true" name="npf" type="int" value="2" />
     <Parameter docString="" id="75" isDefault="true" isUsed="true" name="spectral in time"
       type="bool" value="true" />
     <ParameterList id="3" name="Stretching in X">
