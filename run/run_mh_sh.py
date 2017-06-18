@@ -28,7 +28,7 @@ ALPHA2S = [1./60., 1./30., 1./10.]
 
 # NF = 1
 # NX = 1
-# npx = 1
+NPX = 1
 NPY = 4
 NPF = 2
 
@@ -65,16 +65,16 @@ for re in RES:
         # ma.setParameter(ROOT, 'ny', 96*NX+1)
         # ma.setParameter(ROOT, 'nz', 64*NX+1)
         # ma.setParameter(ROOT, 'nf', NF)
-        ma.setParameter(ROOT, 'npx', 1)
+        ma.setParameter(ROOT, 'npx', NPX)
         ma.setParameter(ROOT, 'npy', NPY)
         ma.setParameter(ROOT, 'npz', 1)
         ma.setParameter(ROOT, 'npf', NPF)
         TREE.write('parameter3D.xml')
-        nptot = NPY*NPF
+        nptot = NPX*NPY*NPF
         for run in RUNS:
             print()
             print(CASE_PATH)
-            EXE_STRING = pp.exe_pre(nptot, ' -N -W 8:00 -R "rusage[mem=' +
+            EXE_STRING = pp.exe_pre(nptot, ' -N -W 16:00 -R "rusage[mem=' +
                                     str(max(1024*4, 1024)) + ']" ', run) + \
                 pp.EXE_PATH + '/'+EXE
             print(EXE_STRING)

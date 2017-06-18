@@ -31,7 +31,7 @@
     <Parameter docString="" id="82" isDefault="true" isUsed="true" name="origin z" type="double"
       value="2.0e+01" />
     <Parameter docString="amount of grid points in x-direction: a*2**q+1" id="67" isDefault="false"
-      isUsed="true" name="nx" type="int" value="61" />
+      isUsed="true" name="nx" type="int" value="65" />
     <Parameter docString="amount of grid points in y-direction: a*2**q+1" id="68" isDefault="false"
       isUsed="true" name="ny" type="int" value="129" />
     <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="69" isDefault="false"
@@ -207,9 +207,8 @@
       value="false" />
     <ParameterList id="29" name="Solver">
       <Parameter docString="" id="132" isDefault="false" isUsed="true" name="Maximum Iterations"
-        type="int" value="60" />
+        type="int" value="80" />
       <Parameter docString="" id="133" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
-      <!--<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />-->
       <Parameter docString="" id="135" isDefault="false" isUsed="true" name="Convergence Tolerance"
         type="double" value="1.0e-1" />
       <Parameter docString="" id="136" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
