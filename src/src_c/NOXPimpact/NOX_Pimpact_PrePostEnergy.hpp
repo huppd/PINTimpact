@@ -57,21 +57,30 @@ class PrePostEnergyCompute : public NOX::Abstract::PrePostOperator {
       vel->add( 1., *vel, -1., *base_ );
 
       auto out = ::Pimpact::createOstream(
-          "energy"+::Pimpact::toString(dir_)+"_0_"+std::to_string(nIter)+".txt", space->rankST() );
+          "energy"+::Pimpact::toString(dir_)+"_0_"+std::to_string(nIter)+".txt",
+          space->getProcGrid()->getRankBar(dir_) );
+
       ::Pimpact::computeEnergyDir( *vel, *out, dir_, gamma_ );
     }
 
     for( OT i=std::max(space->si(::Pimpact::F::U,3),1); i<=space->ei(::Pimpact::F::U,3); ++i ) {
       {
         auto out = ::Pimpact::createOstream(
-            "energy"+::Pimpact::toString(dir_)+"_C"+std::to_string(i)+"_"+std::to_string(nIter)+".txt", space->rankST() );
+            "energy" + ::Pimpact::toString(dir_) + "_C"+std::to_string(i) +
+            "_"+std::to_string(nIter) + ".txt",
+            space->getProcGrid()->getRankBar(dir_) );
+
         ::Pimpact::computeEnergyDir(
             x.getField(0).getVField().getCField(i), *out, dir_, gamma_ );
       }
       {
         auto out = ::Pimpact::createOstream(
-            "energy"+::Pimpact::toString(dir_)+"_S"+std::to_string(i)+"_"+std::to_string(nIter)+".txt", space->rankST() );
-        ::Pimpact::computeEnergyDir( x.getField(0).getVField().getSField(i), *out, dir_, gamma_ );
+            "energy" + ::Pimpact::toString(dir_) + "_S"+std::to_string(i) +
+            "_"+std::to_string(nIter) + ".txt",
+            space->getProcGrid()->getRankBar(dir_) );
+
+        ::Pimpact::computeEnergyDir(
+            x.getField(0).getVField().getSField(i), *out, dir_, gamma_ );
       }
     }
   };
