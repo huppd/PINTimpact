@@ -3,6 +3,7 @@
 #define PIMPACT_MULTIDTCONVECTIONDIFFUSIONOP_HPP
 
 
+#include "Pimpact_ConvectionField.hpp"
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
@@ -86,7 +87,7 @@ public:
       y = Teuchos::rcpFromRef( y_ref );
     else {
       Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp( new DomainFieldT( space(), true ) );
-      *temp = y_ref;
+      *temp = y_ref; // needed because of const
       y = temp;
     }
 

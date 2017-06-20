@@ -48,7 +48,7 @@ public:
 
     for( int i=0; i<3; ++i )
       if( refine_dir[i] )
-        gridSizeGlobalTup[i] = (gridSizeGlobalTup[i]-1)*2 +1;
+        gridSizeGlobalTup[i] = (gridSizeGlobalTup[i]-1)*2 + 1;
     if( refine_dir[3] )
       gridSizeGlobalTup[3] = gridSizeGlobalTup[3]+refine_dir[3];
 

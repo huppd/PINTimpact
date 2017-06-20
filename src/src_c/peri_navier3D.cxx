@@ -133,7 +133,7 @@ int main( int argi, char** argv ) {
 
     int withoutput=pl->sublist("Solver").get<int>( "withoutput", 1 );
 
-    int maxRefinement     = pl->sublist("Solver").get<int>( "max refinements", 1     );
+    int maxRefinement     = pl->sublist("Solver").get<int>("max refinement", 1);
     ST  refinementTol  = pl->sublist("Solver").get<ST>(  "refinement tol",  1.e-6 );
     int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
@@ -166,16 +166,16 @@ int main( int argi, char** argv ) {
       if( 0==space->rankST() ) std::cout << "create RHS:\n";
       if( 0==space->rankST() ) std::cout << "\tdiv test\n";
       {
-        opV2S->apply( x->getField(0).getVField(), x->getField(0).getSField()  );
-        ST divergence = x->getField(0).getSField().norm();
+        auto tempField = x->getField(0).getSField().clone();
+        opV2S->apply( x->getField(0).getVField(), *tempField );
+        ST divergence = tempField->norm();
         if( 0==space->rankST() )
           std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
-        x->getField(0).getSField().init( 0. );
       }
 
-      //std::string rl = "";
-      //if( maxRefinement>1 )
-      //rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
+      std::string rl = "";
+      if( maxRefinement>1 )
+        rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
       if( 0==space->rankST() ) std::cout << "\tcreate RHS\n";
       auto fu = x->clone( Pimpact::ECopy::Shallow );
@@ -296,10 +296,9 @@ int main( int argi, char** argv ) {
       }
       //fu->write( 999 );
 
-
       if( withoutput )
         pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-          "Output Stream", Pimpact::createOstream("Picard.txt", space->rankST() ) );
+          "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
       else
         pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
           "Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
@@ -321,7 +320,7 @@ int main( int argi, char** argv ) {
         if( withoutput )
           pl->sublist("MH_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
             "Output Stream",
-            Pimpact::createOstream( opV2V->getLabel()+".txt", space->rankST() ) );
+            Pimpact::createOstream( opV2V->getLabel()+rl+".txt", space->rankST() ) );
         else
           pl->sublist("MH_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
             "Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
@@ -337,7 +336,7 @@ int main( int argi, char** argv ) {
 
           if( withoutput )
             pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
-                Pimpact::createOstream( zeroOp->getLabel()+".txt", space->rankST() ) );
+                Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
           else
             pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
                 Teuchos::rcp( new Teuchos::oblackholestream ) );
@@ -351,7 +350,7 @@ int main( int argi, char** argv ) {
           if( withoutput )
             pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
               "Output Stream",
-              Pimpact::createOstream( modeOp->getLabel()+".txt", space->rankST() ) );
+              Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
           else
             pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
               "Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
@@ -417,7 +416,7 @@ int main( int argi, char** argv ) {
 
         if( withoutput )
           pl->sublist("DivGrad").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
-              Pimpact::createOstream( "DivGrad.txt", space->rankST() ) );
+              Pimpact::createOstream( "DivGrad"+rl+".txt", space->rankST() ) );
         else
           pl->sublist("DivGrad").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
               Teuchos::rcp( new Teuchos::oblackholestream ) );
@@ -573,12 +572,44 @@ int main( int argi, char** argv ) {
           Teuchos::rcp_dynamic_cast<const NV>(group->getXPtr()))->getFieldPtr();
 
 
-      // spectral refinement criterion
+      // spectral refinement
       if( maxRefinement>1 ) {
+        ST u_1, u_nf;
 
-        x->getField(0).getVField().exchange();
-        ST u_nf = x->getField(0).getVField().getField(space->nGlo(3)).norm();
-        ST u_1  = x->getField(0).getVField().getField(1             ).norm();
+        //space->print();
+        if( 0<space->nGlo(3) and space()->si(Pimpact::F::U,3)<=1 and 1<=space()->ei(Pimpact::F::U,3) )
+          u_1  = x->getField(0).getVField().getField(1).norm();
+        if( 0<space->nGlo(3) and space()->si(Pimpact::F::U,3)<=space->nGlo(3) and space->nGlo(3)<=space()->ei(Pimpact::F::U,3) )
+          u_nf = x->getField(0).getVField().getField(space->nGlo(3)).norm();
+
+
+        int rank_1 = 0;
+        if( 1==space->getProcGrid()->getNP(3) )
+          rank_1 = 0;
+        else if( 0==(space->nGlo(3)+1)%space->getProcGrid()->getNP(3) )
+          rank_1 = 1;
+        int rank_nf = space->getProcGrid()->getNP(3)-1;
+
+        MPI_Request req_1, req_nf;  
+
+        MPI_Ibcast(
+            &u_1,                                // buffer	starting address of buffer (choice)
+            1,                                   // number of entries in buffer (non-negative integer)
+            MPI_DOUBLE,                          // data type of buffer (handle)
+            rank_1,                              // rank of broadcast root (integer)
+            space->getProcGrid()->getCommBar(3), // communicator (handle)
+            &req_1);                             // communication request
+        MPI_Ibcast(
+            &u_nf,                               // buffer	starting address of buffer (choice)
+            1,                                   // number of entries in buffer (non-negative integer)
+            MPI_DOUBLE,                          // data type of buffer (handle)
+            rank_nf,                             // rank of broadcast root (integer)
+            space->getProcGrid()->getCommBar(3), // ccommunicator (handle) ommunicator (handle)
+            &req_nf);                            // communication request
+        
+        MPI_Wait(&req_1, MPI_STATUS_IGNORE); 
+        MPI_Wait(&req_nf, MPI_STATUS_IGNORE); 
+
         ST truncError = 1.;
         if( u_nf != u_1 ) // just in case u_1=u_nf=0
           truncError = u_nf / u_1 ;
@@ -594,22 +625,27 @@ int main( int argi, char** argv ) {
             space, Teuchos::tuple<int>( 0, 0, 0, refinementStep ) );
 
         auto refineOp =
-          Teuchos::rcp(
-            new Pimpact::TransferCompoundOp<
-            Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<SpaceT> > >,
-            Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp<SpaceT> >
-            >( space, spaceF ) );
-        // refineOp->print();
+          Teuchos::rcp( new Pimpact::TransferCompoundOp<
+              Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<SpaceT> > >,
+              Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp<SpaceT> >
+              >( space, spaceF ) );
+        //refineOp->print();
 
         // init Fields for fine Boundary conditions
-        auto xf = Pimpact::create<CF>( spaceF );
+        Teuchos::RCP<CF> xf =
+          createCompoundField(
+              Teuchos::rcp( new VF(spaceF,true) ),
+              Teuchos::rcp( new SF(spaceF) ) );
         xf->getVField().initField( pl->sublist("Base flow") );
 
-        auto temp = Pimpact::create<CF>( spaceF );
+        Teuchos::RCP<CF> temp =
+          createCompoundField(
+              Teuchos::rcp( new VF(spaceF,true) ),
+              Teuchos::rcp( new SF(spaceF) ) );
 
         refineOp->apply( x->getField(0), *temp );
 
-        xf->add( 1., *temp, 0., *temp );
+        xf->add( 1., *temp, 0., *temp, Pimpact::B::N );
 
         x = Pimpact::wrapMultiField( xf );
         space = spaceF;

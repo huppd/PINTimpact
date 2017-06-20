@@ -58,14 +58,6 @@ public:
     opS_->apply( x.getSField(), y.getSField() );
   }
 
-//	void apply( const RangeFieldT& x, DomainFieldT& y ) const {
-//
-//    opV_->apply( x.getVField(), y.getVField() );
-//    opS_->apply( x.getSField(), y.getSField() );
-//
-//	}
-
-
   void print(  std::ostream& out=std::cout ) const {
 
     out << "=== TransferCompoundOP ===\n";

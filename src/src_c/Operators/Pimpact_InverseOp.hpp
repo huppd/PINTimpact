@@ -130,8 +130,6 @@ public:
     if( nullspaceOrtho_ ) {
       for( int i=0; i<rhs.getNumberVecs(); ++i )
         projector_( const_cast<RangeFieldT&>(rhs.getField(i)) );
-
-      if( 0==space()->rankST() ) std::cout << "\n";
     }
 
     problem_->setProblem( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(rhs) );

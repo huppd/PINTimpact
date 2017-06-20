@@ -70,7 +70,7 @@
       value="3" />
     <Parameter docString="" id="84" isDefault="false" isUsed="true" name="withoutput" type="int"
       value="1" />
-    <Parameter docString="" id="85" isDefault="false" isUsed="true" name="refinement level"
+    <Parameter docString="" id="85" isDefault="false" isUsed="true" name="max refinement"
       type="int" value="1" />
     <Parameter docString="" id="86" isDefault="false" isUsed="true" name="refinement tol"
       type="double" value="9.99999999999999955e-07" />

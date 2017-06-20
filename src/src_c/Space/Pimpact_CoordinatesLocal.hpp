@@ -119,8 +119,8 @@ protected:
 
       xS_[i]  = AS( gridSizeLocal->get(i) + SW::BU(i) );
       xV_[i]  = AV( gridSizeLocal->get(i) + SW::BU(i) );
-      dxS_[i] = DAS( gridSizeLocal->get(i) );
-      dxV_[i] = DAV( gridSizeLocal->get(i) );
+      dxS_[i] = DAS( std::max(gridSizeLocal->get(i), 1) );
+      dxV_[i] = DAV( std::max(gridSizeLocal->get(i), 1) );
 
       F fi = static_cast<F>( i );
 
@@ -243,7 +243,6 @@ createCoordinatesLocal(
               procGrid,
               coordGlobal ) ) );
 }
-
 
 
 } // end of namespace Pimpact

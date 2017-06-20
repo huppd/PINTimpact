@@ -34,7 +34,7 @@
   <ParameterList id="5" name="Solver">
     <Parameter docString="" id="46" isDefault="false" isUsed="true" name="withprec" type="int" value="3" />
     <Parameter docString="" id="47" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
-    <Parameter docString="" id="48" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
+    <Parameter docString="" id="48" isDefault="false" isUsed="true" name="max refinement" type="int" value="1" />
     <Parameter docString="" id="49" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
     <Parameter docString="" id="50" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
     <Parameter docString="" id="51" isDefault="false" isUsed="true" name="initial guess" type="string" value="none" />

@@ -227,8 +227,8 @@ protected:
 
     for( int dir=0; dir<dim; ++dir ) {
 
-      OrdinalT M = gridSize->get(dir);
-      ScalarT Ms = M;
+      OrdinalT M = std::max(gridSize->get(dir), 1); // max need in the case of nf=0
+      ScalarT Ms = std::max(M, 1);
 
       xS_ [dir] = AS( M );
       xV_ [dir] = AV( M );
@@ -322,7 +322,7 @@ protected:
 
     for( int dir=0; dir<dim; ++dir ) {
 
-      OrdinalT Mc = gridSizeC->get(dir);
+      OrdinalT Mc = std::max(gridSizeC->get(dir), 1);
       OrdinalT Mf = coordinatesF->xS_[dir].NN();
 
       if( Mc==Mf ) {

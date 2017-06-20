@@ -27,7 +27,7 @@
   <ParameterList id="5" name="Solver">
     <Parameter docString="" id="77" isDefault="false" isUsed="true" name="withprec" type="int" value="3" />
     <Parameter docString="" id="78" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
-    <Parameter docString="" id="79" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
+    <Parameter docString="" id="79" isDefault="false" isUsed="true" name="max refinement" type="int" value="1" />
     <Parameter docString="" id="80" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
     <Parameter docString="" id="81" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
     <Parameter docString="" id="82" isDefault="false" isUsed="true" name="initial guess" type="string" value="almost zero" />

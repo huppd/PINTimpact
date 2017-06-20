@@ -123,10 +123,10 @@ public:
     setCornersZero( rhs );
     ST bla = -nullspace_.dot( rhs );
 
-    if( 0==space->rankST() )
-      std::cout << "DivGrad^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
+    //if( 0==space->rankST() )
+      //std::cout << "DivGrad^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
 
-    if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() )
+    if( std::abs( bla )>0. )
       rhs.add( 1., rhs, bla, nullspace_ );
 
     setCornersZero( rhs );

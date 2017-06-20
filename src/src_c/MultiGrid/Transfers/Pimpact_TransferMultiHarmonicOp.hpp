@@ -32,7 +32,7 @@ public:
 
 protected:
 
-  using Ordinal = typename SpaceT::Ordinal;
+  using OT = typename SpaceT::Ordinal;
 
   Teuchos::RCP<InterT> op_;
 
@@ -52,33 +52,44 @@ public:
 
 
   template<class DT, class RT>
-  void apply( const DT& x, RT& y ) const {
+  void apply( const DT& x_ref, RT& y ) const {
 
-    x.exchange();
-
-    if( y.space()->si(F::U,3)<0 )
-      op_->apply( x.get0Field(), y.get0Field() );
-
-    //    int m = std::min( x.space()->nGlo(3), y.space()->nGlo(3) );
-    //    for( int i=0; i<m; ++i ) {
-
-    Ordinal iS = std::max( y.space()->si(F::U,3), 0 );
-    Ordinal iE = std::min( x.space()->nGlo(3), y.space()->ei(F::U,3) );
-
-    for( Ordinal i=iS; i<iE; ++i ) {
-      op_->apply( x.getCField(i), y.getCField(i) );
-      op_->apply( x.getSField(i), y.getSField(i) );
+    Teuchos::RCP<const DT> x;
+    if( x_ref.global() )
+      x = Teuchos::rcpFromRef( x_ref );
+    else {
+      Teuchos::RCP<DT> temp = Teuchos::rcp( new DT( x_ref.space(), true ) );
+      *temp = x_ref;
+      x = temp;
     }
 
-    iS = std::max(x.space()->nGlo(3),y.space()->si(F::U,3));
+    x->exchange();
+    //std::cout << y.space()->si(F::U,3) << "\n";
+
+    if( 0==y.space()->si(F::U,3) )
+      op_->apply( x->get0Field(), y.get0Field() );
+      //y.get0Field() = x->get0Field();
+
+    //y.get0Field().write( 3000 );
+    //x->get0Field().write(4000);
+
+    OT iS = std::max( y.space()->si(F::U,3), 1 );
+    OT iE = std::min( x->space()->nGlo(3), y.space()->ei(F::U,3) );
+
+    for( OT i=iS; i<=iE; ++i ) {
+      op_->apply( x->getCField(i), y.getCField(i) );
+      op_->apply( x->getSField(i), y.getSField(i) );
+      //y.getCField(i) = x->getCField(i);
+      //y.getSField(i) = x->getSField(i);
+    }
+
+    iS = std::max(x->space()->nGlo(3)+1, y.space()->si(F::U,3));
     iE = y.space()->ei(F::U,3);
-    for( Ordinal i=iS; i<iE; ++i ) {
+    for( OT i=iS; i<=iE; ++i ) {
       y.getCField(i).init();
       y.getSField(i).init();
     }
-
     y.changed();
-
   }
 
 
