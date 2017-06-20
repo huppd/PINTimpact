@@ -24,14 +24,14 @@ CASE_PATH = ['', '', '', '', '', '', '', '', '']
 RUNS = range(1)
 
 RES = [300]
-# ALPHA2S = [1./60., 1./30., 1./10.]
-ALPHA2S = [1./30.]
+ALPHA2S = [1./60., 1./30., 1./10.]
+# ALPHA2S = [1./30.]
 
 # NF = 1
 # NX = 1
-NPX = 1
-NPY = 1
-NPF = 1
+NPX = 2
+NPY = 4
+NPF = 2
 
 
 CASE_PATH[0] = pp.DATA_PATH + '/ultimate2'
@@ -72,11 +72,11 @@ for re in RES:
         ma.setParameter(ROOT, 'npf', NPF)
         TREE.write('parameter3D.xml')
         nptot = NPX*NPY*NPF
-        for run in RUNS:
-            print()
-            print(CASE_PATH)
-            EXE_STRING = pp.exe_pre(nptot, ' -N -W 1:00 -R "rusage[mem=' +
-                                    str(max(1024*4, 1024)) + ']" ', run) + \
-                pp.EXE_PATH + '/'+EXE
-            print(EXE_STRING)
-            os.system(EXE_STRING)
+        memtot = max(1024*8/nptot, 1024)
+        print()
+        print(CASE_PATH)
+        EXE_STRING = pp.exe_pre(nptot, ' -N -W 20:00 -R "rusage[mem=' +
+                                str(memtot) + ']" ') + \
+                        pp.EXE_PATH + '/'+EXE
+        print(EXE_STRING)
+        os.system(EXE_STRING)

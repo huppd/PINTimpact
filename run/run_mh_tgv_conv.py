@@ -2,7 +2,7 @@
 import os
 from math import pi
 import xml.etree.ElementTree as ET
-import platformPaths as pp
+import platform_paths as pp
 import manipulator as ma
 
 
@@ -33,7 +33,7 @@ A2S = [1., 10., 0.1]
 # A2S  = [ 10., 0.1 ]
 
 
-CASE_PATH[0] = '/MHTGV_conv'
+CASE_PATH[0] = pp.DATA_PATH + '/MHTGV_conv'
 pp.mkdir(CASE_PATH, 0)
 
 for a2 in A2S:
@@ -55,13 +55,13 @@ for a2 in A2S:
     nptot = 1
     mem = int(max(1024, 16*1024/nptot))
     for run in RUNS:
-        print
-        print CASE_PATH
+        print()
+        print(CASE_PATH)
         exe_str = \
             pp.exe_pre(
                 nptot,
                 ' -N -R beta -R "span[ptile=4]" -R "rusage[mem=' +
                 str(mem) + ']" ',
                 run) + pp.exe_path+'/'+EXE
-        print exe_str
+        print(exe_str)
         os.system(exe_str)
