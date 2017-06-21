@@ -60,7 +60,7 @@ protected:
   Teuchos::RCP< Teuchos::ParameterList > solverParameter_;
   Teuchos::RCP< Belos::LinearProblem<ST, MF, MOpT> > problem_;
 
-  const ProjectorT<OpT> projector_;
+  Teuchos::RCP<const ProjectorT<OpT>> projector_;
 
 public:
 
@@ -92,8 +92,10 @@ public:
         new Belos::LinearProblem<ST,MF,MOpT>(
           createMultiOperatorBase( op ),
           Teuchos::rcp( new MF(op->space()) ),
-          Teuchos::rcp( new MF(op->space()) ) ) ) ),
-    projector_( op ) {}
+          Teuchos::rcp( new MF(op->space()) ) ) ) ) {
+      if( nullspaceOrtho_ )
+        projector_ = Teuchos::rcp( new ProjectorT<OpT>(op) );
+    }
 
 
   //template<class IOperatorT>
@@ -110,8 +112,10 @@ public:
       Teuchos::rcp( new Belos::LinearProblem<ST,MF,MOpT>(
                       createMultiOperatorBase( op ),
                       Teuchos::rcp( new MF(op->space()) ),
-                      Teuchos::rcp( new MF(op->space()) ) ) )),
-    projector_( op ) {}
+                      Teuchos::rcp( new MF(op->space()) ) ) )) {
+      if( nullspaceOrtho_ )
+        projector_ = Teuchos::rcp( new ProjectorT<OpT>(op) );
+    }
 
 
   void apply( const DomainFieldT& rhs, RangeFieldT& y, const Add& add=Add::N  ) const {
@@ -129,7 +133,7 @@ public:
 
     if( nullspaceOrtho_ ) {
       for( int i=0; i<rhs.getNumberVecs(); ++i )
-        projector_( const_cast<RangeFieldT&>(rhs.getField(i)) );
+        (*projector_)( const_cast<RangeFieldT&>(rhs.getField(i)) );
     }
 
     problem_->setProblem( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(rhs) );

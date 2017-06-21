@@ -1,34 +1,36 @@
 import os
-from platform_paths import exe_path, data_path, exe_pre
+from platform_paths import EXE_PATH, DATA_PATH, exe_pre
 
 
 exe = 'peri_burgers'
 
 
-os.chdir(exe_path)
+os.chdir(EXE_PATH)
 os.system('make -j4')
 
-case_path = ['burgy1D/', '', '']
+CASE_PATH = ['']*3
+
+CASE_PATH[0] = 'burgy1D/'
 
 itMs = [1, 2, 4, 6]
 case_consts = ' --dim=1 --nx=97 --ny=7 --npx=4 --npy=1 --nfs=1 --nfe=17' + \
     '--tolNOX=1.e-4 --tol=1.e-6  --maxI=20  --linesearch="Polynomial" '
 
-if not os.path.exists(data_path+case_path[0]):
-    os.mkdir(data_path+case_path[0])
+if not os.path.exists(DATA_PATH+CASE_PATH[0]):
+    os.mkdir(DATA_PATH+CASE_PATH[0])
 
 for rex in [3, 4, 5, 6]:
-    case_path[1] = 're_1e'+str(rex)+'/'
-    if not os.path.exists(data_path+case_path[0]+case_path[1]):
-        os.mkdir(data_path+case_path[0]+case_path[1])
+    CASE_PATH[1] = 're_1e'+str(rex)+'/'
+    if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
+        os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
     for itM in itMs:
-        case_path[2] = 'itM_'+str(itM)
-        if not os.path.exists(data_path + case_path[0] + case_path[1] +
-                              case_path[2]):
-            os.mkdir(data_path+case_path[0]+case_path[1]+case_path[2])
-        print data_path + case_path[0]+case_path[1]+case_path[2]
-        os.chdir(data_path+case_path[0]+case_path[1]+case_path[2])
+        CASE_PATH[2] = 'itM_'+str(itM)
+        if not os.path.exists(DATA_PATH + CASE_PATH[0] + CASE_PATH[1] +
+                              CASE_PATH[2]):
+            os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
+        print DATA_PATH + CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]
+        os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
         os.system(' rm -v ./* ')
         case_para = ' --re=1e'+str(rex)+' --iterM='+str(itM)+' '
         print case_consts + case_para
-        os.system(exe_pre+exe_path+exe+case_para+case_consts)
+        os.system(exe_pre+EXE_PATH+exe+case_para+case_consts)

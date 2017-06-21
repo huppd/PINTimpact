@@ -1,6 +1,4 @@
 import os
-from numpy import linspace
-import numpy as np
 from math import pi
 from platform_paths import *
 import xml.etree.ElementTree as ET
@@ -11,55 +9,54 @@ import manipulator as ma
 tree = ET.parse('../XML/parameter3D.xml')
 root = tree.getroot()
 
-ma.setParameter( root, 'withoutput', 0 )
-ma.setParameter( root, 'refinement tol', 1.e-6 )
+ma.setParameter(root, 'withoutput', 0)
+ma.setParameter(root, 'refinement tol', 1.e-6)
 npx = 8
 npy = 2
 npz = 4
-ma.setParameter( root, 'npx', npx )
-ma.setParameter( root, 'npy', npy )
-ma.setParameter( root, 'npz', npz )
+ma.setParameter(root, 'npx', npx)
+ma.setParameter(root, 'npy', npy)
+ma.setParameter(root, 'npz', npz)
 
 # make executable ready
 exe = 'peri_navier3D'
-os.chdir( exe_path )
-os.system( 'make '+exe+' -j4' )
+os.chdir(EXE_PATH)
+os.system('make '+exe+' -j4')
 
 
-case_path = ['','','','']
+CASE_PATH = ['']*4
 
-ns        = [ 2 ]
-res       = [ 100, 100, 400 ]
-alpha2s   = [ 0.05, 0.1, 0.2, 0.4 ]
+ns = [2]
+res = [100, 100, 400]
+alpha2s = [0.05, 0.1, 0.2, 0.4]
 
-res = [ 200 ]
-alpha2s  = [ 0.05, 0.1 ]
+res = [200]
+alpha2s = [0.05, 0.1]
 
-case_path[0] = '/ultimate'
-if not os.path.exists( data_path+case_path[0] ):
-	os.mkdir( data_path+case_path[0] )
+CASE_PATH[0] = '/ultimate'
+if not os.path.exists(DATA_PATH+CASE_PATH[0]):
+    os.mkdir(DATA_PATH+CASE_PATH[0])
 
 for n in ns:
-	case_path[1] = '' #'/n_'+str(n)
-	#if not os.path.exists( data_path+case_path[0]+case_path[1] ):
-		#os.mkdir( data_path+case_path[0]+case_path[1] )
-	for re in res:
-		case_path[2] = '/re_'+str(re)
-		if not os.path.exists( data_path+case_path[0]+case_path[1]+case_path[2] ):
-			os.mkdir( data_path+case_path[0]+case_path[1]+case_path[2] )
-		for alpha2 in alpha2s:
-			case_path[3] = '/a2_'+str(alpha2)
-			if not os.path.exists( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] ):
-				os.mkdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
-			os.chdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
-			os.system(' rm ./* -r -v  ')
-			#
-			ma.setParameter( root, 'Re', re )
-			ma.setParameter( root, 'alpha2', 2.*pi*alpha2*re )
-			ma.setParameter( root, 'nx', 128*2+1 )
-			ma.setParameter( root, 'ny',  32*2+1 )
-			ma.setParameter( root, 'nz',  64*2+1 )
-			tree.write('parameter3D.xml')
-			# os.system( exe_pre(npx*npy*npz,' -W 48:00 ') + exe_path+exe + ' > output ' )
-			print( exe_pre(npx*npy*npz,' -W 48:00 ') + exe_path+exe + ' > output ' )
-
+    CASE_PATH[1] = ''  # '/n_'+str(n)
+    #if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
+        #os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
+    for re in res:
+        CASE_PATH[2] = '/re_'+str(re)
+        if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]):
+            os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
+        for alpha2 in alpha2s:
+            CASE_PATH[3] = '/a2_'+str(alpha2)
+            if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]):
+                os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
+            os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
+            os.system(' rm ./* -r -v  ')
+            #
+            ma.setParameter(root, 'Re', re)
+            ma.setParameter(root, 'alpha2', 2.*pi*alpha2*re)
+            ma.setParameter(root, 'nx', 128*2+1)
+            ma.setParameter(root, 'ny',  32*2+1)
+            ma.setParameter(root, 'nz',  64*2+1)
+            tree.write('parameter3D.xml')
+            # os.system(exe_pre(npx*npy*npz,' -W 48:00 ') + EXE_PATH+exe + ' > output ')
+            print(exe_pre(npx*npy*npz,' -W 48:00 ') + EXE_PATH+exe + ' > output ')

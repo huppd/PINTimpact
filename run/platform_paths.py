@@ -2,13 +2,10 @@
 import os
 
 # exection path
-exe_path = os.path.expanduser("~/Pimpact/release/src_c")  # euler
 EXE_PATH = os.path.expanduser("~/Pimpact/release/src_c")  # euler
-# exe_path = os.path.expanduser("~/PImpact/release/src_c")  # hpc
 # EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")  # hpc
 
 # data patch
-data_path = os.path.expanduser("~/data")
 DATA_PATH = os.path.expanduser("~/data")
 
 

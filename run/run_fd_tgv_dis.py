@@ -20,7 +20,7 @@ os.chdir(pp.EXE_PATH)
 os.system('make '+EXE+' -j4')
 
 
-CASE_PATH = ['', '', '', '', '', '', '', '', '']
+CASE_PATH = ['']*10
 
 RUNS = range(1)
 

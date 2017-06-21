@@ -2,7 +2,7 @@
 from math import pi
 import os
 import xml.etree.ElementTree as ET
-import platformPaths as pp
+import platform_paths as pp
 import manipulator as ma
 
 
@@ -16,11 +16,11 @@ ma.setParameter(ROOT, 'initial guess', 'disturbed')
 
 # make executable ready
 EXE = 'peri_navier3D'
-os.chdir(pp.exe_path)
+os.chdir(pp.EXE_PATH)
 os.system('make '+EXE+' -j4')
 
 
-CASE_PATH = ['', '', '', '', '', '', '', '', '']
+CASE_PATH = ['']*10
 
 RUNS = range(10, 20)
 
@@ -70,6 +70,6 @@ for nx in NXS:
                     pp.exe_pre(
                         nptot,
                         ' -N -R beta -R "span[ptile=4]" -R "rusage[mem='
-                        + str(mem) + ']" ', run) + pp.exe_path+'/'+EXE
+                        + str(mem) + ']" ', run) + pp.EXE_PATH+'/'+EXE
                 print exe_str
                 os.system(exe_str)

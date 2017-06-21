@@ -8,8 +8,8 @@
 #include "Teuchos_ScalarTraits.hpp"
 
 
-namespace Pimpact {
 
+namespace Pimpact {
 
 
 /// \brief Array

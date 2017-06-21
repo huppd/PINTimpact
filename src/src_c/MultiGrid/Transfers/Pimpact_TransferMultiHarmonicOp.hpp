@@ -67,20 +67,17 @@ public:
     //std::cout << y.space()->si(F::U,3) << "\n";
 
     if( 0==y.space()->si(F::U,3) )
-      op_->apply( x->get0Field(), y.get0Field() );
-      //y.get0Field() = x->get0Field();
-
-    //y.get0Field().write( 3000 );
-    //x->get0Field().write(4000);
+      y.get0Field() = x->get0Field();
+      //op_->apply( x->get0Field(), y.get0Field() );
 
     OT iS = std::max( y.space()->si(F::U,3), 1 );
     OT iE = std::min( x->space()->nGlo(3), y.space()->ei(F::U,3) );
 
     for( OT i=iS; i<=iE; ++i ) {
-      op_->apply( x->getCField(i), y.getCField(i) );
-      op_->apply( x->getSField(i), y.getSField(i) );
-      //y.getCField(i) = x->getCField(i);
-      //y.getSField(i) = x->getSField(i);
+      //op_->apply( x->getCField(i), y.getCField(i) );
+      //op_->apply( x->getSField(i), y.getSField(i) );
+      y.getCField(i) = x->getCField(i);
+      y.getSField(i) = x->getSField(i);
     }
 
     iS = std::max(x->space()->nGlo(3)+1, y.space()->si(F::U,3));

@@ -636,16 +636,17 @@ int main( int argi, char** argv ) {
           createCompoundField(
               Teuchos::rcp( new VF(spaceF,true) ),
               Teuchos::rcp( new SF(spaceF) ) );
-        xf->getVField().initField( pl->sublist("Base flow") );
+        //xf->getVField().initField( pl->sublist("Base flow") );
 
-        Teuchos::RCP<CF> temp =
-          createCompoundField(
-              Teuchos::rcp( new VF(spaceF,true) ),
-              Teuchos::rcp( new SF(spaceF) ) );
+        //Teuchos::RCP<CF> temp =
+          //createCompoundField(
+              //Teuchos::rcp( new VF(spaceF,true) ),
+              //Teuchos::rcp( new SF(spaceF) ) );
 
-        refineOp->apply( x->getField(0), *temp );
+        //refineOp->apply( x->getField(0), *temp );
+        refineOp->apply( x->getField(0), *xf );
 
-        xf->add( 1., *temp, 0., *temp, Pimpact::B::N );
+        //xf->add( 1., *temp, 0., *temp, Pimpact::B::N );
 
         x = Pimpact::wrapMultiField( xf );
         space = spaceF;

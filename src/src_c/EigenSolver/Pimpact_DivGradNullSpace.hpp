@@ -7,6 +7,7 @@
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ScalarTraits.hpp"
 #include "Teuchos_SerialQRDenseSolver.hpp"
+#include "Teuchos_SerialDenseVector.hpp"
 
 #include "Pimpact_Stencil.hpp"
 

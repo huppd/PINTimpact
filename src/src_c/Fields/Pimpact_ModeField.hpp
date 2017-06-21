@@ -32,7 +32,7 @@ class ModeField : private AbstractField<typename IFT::SpaceT> {
 
 public:
 
-  using SpaceT = typename IFT::SpaceT;
+ using SpaceT = typename IFT::SpaceT;
 
 protected:
 

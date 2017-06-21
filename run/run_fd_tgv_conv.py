@@ -16,11 +16,11 @@ ma.setParameter(ROOT, 'initial guess', 'zero')
 
 # make executable ready
 EXE = 'peri_navier3DTime'
-os.chdir(pp.exe_path)
+os.chdir(pp.EXE_PATH)
 os.system('make '+EXE+' -j4')
 
 
-CASE_PATH = ['', '', '', '', '', '', '', '', '']
+CASE_PATH = ['']*4
 
 RUNS = range(1)
 
@@ -65,6 +65,6 @@ for re in RES:
                 exeString = \
                     pp.exe_pre(nptot, ' -N  -R "rusage[mem=' +
                                str(mem) + ']" -W 6:00', run) + \
-                    pp.exe_path+'/'+EXE
+                    pp.EXE_PATH+'/'+EXE
                 print(exeString)
                 os.system(exeString)

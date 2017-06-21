@@ -20,11 +20,11 @@ ma.setParameter(ROOT, 'Re', RE)
 
 # make executable ready
 EXE = 'peri_navier3D'
-os.chdir(pp.exe_path)
+os.chdir(pp.EXE_PATH)
 os.system('make '+EXE+' -j4')
 
 
-CASE_PATH = ['', '', '', '', '', '', '', '', '']
+CASE_PATH = ['']*10
 
 RUNS = range(1)
 
@@ -62,6 +62,6 @@ for a2 in A2S:
                 nptot,
                 ' -N -R beta -R "span[ptile=4]" -R "rusage[mem=' +
                 str(mem) + ']" ',
-                run) + pp.exe_path+'/'+EXE
+                run) + pp.EXE_PATH+'/'+EXE
         print(exe_str)
         os.system(exe_str)

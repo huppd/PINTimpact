@@ -16,7 +16,7 @@ ROOT = TREE.getroot()
 
 # make executable ready
 EXE = 'modeConvDiff'
-os.chdir(pp.exe_path)
+os.chdir(pp.EXE_PATH)
 os.system('make ' + EXE + ' -j4')
 
 
@@ -78,7 +78,7 @@ for side in ['left', 'right']:
                         exe_str = \
                             pp.exe_pre(nptot,
                                        ' -N -W 4:00 -R "rusage[mem=' +
-                                       str(max(1024*4, 1024)) + ']" ', run) +  \
-                            pp.exe_path+'/'+EXE
+                                       str(max(1024*4, 1024)) + ']" ', run) + \
+                            pp.EXE_PATH+'/'+EXE
                         print(exe_str)
                         os.system(exe_str)

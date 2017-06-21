@@ -1412,12 +1412,10 @@ public:
 /// \relates ScalarField
 template<class SpaceT>
 Teuchos::RCP< ScalarField<SpaceT> >
-createScalarField(
-  const Teuchos::RCP<const SpaceT >& space,
-  F fType=F::S ) {
+createScalarField( const Teuchos::RCP<const SpaceT >& space, F fType=F::S ) {
 
   return( Teuchos::rcp(
-            new ScalarField<SpaceT>( space, true, fType ) ) );
+        new ScalarField<SpaceT>( space, true, fType ) ) );
 }
 
 ///  @}

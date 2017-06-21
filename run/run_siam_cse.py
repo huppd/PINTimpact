@@ -2,7 +2,7 @@
 import os
 from math import pi
 import xml.etree.ElementTree as ET
-import platformPaths as pp
+import platform_paths as pp
 import manipulator as ma
 
 
@@ -15,7 +15,7 @@ ROOT = TREE.getroot()
 
 # make executable ready
 EXE = 'peri_navier3D'
-os.chdir(pp.exe_path)
+os.chdir(pp.EXE_PATH)
 os.system('make '+EXE+' -j4')
 
 
@@ -30,7 +30,8 @@ NPX = 1
 NPF = 1
 
 
-CASE_PATH = ['', '', '', '', '', '', '', '', '']
+CASE_PATH = ['']*10
+
 CASE_PATH[0] = '/ultimate'
 pp.mkdir(CASE_PATH, 0)
 
@@ -76,6 +77,6 @@ for re in RES:
                 pp.exe_pre(nptot,
                            ' -N -W 8:00 -R "rusage[mem=' +
                            str(max(1024*4, 1024)) + ']" ', run) +  \
-                pp.exe_path+'/'+EXE
+                pp.EXE_PATH+'/'+EXE
             print exe_str
             os.system(exe_str)
