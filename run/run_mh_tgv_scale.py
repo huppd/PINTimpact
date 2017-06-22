@@ -24,7 +24,7 @@ CASE_PATH = ['']*10
 
 RUNS = range(10, 20)
 
-A2S = [0.1, 1., 10.]
+STS = [0.1, 1., 10.]
 
 RE = 10
 
@@ -40,8 +40,8 @@ for nx in NXS:
     CASE_PATH[0] = '/MHTGV_'+str(nx)
     pp.mkdir(CASE_PATH, 0)
     #
-    for a2 in A2S:
-        CASE_PATH[1] = '/a2_'+str(a2)
+    for st in STS:
+        CASE_PATH[1] = '/a2_'+str(st)
         pp.mkdir(CASE_PATH, 1)
         #
         for i in enumerate(NPX):
@@ -51,7 +51,7 @@ for nx in NXS:
             pp.chdir(CASE_PATH, 2)
             #
             ma.setParameter(ROOT, 'Re', RE)
-            ma.setParameter(ROOT, 'alpha2', 2.*pi*a2*RE)
+            ma.setParameter(ROOT, 'alpha2', 2.*pi*st*RE)
             ma.setParameter(ROOT, 'nx', nx)
             ma.setParameter(ROOT, 'ny', nx)
             ma.setParameter(ROOT, 'nz', 5)

@@ -23,7 +23,7 @@ CASE_PATH = ['']*10
 runs = range(10)
 
 # res = [ 1,10,100]
-a2s = [0.1, 1., 10.]
+STS = [0.1, 1., 10.]
 
 re = 10
 
@@ -43,8 +43,8 @@ ma.setParameter(root, 'nz', 5)
 CASE_PATH[0] = '/FD_scale'
 mkdir(CASE_PATH, 0)
 
-for a2 in a2s:
-    CASE_PATH[1] = '/a2_'+str(a2)
+for st in STS:
+    CASE_PATH[1] = '/a2_'+str(st)
     mkdir(CASE_PATH, 1)
     for i in range(len(npx)):
         CASE_PATH[2] = '/np_'+str(i)
@@ -53,7 +53,7 @@ for a2 in a2s:
         chdir(CASE_PATH, 2)
         #
         ma.setParameter(root, 'Re', re)
-        ma.setParameter(root, 'alpha2', 2.*pi*a2*re)
+        ma.setParameter(root, 'alpha2', 2.*pi*st*re)
         ma.setParameter(root, 'nf', 72)
         ma.setParameter(root, 'npx', npx[i])
         ma.setParameter(root, 'npy', npy[i])

@@ -24,14 +24,14 @@ CASE_PATH = ['']*10
 runs = range(10, 12)
 
 re = 100
-a2 = 0.1
-nfs = 2**np.arange(1,5) - 1
+st = 0.1
+nfs = 2**np.arange(1, 5) - 1
 nfs = [15]
 nx = 2
 npx = 4
 
 
-CASE_PATH[0] = '/scale_time_re_'+str(re)+'_a2_'+str(a2)+'_nx_'+str(nx)+'_npx_'+str(npx)
+CASE_PATH[0] = '/scale_time_re_'+str(re)+'_a2_'+str(st)+'_nx_'+str(nx)+'_npx_'+str(npx)
 mkdir(CASE_PATH, 0)
 
 for nf in nfs:
@@ -45,7 +45,7 @@ for nf in nfs:
             chdir(CASE_PATH, 6)
             #
             ma.setParameter(root, 'Re', re)
-            ma.setParameter(root, 'alpha2', 2.*pi*a2*re)
+            ma.setParameter(root, 'alpha2', 2.*pi*st*re)
             ma.setParameter(root, 'nx', 64*nx+1)
             ma.setParameter(root, 'ny', 16*nx+1)
             ma.setParameter(root, 'nz', 32*nx+1)

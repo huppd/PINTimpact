@@ -28,21 +28,21 @@ CASE_PATH = ['']*10
 
 RUNS = range(1)
 
-A2S = [1., 10., 0.1]
-# A2S  = [ 1. ]
-# A2S  = [ 10., 0.1 ]
+STS = [1., 10., 0.1]
+# STS  = [ 1. ]
+# STS  = [ 10., 0.1 ]
 
 
 CASE_PATH[0] = pp.DATA_PATH + '/MHTGV_conv'
 pp.mkdir(CASE_PATH, 0)
 
-for a2 in A2S:
-    CASE_PATH[1] = '/a2_'+str(a2)
+for st in STS:
+    CASE_PATH[1] = '/a2_'+str(st)
     pp.mkdir(CASE_PATH, 1)
     #
     pp.chdir(CASE_PATH, 1)
     #
-    ma.setParameter(ROOT, 'alpha2', 2.*pi*a2*RE)
+    ma.setParameter(ROOT, 'alpha2', 2.*pi*st*RE)
     # ma.setParameter( ROOT, 'nx', 64*+1 )
     # ma.setParameter( ROOT, 'ny', 64*+1 )
     # ma.setParameter( ROOT, 'nz', 5 )

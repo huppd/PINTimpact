@@ -18,15 +18,15 @@ case_consts = ' --linSolName="GCRODR"  --nf=8   --npx='+str(npx)+' --npy='+str(n
 precTypes = [99]
 ns = [4, 5, 6, 7]
 res = [10, 100, 200]
-alpha2s = [10, 100, 200]
+STS = [10, 100, 200]
 fixTypes = [1, 2, 4, 6, 9, 10]
 
 #ns  = [6]
 #precTypes = [0]
 #res = [400]
 res = [100]
-#alpha2s = [25**2]
-alpha2s = [125]
+#STS = [25**2]
+STS = [125]
 fixTypes = [2]
 
 for precType in precTypes:
@@ -41,8 +41,8 @@ for precType in precTypes:
             CASE_PATH[2] = '/re_'+str(re)
             if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]):
                 os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
-            for alpha2 in alpha2s:
-                CASE_PATH[3] = '/alpha2_'+str(alpha2)
+            for st in STS:
+                CASE_PATH[3] = '/alpha2_'+str(st)
                 if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]):
                     os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
                 for fixType in fixTypes:
@@ -51,6 +51,6 @@ for precType in precTypes:
                         os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                     os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                     os.system(' rm ./* -r -v  ')
-                    case_para = ' --precType='+str(precType)+' --nx='+str(2**n+1)+' --ny='+str(2**n+1)+' --re='+str(re)+' --alpha2='+str(alpha2)+' --fixType='+str(fixType)+' '
+                    case_para = ' --precType='+str(precType)+' --nx='+str(2**n+1)+' --ny='+str(2**n+1)+' --re='+str(re)+' --alpha2='+str(st)+' --fixType='+str(fixType)+' '
                     print case_consts + case_para
                     os.system(exe_pre(npx*npy)+EXE_PATH+exe+case_para+case_consts)

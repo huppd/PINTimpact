@@ -23,7 +23,7 @@ os.system('make '+exe+' -j4')
 runs = range(20, 25)
 
 re = 100
-a2 = 0.1
+st = 0.1
 nf = 7
 nx = 1
 npx = 1
@@ -31,7 +31,7 @@ npx = 1
 
 CASE_PATH = ['']*10
 
-CASE_PATH[0] = '/time_re_'+str(re)+'_a2_'+str(a2)+'_nf_'+str(nf)+'_nx_'+str(nx)+'_npx_'+str(npx)
+CASE_PATH[0] = '/time_re_'+str(re)+'_a2_'+str(st)+'_nf_'+str(nf)+'_nx_'+str(nx)+'_npx_'+str(npx)
 mkdir(CASE_PATH, 0)
 
 for npf in 2**np.arange(4):
@@ -41,7 +41,7 @@ for npf in 2**np.arange(4):
     chdir(CASE_PATH, 6)
     #
     ma.setParameter(root, 'Re', re)
-    ma.setParameter(root, 'alpha2', 2.*pi*a2*re)
+    ma.setParameter(root, 'alpha2', 2.*pi*st*re)
     ma.setParameter(root, 'nx', 64*nx+1)
     ma.setParameter(root, 'ny', 16*nx+1)
     ma.setParameter(root, 'nz', 32*nx+1)
@@ -67,7 +67,7 @@ nps = range(len(npx))
 
 CASE_PATH = ['']*10
 
-CASE_PATH[0] = '/space_re_'+str(re)+'_a2_'+str(a2)+'_nf_'+str(nf)+'_nx_'+str(nx)+'_npf_'+str(npf)
+CASE_PATH[0] = '/space_re_'+str(re)+'_a2_'+str(st)+'_nf_'+str(nf)+'_nx_'+str(nx)+'_npf_'+str(npf)
 mkdir(CASE_PATH, 0)
 
 for i in nps:
@@ -78,7 +78,7 @@ for i in nps:
     chdir(CASE_PATH, 6)
     #
     ma.setParameter(root, 'Re', re)
-    ma.setParameter(root, 'alpha2', 2.*pi*a2*re)
+    ma.setParameter(root, 'alpha2', 2.*pi*st*re)
     ma.setParameter(root, 'nx', 64*nx+1)
     ma.setParameter(root, 'ny', 16*nx+1)
     ma.setParameter(root, 'nz', 32*nx+1)
@@ -103,7 +103,7 @@ nps = range(len(npx))
 
 CASE_PATH = ['']*10
 
-CASE_PATH[0] = '/spacetime_re_'+str(re)+'_a2_'+str(a2)+'_nf_'+str(nf)+'_nx_'+str(nx)
+CASE_PATH[0] = '/spacetime_re_'+str(re)+'_a2_'+str(st)+'_nf_'+str(nf)+'_nx_'+str(nx)
 mkdir(CASE_PATH, 0)
 
 for i in nps:
@@ -114,7 +114,7 @@ for i in nps:
     chdir(CASE_PATH, 6)
     #
     ma.setParameter(root, 'Re', re)
-    ma.setParameter(root, 'alpha2', 2.*pi*a2*re)
+    ma.setParameter(root, 'alpha2', 2.*pi*st*re)
     ma.setParameter(root, 'nx', 64*nx+1)
     ma.setParameter(root, 'ny', 16*nx+1)
     ma.setParameter(root, 'nz', 32*nx+1)
@@ -139,7 +139,7 @@ npf = [1, 2, 4, 8, 8, 8, 8, 8, 8]
 nps  = range(len(npx))
 
 CASE_PATH = ['']*10
-CASE_PATH[0] = '/timeSpace_re_'+str(re)+'_a2_'+str(a2)+'_nf_'+str(nf)+'_nx_'+str(nx)
+CASE_PATH[0] = '/timeSpace_re_'+str(re)+'_a2_'+str(st)+'_nf_'+str(nf)+'_nx_'+str(nx)
 mkdir(CASE_PATH, 0)
 
 for i in nps:
@@ -150,7 +150,7 @@ for i in nps:
     chdir(CASE_PATH, 6)
     #
     ma.setParameter(root, 'Re', re)
-    ma.setParameter(root, 'alpha2', 2.*pi*a2*re)
+    ma.setParameter(root, 'alpha2', 2.*pi*st*re)
     ma.setParameter(root, 'nx', 64*nx+1)
     ma.setParameter(root, 'ny', 16*nx+1)
     ma.setParameter(root, 'nz', 32*nx+1)

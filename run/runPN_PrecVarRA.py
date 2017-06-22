@@ -23,20 +23,20 @@ precTypes = [2]
 ns = [6]
 #ns = [ 5, 6]
 res = [1, 25, 50, 75, 100]
-alpha2s = [1, 9, 25, 64, 100]
+STS = [1, 9, 25, 64, 100]
 
 #precTypes = [2, 3]
 #precTypes = [2]
 #precTypes = [3]
 #ns = [5]
 #res       = [100]
-#alpha2s   = [100]
+#STS   = [100]
 
 
 #ns  = [6, 7]
 
-for alpha2 in alpha2s:
-    CASE_PATH[0] = '/a2_'+str(alpha2)
+for st in STS:
+    CASE_PATH[0] = '/a2_'+str(st)
     if not os.path.exists(DATA_PATH+CASE_PATH[0]):
         os.mkdir(DATA_PATH+CASE_PATH[0])
     for re in res:
@@ -53,7 +53,7 @@ for alpha2 in alpha2s:
                     os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
                 os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
                 os.system(' rm ./* -r -v  ')
-                case_para = ' --nx='+str(2**n+1)+' --ny='+str(2**n+1)+' --nf='+str(2*(n-1))+' --withprec='+str(precType)+'  --re='+str(re)+' --alpha2='+str(alpha2)+' --maxGrids='+str(n-2)+' ' 
+                case_para = ' --nx='+str(2**n+1)+' --ny='+str(2**n+1)+' --nf='+str(2*(n-1))+' --withprec='+str(precType)+'  --re='+str(re)+' --alpha2='+str(st)+' --maxGrids='+str(n-2)+' ' 
                 #os.system(exe_pre(npx*npy*npt,' -R lustre ')+EXE_PATH+exe+case_para+case_consts)
                 print(exe_pre(npx*npy*npt)+EXE_PATH+exe+case_para+case_consts +' > output ')
                 os.system(exe_pre(npx*npy*npt)+EXE_PATH+exe+case_para+case_consts +' > output ')

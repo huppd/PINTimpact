@@ -29,7 +29,7 @@ nxs = [1, 2, 3]
 #nxs = [2]
 #nps = [4, 8]
 re = 100
-alpha2 = 576
+st = 576
 
 
 CASE_PATH[0] = '/strong2'
@@ -37,8 +37,8 @@ if not os.path.exists(DATA_PATH+CASE_PATH[0]):
     os.mkdir(DATA_PATH+CASE_PATH[0])
 #os.chdir(DATA_PATH+CASE_PATH[0])
 #os.system(' rm ./* -r -v  ')
-#for alpha2 in alpha2s:
-    #CASE_PATH[1] = '/a2_'+str(alpha2)
+#for st in sts:
+    #CASE_PATH[1] = '/a2_'+str(st)
     #if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
         #os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
 for n in nxs:
@@ -51,7 +51,7 @@ for n in nxs:
             os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
         os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
         os.system(' rm ./* -r -v  ')
-        case_para = ' --nx='+str(128*n+1)+' --ny='+str(32*n+1)+' --nz='+str(64*n+1)+' --npx='+str(np)+' --npy='+str(max(np/4,1))+' --npz='+str(max(np/2,1))+' --maxGrids='+str(int(2+n))+' --re='+str(re)+' --alpha2='+str(alpha2)+' ' 
+        case_para = ' --nx='+str(128*n+1)+' --ny='+str(32*n+1)+' --nz='+str(64*n+1)+' --npx='+str(np)+' --npy='+str(max(np/4,1))+' --npz='+str(max(np/2,1))+' --maxGrids='+str(int(2+n))+' --re='+str(re)+' --alpha2='+str(st)+' ' 
         #os.system(exe_pre(npx*npy*npt,' -R lustre ')+EXE_PATH+exe+case_para+case_consts)
         print(exe_pre(np*max(np/2,1)*max(np/4,1),' -R "select[model==Opteron8380"] ')+EXE_PATH+exe+case_para+case_consts[0] +'  ')
         for run in runs:

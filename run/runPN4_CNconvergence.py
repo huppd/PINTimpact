@@ -19,7 +19,7 @@ case_consts = ' --linSolName="GMRES" --flow=5 --domain=2 --force=0   --npx='+str
 precTypes = [0]
 ns = [4, 5, 6, 7, 8, 9]
 res = [10, 100, 200]
-alpha2s = [10, 100, 200]
+STS = [10, 100, 200]
 fixTypes = [1]
 
 
@@ -27,8 +27,8 @@ fixTypes = [1]
 #precTypes = [0,1,2]
 res = [1]
 #res = [200]
-alpha2s = [1]
-#alpha2s = [15**2]
+STS = [1]
+#STS = [15**2]
 fixTypes = [1]
 
 for precType in precTypes:
@@ -43,8 +43,8 @@ for precType in precTypes:
             CASE_PATH[2] = '/re_'+str(re)
             if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]):
                 os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
-            for alpha2 in alpha2s:
-                CASE_PATH[3] = '/alpha2_'+str(alpha2)
+            for st in STS:
+                CASE_PATH[3] = '/alpha2_'+str(st)
                 if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]):
                     os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
                 for n in ns:
@@ -53,7 +53,7 @@ for precType in precTypes:
                         os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                     os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                     os.system(' rm ./* -r -v  ')
-                    case_para = ' --precType='+str(precType)+' --nx='+str(2**5+1)+' --ny='+str(2**5+1)+' --nt='+str(2**n)+' --re='+str(re)+' --alpha2='+str(alpha2)+' --fixType='+str(fixType)+' '
+                    case_para = ' --precType='+str(precType)+' --nx='+str(2**5+1)+' --ny='+str(2**5+1)+' --nt='+str(2**n)+' --re='+str(re)+' --alpha2='+str(st)+' --fixType='+str(fixType)+' '
                     print case_consts + case_para
                     os.system(exe_pre(npx*npy*npt,' -R lustre ')+EXE_PATH+exe+case_para+case_consts)
                     #os.system(exe_pre(npx*npy*npt)+EXE_PATH+exe+case_para+case_consts)

@@ -20,7 +20,7 @@ case_consts = ' --linSolName="GCRODR" --flow=1 --domain=1 --force=1   --npx='+st
 precTypes = [0]
 ns = [5, 6]
 res = [10, 100, 200]
-alpha2s = [10, 100, 200]
+STS = [10, 100, 200]
 fixTypes = [1]
 
 
@@ -29,9 +29,9 @@ fixTypes = [1]
 res = [150]
 re = 150
 steps = range(20, 23, 2)
-alpha2s = [12]
-alpha2s = [2.*pi*0.1*200, 2.*pi*0.2*200, 2.*pi*0.3*200]
-alpha2s = [2.*pi*0.2*150]
+STS = [12]
+STS = [2.*pi*0.1*200, 2.*pi*0.2*200, 2.*pi*0.3*200]
+STS = [2.*pi*0.2*150]
 fixTypes = [1]
 fixType = 1
 
@@ -39,8 +39,8 @@ for precType in precTypes:
     CASE_PATH[0] = '/convshowstep'
     if not os.path.exists(DATA_PATH+CASE_PATH[0]):
         os.mkdir(DATA_PATH+CASE_PATH[0])
-    for alpha2 in alpha2s:
-        CASE_PATH[1] = '/alpha2_'+str(int(alpha2))
+    for st in STS:
+        CASE_PATH[1] = '/alpha2_'+str(int(st))
         if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
             os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
         for n in ns:
@@ -53,7 +53,7 @@ for precType in precTypes:
                     os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                 os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                 os.system(' rm ./* -r -v  ')
-                case_para = ' --maxIter='+str(step)+' --precType='+str(precType)+' --nx='+str(193)+' --ny='+str(49)+' --nt='+str(2**n)+' --re='+str(re)+' --alpha2='+str(alpha2)+' --fixType='+str(fixType)+' '
+                case_para = ' --maxIter='+str(step)+' --precType='+str(precType)+' --nx='+str(193)+' --ny='+str(49)+' --nt='+str(2**n)+' --re='+str(re)+' --alpha2='+str(st)+' --fixType='+str(fixType)+' '
                 print case_consts + case_para
                 os.system(exe_pre(npx*npy*npt,' -R lustre ')+EXE_PATH+exe+case_para+case_consts)
                 #os.system(exe_pre(npx*npy*npt)+EXE_PATH+exe+case_para+case_consts)

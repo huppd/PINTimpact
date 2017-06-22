@@ -25,7 +25,7 @@ CASE_PATH = ['']*4
 RUNS = range(1)
 
 RES = [10]
-A2S = [0.1, 10., 1.]
+STS = [0.1, 10., 1.]
 
 NFS = [72]
 
@@ -39,8 +39,8 @@ pp.mkdir(CASE_PATH, 0)
 for re in RES:
     CASE_PATH[1] = '/re_'+str(re)
     pp.mkdir(CASE_PATH, 1)
-    for a2 in A2S:
-        CASE_PATH[2] = '/a2_'+str(a2)
+    for st in STS:
+        CASE_PATH[2] = '/a2_'+str(st)
         pp.mkdir(CASE_PATH, 2)
         for nf in NFS:
             CASE_PATH[3] = '/nt_'+str(nf)
@@ -49,7 +49,7 @@ for re in RES:
             pp.chdir(CASE_PATH, 3)
             #
             ma.setParameter(ROOT, 'Re', re)
-            ma.setParameter(ROOT, 'alpha2', 2.*pi*a2*re)
+            ma.setParameter(ROOT, 'alpha2', 2.*pi*st*re)
             ma.setParameter(ROOT, 'nf', nf)
             ma.setParameter(ROOT, 'npx', 1)
             ma.setParameter(ROOT, 'npy', 1)

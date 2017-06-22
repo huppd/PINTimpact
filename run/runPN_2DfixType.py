@@ -15,7 +15,7 @@ case_consts = ' --nfe=17  --nx=33 --ny=33 --tolNOX=1.e-6 --tolBelos=1.e-4 --tolN
 
 flow = 5
 re = 100
-alpha2 = 1000
+st = 1000
 fixTypes = [1, 2, 3, 4, 5, 6, 7]
 
 for fixType in fixTypes:
@@ -24,8 +24,8 @@ for fixType in fixTypes:
         os.mkdir(DATA_PATH+CASE_PATH[0])
     print DATA_PATH + CASE_PATH[0]
     os.chdir(DATA_PATH+CASE_PATH[0])
-    #for alpha2 in alpha2s:
-        #CASE_PATH[1] = '/alpha2_'+str(alpha2)
+    #for st in STS:
+        #CASE_PATH[1] = '/alpha2_'+str(st)
         #if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
           #os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
         #print DATA_PATH + CASE_PATH[0] + CASE_PATH[1]
@@ -38,6 +38,6 @@ for fixType in fixTypes:
           #print DATA_PATH + CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]
           #os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
           #os.system(' rm -vr ./* ')
-    case_para = ' --alpha2='+str(alpha2)+' --re='+str(re)+' '+'  --flow='+str(flow)+' --fixType='+str(fixType)+' '
+    case_para = ' --alpha2='+str(st)+' --re='+str(re)+' '+'  --flow='+str(flow)+' --fixType='+str(fixType)+' '
     print case_consts + case_para
     os.system(exe_pre+EXE_PATH+exe+case_para+case_consts)

@@ -22,7 +22,7 @@ CASE_PATH = ['']*7
 runs = range(1)
 
 res = [100]
-alpha2s = [0.1]
+STS = [0.1]
 nfs = [1]
 nxs = [1, 2, 4]
 npxs = [1, 2, 4]
@@ -34,8 +34,8 @@ mkdir(CASE_PATH, 0)
 for re in res:
     CASE_PATH[1] = '/re_'+str(re)
     mkdir(CASE_PATH, 1)
-    for alpha2 in alpha2s:
-        CASE_PATH[2] = '/a2_'+str(alpha2)
+    for st in STS:
+        CASE_PATH[2] = '/a2_'+str(st)
         mkdir(CASE_PATH, 2)
         for nf in nfs:
             CASE_PATH[3] = '/nf_'+str(nf)
@@ -54,7 +54,7 @@ for re in res:
                         chdir(CASE_PATH, 6)
                         #
                         ma.setParameter(root, 'Re', re)
-                        ma.setParameter(root, 'alpha2', 2.*pi*alpha2*re)
+                        ma.setParameter(root, 'alpha2', 2.*pi*st*re)
                         ma.setParameter(root, 'nx', 64*nx+1)
                         ma.setParameter(root, 'ny', 16*nx+1)
                         ma.setParameter(root, 'nz', 32*nx+1)

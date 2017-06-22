@@ -29,7 +29,7 @@ nps = [1, 2, 3]
 #nxs = [2]
 #nps = [1]
 re = 200
-alpha2 = 0.2
+st = 0.2
 
 
 CASE_PATH[0] = '/weak'
@@ -37,8 +37,8 @@ if not os.path.exists(DATA_PATH+CASE_PATH[0]):
     os.mkdir(DATA_PATH+CASE_PATH[0])
 #os.chdir(DATA_PATH+CASE_PATH[0])
 #os.system(' rm ./* -r -v  ')
-#for alpha2 in alpha2s:
-    #CASE_PATH[1] = '/a2_'+str(alpha2)
+#for st in sts:
+    #CASE_PATH[1] = '/a2_'+str(st)
     #if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
         #os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
 for nx in nxs:
@@ -51,9 +51,9 @@ for nx in nxs:
             os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
         os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
         os.system(' rm ./* -r -v  ')
-        case_para = ' --nx='+str(128*np*nx/2+1)+' --ny='+str(32*np*nx/2+1)+' --nz='+str(64*np*nx/2+1)+' --npx='+str(4*np)+' --npy='+str(np)+' --npz='+str(np*2)+' --maxGrids='+str(int(3+log2(np*nx)))+' --re='+str(re)+' --alpha2='+str(alpha2)+' --lx='+str(8)+'. --lz='+str(4)+'. '
+        case_para = ' --nx='+str(128*np*nx/2+1)+' --ny='+str(32*np*nx/2+1)+' --nz='+str(64*np*nx/2+1)+' --npx='+str(4*np)+' --npy='+str(np)+' --npz='+str(np*2)+' --maxGrids='+str(int(3+log2(np*nx)))+' --re='+str(re)+' --alpha2='+str(st)+' --lx='+str(8)+'. --lz='+str(4)+'. '
         ma.setParameter(root, 'Re', re)
-        ma.setParameter(root, 'alpha2', 2.*pi*alpha2*re)
+        ma.setParameter(root, 'alpha2', 2.*pi*st*re)
         ma.setParameter(root, 'nx', 128*nx*np+1)
         ma.setParameter(root, 'ny',  32*nx*np/2+1)
         ma.setParameter(root, 'nz',  64*nx*np+1)

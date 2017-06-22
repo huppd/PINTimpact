@@ -28,10 +28,10 @@ CASE_PATH = ['']*4
 
 ns = [2]
 res = [100, 100, 400]
-alpha2s = [0.05, 0.1, 0.2, 0.4]
+STS = [0.05, 0.1, 0.2, 0.4]
 
 res = [200]
-alpha2s = [0.05, 0.1]
+STS = [0.05, 0.1]
 
 CASE_PATH[0] = '/ultimate'
 if not os.path.exists(DATA_PATH+CASE_PATH[0]):
@@ -45,15 +45,15 @@ for n in ns:
         CASE_PATH[2] = '/re_'+str(re)
         if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]):
             os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
-        for alpha2 in alpha2s:
-            CASE_PATH[3] = '/a2_'+str(alpha2)
+        for st in STS:
+            CASE_PATH[3] = '/a2_'+str(st)
             if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]):
                 os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
             os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
             os.system(' rm ./* -r -v  ')
             #
             ma.setParameter(root, 'Re', re)
-            ma.setParameter(root, 'alpha2', 2.*pi*alpha2*re)
+            ma.setParameter(root, 'alpha2', 2.*pi*st*re)
             ma.setParameter(root, 'nx', 128*2+1)
             ma.setParameter(root, 'ny',  32*2+1)
             ma.setParameter(root, 'nz',  64*2+1)

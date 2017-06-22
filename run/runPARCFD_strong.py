@@ -37,7 +37,7 @@ nxs = [1]
 nfs = [1]
 
 re = 200
-alpha2 = 0.2
+st = 0.2
 
 
 CASE_PATH[0] = '/strong'
@@ -62,7 +62,7 @@ for nf in nfs:
                 os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                 os.system(' rm ./* -r -v  ')
                 ma.setParameter(root, 'Re', re)
-                ma.setParameter(root, 'alpha2', 2.*pi*alpha2*re)
+                ma.setParameter(root, 'alpha2', 2.*pi*st*re)
                 ma.setParameter(root, 'nx', 64*n+1)
                 ma.setParameter(root, 'ny', 16*n+1)
                 ma.setParameter(root, 'nz', 32*n+1)

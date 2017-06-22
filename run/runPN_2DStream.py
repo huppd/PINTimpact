@@ -21,15 +21,15 @@ case_consts = ' --nfe=17  --nx=33 --ny=33 --tolNOX=1.e-6 --tolBelos=1.e-4 --tolN
 
 FLOWS = [5, 6, 7]
 RES = [1, 10, 100]
-ALPHA2S = [1, 10, 100, 1000]
+STS = [1, 10, 100, 1000]
 
 for flow in FLOWS:
     CASE_PATH[0] = 'flow_'+str(flow)
     if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]):
         os.mkdir(pp.DATA_PATH+CASE_PATH[0])
     print pp.DATA_PATH + CASE_PATH[0]
-    for alpha2 in ALPHA2S:
-        CASE_PATH[1] = '/alpha2_'+str(alpha2)
+    for st in STS:
+        CASE_PATH[1] = '/alpha2_'+str(st)
         if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
             os.mkdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
         print pp.DATA_PATH + CASE_PATH[0] + CASE_PATH[1]
@@ -43,6 +43,6 @@ for flow in FLOWS:
             print pp.DATA_PATH + CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]
             os.chdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
             os.system(' rm -vr ./* ')
-            case_para = ' --alpha2='+str(alpha2)+' --re='+str(re)+' '+'  --flow='+str(flow)+' '
+            case_para = ' --alpha2='+str(st)+' --re='+str(re)+' '+'  --flow='+str(flow)+' '
             print case_consts + case_para
             os.system(exe_pre+EXE_PATH+exe+case_para+case_consts)

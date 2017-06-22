@@ -20,7 +20,7 @@ for i in range(rep):
     start = time.time()
     os.system(exe_pre()+EXE_PATH+exe+case_consts)
     rt = time.time()-start
-    runtime = min(rt,runtime)
+    runtime = min(rt, runtime)
 
 f.write('year:'+str(time.gmtime().tm_year) + ', month: '+str(time.gmtime().tm_mon)+', day: '+str(time.gmtime().tm_mday)+',\truntime: '+str(runtime)+'\n')
 

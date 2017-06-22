@@ -21,16 +21,16 @@ precTypes = [0]
 #ns = [4, 5, 6]
 ns = [5, 6, 7]
 res = [10, 100, 200]
-alpha2s = [10, 100, 200]
+STS = [10, 100, 200]
 fixTypes = [1]
 
 
 #ns  = [7]
 #precTypes = [0,1,2]
 res = [150]
-alpha2s = [12]
-#alpha2s = [2.*pi*0.1*200, 2.*pi*0.2*200, 2.*pi*0.3*200]
-alpha2s = [2.*pi*0.2*res[0]]
+STS = [12]
+#STS = [2.*pi*0.1*200, 2.*pi*0.2*200, 2.*pi*0.3*200]
+STS = [2.*pi*0.2*res[0]]
 fixTypes = [1]
 
 for precType in precTypes:
@@ -45,8 +45,8 @@ for precType in precTypes:
             CASE_PATH[2] = '/re_'+str(re)
             if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]):
                 os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
-            for alpha2 in alpha2s:
-                CASE_PATH[3] = '/alpha2_'+str(int(alpha2))
+            for st in STS:
+                CASE_PATH[3] = '/alpha2_'+str(int(st))
                 if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]):
                     os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
                 for n in ns:
@@ -55,7 +55,7 @@ for precType in precTypes:
                         os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                     os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                     os.system(' rm ./* -r -v  ')
-                    case_para = ' --precType='+str(precType)+' --nx='+str(193)+' --ny='+str(49)+' --nt='+str(2**n)+' --re='+str(re)+' --alpha2='+str(alpha2)+' --fixType='+str(fixType)+' '
+                    case_para = ' --precType='+str(precType)+' --nx='+str(193)+' --ny='+str(49)+' --nt='+str(2**n)+' --re='+str(re)+' --alpha2='+str(st)+' --fixType='+str(fixType)+' '
                     print case_consts + case_para
                     os.system(exe_pre(npx*npy*npt,' -R lustre ')+EXE_PATH+exe+case_para+case_consts)
                     #os.system(exe_pre(npx*npy*npt)+EXE_PATH+exe+case_para+case_consts)
