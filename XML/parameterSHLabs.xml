@@ -83,13 +83,15 @@
       <Parameter docString="" id="108" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
     </ParameterList>
     <ParameterList id="17" name="Test 1">
-      <Parameter docString="" id="109" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" /> <Parameter docString="" id="110" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.0e-4" />
+      <Parameter docString="" id="109" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormUpdate" />
+      <Parameter docString="" id="110" isDefault="false" isUsed="true" name="Tolerance" type="double" value="1.0e-3" />
       <Parameter docString="" id="111" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
       <Parameter docString="" id="112" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Scaled" />
     </ParameterList>
     <ParameterList id="18" name="Test 2">
       <Parameter docString="" id="113" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-      <Parameter docString="" id="114" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
+      <Parameter docString="" id="114" isDefault="false" isUsed="true" name="Maximum Iterations"
+        type="int" value="8" />
     </ParameterList>
   </ParameterList>
   <ParameterList id="19" name="NOX Solver">
@@ -131,14 +133,15 @@
     <Parameter docString="" id="132" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
     <Parameter docString="" id="133" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
     <Parameter docString="" id="134" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
-    
     <Parameter docString="" id="135" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
     <Parameter docString="" id="136" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
     <Parameter docString="" id="137" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="29" name="Solver">
-      <Parameter docString="" id="138" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="90" />
-      <Parameter docString="" id="139" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="30" />
-      <Parameter docString="" id="140" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-1" />
+      <Parameter docString="" id="138" isDefault="false" isUsed="true" name="Maximum Iterations"
+        type="int" value="180" />
+      <Parameter docString="" id="139" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="40" />
+      <Parameter docString="" id="140" isDefault="false" isUsed="true" name="Convergence Tolerance"
+        type="double" value="1.0e-2" />
       <Parameter docString="" id="141" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="142" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
       <Parameter docString="" id="143" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -158,7 +161,7 @@
     <ParameterList id="31" name="Solver">
       <Parameter docString="" id="154" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
       <Parameter docString="" id="155" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="80" />
-      <Parameter docString="" id="156" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
+      <Parameter docString="" id="156" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="40" />
       <Parameter docString="" id="157" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-03" />
       <Parameter docString="" id="158" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="159" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
