@@ -36,7 +36,7 @@ NPZ = 4
 NPF = 1
 
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimate2'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimate'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:

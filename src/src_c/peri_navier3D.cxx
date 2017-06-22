@@ -590,6 +590,7 @@ int main( int argi, char** argv ) {
           rank_1 = 1;
         int rank_nf = space->getProcGrid()->getNP(3)-1;
 
+        // nice nonblocking version
         MPI_Request req_1, req_nf;  
 
         MPI_Ibcast(

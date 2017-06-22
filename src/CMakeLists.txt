@@ -50,7 +50,7 @@ message( "MPI Fortran LIBRARIES =    ${MPI_Fortran_LIBRARIES}\n" )
 option( findHDF5 "findHDF5" OFF)
 
 if( findHDF5 )
-	find_package( HDF5 COMPONENTS C Fortran HL Fortran_HL )
+  find_package( HDF5 QUIET COMPONENTS C Fortran HL Fortran_HL )
 	message( "\nHDF5? ${HDF5_FOUND}" )
 	message( "HDF5_IS_PARALLEL? ${HDF5_IS_PARALLEL}" )
 	message( "HDF5_INCLUDE_DIRS: ${HDF5_INCLUDE_DIRS}" )
