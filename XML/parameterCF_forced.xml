@@ -200,6 +200,8 @@
       value="Flexible GMRES" />
 		<Parameter docString="" id="129129" isDefault="true" isUsed="true" name="preconditioner"
       type="string" value="right" />
+    <Parameter docString="" id="143" isDefault="true" isUsed="true" name="level" type="bool"
+      value="true" />
     <ParameterList id="24" name="Solver">
       <Parameter docString="" id="136" isDefault="false" isUsed="true" name="Maximum Iterations"
         type="int" value="10" />
@@ -219,8 +221,6 @@
   <ParameterList id="25" name="DivGrad">
     <Parameter docString="" id="142" isDefault="true" isUsed="true" name="Solver name" type="string"
       value="Flexible GMRES" />
-    <Parameter docString="" id="143" isDefault="true" isUsed="true" name="level" type="bool"
-      value="false" />
     <Parameter docString="" id="144" isDefault="true" isUsed="true" name="initZero" type="bool"
       value="false" />
 		<Parameter docString="" id="148148" isDefault="true" isUsed="true" name="preconditioner"

@@ -1,13 +1,13 @@
 import os
 from pylab import pi
-from platform_paths import *
+import platform_paths as pp
 
 
-exe = 'peri_navier4'
+EXE = 'peri_navier4'
 
 
-os.chdir(EXE_PATH)
-os.system('make '+exe+' -j4')
+os.chdir(pp.EXE_PATH)
+os.system('make '+EXE+' -j4')
 
 CASE_PATH = ['']*5
 
@@ -37,23 +37,23 @@ fixType = 1
 
 for precType in precTypes:
     CASE_PATH[0] = '/convshowstep'
-    if not os.path.exists(DATA_PATH+CASE_PATH[0]):
-        os.mkdir(DATA_PATH+CASE_PATH[0])
+    if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]):
+        os.mkdir(pp.DATA_PATH+CASE_PATH[0])
     for st in STS:
         CASE_PATH[1] = '/alpha2_'+str(int(st))
-        if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
-            os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
+        if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
+            os.mkdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
         for n in ns:
             CASE_PATH[2] = '/n2_'+str(n)
-            if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]):
-                os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
+            if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]):
+                os.mkdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
             for step in steps:
                 CASE_PATH[3] = '/step_'+str(step)
-                if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4]):
-                    os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
-                os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
+                if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4]):
+                    os.mkdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
+                os.chdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]+CASE_PATH[4])
                 os.system(' rm ./* -r -v  ')
                 case_para = ' --maxIter='+str(step)+' --precType='+str(precType)+' --nx='+str(193)+' --ny='+str(49)+' --nt='+str(2**n)+' --re='+str(re)+' --alpha2='+str(st)+' --fixType='+str(fixType)+' '
                 print case_consts + case_para
-                os.system(exe_pre(npx*npy*npt,' -R lustre ')+EXE_PATH+exe+case_para+case_consts)
-                #os.system(exe_pre(npx*npy*npt)+EXE_PATH+exe+case_para+case_consts)
+                os.system(pp.exe_pre(npx*npy*npt,' -R lustre ')+pp.EXE_PATH+EXE+case_para+case_consts)
+                #os.system(pp.exe_pre(npx*npy*npt)+pp.EXE_PATH+EXE+case_para+case_consts)

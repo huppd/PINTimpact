@@ -331,10 +331,10 @@ public:
 
     return(
             ( Belos::OneNorm==type)?
-            normLoc1(bcYes):
-            (Belos::TwoNorm==type)?
-            normLoc2(bcYes):
-            normLocInf(bcYes) );
+              normLoc1(bcYes):
+              (Belos::TwoNorm==type)?
+                normLoc2(bcYes):
+                normLocInf(bcYes) );
   }
 
 

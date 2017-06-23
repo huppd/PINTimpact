@@ -119,7 +119,8 @@
 		<Parameter docString="" id="98" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES"/>
 		<Parameter docString="" id="99" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right"/>
 		<Parameter docString="" id="100" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false"/>
-		<Parameter docString="" id="110" isDefault="true" isUsed="true" name="level" type="bool" value="false"/>
+		<Parameter docString="" id="110" isDefault="true" isUsed="true" name="level" type="bool"
+      value="true"/>
 		<Parameter docString="" id="112" isDefault="true" isUsed="true" name="initZero" type="bool" value="true"/>
 		<Parameter docString="" id="113" isDefault="true" isUsed="true" name="debug" type="bool" value="false"/>
 		<ParameterList id="109" name="Solver">

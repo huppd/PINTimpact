@@ -40,7 +40,6 @@ typename SpaceT::Scalar computeEnergy( const VectorField<SpaceT>& vel ) {
           ST volume = coord->dx(F::S,X,i) * coord->dx(F::S,Y,j) * coord->dx(F::S,Z,k);
           energy += volume * std::pow( temp(i,j,k), 2 );
         }
-
   }
   return( vel.allReduce( energy ) );
 }

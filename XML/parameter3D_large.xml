@@ -110,7 +110,7 @@
       <Parameter docString="" id="126" isDefault="false" isUsed="true" name="2-Norm of Residual" type="double" value="8.04869918902544779e-01" />
     </ParameterList>
   </ParameterList>
-  <ParameterList id="23" name="Belos Solver">
+  <ParameterList id="23" name="Picard Solver">
     <Parameter docString="" id="127" isDefault="true" isUsed="true" name="Solver name" type="string" value="Block GMRES" />
     <ParameterList id="24" name="Solver">
       <Parameter docString="" id="128" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />

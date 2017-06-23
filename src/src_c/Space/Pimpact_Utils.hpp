@@ -13,6 +13,14 @@
 namespace Pimpact {
 
 
+/// \brief Norm Type
+enum class ENorm : int {
+  One, /// < vector one norm
+  Two, /// < vector two norm
+  Inf /// < vector inf norm
+  //L2   /// < function 2 norm
+};
+
 
 /// \brief Copy Type
 enum class ECopy : bool {

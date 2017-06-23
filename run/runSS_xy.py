@@ -6,8 +6,8 @@ from numpy import linspace
 import platform_paths as pp
 
 
-exe = 'stat_stokes'
-exe = 'peri_stokes'
+EXE = 'stat_stokes'
+EXE = 'peri_stokes'
 
 
 CASE_PATHs = ['casex', 'casey']
@@ -29,9 +29,9 @@ for i in range(2):
     if not os.path.exists(pp.DATA_PATH+CASE_PATHs[i]):
         os.mkdir(pp.DATA_PATH+CASE_PATHs[i])
     os.chdir(pp.DATA_PATH+CASE_PATHs[i])
-    #os.system('/usr/bin/mpirun -np 4 '+EXE_PATH+exe+case_paras[i]+case_consts ,shell=True)
-    #subprocess.call('/usr/bin/mpirun -np 4 '+EXE_PATH+exe+case_paras[i]+case_consts ,shell=True)
-    mpicmd = 'mpirun -np 4 '+EXE_PATH+exe+case_paras[i]+case_consts
+    #os.system('/usr/bin/mpirun -np 4 '+pp.EXE_PATH+EXE+case_paras[i]+case_consts ,shell=True)
+    #subprocess.call('/usr/bin/mpirun -np 4 '+pp.EXE_PATH+EXE+case_paras[i]+case_consts ,shell=True)
+    mpicmd = 'mpirun -np 4 '+pp.EXE_PATH+EXE+case_paras[i]+case_consts
     #subprocess.call(mpicmd, shell=True)
     #subprocess.Popen(mpicmd, shell=True)
     subprocess.check_call(mpicmd, shell=True)

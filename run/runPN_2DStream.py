@@ -1,12 +1,6 @@
 """ runner for Rayleigh streaming """
-# import os
-# from pylab import pi
-# from platform_paths import *
 import os
-from math import pi
-import xml.etree.ElementTree as ET
 import platform_paths as pp
-import manipulator as ma
 
 
 EXE = 'peri_navier'
@@ -45,4 +39,4 @@ for flow in FLOWS:
             os.system(' rm -vr ./* ')
             case_para = ' --alpha2='+str(st)+' --re='+str(re)+' '+'  --flow='+str(flow)+' '
             print case_consts + case_para
-            os.system(exe_pre+EXE_PATH+exe+case_para+case_consts)
+            os.system(pp.exe_pre+pp.EXE_PATH+EXE+case_para+case_consts)

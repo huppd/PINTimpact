@@ -2,7 +2,7 @@ import os
 from platform_paths import EXE_PATH, DATA_PATH, exe_pre
 
 
-exe = 'peri_burgers'
+EXE = 'peri_burgers'
 
 
 os.chdir(EXE_PATH)
@@ -33,4 +33,4 @@ for rex in [3, 4, 5, 6]:
         os.system(' rm -v ./* ')
         case_para = ' --re=1e'+str(rex)+' --iterM='+str(itM)+' '
         print case_consts + case_para
-        os.system(exe_pre+EXE_PATH+exe+case_para+case_consts)
+        os.system(exe_pre+EXE_PATH+EXE+case_para+case_consts)

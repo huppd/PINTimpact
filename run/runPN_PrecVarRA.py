@@ -1,13 +1,12 @@
 import os
-from pylab import pi
-from platform_paths import *
+import platform_paths as pp
 
 
-exe = 'peri_navier'
+EXE = 'peri_navier'
 
 
-os.chdir(EXE_PATH)
-os.system('make '+exe+' -j4')
+os.chdir(pp.EXE_PATH)
+os.system('make '+EXE+' -j4')
 
 CASE_PATH = ['']*5
 
@@ -37,23 +36,23 @@ STS = [1, 9, 25, 64, 100]
 
 for st in STS:
     CASE_PATH[0] = '/a2_'+str(st)
-    if not os.path.exists(DATA_PATH+CASE_PATH[0]):
-        os.mkdir(DATA_PATH+CASE_PATH[0])
+    if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]):
+        os.mkdir(pp.DATA_PATH+CASE_PATH[0])
     for re in res:
         CASE_PATH[1] = '/re_'+str(re)
-        if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
-            os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
+        if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]):
+            os.mkdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
         for n in ns:
             CASE_PATH[2] = '/n2_'+str(n)
-            if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]):
-                os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
+            if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]):
+                os.mkdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2])
             for precType in precTypes:
                 CASE_PATH[3] = '/precType_'+str(precType)
-                if not os.path.exists(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]  ):
-                    os.mkdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
-                os.chdir(DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
+                if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3]  ):
+                    os.mkdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
+                os.chdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
                 os.system(' rm ./* -r -v  ')
                 case_para = ' --nx='+str(2**n+1)+' --ny='+str(2**n+1)+' --nf='+str(2*(n-1))+' --withprec='+str(precType)+'  --re='+str(re)+' --alpha2='+str(st)+' --maxGrids='+str(n-2)+' ' 
-                #os.system(exe_pre(npx*npy*npt,' -R lustre ')+EXE_PATH+exe+case_para+case_consts)
-                print(exe_pre(npx*npy*npt)+EXE_PATH+exe+case_para+case_consts +' > output ')
-                os.system(exe_pre(npx*npy*npt)+EXE_PATH+exe+case_para+case_consts +' > output ')
+                #os.system(pp.exe_pre(npx*npy*npt,' -R lustre ')+pp.EXE_PATH+EXE+case_para+case_consts)
+                print(pp.exe_pre(npx*npy*npt)+pp.EXE_PATH+EXE+case_para+case_consts +' > output ')
+                os.system(pp.exe_pre(npx*npy*npt)+pp.EXE_PATH+EXE+case_para+case_consts +' > output ')

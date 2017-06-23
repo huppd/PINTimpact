@@ -119,7 +119,8 @@
 	<ParameterList id="23" name="Picard Solver">
 		<Parameter docString="" id="127" isDefault="true" isUsed="true" name="Solver name" type="string" value="Block GMRES" />
 		<Parameter docString="" id="611" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
-		<Parameter docString="" id="143" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+		<Parameter docString="" id="143" isDefault="true" isUsed="true" name="level" type="bool"
+      value="true" />
 		<ParameterList id="24" name="Solver">
 			<Parameter docString="" id="136" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
 			<!--<Parameter docString="" id="128" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />-->

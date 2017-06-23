@@ -1,24 +1,24 @@
 import os
 import time
-from platform_paths import *
+import platform_paths as pp
 
 
 rep = 4
-exe = 'peri_navier'
+EXE = 'peri_navier'
 
-os.chdir(EXE_PATH)
+os.chdir(pp.EXE_PATH)
 
-os.system('make '+exe+' -j4')
+os.system('make '+EXE+' -j4')
 
 case_consts = ' --nx=65 --ny=65 --nf=8 --npx='+str(1)+' --npy='+str(1)+' --npf='+str(1)+' --tolNOX=1.e-6  --tolBelos=1.e-4  --maxIter=5  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-6 --numCycles=2 --maxGrids=4  --withprec=2 --re=10 --alpha2=10  '
 
-os.chdir(DATA_PATH)
-f = open('timingNavier.txt','a')
+os.chdir(pp.DATA_PATH)
+f = open('timingNavier.txt', 'a')
 
 runtime = 1e22
 for i in range(rep):
     start = time.time()
-    os.system(exe_pre()+EXE_PATH+exe+case_consts)
+    os.system(pp.exe_pre()+pp.EXE_PATH+EXE+case_consts)
     rt = time.time()-start
     runtime = min(rt, runtime)
 
@@ -26,9 +26,9 @@ f.write('year:'+str(time.gmtime().tm_year) + ', month: '+str(time.gmtime().tm_mo
 
 f.close()
 
-exe = 'peri_navier'
-os.system('make '+exe+' -j4')
-os.chdir(prof_path)
-os.system('make '+exe+' -j4')
-print exe_pre()+prof_pre+exe
-os.system(exe_pre()+prof_pre+'./'+exe+case_consts)
+EXE = 'peri_navier'
+os.system('make '+EXE+' -j4')
+os.chdir(pp.EXE_PATH)
+os.system('make '+EXE+' -j4')
+print pp.exe_pre()+pp.EXE_PATH+EXE
+os.system(pp.exe_pre()+pp.EXE_PATH+'./'+EXE+case_consts)

@@ -1,7 +1,6 @@
 <ParameterList id="0" name="ANONYMOUS">
 	<ParameterList id="1" name="Space">
 		<Parameter docString="Reynolds number" id="53" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+01" />
-    
     <Parameter docString="Womersley square alpha^2" id="54" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.0000000000e-01" />
   <ParameterList id="2" name="boundary conditions">
     <Parameter docString="" id="55" isDefault="false" isUsed="true" name="lower X" type="int" value="-1" />
@@ -39,7 +38,6 @@
 		<Parameter docString="" id="75" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.e-04" />
 		<Parameter docString="" id="76" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
 		<Parameter docString="" id="77" isDefault="false" isUsed="true" name="initial guess" type="string" value="zero" />
-		
 	</ParameterList>
 	<ParameterList id="7" name="Multi Grid">
 		<Parameter docString="" id="78" isDefault="false" isUsed="true" name="maxGrids" type="int" value="6" />
@@ -148,6 +146,8 @@
 	<ParameterList id="33" name="Picard Solver">
 		<Parameter docString="" id="129" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
 		<Parameter docString="" id="130" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="140" isDefault="true" isUsed="true" name="level" type="bool"
+      value="true" />
 		<ParameterList id="34" name="Solver">
 			<Parameter docString="" id="131" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="6" />
 			<Parameter docString="" id="132" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />
@@ -161,7 +161,6 @@
 	</ParameterList>
 	<ParameterList id="35" name="DivGrad">
 		<Parameter docString="" id="139" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
-		<Parameter docString="" id="140" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
 		<Parameter docString="" id="141" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
 		<Parameter docString="" id="142" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<Parameter docString="" id="143" isDefault="true" isUsed="true" name="scaling" type="string" value="left" />

@@ -18,6 +18,7 @@
 namespace NOX {
 namespace Pimpact {
 
+/// \deprecated
 Teuchos::RCP< NOX::StatusTest::Generic >
 createStatusTest( int maxI=10, double tolF=1.e-6, double tolUpdate=1.e-6 );
 
