@@ -63,7 +63,7 @@ protected:
 
 public:
 
-  VectorField( const Teuchos::RCP< const SpaceT >& space, bool owning=true ):
+  VectorField( const Teuchos::RCP< const SpaceT >& space, const bool owning=true ):
     AbstractField<SpaceT>( space ),
     owning_(owning),
     sFields_{ {space,false,F::U}, {space,false,F::V}, {space,false,F::W} } {
@@ -79,7 +79,7 @@ public:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param vF
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
-  VectorField( const VectorField& vF, ECopy copyType=ECopy::Deep ):
+  VectorField( const VectorField& vF, const ECopy copyType=ECopy::Deep ):
     AbstractField<SpaceT>( vF.space() ),
     owning_(vF.owning_),
     sFields_{ {vF(F::U),copyType}, {vF(F::V),copyType}, {vF(F::W),copyType} } {
@@ -104,16 +104,16 @@ public:
     if( owning_ ) delete[] s_;
   }
 
-  Teuchos::RCP<VectorField> clone( ECopy copyType=ECopy::Deep ) const {
+  Teuchos::RCP<VectorField> clone( const ECopy copyType=ECopy::Deep ) const {
 
     Teuchos::RCP<VectorField> vf = Teuchos::rcp( new VectorField( space() ) );
 
     switch( copyType ) {
-    case ECopy::Shallow:
-      break;
-    case ECopy::Deep:
-      *vf = *this;
-      break;
+      case ECopy::Shallow:
+        break;
+      case ECopy::Deep:
+        *vf = *this;
+        break;
     }
 
     return( vf );
@@ -146,8 +146,8 @@ public:
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
   ///
   /// only inner points
-  void add( const ST& alpha, const VectorField& a, const ST& beta, const
-            VectorField& b, const B& wB=B::Y ) {
+  void add( const ST alpha, const VectorField& a, const ST beta, const
+            VectorField& b, const B wB=B::Y ) {
 
     // add test for consistent VectorSpaces in debug mode
     for( F i=F::U; i<SpaceT::sdim; ++i )
@@ -163,7 +163,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs( const VectorField& y, const B& bcYes=B::Y ) {
+  void abs( const VectorField& y, const B bcYes=B::Y ) {
     for( F i=F::U; i<SpaceT::sdim; ++i )
       at(i).abs( y(i), bcYes );
     changed();
@@ -175,7 +175,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const VectorField& y, const B& bcYes=B::Y ) {
+  void reciprocal( const VectorField& y, const B bcYes=B::Y ) {
     // add test for consistent VectorSpaces in debug mode
     for( F i=F::U; i<SpaceT::sdim; ++i )
       at(i).reciprocal( y(i), bcYes );
@@ -184,7 +184,7 @@ public:
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
-  void scale( const ST& alpha, const B& bcYes=B::Y ) {
+  void scale( const ST alpha, const B bcYes=B::Y ) {
     for( F i=F::U; i<SpaceT::sdim; ++i )
       at(i).scale( alpha, bcYes );
     changed();
@@ -196,7 +196,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale( const VectorField& a, const B& bcYes=B::Y ) {
+  void scale( const VectorField& a, const B bcYes=B::Y ) {
     // add test for consistent VectorSpaces in debug mode
     for( F i=F::U; i<SpaceT::sdim; ++i )
       at(i).scale( a(i), bcYes );
@@ -205,7 +205,7 @@ public:
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr ST dotLoc ( const VectorField& a, const B& bcYes=B::Y ) const {
+  constexpr ST dotLoc ( const VectorField& a, const B bcYes=B::Y ) const {
     ST b = 0.;
 
     for( F i=F::U; i<SpaceT::sdim; ++i )
@@ -216,7 +216,7 @@ public:
 
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-  constexpr ST dot( const VectorField& y, const B& bcYes=B::Y ) const {
+  constexpr ST dot( const VectorField& y, const B bcYes=B::Y ) const {
 
     return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
   }
@@ -226,13 +226,13 @@ public:
   /// \name Norm method
   /// @{
 
-  constexpr ST normLoc( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
+  constexpr ST normLoc( ENorm type = ENorm::Two, const B bcYes=B::Y ) const {
 
     ST normvec = 0.;
 
     for( F i=F::U; i<SpaceT::sdim; ++i )
       normvec =
-        (type==Belos::InfNorm)?
+        (type==ENorm::Inf)?
         std::max( at(i).normLoc(type,bcYes), normvec ):
         ( normvec+at(i).normLoc(type,bcYes) );
 
@@ -242,15 +242,12 @@ public:
 
 /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr ST norm( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
+  constexpr ST norm( const ENorm type = ENorm::Two, const B bcYes=B::Y ) const {
 
-    ST normvec = this->reduce(
-                   comm(),
-                   normLoc( type, bcYes ),
-                   (Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+    ST normvec = this->reduce( comm(), normLoc( type, bcYes ),
+                   (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
 
-    normvec =
-      (Belos::TwoNorm==type) ?
+    normvec = (ENorm::Two==type||ENorm::L2==type) ?
       std::sqrt(normvec) :
       normvec;
 
@@ -263,7 +260,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr ST normLoc( const VectorField& weights, const B& bcYes=B::Y ) const {
+  constexpr ST normLoc( const VectorField& weights, const B bcYes=B::Y ) const {
     ST normvec = 0.;
 
     for( F i=F::U; i<SpaceT::sdim; ++i )
@@ -279,7 +276,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr ST norm( const VectorField& weights, const B& bcYes=B::Y ) const {
+  constexpr ST norm( const VectorField& weights, const B bcYes=B::Y ) const {
     return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
   }
 
@@ -305,7 +302,7 @@ public:
   ///
   /// depending on Fortrans \c Random_number implementation, with always same
   /// seed => not save, if good randomness is required
-  void random( bool useSeed=false, const B& bcYes=B::Y, int seed=1 ) {
+  void random( bool useSeed=false, const B bcYes=B::Y, int seed=1 ) {
 
     for( F i=F::U; i<SpaceT::sdim; ++i )
       at(i).random( useSeed, bcYes, seed );
@@ -314,7 +311,7 @@ public:
   }
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& bcYes=B::Y ) {
+  void init( const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B bcYes=B::Y ) {
     for( F i=F::U; i<SpaceT::sdim; ++i )
       at(i).init( alpha, bcYes );
     changed();
@@ -404,7 +401,7 @@ public:
   /// \brief initializes including boundaries to zero
   /// \todo rm FORTRAN
   /// \todo make it init or addable
-  void initField( Teuchos::ParameterList& para, const Add& add=Add::N ) {
+  void initField( Teuchos::ParameterList& para, const Add add=Add::N ) {
 
     EVectorField type =
       string2enum( para.get<std::string>( "Type", "zero" ) );
@@ -905,7 +902,7 @@ public:
 
   /// \brief extrapolates on the boundaries such that it is zero
   /// \note dirty hack(necessary for TripleCompostion)
-  void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
     for( F i=F::U; i<SpaceT::sdim; ++i )
       at(i).extrapolateBC( trans );
   }
@@ -1074,7 +1071,7 @@ public:
   ///
   /// @{
 
-  void changed( const int& vel_dir, const int& dir ) const {
+  void changed( const int vel_dir, const int dir ) const {
     sFields_[vel_dir].changed( dir );
   }
 
@@ -1085,7 +1082,7 @@ public:
       }
   }
 
-  void exchange( const int& vel_dir, const int& dir ) const {
+  void exchange( const int vel_dir, const int dir ) const {
     sFields_[vel_dir].exchange(dir);
   }
 
@@ -1095,7 +1092,7 @@ public:
         exchange( vel_dir, dir );
   }
 
-  void setExchanged( const int& vel_dir, const int& dir ) const {
+  void setExchanged( const int vel_dir, const int dir ) const {
     sFields_[vel_dir].setExchanged( dir );
   }
 

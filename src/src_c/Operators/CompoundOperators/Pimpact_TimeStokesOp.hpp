@@ -9,6 +9,7 @@
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_TimeField.hpp"
 
 
 
@@ -53,8 +54,9 @@ extern "C" {
     const double* const pn,
     double* const r_vel,
     double* const r_p );
-
 }
+
+
 
 /// \ingroup CompoundOperator
 ///
@@ -106,8 +108,10 @@ public:
       xp(i).exchange();
     }
 
+    int dimens = SpaceT::sdim;
+
     OP_TimeStokes(
-      SpaceT::sdim,
+      dimens,
       space()->nLoc(),
       space()->bl(),
       space()->bu(),

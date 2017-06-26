@@ -43,7 +43,7 @@ public:
   TimeOpWrap( const Teuchos::RCP<OperatorT>& op ): op_(op) {};
 
   /// \brief default apply
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     if( true==CNyes ) {
 

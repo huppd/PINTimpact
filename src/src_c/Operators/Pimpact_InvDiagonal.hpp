@@ -37,8 +37,8 @@ public:
   InvDiagonal( const Teuchos::RCP<OP>& op ): op_(op) {};
 
 
-  void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-             trans=Belos::NOTRANS ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+      trans=Belos::NOTRANS ) const {
 
     op_->applyInvDiag( x, y );
   }

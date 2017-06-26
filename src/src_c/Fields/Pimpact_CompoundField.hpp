@@ -64,14 +64,14 @@ public:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param field
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
-  CompoundField( const CompoundField& field, ECopy copyType=ECopy::Deep ):
+  CompoundField( const CompoundField& field, const ECopy copyType=ECopy::Deep ):
     AF( field.space() ),
     vfield_( Teuchos::rcp( new VField( *field.vfield_, copyType ) ) ),
     sfield_( Teuchos::rcp( new SField( *field.sfield_, copyType ) ) ) {
   };
 
 
-  Teuchos::RCP<CompoundField> clone( ECopy ctype=ECopy::Deep ) const {
+  Teuchos::RCP<CompoundField> clone( const ECopy ctype=ECopy::Deep ) const {
     return( Teuchos::rcp( new CompoundField( *this, ctype ) ) );
   }
 
@@ -117,7 +117,7 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
-  void add( const Scalar& alpha, const CompoundField& a, const Scalar& beta, const CompoundField& b, const B& wb=B::Y ) {
+  void add( const Scalar alpha, const CompoundField& a, const Scalar beta, const CompoundField& b, const B wb=B::Y ) {
     // add test for consistent VectorSpaces in debug mode
     vfield_->add(alpha, *a.vfield_, beta, *b.vfield_, wb );
     sfield_->add(alpha, *a.sfield_, beta, *b.sfield_, wb );
@@ -148,7 +148,7 @@ public:
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
-  void scale( const Scalar& alpha ) {
+  void scale( const Scalar alpha ) {
     vfield_->scale(alpha);
     sfield_->scale(alpha);
   }
@@ -176,7 +176,8 @@ public:
   }
 
 
-  /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+  /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this,
+  /// i.e.\f$b = y^H this\f$.
   constexpr Scalar dot( const CompoundField& y ) {
 
     return( this->reduce( comm(), dotLoc( y ) ) );
@@ -188,25 +189,21 @@ public:
   /// \{
 
   /// \brief Compute the norm of the field.
-  constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) {
+  constexpr Scalar normLoc( const ENorm type=ENorm::Two ) {
 
-    return(
-            (Belos::InfNorm==type)?
+    return( (ENorm::Inf==type)?
             std::max(vfield_->normLoc(type), sfield_->normLoc(type) ):
             (vfield_->normLoc(type) + sfield_->normLoc(type)) );
   }
 
-/// \brief compute the norm
+  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) {
+  constexpr Scalar norm( const ENorm type=ENorm::Two ) {
 
-    Scalar normvec = this->reduce(
-                       comm(),
-                       normLoc( type ),
-                       (Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+    Scalar normvec = this->reduce( comm(), normLoc( type ),
+        (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
 
-    normvec =
-      (Belos::TwoNorm==type) ?
+    normvec = (ENorm::Two==type||ENorm::L2==type) ?
       std::sqrt(normvec) :
       normvec;
 
@@ -251,20 +248,20 @@ public:
   }
 
   /// \brief Replace the vectors with a random vectors.
-  void random(bool useSeed = false, int seed = 1) {
+  void random( const bool useSeed = false, const int seed = 1 ) {
     vfield_->random();
     sfield_->random();
   }
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
+  void init( const Scalar alpha=Teuchos::ScalarTraits<Scalar>::zero(), const B wB=B::Y ) {
     vfield_->init(alpha,wB);
     sfield_->init(alpha,wB);
   }
 
 
-  void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
     vfield_->extrapolateBC( trans );
     sfield_->extrapolateBC( trans );
   }
@@ -286,7 +283,7 @@ public:
   }
 
 
-  void write( int count=0 ) const {
+  void write( const int count=0 ) const {
     vfield_->write(count);
     sfield_->write(count);
   }

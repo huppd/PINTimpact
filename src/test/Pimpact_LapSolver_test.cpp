@@ -227,7 +227,7 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 				1., rhs2->getSField().get0Field(),
 				1., rhs->getSField().get0Field() );
 		temp->write(300);
-		std::cout << "difference rhs: " << temp->norm( Belos::InfNorm ) << "\n";
+		std::cout << "difference rhs: " << temp->norm( Pimpact::ENorm::Inf ) << "\n";
 	}
 
 	// initial guess

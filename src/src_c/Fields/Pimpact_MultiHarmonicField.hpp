@@ -122,7 +122,7 @@ public:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param vF
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
-  MultiHarmonicField( const MultiHarmonicField& vF, ECopy copyType=ECopy::Deep ):
+  MultiHarmonicField( const MultiHarmonicField& vF, const ECopy copyType=ECopy::Deep ):
     AF( vF.space() ),
     //global_( vF.global_ ),
     global_( vF.space()->np(3)==1 ),
@@ -154,7 +154,7 @@ public:
     delete[] s_;
   }
 
-  Teuchos::RCP<FieldT> clone( ECopy ctype=ECopy::Deep ) const {
+  Teuchos::RCP<FieldT> clone( const ECopy ctype=ECopy::Deep ) const {
 
     return( Teuchos::rcp( new FieldT(*this,ctype) ) );
   }
@@ -165,7 +165,7 @@ public:
 
 protected:
 
-  constexpr OT index( const OT& i ) {
+  constexpr OT index( const OT i ) {
     return( i - 1 +
             (( global_||0==space()->si(F::U,3) )?
              0:
@@ -186,24 +186,24 @@ public:
     return( field0_ );
   }
 
-  ModeField<IFT>& getField( const OT& i ) {
+  ModeField<IFT>& getField( const OT i ) {
     return( *fields_[index(i)] );
   }
-  constexpr const ModeField<IFT>& getField( const OT& i ) {
+  constexpr const ModeField<IFT>& getField( const OT i ) {
     return( *fields_[index(i)] );
   }
 
-  IFT& getCField( const OT& i ) {
+  IFT& getCField( const OT i ) {
     return( fields_[index(i)]->getCField() );
   }
-  constexpr const IFT& getCField( const OT& i ) {
+  constexpr const IFT& getCField( const OT i ) {
     return( fields_[index(i)]->getCField() );
   }
 
-  IFT& getSField( const OT& i ) {
+  IFT& getSField( const OT i ) {
     return( fields_[index(i)]->getSField() );
   }
-  constexpr const IFT& getSField( const OT& i ) {
+  constexpr const IFT& getSField( const OT i ) {
     return( fields_[index(i)]->getSField() );
   }
 
@@ -240,7 +240,7 @@ public:
 
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
   /// \todo add test for consistent VectorSpaces in debug mode
-  void add( const ST& alpha, const FieldT& a, const ST& beta, const FieldT& b, const B& wb=B::Y ) {
+  void add( const ST alpha, const FieldT& a, const ST beta, const FieldT& b, const B wb=B::Y ) {
 
     if( 0==space()->si(F::U,3) )
       field0_.add(alpha, a.get0Field(), beta, b.get0Field(), wb );
@@ -288,7 +288,7 @@ public:
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
-  void scale( const ST& alpha, const B& wB=B::Y ) {
+  void scale( const ST alpha, const B wB=B::Y ) {
 
     if( 0==space()->si(F::U,3) )
       field0_.scale( alpha, wB );
@@ -345,19 +345,19 @@ public:
 
   /// \brief Compute the norm of Field.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  constexpr ST normLoc( Belos::NormType type = Belos::TwoNorm ) {
+  constexpr ST normLoc( ENorm type=ENorm::Two ) {
 
     ST normvec = 0.;
 
     if( 0==space()->si(F::U,3) )
       normvec =
-        ( Belos::InfNorm==type )?
+        ( ENorm::Inf==type )?
         std::max( get0Field().normLoc(type), normvec ):
         ( 2.*get0Field().normLoc(type) );
 
     for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
       normvec =
-        ( Belos::InfNorm==type )?
+        ( ENorm::Inf==type )?
         std::max( getField(i).normLoc(type), normvec ):
         ( normvec+getField(i).normLoc(type) );
 
@@ -367,15 +367,12 @@ public:
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr ST norm( Belos::NormType type = Belos::TwoNorm ) {
+  constexpr ST norm( ENorm type=ENorm::Two ) {
 
-    ST normvec = this->reduce(
-                   comm(),
-                   normLoc( type ),
-                   (Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+    ST normvec = this->reduce( comm(), normLoc( type ),
+        (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
 
-    normvec =
-      (Belos::TwoNorm==type) ?
+    normvec = (ENorm::Two==type||ENorm::L2==type) ?
       std::sqrt(normvec) :
       normvec;
 
@@ -432,7 +429,7 @@ public:
 
 
   /// \brief Replace the vectors with a random vectors.
-  void random(bool useSeed = false, int seed = 1) {
+  void random( const bool useSeed = false, const int seed = 1) {
 
     if( 0==space()->si(F::U,3) )
       field0_.random();
@@ -445,7 +442,7 @@ public:
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& wB=B::Y ) {
+  void init( const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y ) {
 
     if( 0==space()->si(F::U,3) )
       field0_.init( alpha, wB );
@@ -458,7 +455,7 @@ public:
 
 
   ///  \brief initializes including boundaries to zero
-  void initField( Teuchos::ParameterList& para, const Add& add=Add::N  ) {
+  void initField( Teuchos::ParameterList& para, const Add add=Add::N  ) {
 
     if( 0==space()->si(F::U,3) )
       field0_.initField( para.sublist("0 mode"), add );
@@ -470,7 +467,7 @@ public:
     changed();
   }
 
-  void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
 
     if( 0==space()->si(F::U,3) )
       field0_.extrapolateBC( trans );
@@ -505,7 +502,7 @@ public:
   }
 
 
-  void write( int count=0, bool time_evol_yes=false ) const {
+  void write( const int count=0, const bool time_evol_yes=false ) const {
 
     if( time_evol_yes ) {
       exchange();

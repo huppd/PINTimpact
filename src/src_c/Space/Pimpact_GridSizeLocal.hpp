@@ -80,7 +80,7 @@ protected:
 
 public:
 
-  constexpr const OrdinalT& get( const int& i ) const {
+  constexpr const OrdinalT& get( const int i ) const {
     return( (*this)[i] );
   }
 

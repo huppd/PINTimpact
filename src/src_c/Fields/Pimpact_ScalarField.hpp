@@ -62,7 +62,7 @@ protected:
 
 public:
 
-  ScalarField( const Teuchos::RCP<const SpaceT>& space, bool owning=true, F fType=F::S ):
+  ScalarField( const Teuchos::RCP<const SpaceT>& space, const  bool owning=true, const F fType=F::S ):
     AbstractField<SpaceT>( space ),
     owning_(owning),
     exchangedState_( Teuchos::tuple( true, true, true ) ),
@@ -80,7 +80,7 @@ public:
   /// \note copyType is
   /// \param sF ScalarField which is copied
   /// \param copyType by default a ECopy::Deep is done but also allows to ECopy::Shallow
-  ScalarField( const ScalarField& sF, ECopy copyType=ECopy::Deep ):
+  ScalarField( const ScalarField& sF, const ECopy copyType=ECopy::Deep ):
     AbstractField<SpaceT>( sF.space() ),
     owning_( sF.owning_ ),
     exchangedState_( sF.exchangedState_ ),
@@ -107,7 +107,7 @@ public:
   }
 
 
-  Teuchos::RCP<ScalarField> clone( ECopy copyType=ECopy::Deep ) const {
+  Teuchos::RCP<ScalarField> clone( const ECopy copyType=ECopy::Deep ) const {
 
     Teuchos::RCP<ScalarField> mv = Teuchos::rcp( new ScalarField( space(), true, this->fType_ ) );
 
@@ -150,8 +150,8 @@ public:
 
   /// \brief Replace \c this with \f$\alpha a + \beta B\f$.
   /// \todo make checks for spaces and k
-  void add( const ST& alpha, const ScalarField& a, const ST& beta, const
-            ScalarField& b, const B& wb=B::Y ) {
+  void add( const ST alpha, const ScalarField& a, const ST beta, const
+            ScalarField& b, const B wb=B::Y ) {
 
     assert( a.getType()==b.getType() );
     assert( getType()==b.getType() );
@@ -190,7 +190,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs( const ScalarField& y, const B& bcYes=B::Y ) {
+  void abs( const ScalarField& y, const B bcYes=B::Y ) {
 
     for( int dir=0; dir<3; ++dir )
       assert( space()->nLoc(dir)==y.space()->nLoc(dir) );
@@ -209,7 +209,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const ScalarField& y, const B& bcYes=B::Y ) {
+  void reciprocal( const ScalarField& y, const B bcYes=B::Y ) {
 
 #ifndef NDEBUG
     for( int dir=0; dir<3; ++dir ) {
@@ -228,7 +228,7 @@ public:
 
 
   /// \brief Scale each element of the vector with \c alpha.
-  void scale( const ST& alpha, const B& wB=B::Y ) {
+  void scale( const ST alpha, const B wB=B::Y ) {
 
     for( OT k=space()->si(fType_,Z,wB); k<=space()->ei(fType_,Z,wB); ++k )
       for( OT j=space()->si(fType_,Y,wB); j<=space()->ei(fType_,Y,wB); ++j )
@@ -243,7 +243,7 @@ public:
   ///
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
-  void scale( const ScalarField& y, const B& bcYes=B::Y ) {
+  void scale( const ScalarField& y, const B bcYes=B::Y ) {
 
 #ifndef NDEBUG
     for( int dir=0; dir<3; ++dir ) {
@@ -264,7 +264,7 @@ public:
   /// @{
 
   /// \brief Compute a local scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-  constexpr ST dotLoc( const ScalarField& y, const B& bcYes=B::Y ) {
+  constexpr ST dotLoc( const ScalarField& y, const B bcYes=B::Y ) {
 
 #ifndef NDEBUG
     for( int dir=0; dir<3; ++dir ) {
@@ -285,11 +285,11 @@ public:
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y
   /// and \c this, i.e.\f$b = y^H this\f$.
-  constexpr ST dot( const ScalarField& y, const B& bcYes=B::Y ) {
+  constexpr ST dot( const ScalarField& y, const B bcYes=B::Y ) {
     return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
   }
 
-  constexpr ST normLoc1( const B& bcYes=B::Y ) {
+  constexpr ST normLoc1( const B bcYes=B::Y ) {
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
@@ -302,7 +302,7 @@ public:
   }
 
 
-  constexpr ST normLoc2( const B& bcYes=B::Y ) {
+  constexpr ST normLoc2( const B bcYes=B::Y ) {
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
@@ -315,7 +315,7 @@ public:
   }
 
 
-  constexpr ST normLocInf( const B& bcYes=B::Y ) {
+  constexpr ST normLocInf( const B bcYes=B::Y ) {
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
@@ -327,28 +327,45 @@ public:
     return( normvec );
   }
 
-  constexpr ST normLoc( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) {
+
+  constexpr ST normLocL2( const B bcYes=B::Y ) {
+
+    ST normvec = Teuchos::ScalarTraits<ST>::zero();
+
+    auto coord = space()->getCoordinatesLocal();
+
+    for( OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
+      for( OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
+        for( OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i ) {
+          ST volume = coord->dx(fType_,X,i) * coord->dx(fType_,Y,j) * coord->dx(fType_,Z,k);
+          normvec += volume*std::pow( at(i,j,k), 2 );
+        }
+
+    return( normvec );
+  }
+
+
+  constexpr ST normLoc( const ENorm type=ENorm::Two, const B bcYes=B::Y ) {
 
     return(
-            ( Belos::OneNorm==type)?
-              normLoc1(bcYes):
-              (Belos::TwoNorm==type)?
-                normLoc2(bcYes):
-                normLocInf(bcYes) );
+        (ENorm::One==type)?
+          normLoc1(bcYes):
+          (ENorm::Two==type)?
+            normLoc2(bcYes):
+            (ENorm::Inf==type)?
+              normLocInf(bcYes):
+              normLocL2(bcYes) );
   }
 
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr ST norm( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) {
+  constexpr ST norm( const ENorm type=ENorm::Two, const B bcYes=B::Y ) {
 
-    ST normvec = this->reduce(
-                   comm(),
-                   normLoc( type,bcYes ),
-                   (Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+    ST normvec = this->reduce( comm(), normLoc( type,bcYes ),
+        (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
 
-    normvec =
-      (Belos::TwoNorm==type) ?
+    normvec = (ENorm::Two==type||ENorm::L2==type) ?
       std::sqrt(normvec) :
       normvec;
 
@@ -362,7 +379,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr ST normLoc( const ScalarField& weights, const B& bcYes=B::Y ) {
+  constexpr ST normLoc( const ScalarField& weights, const B bcYes=B::Y ) {
 
     for( int dir=0; dir<3; ++dir )
       assert( space()->nLoc(dir)==weights.space()->nLoc(dir) );
@@ -384,7 +401,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr ST norm( const ScalarField& weights, const B& bcYes=B::Y ) {
+  constexpr ST norm( const ScalarField& weights, const B bcYes=B::Y ) {
     return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
   }
 
@@ -412,7 +429,7 @@ public:
 
   /// \brief Replace the vectors with a random vectors.
   /// Depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is required
-  void random( bool useSeed = false, const B& bcYes=B::Y , int seed = 1 ) {
+  void random( bool useSeed = false, const B bcYes=B::Y , int seed = 1 ) {
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -435,7 +452,7 @@ public:
   /// \brief Replace each element of the vector  with \c alpha.
   /// \param alpha init value
   /// \param bcYes also initializing the boundary values
-  void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& bcYes=B::Y ) {
+  void init( const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B bcYes=B::Y ) {
 
     if( B::Y==bcYes ) {
       std::fill_n( s_, getStorageSize(), alpha );
@@ -491,13 +508,13 @@ public:
   /// \tparam Functor need a to have an Operator (x,y,z)->u
   /// \param func  note that x,y,z, should be defined between 0 and one the scaling happens here
   template<typename Functor>
-  void initFromFunction( Functor&& func, const Add& add=Add::N ) {
+  void initFromFunction( Functor&& func, const Add add=Add::N ) {
 
     Teuchos::RCP<const CoordinatesLocal<ST,OT,SpaceT::dimension,SpaceT::dimNC> > coord =
       space()->getCoordinatesLocal();
     Teuchos::RCP<const DomainSize<ST,SpaceT::sdim> > domain = space()->getDomainSize();
 
-    const B& bY = B::Y;
+    const B bY = B::Y;
 
     for( OT k=space()->si(fType_,Z,bY); k<=space()->ei(fType_,Z,bY); ++k )
       for( OT j=space()->si(fType_,Y,bY); j<=space()->ei(fType_,Y,bY); ++j )
@@ -516,7 +533,7 @@ public:
 
 
   ///  \brief initializes including boundaries to zero
-  void initField( Teuchos::ParameterList& para, const Add& add=Add::N ) {
+  void initField( Teuchos::ParameterList& para, const Add add=Add::N ) {
 
     EScalarField type =
       string2enum( para.get<std::string>( "Type", "constant" ) );
@@ -604,52 +621,52 @@ public:
 
   /// \brief initializes VectorField with the initial field defined in Fortran
   /// \deprecated
-  void initField( EScalarField fieldType, ST alpha=Teuchos::ScalarTraits<ST>::zero() ) {
+  void initField( const EScalarField fieldType, const ST alpha=Teuchos::ScalarTraits<ST>::zero() ) {
 
     switch( fieldType ) {
-    case ConstField : {
-      init( alpha );
-      break;
-    }
-    case Grad2D_inX : {
-      ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
-      initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(x-0.5) ); } );
-      break;
-    }
-    case Grad2D_inY : {
-      ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
-      initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(y-0.5) ); } );
-      break;
-    }
-    case Grad2D_inZ : {
-      ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
-      initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(z-0.5) ); } );
-      break;
-    }
-    case Poiseuille2D_inX : {
-      initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); } );
-      break;
-    }
-    case Poiseuille2D_inY : {
-      initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); } );
-      break;
-    }
-    case Poiseuille2D_inZ : {
-      initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*z*(1.-z) ); } );
-      break;
-    }
-    case FPoint : {
-      ST xc[3] = { 0.5, 0.5, 0.5 };
-      ST amp = alpha;
-      ST sig[3] = { 0.2, 0.2, 0.2 };
-      initFromFunction( [&xc,&amp,&sig] (ST x, ST y, ST z)->ST {
-        return( amp*std::exp(
-          -std::pow( (x-xc[0])/sig[0], 2 )
-          -std::pow( (x-xc[1])/sig[1], 2 )
-          -std::pow( (x-xc[2])/sig[2], 2 ) ) ); }
-                      );
-      break;
-    }
+      case ConstField : {
+        init( alpha );
+        break;
+      }
+      case Grad2D_inX : {
+        ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
+        initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(x-0.5) ); } );
+        break;
+      }
+      case Grad2D_inY : {
+        ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
+        initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(y-0.5) ); } );
+        break;
+      }
+      case Grad2D_inZ : {
+        ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
+        initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(z-0.5) ); } );
+        break;
+      }
+      case Poiseuille2D_inX : {
+        initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); } );
+        break;
+      }
+      case Poiseuille2D_inY : {
+        initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); } );
+        break;
+      }
+      case Poiseuille2D_inZ : {
+        initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*z*(1.-z) ); } );
+        break;
+      }
+      case FPoint : {
+        ST xc[3] = { 0.5, 0.5, 0.5 };
+        ST amp = alpha;
+        ST sig[3] = { 0.2, 0.2, 0.2 };
+        initFromFunction( [&xc,&amp,&sig] (ST x, ST y, ST z)->ST {
+            return( amp*std::exp(
+                -std::pow( (x-xc[0])/sig[0], 2 )
+                -std::pow( (x-xc[1])/sig[1], 2 )
+                -std::pow( (x-xc[2])/sig[2], 2 ) ) ); }
+            );
+        break;
+      }
     }
 
     if( !space()->getProcGrid()->participating() )
@@ -663,7 +680,7 @@ public:
   ///
   /// \test Neumann BC
   /// \param trans transposed
-  void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
 
     switch( trans ) {
     case( Belos::NOTRANS ): {
@@ -1146,7 +1163,7 @@ public:
 
 public:
 
-  constexpr const F& getType() {
+  constexpr F getType() {
     return( fType_ );
   }
 
@@ -1192,7 +1209,7 @@ public:
   /// Operator or on top field implementer.
   /// \{
 
-  void changed( const int& dir ) const {
+  void changed( const int dir ) const {
     exchangedState_[dir] = false;
   }
   void changed() const {
@@ -1201,7 +1218,7 @@ public:
   }
 
 
-  bool is_exchanged( const int& dir ) const {
+  bool is_exchanged( const int dir ) const {
     return( exchangedState_[dir] );
   }
   bool is_exchanged() const {
@@ -1212,7 +1229,7 @@ public:
   }
 
   /// \brief updates ghost layers
-  void exchange( const int& dir ) const {
+  void exchange( const int dir ) const {
     int ones[3] = {0,0,0};
     if( !exchangedState_[dir] ) {
       F_exchange(
@@ -1242,7 +1259,7 @@ public:
       exchange( dir );
   }
 
-  void setExchanged( const int& dir ) const {
+  void setExchanged( const int dir ) const {
     exchangedState_[dir] = true;
   }
   void setExchanged(  ) const {
@@ -1278,7 +1295,7 @@ protected:
   /// \brief stride
   ///
   /// \param dir direction of stride
-  constexpr OT stride( const int& dir ) {
+  constexpr OT stride( const int dir ) {
     return(
             (0==dir)?
             stride0():
@@ -1295,7 +1312,7 @@ protected:
   /// \param i index in x-direction
   /// \param j index in y-direction
   /// \param k index in z-direction
-  constexpr OT index( const OT& i, const OT& j, const OT& k ) {
+  constexpr OT index( const OT i, const OT j, const OT k ) {
     return( (i-SW::BL(0)) +
             (j-SW::BL(1))*stride1() +
             (k-SW::BL(2))*stride2() );
@@ -1308,7 +1325,7 @@ protected:
   /// \param k index in z-direction
   ///
   /// \return const reference
-  constexpr const ST& at( const OT& i, const OT& j, const OT& k ) {
+  constexpr ST at( const OT i, const OT j, const OT k ) {
     return( s_[ index(i,j,k) ] );
   }
 
@@ -1319,14 +1336,14 @@ protected:
   /// \param k index in z-direction
   ///
   /// \return reference
-  ST& at( const OT& i, const OT& j, const OT& k )  {
+  ST& at( const OT i, const OT j, const OT k )  {
     return( s_[ index(i,j,k) ] );
   }
 
   /// \brief field access
   ///
   /// \param i index coordinate
-  constexpr const ST& at( const OT* const i ) {
+  constexpr ST at( const OT* const i ) {
     return( s_[ index(i[0],i[1],i[2]) ] );
   }
   /// \brief field access
@@ -1345,7 +1362,7 @@ protected:
   /// \brief field access
   ///
   /// \param i index coordinate
-  constexpr const ST& at( const Teuchos::Tuple<const OT,3>& i ) {
+  constexpr ST at( const Teuchos::Tuple<const OT,3>& i ) {
     return( s_[ index(i[0],i[1],i[2]) ] );
   }
 
@@ -1358,7 +1375,7 @@ public:
   /// \param k index in z-direction
   ///
   /// \return const reference
-  constexpr const ST& operator()( const OT& i, const OT& j, const OT& k ) {
+  constexpr ST operator()( const OT i, const OT j, const OT k ) {
     return( s_[ index(i,j,k) ] );
   }
 
@@ -1369,14 +1386,14 @@ public:
   /// \param k index in z-direction
   ///
   /// \return reference
-  ST& operator()( const OT& i, const OT& j, const OT& k )  {
+  ST& operator()( const OT i, const OT j, const OT k )  {
     return( s_[ index(i,j,k) ] );
   }
 
   /// \brief field access
   ///
   /// \param i index coordinate
-  constexpr const ST& operator()( const OT* const i ) {
+  constexpr ST operator()( const OT* const i ) {
     return( s_[ index(i[0],i[1],i[2]) ] );
   }
   /// \brief field access
@@ -1395,7 +1412,7 @@ public:
   /// \brief field access
   ///
   /// \param i index coordinate
-  constexpr const ST& operator()( const Teuchos::Tuple<const OT,3>& i ) {
+  constexpr ST operator()( const Teuchos::Tuple<const OT,3>& i ) {
     return( s_[ index(i[0],i[1],i[2]) ] );
   }
 

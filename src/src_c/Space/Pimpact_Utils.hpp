@@ -17,8 +17,8 @@ namespace Pimpact {
 enum class ENorm : int {
   One, /// < vector one norm
   Two, /// < vector two norm
-  Inf /// < vector inf norm
-  //L2   /// < function 2 norm
+  Inf, /// < vector inf norm
+  L2   /// < function 2 norm
 };
 
 
@@ -60,7 +60,7 @@ std::ostream& operator<<( std::ostream& out, ECoord c ) {
 // Special behavior for ++
 ECoord& operator++( ECoord& c );
 
-bool operator<( const ECoord& c, const int& i );
+bool operator<( const ECoord c, const int& i );
 
 
 enum class F : int {
@@ -90,13 +90,13 @@ std::ostream& operator<<( std::ostream& out, F f ) {
 
 F& operator++( F& c ) {
   switch( c ) {
-  case F::U   :
+  case F::U :
     return( c = F::V );
-  case F::V   :
+  case F::V :
     return( c = F::W );
-  case F::W   :
+  case F::W :
     return( c = F::S );
-  case F::S   :
+  case F::S :
     return( c = F::S );
   }
   return( c );

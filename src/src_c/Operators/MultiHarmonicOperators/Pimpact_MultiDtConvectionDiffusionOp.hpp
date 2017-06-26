@@ -210,10 +210,10 @@ protected:
     return( wind0_->get() );
   }
 
-  constexpr const FieldTensorT& getCWind( const Ordinal& i) const {
+  constexpr const FieldTensorT& getCWind( const Ordinal i) const {
     return( windc_[i-1]->get() );
   }
-  constexpr const FieldTensorT& getSWind( const Ordinal& i) const {
+  constexpr const FieldTensorT& getSWind( const Ordinal i) const {
     return( winds_[i-1]->get() );
   }
 

@@ -2,6 +2,7 @@
 #ifndef PIMPACT_OPERATORBASE_HPP
 #define PIMPACT_OPERATORBASE_HPP
 
+#include "BelosTypes.hpp"
 
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_RCP.hpp"
@@ -26,8 +27,8 @@ public:
 
   using SpaceT = typename DomainFieldT::SpaceT;
 
-  virtual void apply( const DomainField& x, RangeField& y, const Belos::ETrans&
-                      trans=Belos::NOTRANS ) const {} ;
+  virtual void apply( const DomainField& x, RangeField& y, const Belos::ETrans
+      trans=Belos::NOTRANS ) const {} ;
 
   virtual void assignField( const DomainField& mv ) {};
 
@@ -71,8 +72,9 @@ public:
     opm_=Teuchos::null;
   };
 
-  virtual void apply( const DomainFieldT& x, RangeFieldT& y, const
-                      Belos::ETrans& trans=Belos::NOTRANS ) const {
+  virtual void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+      trans=Belos::NOTRANS ) const {
+
     opm_->apply( x, y, trans );
   }
 

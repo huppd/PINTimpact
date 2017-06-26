@@ -246,8 +246,8 @@ public:
     const bool& participating,
     const MPI_Comm& commWorld,
     const MPI_Comm& commSub,
-    const int& rankWorld,
-    const int& rankSub,
+    const int rankWorld,
+    const int rankSub,
     const Teuchos::Tuple<int,dim>& ib,
     const Teuchos::Tuple<int,dim>& rankL,
     const Teuchos::Tuple<int,dim>& rankU ):
@@ -306,11 +306,11 @@ public:
     return( commSub_ );
   }
 
-  constexpr const int& getRank()  {
+  constexpr const int getRank()  {
     return( rankWorld_ );
   }
 
-  constexpr const int& getRankS() {
+  constexpr const int getRankS() {
     return( rankSub_ );
   }
 
@@ -321,31 +321,31 @@ public:
     return( rankU_.getRawPtr() );
   }
 
-  constexpr const int& getIB( const int& i ) {
+  constexpr const int getIB( const int i ) {
     return( iB_[i] );
   }
   constexpr const TO & getIB() {
     return( iB_ );
   }
 
-  constexpr const int& getRankL( const int& i ) {
+  constexpr const int getRankL( const int i ) {
     return( rankL_[i] );
   }
-  constexpr const int& getRankU( const int& i ) {
+  constexpr const int getRankU( const int i ) {
     return( rankU_[i] );
   }
 
-  constexpr const MPI_Comm& getCommBar( const int& i ) {
+  constexpr const MPI_Comm& getCommBar( const int i ) {
     return( commBar_[i] );
   }
-  constexpr const int&      getRankBar( const int& i ) {
+  constexpr const int      getRankBar( const int i ) {
     return( rankBar_[i] );
   }
 
-  constexpr const MPI_Comm& getCommSlice( const int& i ) {
+  constexpr const MPI_Comm& getCommSlice( const int i ) {
     return( commSlice_[i] );
   }
-  constexpr const int&      getRankSlice( const int& i ) {
+  constexpr const int      getRankSlice( const int i ) {
     return( rankSlice_[i] );
   }
 

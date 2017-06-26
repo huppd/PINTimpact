@@ -39,8 +39,8 @@ public:
   };
 
 
-  void apply(const DomainFieldT& x, RangeFieldT& y,
-             const Belos::ETrans& trans=Belos::NOTRANS ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+      trans=Belos::NOTRANS ) const {
 
     switch( trans ) {
     case Belos::NOTRANS : {

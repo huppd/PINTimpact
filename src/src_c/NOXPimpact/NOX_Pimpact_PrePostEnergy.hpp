@@ -33,6 +33,8 @@ class PrePostEnergyCompute : public NOX::Abstract::PrePostOperator {
   bool computeEnergySolPost_;
 	bool computeEnergySolPre_;
 
+  int refinement_;
+
   ST gamma_;
   ::Pimpact::ECoord dir_;
 
@@ -51,32 +53,31 @@ class PrePostEnergyCompute : public NOX::Abstract::PrePostOperator {
             group.getXPtr() ))->getField();
     auto space = base_->space();
 
+    std::string prefix = "energy_"+ ::Pimpact::toString(dir_) +"_r" +
+      std::to_string(refinement_) + "_i" + std::to_string(nIter) + "_";
+
     // compute glob energy in y-dir
     if( 0==space->si(::Pimpact::F::U,3) ) {
       auto vel =  x.getField(0).getVField().get0Field().clone( ::Pimpact::ECopy::Deep );
       vel->add( 1., *vel, -1., *base_ );
 
       auto out = ::Pimpact::createOstream(
-          "energy"+::Pimpact::toString(dir_)+"_0_"+std::to_string(nIter)+".txt",
-          space->getProcGrid()->getRankBar(dir_) );
+           prefix + "0.txt",
+          space->getProcGrid()->getRankBar(dir_));
 
       ::Pimpact::computeEnergyDir( *vel, *out, dir_, gamma_ );
     }
 
     for( OT i=std::max(space->si(::Pimpact::F::U,3),1); i<=space->ei(::Pimpact::F::U,3); ++i ) {
       {
-        auto out = ::Pimpact::createOstream(
-            "energy" + ::Pimpact::toString(dir_) + "_C"+std::to_string(i) +
-            "_"+std::to_string(nIter) + ".txt",
+        auto out = ::Pimpact::createOstream( prefix + "_C"+std::to_string(i) + ".txt",
             space->getProcGrid()->getRankBar(dir_) );
 
         ::Pimpact::computeEnergyDir(
             x.getField(0).getVField().getCField(i), *out, dir_, gamma_ );
       }
       {
-        auto out = ::Pimpact::createOstream(
-            "energy" + ::Pimpact::toString(dir_) + "_S"+std::to_string(i) +
-            "_"+std::to_string(nIter) + ".txt",
+        auto out = ::Pimpact::createOstream( prefix + "_S"+std::to_string(i) + ".txt",
             space->getProcGrid()->getRankBar(dir_) );
 
         ::Pimpact::computeEnergyDir(
@@ -92,6 +93,7 @@ public:
 		computeEnergyIterPre_(false),
 		computeEnergySolPost_(false),
 		computeEnergySolPre_(false),
+    refinement_(0),
     gamma_(0.),
     dir_(::Pimpact::ECoord::X),
 		base_(Teuchos::null),
@@ -99,11 +101,11 @@ public:
 
 	PrePostEnergyCompute(const Teuchos::RCP<Teuchos::ParameterList>& pl,
 			Teuchos::RCP<FieldT> sol=Teuchos::null ):
-
     computeEnergyIterPost_( pl->sublist("iter").get<bool>("post", false) ),
 		computeEnergyIterPre_(  pl->sublist("iter").get<bool>("pre", false) ),
 		computeEnergySolPost_(  pl->sublist("solv").get<bool>("post", false) ),
 		computeEnergySolPre_(   pl->sublist("solv").get<bool>("pre", false) ),
+    refinement_(pl->get<int>("refinement", 0)),
     gamma_( pl->get<ST>("gamma", 0.) ),
     dir_( static_cast<::Pimpact::ECoord>( pl->get<int>("dir", 1) ) ),
 		base_( sol ),
@@ -122,13 +124,15 @@ public:
 
   PrePostEnergyCompute(NOX::Abstract::PrePostOperator&& that) : PrePostEnergyCompute() {
 
-    NOX::Pimpact::PrePostEnergyCompute<FieldT>& that_ (that);
+    NOX::Pimpact::PrePostEnergyCompute<NV>& that_ (that);
 
     computeEnergyIterPost_ = that_.computeEnergyIterPost_;
     computeEnergyIterPre_  = that_.computeEnergyIterPre_;
 
     computeEnergySolPost_ = that_.computeEnergySolPost_;
     computeEnergySolPre_  = that_.computeEnergySolPre_;
+
+    refinement_ = that_.refinement_;
 
     gamma_ = that_.gamma_;
     dir_ = that_.dir_;

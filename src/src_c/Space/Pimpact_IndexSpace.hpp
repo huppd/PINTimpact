@@ -292,59 +292,59 @@ protected:
 
 public:
 
-  constexpr const OrdinalT* sInd( const F& ft ) const {
+  constexpr const OrdinalT* sInd( const F ft ) const {
     return(
             ( F::S==ft )?
             sIndS_.getRawPtr():
             sIndU_[static_cast<int>(ft)].getRawPtr() );
   }
-  constexpr const OrdinalT* eInd( const F& ft ) const {
+  constexpr const OrdinalT* eInd( const F ft ) const {
     return(
             ( F::S==ft )?
             eIndS_.getRawPtr():
             eIndU_[static_cast<int>(ft)].getRawPtr() );
   }
 
-  constexpr const OrdinalT* sIndB( const F& ft ) const {
+  constexpr const OrdinalT* sIndB( const F ft ) const {
     return(
             ( F::S==ft )?
             sIndS_.getRawPtr():
             sIndUB_[static_cast<int>(ft)].getRawPtr() );
   }
-  constexpr const OrdinalT* eIndB( const F& ft ) const {
+  constexpr const OrdinalT* eIndB( const F ft ) const {
     return(
             ( F::S== ft )?
             eIndS_.getRawPtr():
             eIndUB_[static_cast<int>(ft)].getRawPtr() );
   }
 
-  constexpr const OrdinalT& sInd( const F& ft, const int& dir ) const {
+  constexpr const OrdinalT& sInd( const F ft, const int dir ) const {
     return(
             ( F::S==ft )?
             sIndS_[dir]:
             sIndU_[static_cast<int>(ft)][dir] );
   }
-  constexpr const OrdinalT& eInd(  const F& ft, const int& dir ) const {
+  constexpr const OrdinalT& eInd(  const F ft, const int dir ) const {
     return(
             ( F::S==ft )?
             eIndS_[dir]:
             eIndU_[static_cast<int>(ft)][dir] );
   }
 
-  constexpr const OrdinalT& sIndB( const F& ft, const int& dir ) const {
+  constexpr const OrdinalT& sIndB( const F ft, const int dir ) const {
     return(
             ( F::S==ft )?
             sIndS_[dir]:
             sIndUB_[static_cast<int>(ft)][dir] );
   }
-  constexpr const OrdinalT& eIndB( const F& ft, const int& dir ) const {
+  constexpr const OrdinalT& eIndB( const F ft, const int dir ) const {
     return(
             ( F::S==ft )?
             eIndS_[dir]:
             eIndUB_[static_cast<int>(ft)][dir] );
   }
 
-  constexpr const int& getShift( const int& i ) const {
+  constexpr const int getShift( const int i ) const {
     return( shift_[i] );
   }
   constexpr const int* getShift() const {

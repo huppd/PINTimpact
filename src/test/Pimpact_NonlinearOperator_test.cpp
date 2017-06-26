@@ -106,7 +106,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionSOp, SpaceT ) {
 		for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i ) {
 			Pimpact::ScalarField<SpaceT>& sol = solv( i );
 			sol.add( 1., sol, -1., y(i) );
-			ST errorInf = sol.norm( Belos::InfNorm, Pimpact::B::N );
+			ST errorInf = sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N );
 			std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::F>(i) ) << " (gradX): " << errorInf << "\n";
 			TEST_EQUALITY( errorInf<eps, true );
 			if( write && errorInf>=eps )
@@ -132,8 +132,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionSOp, SpaceT ) {
 		for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i ){
 			Pimpact::ScalarField<SpaceT>& sol = solv( i );
 			sol.add( 1., sol, -1., y(i) );
-			std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::F>(i) ) << " (gradY): " << sol.norm( Belos::InfNorm, Pimpact::B::N ) << "\n";
-			TEST_EQUALITY( sol.norm( Belos::InfNorm, Pimpact::B::N )<eps, true );
+			std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::F>(i) ) << " (gradY): " << sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N ) << "\n";
+			TEST_EQUALITY( sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N )<eps, true );
 		}
 		x(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
 		x(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
@@ -158,7 +158,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionSOp, SpaceT ) {
 			for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i ) {
 				Pimpact::ScalarField<SpaceT>& sol = solv( i );
 				sol.add( 1., sol, -1., y(i) );
-				ST errorInf = sol.norm( Belos::InfNorm, Pimpact::B::N );
+				ST errorInf = sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N );
 				std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::F>(i) ) << " (gradZ): " << errorInf << "\n";
 				TEST_EQUALITY( errorInf<eps, true );
 				if( write && errorInf>=eps )
@@ -205,7 +205,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionVOp, SpaceT ) {
 		z2.add( -1, z2, 1, z );
 
 		if( print ) z2.print();
-		ST error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+		ST error = z2.norm(Pimpact::ENorm::Inf,Pimpact::B::N);
 		if( 0==space->rankST() )
 			std::cout << "\nerror in "<< dir << " (gradX): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -227,7 +227,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionVOp, SpaceT ) {
 
 		z2.add( -1, z2, 1, z );
 
-		error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+		error = z2.norm(Pimpact::ENorm::Inf,Pimpact::B::N);
 		if( 0==space->rankST() )
 			std::cout << "error in "<< dir << " (gradY): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -250,7 +250,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionVOp, SpaceT ) {
 
 			z2.add( -1, z2, 1, z );
 
-			error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+			error = z2.norm(Pimpact::ENorm::Inf,Pimpact::B::N);
 			if( 0==space->rankST() )
 				std::cout << "error in "<< dir << " (gradZ): " << error << "\n";
 			TEST_EQUALITY( error<eps, true );
@@ -272,7 +272,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionVOp, SpaceT ) {
 
 	z2.add( -1, z2, 1, z );
 
-	ST error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+	ST error = z2.norm(Pimpact::ENorm::Inf,Pimpact::B::N);
 	if( 0==space->rankST() )
 		std::cout << "error in (poisX): " << error << "\n";
 	TEST_EQUALITY( error<eps, true );
@@ -292,7 +292,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionVOp, SpaceT ) {
 
 	z2.add( -1, z2, 1, z );
 
-	error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+	error = z2.norm(Pimpact::ENorm::Inf,Pimpact::B::N);
 	if( 0==space->rankST() )
 		std::cout << "error in (poisY): " << error << "\n";
 	TEST_EQUALITY( error<eps, true );
@@ -313,7 +313,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionVOp, SpaceT ) {
 
 		z2.add( -1, z2, 1, z );
 
-		error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+		error = z2.norm(Pimpact::ENorm::Inf,Pimpact::B::N);
 		if( 0==space->rankST() )
 			std::cout << "error in (poisZ): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -366,10 +366,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
   z2.add( -1, z2, 1, z );
   sol.add(-1, sol,1, z );
 
-	std::cout << "diff (gradX): " << z2.norm( Belos::InfNorm, Pimpact::B::N  ) << "\n";
-	std::cout << "erro (gradX): " << sol.norm( Belos::InfNorm, Pimpact::B::N  ) << "\n";
-  TEST_EQUALITY( z2.norm( Belos::InfNorm, Pimpact::B::N  ) < eps, true );
-  TEST_EQUALITY( sol.norm( Belos::InfNorm, Pimpact::B::N  ) < eps, true );
+	std::cout << "diff (gradX): " << z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) << "\n";
+	std::cout << "erro (gradX): " << sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) << "\n";
+  TEST_EQUALITY( z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) < eps, true );
+  TEST_EQUALITY( sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) < eps, true );
 
   // consistency test in y
   y(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
@@ -386,10 +386,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
   z2.add( -1, z2, 1, z );
   sol.add(-1, sol,1, z );
 
-	std::cout << "diff (gradY): " << z2.norm( Belos::InfNorm, Pimpact::B::N  ) << "\n";
-	std::cout << "erro (gradY): " << sol.norm( Belos::InfNorm, Pimpact::B::N  ) << "\n";
-  TEST_EQUALITY( z2.norm( Belos::InfNorm, Pimpact::B::N  ) < eps, true );
-  TEST_EQUALITY( sol.norm( Belos::InfNorm, Pimpact::B::N  ) < eps, true );
+	std::cout << "diff (gradY): " << z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) << "\n";
+	std::cout << "erro (gradY): " << sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) << "\n";
+  TEST_EQUALITY( z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) < eps, true );
+  TEST_EQUALITY( sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) < eps, true );
 
   // consistency test in z
 	if( 3==SpaceT::sdim ) {
@@ -407,10 +407,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
 		z2.add( -1, z2, 1, z );
 		sol.add(-1, sol,1, z );
 
-		std::cout << "diff (gradZ): " << z2.norm( Belos::InfNorm, Pimpact::B::N  ) << "\n";
-		std::cout << "erro (gradZ): " << sol.norm( Belos::InfNorm, Pimpact::B::N  ) << "\n";
-		TEST_EQUALITY( z2.norm( Belos::InfNorm, Pimpact::B::N  ) < eps, true );
-		TEST_EQUALITY( sol.norm( Belos::InfNorm, Pimpact::B::N  ) < eps, true );
+		std::cout << "diff (gradZ): " << z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) << "\n";
+		std::cout << "erro (gradZ): " << sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) << "\n";
+		TEST_EQUALITY( z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) < eps, true );
+		TEST_EQUALITY( sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) < eps, true );
 	}
 
 
@@ -426,8 +426,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
   z2.add( -1, z2, 1, z );
   sol.add(-1, sol,1, z );
 
-	std::cout << "diff (poisX): " << z2.norm( Belos::InfNorm, Pimpact::B::N  ) << "\n";
-  TEST_EQUALITY( z2.norm( Belos::InfNorm, Pimpact::B::N  )<eps, true );
+	std::cout << "diff (poisX): " << z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) << "\n";
+  TEST_EQUALITY( z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  )<eps, true );
 
 
   // consistency test in pois y
@@ -441,8 +441,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
 
   z2.add( -1, z2, 1, z );
 
-	std::cout << "diff (poisY): " << z2.norm( Belos::InfNorm, Pimpact::B::N  ) << "\n";
-  TEST_EQUALITY( z2.norm( Belos::InfNorm, Pimpact::B::N  )<eps, true );
+	std::cout << "diff (poisY): " << z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) << "\n";
+  TEST_EQUALITY( z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  )<eps, true );
 
   // consistency test in pois Z
 	if( 3==SpaceT::sdim ) {
@@ -455,8 +455,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
 
 		z2.add( -1, z2, 1, z );
 
-		std::cout << "diff (poisZ): " << z2.norm( Belos::InfNorm, Pimpact::B::N  ) << "\n";
-		TEST_EQUALITY( z2.norm( Belos::InfNorm, Pimpact::B::N  )<eps, true );
+		std::cout << "diff (poisZ): " << z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  ) << "\n";
+		TEST_EQUALITY( z2.norm( Pimpact::ENorm::Inf, Pimpact::B::N  )<eps, true );
 	}
 
 }
@@ -519,7 +519,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionSmoother, S
 	//xs.write(2);
 	x.add( 1., xs, -1., x );
 	//x.abs( x );
-	ST error0 = x.norm( Belos::InfNorm );
+	ST error0 = x.norm( Pimpact::ENorm::Inf );
 	if( space()->rankST()==0 )
 		std::cout << "\nConsistency error: " << error0 << "\n";
   TEST_EQUALITY_CONST( error0<eps, true );
@@ -529,7 +529,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionSmoother, S
 	// Convergence
 	y.init( 0. );
 	x.random();
-	error0 = x.norm( Belos::InfNorm );
+	error0 = x.norm( Pimpact::ENorm::Inf );
 	ST error;
 	if( space()->rankST()==0 )
 		std::cout << "\ninit error: " << error0 << "\n\n";
@@ -540,7 +540,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionSmoother, S
   for(int i=0; i<ns; ++i) {
     smoother->apply( y, x );
 
-    error = x.norm( Belos::InfNorm )/error0;
+    error = x.norm( Pimpact::ENorm::Inf )/error0;
     if( space()->rankST()==0 )
       std::cout << error << "\n";
 
@@ -678,7 +678,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeOperator, ModeNonlinearOp, SpaceT ) {
 	if( write ) err.write( 0 );
 	if( print ) err.print(   );
 
-	ST error = err.norm(Belos::InfNorm)/sol.norm(Belos::InfNorm);
+	ST error = err.norm(Pimpact::ENorm::Inf)/sol.norm(Pimpact::ENorm::Inf);
 	std::cout << "\nerror: " << error << "\n";
 	if( 1==domain )
 		TEST_EQUALITY( error<(1./nx/ny), true );
@@ -973,8 +973,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionSOp, SpaceT ) {
 				//if( print ) sol->print();
 				if( write ) y.write( n+20 );
 				if( write ) sol.write( n+30 );
-				error2[n]   = std::log10( y(field).norm(Belos::TwoNorm) / sol(field).norm(Belos::TwoNorm) );
-				errorInf[n] = std::log10( y(field).norm(Belos::InfNorm) / sol(field).norm(Belos::InfNorm) );
+				error2[n]   = std::log10( y(field).norm(Pimpact::ENorm::Two) / sol(field).norm(Pimpact::ENorm::Two) );
+				errorInf[n] = std::log10( y(field).norm(Pimpact::ENorm::Inf) / sol(field).norm(Pimpact::ENorm::Inf) );
 				dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 				if( 0==rank )	
 					std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
@@ -1123,8 +1123,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionVOp, SpaceT ) {
 				//if( print ) sol->print();
 				if( write ) y.write( n+20 );
 				if( write ) sol.write( n+30 );
-				error2[n]   = std::log10( y(field).norm(Belos::TwoNorm) / sol(field).norm(Belos::TwoNorm) );
-				errorInf[n] = std::log10( y(field).norm(Belos::InfNorm) / sol(field).norm(Belos::InfNorm) );
+				error2[n]   = std::log10( y(field).norm(Pimpact::ENorm::Two) / sol(field).norm(Pimpact::ENorm::Two) );
+				errorInf[n] = std::log10( y(field).norm(Pimpact::ENorm::Inf) / sol(field).norm(Pimpact::ENorm::Inf) );
 				dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 				if( 0==rank )	
 					std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
@@ -1285,8 +1285,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionDiffusionOp, SpaceT ) 
 				if( print ) y(field).print();
 				if( write ) y.write( n+20 );
 				if( write ) sol.write( n+30 );
-				error2[n]   = std::log10( y(field).norm(Belos::TwoNorm) / sol(field).norm(Belos::TwoNorm) );
-				errorInf[n] = std::log10( y(field).norm(Belos::InfNorm) / sol(field).norm(Belos::InfNorm) );
+				error2[n]   = std::log10( y(field).norm(Pimpact::ENorm::Two) / sol(field).norm(Pimpact::ENorm::Two) );
+				errorInf[n] = std::log10( y(field).norm(Pimpact::ENorm::Inf) / sol(field).norm(Pimpact::ENorm::Inf) );
 				dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 				if( 0==rank )	
 					std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";

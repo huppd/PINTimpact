@@ -105,8 +105,8 @@ protected:
 //#ifdef HAVE_TEUCHOS_DEBUG
   //using std::cerr;
   //using std::endl;
-  //cerr << "\\|B\\|_{\\infty} = " << b.norm( Belos::InfNorm ) << endl;
-  //cerr << "\\|X\\|_{\\infty} = " << x.norm( Belos::InfNorm ) << endl;
+  //cerr << "\\|B\\|_{\\infty} = " << b.norm( Pimpact::ENorm::Inf ) << endl;
+  //cerr << "\\|X\\|_{\\infty} = " << x.norm( Pimpact::ENorm::Inf ) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //if( numIters_<=0 ) {
@@ -147,7 +147,7 @@ protected:
 
 //#ifdef HAVE_TEUCHOS_DEBUG
   //cerr << "Iteration " << 1 << ":" << endl
-  //<< "- \\|D\\|_{\\infty} = " << D_->norm( Belos::InfNorm ) << endl;
+  //<< "- \\|D\\|_{\\infty} = " << D_->norm( Pimpact::ENorm::Inf ) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //// Special case for the first iteration.
@@ -155,7 +155,7 @@ protected:
   //op_->computeResidual( b, x, V1 ); // V1 = B - A*X
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr << "- \\|B - A*X\\|_{\\infty} = " << V1.norm( Belos::InfNorm ) << endl;
+  //cerr << "- \\|B - A*X\\|_{\\infty} = " << V1.norm( Pimpact::ENorm::Inf ) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   ////solve (W, one/theta, D_inv, V1); // W = (1/theta)*D_inv*(B-A*X)
@@ -164,7 +164,7 @@ protected:
   //W.scale( one/theta );
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr << "- \\|W\\|_{\\infty} = " << W.norm( Belos::InfNorm ) << endl;
+  //cerr << "- \\|W\\|_{\\infty} = " << W.norm( Pimpact::ENorm::Inf ) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //x.add( one, x, one, W ); // X = X + W
@@ -175,14 +175,14 @@ protected:
   //W.scale( one/theta );
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr << "- \\|W\\|_{\\infty} = " << W.norm( Belos::InfNorm ) << endl;
+  //cerr << "- \\|W\\|_{\\infty} = " << W.norm( Pimpact::ENorm::Inf ) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   ////Tpetra::deep_copy(X, W); // X = 0 + W
   //x = W;
   //}
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr << "- \\|X\\|_{\\infty} = " << x.norm( Belos::InfNorm ) << endl;
+  //cerr << "- \\|X\\|_{\\infty} = " << x.norm( Pimpact::ENorm::Inf ) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //// The rest of the iterations.
@@ -192,8 +192,8 @@ protected:
 
 //#ifdef HAVE_TEUCHOS_DEBUG
   //cerr << "Iteration " << deg+1 << ":" << endl;
-  //cerr << "- \\|D\\|_{\\infty} = " << D_->norm( Belos::InfNorm ) << endl;
-  //cerr << "- \\|B\\|_{\\infty} = " << b.norm( Belos::InfNorm ) << endl;
+  //cerr << "- \\|D\\|_{\\infty} = " << D_->norm( Pimpact::ENorm::Inf ) << endl;
+  //cerr << "- \\|B\\|_{\\infty} = " << b.norm( Pimpact::ENorm::Inf ) << endl;
   ////cerr << "- \\|A\\|_{\\text{frob}} = " << A_->getFrobeniusNorm () << endl;
   //cerr << "- rhok = " << rhok << endl;
   //V1.init( zero );
@@ -203,7 +203,7 @@ protected:
   //op_->computeResidual( b, x, V1 ); // V1 = B - A*X
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr << "- \\|B - A*X\\|_{\\infty} = " << V1.norm( Belos::InfNorm ) << endl;
+  //cerr << "- \\|B - A*X\\|_{\\infty} = " << V1.norm( Pimpact::ENorm::Inf ) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //rhokp1 = one / (two * s1 - rhok);
@@ -229,8 +229,8 @@ protected:
   //x.add( one, x, one, W ); // X = X + W
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr << "- \\|W\\|_{\\infty} = " << W.norm( Belos::InfNorm ) << endl;
-  //cerr << "- \\|X\\|_{\\infty} = " << x.norm( Belos::InfNorm ) << endl;
+  //cerr << "- \\|W\\|_{\\infty} = " << W.norm( Pimpact::ENorm::Inf ) << endl;
+  //cerr << "- \\|X\\|_{\\infty} = " << x.norm( Pimpact::ENorm::Inf ) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //}

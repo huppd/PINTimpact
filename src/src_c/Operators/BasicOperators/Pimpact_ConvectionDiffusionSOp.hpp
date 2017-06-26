@@ -55,7 +55,7 @@ public:
 
 
   /// \f[ y =   (wind\cdot\nabla) x - \frac{1}{Re} \Delta x \f]
-  void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     //std::cout << "mulI: " << mulI_ << "\n";
     //std::cout << "mulC: " << mulC_ << "\n";
@@ -66,7 +66,7 @@ public:
 
   /// \f[ z = mul z + mulI y + mulC(x\cdot\nabla)y - mulL \Delta y \f]
   void apply( const FluxFieldT& wind, const DomainFieldT& y, RangeFieldT& z,
-              const Scalar& mulI, const Scalar& mulC, const Scalar& mulL, const Add& add=Add::N ) const {
+              const Scalar mulI, const Scalar mulC, const Scalar mulL, const Add add=Add::N ) const {
 
     assert( z.getType() == y.getType() );
     for( int i=0; i<SpaceT::sdim; ++i )
@@ -76,10 +76,10 @@ public:
       wind[vel_dir].exchange();
 
 
-    const F& m = y.getType();
+    const F m = y.getType();
 
-    const B& wB = ( (Add::N==add) ? B::Y : B::N );
-    const B& wnB = B::N;
+    const B wB = ( (Add::N==add) ? B::Y : B::N );
+    const B wnB = B::N;
 
     y.exchange();
 
@@ -150,13 +150,13 @@ public:
     helmOp_->print(out);
   }
 
-  constexpr const Scalar& getMulI() const {
+  constexpr const Scalar getMulI() const {
     return( mulI_);
   }
-  constexpr const Scalar& getMulC() const {
+  constexpr const Scalar getMulC() const {
     return( mulC_);
   }
-  constexpr const Scalar& getMulL() const {
+  constexpr const Scalar getMulL() const {
     return( mulL_);
   }
 

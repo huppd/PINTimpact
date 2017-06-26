@@ -52,14 +52,14 @@ protected:
 public:
 
   /// \todo think about changing BC solver to proper one ( inner field, setting last component one and move it to the rhs)
-  void computeNullSpace( const Teuchos::RCP<const OperatorT>& div, RangeFieldT& y, const bool& DJG_yes = true )  {
+  void computeNullSpace( const Teuchos::RCP<const OperatorT>& div, RangeFieldT& y, const bool DJG_yes = true )  {
 
     Teuchos::RCP<const SpaceT> space = div->space();
 
     Teuchos::Tuple< Teuchos::RCP<VectorT>, SpaceT::sdim > x_ ;
 
     for( int dir=0; dir<SpaceT::sdim; ++dir ) {
-      const Ordinal& N = space->nGlo(dir);
+      const Ordinal N = space->nGlo(dir);
       x_[dir] = Teuchos::rcp( new VectorT(N) );
 
       if( -1==space->getBCGlobal()->getBCL(dir) ) {

@@ -169,7 +169,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InfNorm, FType ) {
 	// test different float values, assures that initial and norm work smoothly
 	for( ST i=0.; i<200.1; i+=10.5 ) {
 		field->init(i/2.);
-		norm = field->norm(Belos::InfNorm);
+		norm = field->norm(Pimpact::ENorm::Inf);
 		TEST_FLOATING_EQUALITY( i/2., norm, eps );
 	}
 
@@ -182,7 +182,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InfNorm, FType ) {
 		init = (size-1)*i-1.;
 		init = std::abs(init);
 		field->init(rank*i-1.);
-		norm = field->norm(Belos::InfNorm);
+		norm = field->norm(Pimpact::ENorm::Inf);
 		TEST_FLOATING_EQUALITY( init, norm, eps );
 	}
 
@@ -217,7 +217,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InitTwoNorm, FType  ) {
 
 	for( ST i=0.; i< 200.1; ++i ) {
 		field->init(i/2.);
-		TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), field->norm(Belos::TwoNorm), eps );
+		TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), field->norm(Pimpact::ENorm::Two), eps );
 	}
 
 }
@@ -307,7 +307,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, scale, FType ) {
 
 	field->init(1.);
 	field->scale(2.);
-	norm = field->norm(Belos::TwoNorm);
+	norm = field->norm(Pimpact::ENorm::Two);
 	TEST_EQUALITY( std::sqrt(4*N), norm)
 
 }
@@ -342,7 +342,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, random, FType ) {
 
 	field->init(1.);
 	field->random();
-	norm = field->norm(Belos::TwoNorm);
+	norm = field->norm(Pimpact::ENorm::Two);
 	TEST_INEQUALITY( std::sqrt(N), norm)
 
 }
@@ -386,7 +386,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, add, FType ) {
 	field3->init(1./3.);
 
 	field1->add( 2., *field2, 0., *field3);
-	norm = field1->norm(Belos::TwoNorm);
+	norm = field1->norm(Pimpact::ENorm::Two);
 	TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
 	field1->init(0.);
@@ -394,7 +394,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, add, FType ) {
 	field3->init(1./3.);
 
 	field1->add( 0., *field2, 3., *field3);
-	norm = field1->norm(Belos::TwoNorm);
+	norm = field1->norm(Pimpact::ENorm::Two);
 	TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
 	field1->init(0.);
@@ -402,7 +402,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, add, FType ) {
 	field3->init(1.);
 
 	field1->add( 0.5, *field2, 0.5, *field3);
-	norm = field1->norm(Belos::TwoNorm);
+	norm = field1->norm(Pimpact::ENorm::Two);
 	TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
 }
@@ -441,10 +441,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 	field->changed();
 	field->exchange();
 
-	TEST_FLOATING_EQUALITY( field->get0Field().normLoc(Belos::InfNorm), 1., eps );
+	TEST_FLOATING_EQUALITY( field->get0Field().normLoc(Pimpact::ENorm::Inf), 1., eps );
 
 	for( OT i=1; i<=space->nGlo(3); ++i )
-		TEST_FLOATING_EQUALITY( field->getField(i).normLoc(Belos::InfNorm), static_cast<ST>(i)+1., eps );
+		TEST_FLOATING_EQUALITY( field->getField(i).normLoc(Pimpact::ENorm::Inf), static_cast<ST>(i)+1., eps );
 
 }
 

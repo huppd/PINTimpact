@@ -40,7 +40,7 @@ public:
 
 
   /// \note Operator's wind has to be assigned correctly
-  void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     for( F i=F::U; i<SpaceT::sdim; ++i )
       convectionSOp_->apply( u[static_cast<int>(i)], x(i), y(i), add );
@@ -48,7 +48,7 @@ public:
 
   /// \note Operator's wind has to be assigned correctly
   void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y,
-              Scalar mulI, Scalar mulC, Scalar mulL, const Add& add=Add::N ) const {
+              Scalar mulI, Scalar mulC, Scalar mulL, const Add add=Add::N ) const {
 
     for( F i=F::U; i<SpaceT::sdim; ++i )
       convectionSOp_->apply( u[static_cast<int>(i)], x(i), y(i), mulI, mulC, mulL, add );

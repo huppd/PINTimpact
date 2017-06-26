@@ -73,7 +73,7 @@ public:
   }
 
 
-  ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
+  ModeField( const Teuchos::RCP<const SpaceT>& space, const bool owning=true ):
     AF( space ),
     owning_(owning),
     fieldc_( space, false ),
@@ -91,7 +91,7 @@ public:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param vF
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
-  ModeField( const ModeField& vF, ECopy copyType=ECopy::Deep ):
+  ModeField( const ModeField& vF, const ECopy copyType=ECopy::Deep ):
     AF( vF.space() ),
     owning_( vF.owning_ ),
     fieldc_( vF.fieldc_, copyType ),
@@ -116,7 +116,7 @@ public:
     if( owning_ ) delete[] s_;
   }
 
-  Teuchos::RCP<ModeField> clone( ECopy cType=ECopy::Deep ) const {
+  Teuchos::RCP<ModeField> clone( const ECopy cType=ECopy::Deep ) const {
 
     Teuchos::RCP<ModeField> mv = Teuchos::rcp( new ModeField( space() ) );
 
@@ -168,7 +168,7 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
-  void add( const ST& alpha, const ModeField& a, const ST& beta, const ModeField& b, const B& wb=B::Y ) {
+  void add( const ST alpha, const ModeField& a, const ST beta, const ModeField& b, const B wb=B::Y ) {
     fieldc_.add( alpha, a.fieldc_, beta, b.fieldc_, wb );
     fields_.add( alpha, a.fields_, beta, b.fields_, wb );
   }
@@ -198,7 +198,7 @@ public:
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
-  void scale( const ST& alpha, const B& wB=B::Y ) {
+  void scale( const ST alpha, const B wB=B::Y ) {
     fieldc_.scale( alpha, wB );
     fields_.scale( alpha, wB );
   }
@@ -236,10 +236,10 @@ public:
   /// \name Norm method
   /// \{
 
-  constexpr ST normLoc( Belos::NormType type=Belos::TwoNorm ) {
+  constexpr ST normLoc( ENorm type=ENorm::Two ) {
 
     ST normvec =
-      (Belos::InfNorm==type)?
+      (ENorm::Inf==type)?
       std::fmax( fieldc_.normLoc(type), fields_.normLoc(type) ):
       ( fieldc_.normLoc(type) + fields_.normLoc(type) );
 
@@ -248,15 +248,12 @@ public:
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr ST norm( Belos::NormType type = Belos::TwoNorm ) {
+  constexpr ST norm( const ENorm type=ENorm::Two ) {
 
-    ST normvec = this->reduce(
-                   comm(),
-                   normLoc( type ),
-                   (Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+    ST normvec = this->reduce( comm(), normLoc( type ),
+        (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
 
-    normvec =
-      (Belos::TwoNorm==type) ?
+    normvec = (ENorm::Two==type||ENorm::L2==type) ?
       std::sqrt(normvec) :
       normvec;
 
@@ -308,12 +305,12 @@ public:
   }
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& wB=B::Y ) {
+  void init( const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y ) {
     fieldc_.init(alpha,wB);
     fields_.init(alpha,wB);
   }
 
-  void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
     fieldc_.extrapolateBC( trans );
     fields_.extrapolateBC( trans );
   }

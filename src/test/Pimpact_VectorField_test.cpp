@@ -39,10 +39,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( VectorField, initField, SpaceT ) {
 
 	vel->write();
 	divOp->apply( *vel, *divVec );
-	auto bla = divVec->norm( Belos::InfNorm );
+	auto bla = divVec->norm( Pimpact::ENorm::Inf );
 	if( 0==space->rankST() )
 		std::cout << "F: " <<  "\tmax div: " << bla << "\n";
-	bla = divVec->norm( Belos::TwoNorm );
+	bla = divVec->norm( Pimpact::ENorm::Two );
 	if( 0==space->rankST() )
 		std::cout << "F: " << "\t||div||: " << bla << "\n";
 	divVec->write( 1 );
@@ -62,7 +62,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( VectorField, computeEnergy, SpaceT ) {
 	Pimpact::VectorField<SpaceT> vel( space );
 	vel.init( 1. );
 
-	std::cout << "energy: " << computeEnergy( vel ) << "\n";
+	std::cout << "energy: " << vel.norm(Pimpact::ENorm::L2) << "\n";
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( VectorField, computeEnergy, D2 ) 
@@ -79,7 +79,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( VectorField, computeEnergyY, SpaceT ) {
 	Pimpact::VectorField<SpaceT> vel( space );
 	vel.init( 1. );
 
-	computeEnergyY( vel );
+  Pimpact::computeEnergyDir( vel );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( VectorField, computeEnergyY, D2 ) 

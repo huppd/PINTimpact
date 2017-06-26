@@ -94,7 +94,7 @@ public:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param field
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
-  TimeField( const TimeField& field, ECopy copyType=ECopy::Deep ):
+  TimeField( const TimeField& field, const ECopy copyType=ECopy::Deep ):
     AF( field.space() ),
     exchangedState_( field.exchangedState_ ) {
 
@@ -128,14 +128,13 @@ public:
   }
 
 
-
   ~TimeField() {
     delete[] array_;
   }
 
 
   /// \brief Create a new \c TimeField with
-  Teuchos::RCP< FieldT > clone( ECopy ctype = ECopy::Deep ) const {
+  Teuchos::RCP< FieldT > clone( const ECopy ctype = ECopy::Deep ) const {
     Teuchos::RCP< FieldT > mv_ = Teuchos::rcp( new FieldT(*this,ctype) );
     return( mv_ );
   }
@@ -154,7 +153,7 @@ public:
 
 
   /// \brief <tt>mv := alpha*a + beta*b</tt>
-  void add( Scalar alpha, const FieldT& a, Scalar beta, const FieldT& b, const B& wb=B::Y ) {
+  void add( Scalar alpha, const FieldT& a, Scalar beta, const FieldT& b, const B wb=B::Y ) {
 
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
       at(i).add( alpha, a(i), beta, b(i), wb );
@@ -193,7 +192,7 @@ public:
   ///
   /// Here x represents on \c Field, and we update it as
   /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
-  void scale( const Scalar& alpha, const B& wB=B::Y ) {
+  void scale( const Scalar alpha, const B wB=B::Y ) {
 
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
       at(i).scale( alpha, wB );
@@ -234,13 +233,13 @@ public:
 
 
   /// \brief Compute the norm for the \c TimeField as it is considered as one Vector .
-  constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y  ) const {
+  constexpr Scalar normLoc( const ENorm type=ENorm::Two, const B bcYes=B::Y  ) const {
 
     Scalar normvec = 0.;
 
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
       normvec =
-        ( (Belos::InfNorm==type)?
+        ( (ENorm::Inf==type)?
           std::max( at(i).normLoc(type, bcYes), normvec ) :
           (normvec + at(i).normLoc(type, bcYes) ) );
 
@@ -249,15 +248,12 @@ public:
 
 /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm/
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y  ) const {
+  constexpr Scalar norm( const ENorm type=ENorm::Two, const B bcYes=B::Y  ) const {
 
-    Scalar normvec = this->reduce(
-                       comm(),
-                       normLoc( type, bcYes ),
-                       (Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+    Scalar normvec = this->reduce( comm(), normLoc( type, bcYes ),
+        (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
 
-    normvec = (
-                (Belos::TwoNorm==type) ?
+    normvec = ( (ENorm::Two==type||ENorm::L2==type) ?
                 std::sqrt(normvec) :
                 normvec );
 
@@ -305,7 +301,7 @@ public:
 
 
   /// \brief Replace the vectors with a random vectors.
-  void random(bool useSeed = false, int seed = 1) {
+  void random( const bool useSeed = false, const int seed = 1) {
 
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
       at(i).random();
@@ -314,14 +310,14 @@ public:
 
 
   /// \brief \f[ *this = \alpha \f]
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
+  void init( const Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B wB=B::Y ) {
 
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
       at(i).init(alpha,wB);
     changed();
   }
 
-  void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
 
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
       at(i).extrapolateBC( trans );
@@ -423,19 +419,19 @@ public:
 
 
 protected:
-  Field& at( const int& i ) {
+  Field& at( const int i ) {
     return( *mfs_[i] );
   }
-  constexpr const Field& at( const int& i ) {
+  constexpr const Field& at( const int i ) {
     return( *mfs_[i] );
   }
 
 public:
 
-  Field& operator()( const int& i ) {
+  Field& operator()( const int i ) {
     return( at(i) );
   }
-  constexpr const Field& operator()( const int& i ) {
+  constexpr const Field& operator()( const int i ) {
     return( at(i) );
   }
 

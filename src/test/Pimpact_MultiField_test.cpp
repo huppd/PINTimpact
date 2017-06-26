@@ -102,7 +102,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm, FType ) {
   // test different float values, assures that initial and norm work smoothly
   for( ST i=0.; i< 200.1; ++i ) {
     mv->init( i/2. );
-    mv->norm( normval, Belos::TwoNorm );
+    mv->norm( normval, Pimpact::ENorm::Two );
     for( int j=0; j<m; ++j )
       TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], eps );
   }

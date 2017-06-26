@@ -48,7 +48,7 @@ public:
 
 
   /// \brief default apply
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     op_->apply(
       *wrapMultiField( Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(x)) ),

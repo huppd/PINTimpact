@@ -36,7 +36,7 @@ public:
 
   Array() : c_(nullptr), nn_(ss) {}
 
-  Array( const Ordinal& nn ) : nn_(nn) {
+  Array( const Ordinal nn ) : nn_(nn) {
 
     assert( ss<=nn_ );
 
@@ -73,17 +73,17 @@ public:
     return( c_ );
   }
 
-  constexpr const Ordinal& NN() {
+  constexpr const Ordinal NN() {
     return( nn_ );
   }
 
-  Scalar& operator[]( const Ordinal& index ) {
+  Scalar& operator[]( const Ordinal index ) {
     assert( index>=ss );
     assert( index<=nn_ );
     return( c_[ index-ss ] );
   };
 
-  constexpr Scalar& operator[]( const Ordinal& index ) {
+  constexpr Scalar operator[]( const Ordinal index ) {
     assert( index>=ss );
     assert( index<=nn_ );
     return( c_[ index-ss ] );
@@ -130,7 +130,7 @@ public:
 
   Stencil() : c_(nullptr),nn_(ss) {}
 
-  Stencil( const Ordinal& nn ) : nn_(nn) {
+  Stencil( const Ordinal nn ) : nn_(nn) {
 
     static_assert( lb<=ub, "Stencil width cannot be negative" );
     assert( ss<=nn_ );
@@ -168,7 +168,17 @@ public:
     return( c_ );
   }
 
-  constexpr Scalar& operator()( const Ordinal& index, const int& offset ) {
+  Scalar& operator()( const Ordinal index, const int offset ) {
+
+    assert( offset>=lb );
+    assert( offset<=ub );
+    assert( index>=ss );
+    assert( index<=nn_ );
+
+    return( c_[ offset-lb + (index-ss)*w_ ] );
+  };
+
+  constexpr Scalar operator()( const Ordinal index, const int offset ) {
 
     assert( offset>=lb );
     assert( offset<=ub );
@@ -187,7 +197,7 @@ public:
     return( ub );
   }
 
-  constexpr const Ordinal& NN() {
+  constexpr const Ordinal NN() {
     return( nn_ );
   }
 

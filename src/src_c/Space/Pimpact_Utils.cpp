@@ -32,7 +32,7 @@ Pimpact::ECoord& operator++( Pimpact::ECoord& c ) {
   }
 }
 
-bool operator<( const Pimpact::ECoord& c, const int& i ) {
+bool operator<( const Pimpact::ECoord c, const int i ) {
   return( static_cast<int>(c)<i );
 }
 
@@ -68,18 +68,18 @@ Pimpact::F& operator++( Pimpact::F& c ) {
   return( c );
 }
 
-bool operator<( const Pimpact::F& c, const int& i ) {
+bool operator<( const Pimpact::F c, const int i ) {
   return( static_cast<int>(c)<i );
 }
 
-bool operator==( const Pimpact::F& f, const int& c ) {
+bool operator==( const Pimpact::F f, const int c ) {
   if( Pimpact::F::U==f &&  Pimpact::ECoord::X==c ) return( true );
   else if( Pimpact::F::V==f &&  Pimpact::ECoord::Y==c ) return( true );
   else if( Pimpact::F::W==f &&  Pimpact::ECoord::Z==c ) return( true );
   else return( false );
 }
 
-bool operator!=( const Pimpact::F& f, const int& c ) {
+bool operator!=( const Pimpact::F f, const int c ) {
   if( Pimpact::F::U==f &&  Pimpact::ECoord::X==c ) return( false );
   else if( Pimpact::F::V==f &&  Pimpact::ECoord::Y==c ) return( false );
   else if( Pimpact::F::W==f &&  Pimpact::ECoord::Z==c ) return( false );
@@ -87,14 +87,14 @@ bool operator!=( const Pimpact::F& f, const int& c ) {
 }
 
 
-bool operator==( const int& c, const Pimpact::F& f ) {
+bool operator==( const int c, const Pimpact::F f ) {
   if( Pimpact::F::U==f &&  Pimpact::ECoord::X==c ) return( true );
   else if( Pimpact::F::V==f &&  Pimpact::ECoord::Y==c ) return( true );
   else if( Pimpact::F::W==f &&  Pimpact::ECoord::Z==c ) return( true );
   else return( false );
 }
 
-bool operator!=( const int& c, const Pimpact::F& f ) {
+bool operator!=( const int c, const Pimpact::F& f ) {
   if( Pimpact::F::U==f &&  Pimpact::ECoord::X==c ) return( false );
   else if( Pimpact::F::V==f &&  Pimpact::ECoord::Y==c ) return( false );
   else if( Pimpact::F::W==f &&  Pimpact::ECoord::Z==c ) return( false );
@@ -124,7 +124,7 @@ std::string Pimpact::toString( Pimpact::EScalarField type ) {
 }
 
 
-int Pimpact::getDir1( const int& dir ) {
+int Pimpact::getDir1( const int dir ) {
 
   int dir1 = ( dir + 1 )%3;
   int dir2 = ( dir + 2 )%3;
@@ -133,7 +133,7 @@ int Pimpact::getDir1( const int& dir ) {
   return( dir1 );
 }
 
-int Pimpact::getDir2( const int& dir ) {
+int Pimpact::getDir2( const int dir ) {
 
   int dir1 = ( dir + 1 )%3;
   int dir2 = ( dir + 2 )%3;

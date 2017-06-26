@@ -256,9 +256,9 @@ public:
 
 
   /// \todo change with or without bc, everywhere
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N  ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N  ) const {
 
-    const B& nb = B::N;
+    const B nb = B::N;
 
     for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 
@@ -301,7 +301,7 @@ public:
 
     assert( x.getType()==y.getType() );
 
-    const F& f = x.getType();
+    const F f = x.getType();
 
     // U-field
     if( F::U==f ) {
@@ -530,11 +530,11 @@ public:
     return( space_ );
   };
 
-  constexpr const ST* getC( const int& dir, const F& ftype ) {
+  constexpr const ST* getC( const int dir, const F ftype ) {
     return( (dir==ftype)?cV_[dir].get():cS_[dir].get() );
   }
 
-  constexpr const ST& getC( const ECoord& dir, const F& ftype, OT i, OT ii ) {
+  constexpr ST getC( const ECoord dir, const F ftype, OT i, OT ii ) {
     return(
             (static_cast<int>(dir)==static_cast<int>(ftype))?
             cV_[dir](i,ii):
@@ -553,8 +553,8 @@ public:
   };
 
 
-  constexpr ST innerStenc3D( const ScalarField<SpaceT>& x, const F& fType,
-                             const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerStenc3D( const ScalarField<SpaceT>& x, const F fType, const OT i,
+      const OT j, const OT k ) {
 
     ST lap = 0.;
 
@@ -570,8 +570,8 @@ public:
     return( lap );
   }
 
-  constexpr ST innerStenc2D( const ScalarField<SpaceT>& x, const F& fType,
-                             const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerStenc2D( const ScalarField<SpaceT>& x, const F fType, const OT i,
+      const OT j, const OT k ) {
 
     ST lap = 0.;
 
@@ -584,15 +584,14 @@ public:
     return( lap );
   }
 
-  constexpr ST innerDiag3D( const F& fType,
-                            const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerDiag3D( const F fType,
+                            const OT i, const OT j, const OT k ) const {
 
     return( getC(X,fType,i,0) + getC(Y,fType,j,0) + getC(Z,fType,k,0) );
 
   }
 
-  constexpr ST innerDiag2D( const F& fType,
-                            const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerDiag2D( const F fType, const OT i, const OT j, const OT k ) {
 
     return( getC(X,fType,i,0) + getC(Y,fType,j,0) );
 

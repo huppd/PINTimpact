@@ -43,8 +43,8 @@ public:
 
 
   /// \note todo apply for helmholtx k=...
-  void apply( const DomainFieldT& x, RangeFieldT& y,
-              const Belos::ETrans& trans=Belos::NOTRANS) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+      trans=Belos::NOTRANS) const {
 
     op_->apply( x.getCField(), y.getCField() );
     op_->apply( x.getSField(), y.getSField() );

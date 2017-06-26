@@ -52,7 +52,7 @@ public:
 
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - N y_k ) \f]
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     solver_.apply( x, y );
 

@@ -39,7 +39,7 @@ protected:
 
   const Teuchos::RCP<const OperatorT> op_;
 
-  constexpr const ST& getHC( const ECoord& dir, const F& ftype, OT i, OT ii ) {
+  constexpr ST getHC( const ECoord dir, const F ftype, OT i, OT ii ) {
     return( op_->getHelmOp()->getC(dir,ftype,i,ii) );
   }
 
@@ -68,7 +68,7 @@ protected:
 
   void applyStep( const FluxFieldT& wind, const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y ) const {
 
-    const F& f = y.getType();
+    const F f = y.getType();
 
     x.exchange();
 
@@ -128,11 +128,11 @@ protected:
     assert( b.getType()==y.getType() );
     assert( x.getType()==y.getType() );
 
-    const F& f = y.getType();
+    const F f = y.getType();
 
-    const ST& omegaBC = omega_;
-    //const ST& omegaBC = 1.;
-    //const ST& omegaBC = omega_/2.;
+    const ST omegaBC = omega_;
+    //const ST omegaBC = 1.;
+    //const ST omegaBC = omega_/2.;
 
 
     // U-field
@@ -348,9 +348,9 @@ protected:
 
 public:
 
-  void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
-    const F& m = y.getType();
+    const F m = y.getType();
 
     DomainFieldT temp( space(), true, m );
 

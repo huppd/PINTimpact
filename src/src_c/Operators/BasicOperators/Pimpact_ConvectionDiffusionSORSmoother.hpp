@@ -42,7 +42,7 @@ protected:
 
   const Teuchos::RCP<const OperatorT> op_;
 
-  constexpr const ST& getHC( const ECoord& dir, const F& ftype, OT i, OT ii ) {
+  constexpr ST getHC( const ECoord dir, const F ftype, const OT i, const OT ii ) {
     return( op_->getHelmOp()->getC(dir,ftype,i,ii) );
   }
 
@@ -69,11 +69,11 @@ public:
 
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, ST mulI, ST mulC, ST mulL, const Add& add=Add::N ) const {
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const ST mulI, const ST mulC, const ST mulL, const Add add=Add::N ) const {
     std::cout << "not implmented\n";
   }
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Add& add=Add::N ) const {
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Add add=Add::N ) const {
 
     // testing field consistency
     assert( z.getType() == y.getType() );
@@ -135,7 +135,7 @@ protected:
       assert( 1==dirs[i] || -1==dirs[i] );
     }
 
-    const F& f = x.getType();
+    const F f = x.getType();
     x.exchange();
 
     applyBC( b, x );
@@ -201,10 +201,10 @@ protected:
 
     assert( b.getType()==y.getType() );
 
-    const F& f = y.getType();
+    const F f = y.getType();
 
-    const ST& omegaBC = omega_;
-    //const ST& omegaBC = 0.9;
+    const ST omegaBC = omega_;
+    //const ST omegaBC = 0.9;
 
     // U-field
     if( F::U==f ) {

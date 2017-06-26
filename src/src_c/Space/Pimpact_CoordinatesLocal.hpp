@@ -160,16 +160,16 @@ public:
   /// \name getter
   /// @{
 
-  constexpr const ScalarT* operator()( const F& ftype, const int& dir ) {
+  constexpr const ScalarT* operator()( const F ftype, const int dir ) {
     return( getX( ftype, dir ) );
   }
 
-  constexpr const ScalarT& operator()( const F& ftype, const int& dir, const OrdinalT& i) {
+  constexpr const ScalarT& operator()( const F ftype, const int dir, const OrdinalT& i) {
     return( getX( ftype, dir, i ) );
   }
 
   /// \deprecated
-  constexpr const ScalarT* getX( const F& ftype, const int& dir ) {
+  constexpr const ScalarT* getX( const F ftype, const int dir ) {
     return(
             ( F::S==ftype || dir!=ftype ) ?
             xS_[dir].get() :
@@ -178,23 +178,23 @@ public:
   }
 
   /// \deprecated
-  constexpr const ScalarT& getX( const F& ftype, const int& dir, const OrdinalT& i) {
+  constexpr const ScalarT& getX( const F ftype, const int dir, const OrdinalT& i) {
     return( ( F::S==ftype || dir!=ftype )?
             xS_[dir][i]: xV_[dir][i] );
   }
 
-  constexpr const ScalarT& dx( const F& ftype, const int& dir, const OrdinalT& i) {
+  constexpr const ScalarT& dx( const F ftype, const int dir, const OrdinalT& i) {
     return( ( F::S==ftype || dir!=ftype )?
             dxS_[dir][i]: dxV_[dir][i] );
   }
 
   /// \deprecated
-  constexpr const AS& getS( const int& dir ) {
+  constexpr const AS& getS( const int dir ) {
     return( xS_[dir] );
   }
 
   /// \deprecated
-  constexpr const AV& getV( const int& dir ) {
+  constexpr const AV& getV( const int dir ) {
     return( xV_[dir] );
   }
 

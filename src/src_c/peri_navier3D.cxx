@@ -25,6 +25,7 @@
 #include "NOX_Pimpact_StatusTest.hpp"
 #include "NOX_Pimpact_PrePostError.hpp"
 #include "NOX_Pimpact_PrePostEnergy.hpp"
+#include "NOX_Pimpact_PrePostSpectrum.hpp"
 #include "NOX_Pimpact_PrePostWriter.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
@@ -373,8 +374,8 @@ int main( int argi, char** argv ) {
             //POP3
             > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
-          //if( 0==space->rankST() )
-          //mgConvDiff->print();
+          if( 0==space->rankST() )
+            mgConvDiff->print();
 
           std::string convDiffPrecString =
             pl->sublist("ConvDiff").get<std::string>( "preconditioner", "right" );
@@ -526,6 +527,10 @@ int main( int argi, char** argv ) {
       Teuchos::RCP<Teuchos::ParameterList> noxSolverPara =
         Teuchos::sublist(pl, "NOX Solver");
 
+      //pl->sublist("Printing").remove("MyPID");
+      noxSolverPara->sublist("Printing").set< Teuchos::RCP<std::ostream> >(
+          "Output Stream", Pimpact::createOstream("nonlinear"+rl+".txt", space->rankST() ) );
+
       // NOX PrePostOperators
       Teuchos::RCP<NOX::PrePostOperatorVector> prePostOperators =
         Teuchos::rcp( new NOX::PrePostOperatorVector() );
@@ -534,6 +539,7 @@ int main( int argi, char** argv ) {
           Teuchos::rcp(
             new NOX::Pimpact::PrePostErrorCompute<NV>(Teuchos::sublist(pl, "NOX error"), sol)) );
 
+      pl->sublist("NOX energy").set<int>( "refinement", refine );
       prePostOperators->pushBack( 
           Teuchos::rcp(
             new NOX::Pimpact::PrePostEnergyCompute<NV>(
@@ -543,6 +549,9 @@ int main( int argi, char** argv ) {
       prePostOperators->pushBack( 
           Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ) ) );
 
+      pl->sublist("NOX spectrum").set<int>( "refinement", refine );
+      prePostOperators->pushBack( 
+          Teuchos::rcp(new NOX::Pimpact::PrePostSpectrum<NV>(Teuchos::sublist(pl, "NOX spectrum"))));
 
       noxSolverPara->sublist("Solver Options").set<Teuchos::RCP<NOX::Abstract::PrePostOperator>>(
           "User Defined Pre/Post Operator", prePostOperators);
@@ -578,9 +587,9 @@ int main( int argi, char** argv ) {
 
         //space->print();
         if( 0<space->nGlo(3) and space()->si(Pimpact::F::U,3)<=1 and 1<=space()->ei(Pimpact::F::U,3) )
-          u_1  = x->getField(0).getVField().getField(1).norm();
+          u_1  = x->getField(0).getVField().getField(1).norm( Pimpact::ENorm::L2 );
         if( 0<space->nGlo(3) and space()->si(Pimpact::F::U,3)<=space->nGlo(3) and space->nGlo(3)<=space()->ei(Pimpact::F::U,3) )
-          u_nf = x->getField(0).getVField().getField(space->nGlo(3)).norm();
+          u_nf = x->getField(0).getVField().getField(space->nGlo(3)).norm( Pimpact::ENorm::L2 );
 
 
         int rank_1 = 0;

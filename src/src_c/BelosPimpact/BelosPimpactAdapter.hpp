@@ -126,10 +126,10 @@ public:
 
   /// \brief <tt> mv:= alpha A*B + beta mv </tt>
   static void
-  MvTimesMatAddMv( const Scalar& alpha,
+  MvTimesMatAddMv( const Scalar alpha,
                    const Pimpact::MultiField<Field>& A,
                    const Teuchos::SerialDenseMatrix<int,Scalar>& B,
-                   const Scalar& beta,
+                   const Scalar beta,
                    Pimpact::MultiField<Field>& mv ) {
 
     mv.TimesMatAdd( alpha, A, B, beta );
@@ -147,7 +147,7 @@ public:
 
 
   /// \brief <tt>mv := alpha*mv </tt>
-  static void MvScale( Pimpact::MultiField<Field>& mv, const Scalar& alpha ) {
+  static void MvScale( Pimpact::MultiField<Field>& mv, const Scalar alpha ) {
     mv.scale( alpha );
   }
 
@@ -180,10 +180,24 @@ public:
 
   /// \brief For all columns j of mv, set <tt>normvec[j] = norm(mv[j])</tt>.
   static void MvNorm(
-    const Pimpact::MultiField<Field>& mv,
-    std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
-    NormType type=TwoNorm ) {
-    mv.norm(normvec,type);
+      const Pimpact::MultiField<Field>& mv,
+      std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
+      NormType type=TwoNorm ) {
+
+    switch( type ) {
+      case OneNorm : {
+        mv.norm( normvec, Pimpact::ENorm::One );
+        break;
+      }
+      case TwoNorm : {
+        mv.norm( normvec, Pimpact::ENorm::Two );
+        break;
+      }
+      case InfNorm : {
+        mv.norm( normvec, Pimpact::ENorm::Inf );
+        break;
+      }
+    }
   }
 
 

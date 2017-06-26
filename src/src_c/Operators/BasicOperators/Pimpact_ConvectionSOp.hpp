@@ -206,16 +206,16 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Scalar& mulI, const Scalar& mulC, const Scalar& mulL, const Add& add=Add::N ) const {
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Scalar mulI, const Scalar mulC, const Scalar mulL, const Add add=Add::N ) const {
     apply( x, y, z, mulC, add );
   }
 
 
-  void apply( const FluxFieldT& wind, const DomainFieldT& y, RangeFieldT& z, const Add& add=Add::N ) const {
+  void apply( const FluxFieldT& wind, const DomainFieldT& y, RangeFieldT& z, const Add add=Add::N ) const {
 
-    const B& b = ( (Add::N==add) ? B::Y : B::N );
+    const B b = ( (Add::N==add) ? B::Y : B::N );
 
-    const Scalar& mulC = 1.;
+    const Scalar mulC = 1.;
     F m = z.getType();
 
     assert( z.getType() == y.getType() );
@@ -274,15 +274,15 @@ public:
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
 
-  constexpr const Scalar* getCU( const ECoord& dir, const F& ftype ) const  {
+  constexpr const Scalar* getCU( const ECoord dir, const F ftype ) const  {
     return( ( ((int)dir)==((int)ftype) )?cVU_[dir].get():cSU_[dir].get() );
   }
 
-  constexpr const Scalar* getCD( const ECoord& dir, const F& ftype ) const  {
+  constexpr const Scalar* getCD( const ECoord dir, const F ftype ) const  {
     return( ( ((int)dir)==((int)ftype) )?cVD_[dir].get():cSD_[dir].get() );
   }
 
-  constexpr const Scalar& getC( const Scalar& wind, const ECoord& dir, const F& ftype, const int& i, const int ii ) const {
+  constexpr Scalar getC( const Scalar wind, const ECoord dir, const F ftype, const int i, const int ii ) const {
     return(
             ( static_cast<int>(dir)==static_cast<int>(ftype) )?
             (wind>=0? cVU_[dir](i,ii):cVD_[dir](i,ii))
@@ -292,8 +292,8 @@ public:
   }
 
 
-  constexpr Scalar innerStenc2D( const Scalar& u, const Scalar& v, const
-                                 RangeFieldT& x, const Ordinal& i, const Ordinal& j, const Ordinal& k )
+  constexpr Scalar innerStenc2D( const Scalar u, const Scalar v, const RangeFieldT& x,
+      const Ordinal i, const Ordinal j, const Ordinal k )
   const {
 
     Scalar dx = 0.;
@@ -307,9 +307,8 @@ public:
     return( u*dx+v*dy );
   }
 
-  constexpr Scalar innerStenc3D( const Scalar& u, const Scalar& v,
-                                 const Scalar& w, const RangeFieldT& x, const Ordinal& i, const Ordinal&
-                                 j, const Ordinal& k ) const {
+  constexpr Scalar innerStenc3D( const Scalar u, const Scalar v, const Scalar w, const
+      RangeFieldT& x, const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
     Scalar dx = 0.;
     for( int ii=space_->nl(X); ii<=space_->nu(X); ++ii )
@@ -326,14 +325,14 @@ public:
     return( u*dx+v*dy+w*dz );
   }
 
-  constexpr Scalar innerDiag3D( const Scalar& u, const Scalar& v, const
-                                Scalar& w, const F& fType, const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+  constexpr Scalar innerDiag3D( const Scalar u, const Scalar v, const Scalar w, const F
+      fType, const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
     return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) + w*getC( w,Z, fType,k,0) );
   }
 
-  constexpr Scalar innerDiag2D( const Scalar& u, const Scalar& v,
-                                const F& fType, const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+  constexpr Scalar innerDiag2D( const Scalar u, const Scalar v, const F fType, const
+      Ordinal i, const Ordinal j, const Ordinal k ) const {
 
     return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) );
   }

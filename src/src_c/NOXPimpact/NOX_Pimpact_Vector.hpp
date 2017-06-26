@@ -255,11 +255,11 @@ public:
   virtual double norm( NOX::Abstract::Vector::NormType type=NOX::Abstract::Vector::TwoNorm) const {
     switch( type ) {
     case OneNorm:
-      return( field_->norm( Belos::OneNorm ) );
+      return( field_->norm( ::Pimpact::ENorm::One ) );
     case TwoNorm:
-      return( field_->norm( Belos::TwoNorm ) );
+      return( field_->norm( ::Pimpact::ENorm::L2 ) );
     case MaxNorm:
-      return( field_->norm( Belos::InfNorm ) );
+      return( field_->norm( ::Pimpact::ENorm::Inf ) );
     default:
       std::cout << "!!! Warning unknown NOX::Pimpact::Vector::NormType:\t" << type << "\n";
       return(0.); // unnecssary but surpresses compiler warning

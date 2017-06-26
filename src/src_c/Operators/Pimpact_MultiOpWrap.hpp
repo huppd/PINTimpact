@@ -45,8 +45,8 @@ public:
 //		op_( Teuchos::rcp( new OperatorT( op->getOperatorPtr() ) ) ) {}
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-              trans=Belos::NOTRANS) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+      trans=Belos::NOTRANS) const {
 
     assert( x.getNumberVecs()==y.getNumberVecs() );
 

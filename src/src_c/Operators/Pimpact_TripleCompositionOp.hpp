@@ -5,6 +5,7 @@
 
 #include "Teuchos_RCP.hpp"
 
+#include "BelosTypes.hpp"
 
 
 
@@ -43,7 +44,8 @@ public:
     op2_(op2),
     op3_(op3) {};
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans& trans=Belos::NOTRANS ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+      trans=Belos::NOTRANS ) const {
 
     typename OP2::RangeFieldT temp1( space() ); // has to be equal to OP2::DomainFieldT
 

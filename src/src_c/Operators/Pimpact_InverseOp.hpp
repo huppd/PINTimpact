@@ -118,7 +118,7 @@ public:
     }
 
 
-  void apply( const DomainFieldT& rhs, RangeFieldT& y, const Add& add=Add::N  ) const {
+  void apply( const DomainFieldT& rhs, RangeFieldT& y, const Add add=Add::N  ) const {
     apply(
       *wrapMultiField( Teuchos::rcpFromRef<DomainFieldT>(
                          const_cast<DomainFieldT&>(rhs) ) ),
@@ -127,7 +127,7 @@ public:
 
 
   /// \brief MultiField helper (useful for MH ops)
-  void apply( const MF& rhs, MF& y, const Add& add=Add::N  ) const {
+  void apply( const MF& rhs, MF& y, const Add add=Add::N  ) const {
 
     if( initZero_ ) y.init( );
 

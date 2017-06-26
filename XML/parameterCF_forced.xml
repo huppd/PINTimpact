@@ -1,7 +1,7 @@
 <ParameterList id="0" name="ANONYMOUS">
   <ParameterList id="1" name="Space">
     <Parameter docString="Reynolds number" id="57" isDefault="false" isUsed="true" name="Re"
-      type="double" value="4.00000000000000000e+02" />
+      type="double" value="3.00000000000000000e+02" />
     <Parameter docString="Womersley square alpha^2" id="58" isDefault="false" isUsed="true"
       name="alpha2" type="double" value="5.27e+02" />
     <ParameterList id="2222" name="boundary conditions">
@@ -25,17 +25,17 @@
     <Parameter docString="length in z-direction" id="63" isDefault="false" isUsed="true" name="lz"
       type="double" value="4.0e+00" />
     <Parameter docString="amount of grid points in x-direction: a*2**q+1" id="64" isDefault="false"
-      isUsed="true" name="nx" type="int" value="129" />
+      isUsed="true" name="nx" type="int" value="65" />
     <Parameter docString="amount of grid points in y-direction: a*2**q+1" id="65" isDefault="false"
-      isUsed="true" name="ny" type="int" value="33" />
+      isUsed="true" name="ny" type="int" value="17" />
     <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="66" isDefault="false"
-      isUsed="true" name="nz" type="int" value="65" />
+      isUsed="true" name="nz" type="int" value="33" />
     <Parameter docString="amount of grid points in f-direction" id="67" isDefault="false"
       isUsed="true" name="nf" type="int" value="0" />
     <Parameter docString="amount of processors in x-direction" id="68" isDefault="false"
       isUsed="true" name="npx" type="int" value="2" />
     <Parameter docString="amount of processors in y-direction" id="69" isDefault="false"
-      isUsed="true" name="npy" type="int" value="2" />
+      isUsed="true" name="npy" type="int" value="1" />
     <Parameter docString="amount of processors in z-direction" id="70" isDefault="false"
       isUsed="true" name="npz" type="int" value="2" />
     <Parameter docString="amount of processors in f-direction" id="71" isDefault="false"
@@ -86,35 +86,24 @@
         value="true" />
     </ParameterList>
   </ParameterList>
-  <ParameterList id="8888" name="NOX write">
-    <ParameterList id="9999" name="sol">
-      <ParameterList id="1010" name="iter">
-        <Parameter docString="" id="9090" isDefault="true" isUsed="true" name="post" type="bool"
-          value="false" />
-        <Parameter docString="" id="9191" isDefault="true" isUsed="true" name="pre" type="bool"
-          value="true" />
-      </ParameterList>
-      <ParameterList id="1111" name="solv">
-        <Parameter docString="" id="9292" isDefault="true" isUsed="true" name="post" type="bool"
-          value="true" />
-        <Parameter docString="" id="9393" isDefault="true" isUsed="true" name="pre" type="bool"
-          value="false" />
-      </ParameterList>
+  <ParameterList id="777777" name="NOX write">
+    <Parameter docString="" id="5252" isDefault="true" isUsed="true" name="solution"
+      type="int" value="0"/>
+    <Parameter docString="" id="5353" isDefault="true" isUsed="true" name="residual"
+      type="int" value="100"/>
+    <Parameter docString="" id="5454" isDefault="true" isUsed="true" name="update"
+      type="int" value="1000"/>
+    <ParameterList id="5757" name="iteration">
+      <Parameter docString="" id="5555" isDefault="true" isUsed="true" name="pre"
+        type="bool" value="true"/>
+      <Parameter docString="" id="5656" isDefault="true" isUsed="true" name="post"
+        type="bool" value="false"/>
     </ParameterList>
-    <ParameterList id="1212" name="res">
-      <ParameterList id="1313" name="iter">
-        <Parameter docString="" id="9494" isDefault="true" isUsed="true" name="post" type="bool"
-          value="false" />
-        <Parameter docString="" id="9595" isDefault="true" isUsed="true" name="pre" type="bool"
-          value="false" />
+      <ParameterList id="5050" name="solve">
+        <Parameter docString="" id="4949" isDefault="true" isUsed="true" name="pre" type="bool" value="false"/>
+        <Parameter docString="" id="4848" isDefault="true" isUsed="true" name="post"
+          type="bool" value="true"/>
       </ParameterList>
-      <ParameterList id="1414" name="solv">
-        <Parameter docString="" id="9696" isDefault="true" isUsed="true" name="post" type="bool"
-          value="false" />
-        <Parameter docString="" id="9797" isDefault="true" isUsed="true" name="pre" type="bool"
-          value="false" />
-      </ParameterList>
-    </ParameterList>
   </ParameterList>
 	<ParameterList id="8" name="NOX Status Test">
 		<Parameter docString="" id="87" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />
@@ -264,6 +253,8 @@
   <ParameterList id="32" name="ConvDiff">
     <!--<Parameter docString="" id="183" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />-->
     <Parameter docString="" id="183" isDefault="true" isUsed="true" name="Solver name" type="string" value="TFQMR" />
+		<Parameter docString="" id="212" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+		<Parameter docString="" id="213" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
     <ParameterList id="33" name="Multi Grid">
       <ParameterList id="34" name="Coarse Grid Solver">
         <Parameter docString="" id="184" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
@@ -302,8 +293,6 @@
 			<Parameter docString="" id="209" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
 			<Parameter docString="" id="210" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
 			</ParameterList>
-		<Parameter docString="" id="212" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="213" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
   </ParameterList>
   <ParameterList id="39" name="M_ConvDiff">
     <Parameter docString="" id="214" isDefault="false" isUsed="true" name="Solver name"
@@ -415,7 +404,7 @@
         <Parameter docString="" id="268" isDefault="true" isUsed="true" name="c_z" type="double"
           value="2.0e+00" />
         <Parameter docString="" id="269" isDefault="true" isUsed="true" name="amp" type="double"
-          value="1.0e-01" />
+          value="1.0e-03" />
         <Parameter docString="" id="270" isDefault="true" isUsed="true" name="sig_x" type="double"
           value="2.0e-01" />
         <Parameter docString="" id="271271" isDefault="true" isUsed="true" name="sig_y" type="double"

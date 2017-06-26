@@ -54,7 +54,7 @@ protected:
 
   Teuchos::Tuple<OT,SpaceT::sdim-1> cw_;
 
-  constexpr OT getI( const OT& i, const OT& j, const OT& k ) {
+  constexpr OT getI( const OT i, const OT j, const OT k ) {
     return(
             (SpaceT::sdim==2)?
             (i-SS_[X]) + (j-SS_[Y])*cw_[0] :
@@ -64,7 +64,7 @@ protected:
 
 public:
 
-  constexpr const OT& getN() {
+  constexpr const OT getN() {
     return( N_ );
   }
 
@@ -127,7 +127,7 @@ public:
   }
 
 
-  void apply( const VectorT& v, DomainFieldT& x, const ST& om ) const {
+  void apply( const VectorT& v, DomainFieldT& x, const ST om ) const {
 
     assert( N_==v.numRows()*v.numCols() );
 
@@ -165,8 +165,8 @@ public:
           const bool bcZ = (op->space()->getBCLocal()->getBCL(Z) > 0 && k==op->space()->si(F::S,Z) ) ||
                            (op->space()->getBCLocal()->getBCU(Z) > 0 && k==op->space()->ei(F::S,Z) ) ;
 
-          //const ST& eps = 0.1;
-          const ST& eps = 1./static_cast<ST>(DivGradO2Op<SpaceT>::epsI);
+          //const ST eps = 0.1;
+          const ST eps = 1./static_cast<ST>(DivGradO2Op<SpaceT>::epsI);
 
           const ST epsX = (bcY||bcZ)?eps:1.;
           const ST epsY = (bcX||bcZ)?eps:1.;
@@ -429,7 +429,7 @@ public:
     y.changed();
   }
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const ST& omega )  const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const ST omega )  const {
 
     VectorT X_( getN(), false );
     VectorT	B_( getN(), false );
@@ -449,7 +449,7 @@ public:
 
 protected:
 
-  constexpr const OT& getN() const {
+  constexpr const OT getN() const {
     return( trans_->getN() );
   }
 
@@ -497,7 +497,7 @@ public:
 
 protected:
 
-  const OT& getN() const {
+  const OT getN() const {
     return( trans_->getN() );
   }
 
@@ -512,7 +512,7 @@ public:
 
   ///  @}
   //
-  void computeEV( const ECoord& dir, ST& evMax, ST& evMin ) const {
+  void computeEV( const ECoord dir, ST& evMax, ST& evMin ) const {
 
 
     OT n = op_->space()->nLoc(dir)-1+1;

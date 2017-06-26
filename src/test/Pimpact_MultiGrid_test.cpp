@@ -237,7 +237,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SFconstructor, CS ) {
 	if( mgSpaces->participating(-1) ){
 
 		field.init(5.);
-		TEST_FLOATING_EQUALITY( std::sqrt( std::pow(5.,2)*field.getLength() ), field.norm(Belos::TwoNorm), eps );
+		TEST_FLOATING_EQUALITY( std::sqrt( std::pow(5.,2)*field.getLength() ), field.norm(Pimpact::ENorm::Two), eps );
 
 		if( write ) field.write(0);
 	}
@@ -269,7 +269,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VFconstructor, CS ) {
 	if( mgSpaces->participating(-1) ){
 
 		field.init(5.);
-		TEST_FLOATING_EQUALITY( std::sqrt( std::pow(5.,2)*field.getLength() ), field.norm(Belos::TwoNorm), eps );
+		TEST_FLOATING_EQUALITY( std::sqrt( std::pow(5.,2)*field.getLength() ), field.norm(Pimpact::ENorm::Two), eps );
 
 		if( write ) field.write(0);
 	}
@@ -448,7 +448,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType )
 			if( mgSpaces->participating(level) ) {
 
 				er->add( 1., *sol, -1., fieldc, Pimpact::B::Y );
-				ST errInf = er->norm(Belos::InfNorm, Pimpact::B::Y);
+				ST errInf = er->norm(Pimpact::ENorm::Inf, Pimpact::B::Y);
 				if( 0==space->rankST() )
 					std::cout << "error Const: " << errInf << " ("<< op->getDD() << ")\n";
 				//if( i>0 )
@@ -469,7 +469,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType )
 
 				if( mgSpaces->participating(level) ) {
 					er->add( 1., *sol, -1., fieldc, Pimpact::B::Y );
-					double errInf = er->norm(Belos::InfNorm, Pimpact::B::Y );
+					double errInf = er->norm(Pimpact::ENorm::Inf, Pimpact::B::Y );
 					if( 0==space->rankST() )
 						std::cout << "error ("<< type << "): " << errInf << " ("<< op->getDD() << ")\n";
 					TEST_EQUALITY( errInf<eps, true );
@@ -553,9 +553,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 				op->apply( fieldc, fieldf );
 
 			if( mgSpaces->participating(level) )
-				TEST_EQUALITY( eps>fieldf.norm(Belos::InfNorm), true );
+				TEST_EQUALITY( eps>fieldf.norm(Pimpact::ENorm::Inf), true );
 			if( mgSpaces->participating(level+1) )
-				TEST_EQUALITY( eps>fieldc.norm(Belos::InfNorm), true );
+				TEST_EQUALITY( eps>fieldc.norm(Pimpact::ENorm::Inf), true );
 
 			// the random test
 			fieldc.random();
@@ -583,14 +583,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 			er->add( 1., *sol, -1., fieldf );
 			if( mgSpaces->participating(level) ) {
-				ST errInf = er->norm( Belos::InfNorm );
+				ST errInf = er->norm( Pimpact::ENorm::Inf );
 				if( 0==space->rankST() )
 					std::cout << "error Const: " << errInf << "\n";
 				TEST_EQUALITY( errInf < eps, true  );
 				if( errInf>=eps )
 					if( write ) er->write(0);
 			}
-			if( er->normLoc(Belos::InfNorm)>=eps && space->rankST()==rankbla && print ){
+			if( er->normLoc(Pimpact::ENorm::Inf)>=eps && space->rankST()==rankbla && print ){
 				//			std::cout << "rank: " << space->rankST() << "\n";
 				er->print();
 			}
@@ -611,7 +611,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 					er->add( 1., *sol, -1., fieldf );
 
-					ST errInf = er->norm( Belos::InfNorm );
+					ST errInf = er->norm( Pimpact::ENorm::Inf );
 					if( 0==space->rankST() )
 						std::cout << "error (" << Pimpact::toString(type) << "): " << errInf << "\n";
 					TEST_EQUALITY( errInf<eps, true  );
@@ -668,11 +668,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		mgTransfers->interpolation( x );
 
 		if( mgSpaces->participating(-1) ) {
-			errInf = fieldc.norm( Belos::InfNorm );
+			errInf = fieldc.norm( Pimpact::ENorm::Inf );
 			TEST_EQUALITY( errInf<eps, true );
 		}
 		if( mgSpaces->participating(0) ) {
-			errInf = fieldf.norm( Belos::InfNorm );
+			errInf = fieldf.norm( Pimpact::ENorm::Inf );
 			TEST_EQUALITY( errInf<eps, true );
 			if( 0==space->rankST() )
 				std::cout << "\ninterpolation error zero: " << errInf << "\n";
@@ -683,12 +683,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		fieldf.init(0.);
 
 		if( mgSpaces->participating(-1) )
-			TEST_INEQUALITY( 0., fieldc.norm( Belos::InfNorm ) );
+			TEST_INEQUALITY( 0., fieldc.norm( Pimpact::ENorm::Inf ) );
 
 		mgTransfers->interpolation( x );
 
 		if( mgSpaces->participating(0) )
-			TEST_INEQUALITY( 0., fieldf.norm( Belos::InfNorm ) );
+			TEST_INEQUALITY( 0., fieldf.norm( Pimpact::ENorm::Inf ) );
 
 		// the Const test
 		fieldc.init( 1. );
@@ -700,7 +700,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		er->add( 1., *sol, -1., fieldf );
 
 		if( mgSpaces->participating(0) ) {
-			errInf = er->norm( Belos::InfNorm );
+			errInf = er->norm( Pimpact::ENorm::Inf );
 			if( 0==space->rankST() )
 				std::cout << "interpolation error Const: " << errInf << "\n";
 			TEST_EQUALITY( errInf<eps, true  );
@@ -727,7 +727,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 			er->add( 1., *sol, -1., fieldf );
 
 			if( mgSpaces->participating(0) ) {
-				errInf = er->norm( Belos::InfNorm );
+				errInf = er->norm( Pimpact::ENorm::Inf );
 				if( 0==space->rankST() )
 					std::cout << "interpolation error (" << Pimpact::toString(type) << "): " << errInf << "\n";
 				TEST_EQUALITY( errInf<eps, true  );
@@ -782,7 +782,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		er->add( 1., *sol, -1., fieldc );
 
 		if( mgSpaces->participating(-1) ) {
-			errInf = er->norm( Belos::InfNorm );
+			errInf = er->norm( Pimpact::ENorm::Inf );
 			TEST_EQUALITY( errInf<eps, true  );
 		}
 
@@ -805,7 +805,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 			er->add( 1., *sol, -1., fieldc );
 			if( mgSpaces->participating(-1) ) {
 
-				errInf = er->norm( Belos::InfNorm );
+				errInf = er->norm( Pimpact::ENorm::Inf );
 				TEST_EQUALITY( errInf<eps, true  );
 				if( errInf>=eps )
 					if( write ) er->write( std::abs(1*(dir-2)) );
@@ -881,7 +881,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		er->add( 1., *sol, -1., fieldf );
 
 		if( mgSpaces->participating(0) ) {
-			ST rel_error = er->norm( Belos::InfNorm );
+			ST rel_error = er->norm( Pimpact::ENorm::Inf );
 			if( 0==space->rankST() )
 				std::cout << "\nint. error Const: " << rel_error << "\n";
 			TEST_EQUALITY( rel_error < eps, true  );
@@ -909,7 +909,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 			er->add( 1., *sol, -1., fieldf );
 
 			if( mgSpaces->participating(0) ) {
-				ST rel_error = er->norm( Belos::InfNorm );
+				ST rel_error = er->norm( Pimpact::ENorm::Inf );
 				if( 0==space->rankST() )
 					std::cout << "interpolation error (" << Pimpact::toString(type) << "): " << rel_error << "\n";
 				TEST_EQUALITY( rel_error<eps, true  );

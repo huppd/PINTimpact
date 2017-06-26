@@ -133,7 +133,7 @@ public:
 
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     for( int dir=0; dir<ST::sdim; ++dir )
       x.exchange( dir, dir );
@@ -160,7 +160,7 @@ public:
   }
 
 
-  void apply( const RangeFieldT& x, DomainFieldT& y, const Add& add=Add::N ) const {
+  void apply( const RangeFieldT& x, DomainFieldT& y, const Add add=Add::N ) const {
 
     x.exchange(X);
     for( Ordinal k=space()->si(F::U,Z,B::Y); k<=space()->ei(F::U,Z,B::Y); ++k )
@@ -192,7 +192,7 @@ public:
     y.extrapolateBC( Belos::TRANS );
 
     // BC scaling
-    const Scalar& eps = 0.1;
+    const Scalar eps = 0.1;
 
     for( F dir=F::U; dir<SpaceT::sdim; ++dir ) {
       B bc2 = B::Y;
@@ -260,15 +260,15 @@ public:
     return(space_);
   };
 
-  constexpr const Scalar* getC( const ECoord& dir ) const {
+  constexpr const Scalar* getC( const ECoord dir ) const {
     return( c_[dir].get() );
   }
 
-  constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
+  constexpr const Scalar getC( const ECoord dir, Ordinal i, Ordinal off ) const {
     return( c_[dir]( i, off ) );
   }
 
-  constexpr const Scalar& getCTrans( const ECoord& dir, Ordinal i, Ordinal off ) const {
+  constexpr const Scalar getCTrans( const ECoord dir, Ordinal i, Ordinal off ) const {
     return( cT_[dir]( i, off ) );
   }
 
@@ -296,8 +296,8 @@ public:
 
 protected:
 
-  constexpr Scalar innerStenc3D( const DomainFieldT& x,
-                                 const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+  constexpr Scalar innerStenc3D( const DomainFieldT& x, const Ordinal i, const Ordinal j,
+      const Ordinal k ) const {
 
     Scalar div = 0.;
 
@@ -314,7 +314,7 @@ protected:
   }
 
   constexpr Scalar innerStenc2D( const DomainFieldT& x,
-                                 const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+                                 const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
     Scalar div = 0.;
 
@@ -328,7 +328,7 @@ protected:
   }
 
   constexpr Scalar innerStencU( const RangeFieldT& x,
-                                const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+                                const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
     Scalar divT = 0.;
 
@@ -339,7 +339,7 @@ protected:
   }
 
   constexpr Scalar innerStencV( const RangeFieldT& x,
-                                const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+                                const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
     Scalar divT = 0.;
 
@@ -350,7 +350,7 @@ protected:
   }
 
   constexpr Scalar innerStencW( const RangeFieldT& x,
-                                const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+                                const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
     Scalar divT = 0.;
 

@@ -265,7 +265,7 @@ int main( int argi, char** argv ) {
     //if( withoutput ) err.write( 0 );
     //if( 1==print ) err.print(   );
 
-    ST error = err.norm(Belos::InfNorm)/rhs.norm(Belos::InfNorm);
+    ST error = err.norm(Pimpact::ENorm::Inf)/rhs.norm(Pimpact::ENorm::Inf);
     std::cout << "\nresidual: " << error << "\n";
 
     x.init();
@@ -277,7 +277,7 @@ int main( int argi, char** argv ) {
     if( withoutput ) err.write( 0 );
     //if( print ) err.print(   );
 
-    error = err.norm(Belos::InfNorm);
+    error = err.norm(Pimpact::ENorm::Inf);
     std::cout << "\nerror: " << error << "\n";
 
     if( 0==space->rankST() ) {

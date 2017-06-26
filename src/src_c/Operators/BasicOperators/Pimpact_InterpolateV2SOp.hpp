@@ -102,7 +102,7 @@ public:
   };
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     assert( x.getType() != F::S );
     assert( y.getType() == F::S );
@@ -163,16 +163,16 @@ public:
     }
   }
 
-  constexpr const Scalar* getC( const int& dir ) const  {
+  constexpr const Scalar* getC( const int dir ) const  {
     return( c_[dir].get() );
   }
-  //constexpr const Scalar* getCM( const int& dir ) const  {
+  //constexpr const Scalar* getCM( const int dir ) const  {
   //return( cm_[dir].get() );
   //}
-  constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const {
+  constexpr const Scalar getC( const int dir, Ordinal i, Ordinal off ) const {
     return( c_[dir]( i, off ) );
   }
-  //constexpr const Scalar& getCM( const int& dir, Ordinal i, Ordinal off ) const {
+  //constexpr const Scalar getCM( const int dir, Ordinal i, Ordinal off ) const {
   //return( cm_[dir]( i, off ) );
   //}
 

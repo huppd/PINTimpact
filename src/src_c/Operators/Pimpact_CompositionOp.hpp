@@ -44,8 +44,8 @@ public:
     op1_(op1),
     op2_(op2) {};
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-              trans=Belos::NOTRANS ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+      trans=Belos::NOTRANS ) const {
 
     TempFieldT temp( space() );
 

@@ -136,7 +136,7 @@ public:
   }
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     x.exchange();
 
@@ -181,8 +181,8 @@ public:
 
   void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    //const ST& eps = 0.1;
-    const ST& eps = 1./static_cast<ST>(epsI);
+    //const ST eps = 0.1;
+    const ST eps = 1./static_cast<ST>(epsI);
 
     if( 3==SpaceT::sdim ) {
       for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
@@ -257,8 +257,7 @@ public:
   }
 
 
-  constexpr ST innerStenc3D( const DomainFieldT& x, const OT& i, const OT& j,
-                             const OT& k ) const {
+  constexpr ST innerStenc3D( const DomainFieldT& x, const OT i, const OT j, const OT k ) {
 
     const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
                      (               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
@@ -267,7 +266,7 @@ public:
     const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
                      (               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-    const ST& eps = 1./static_cast<ST>(epsI);
+    const ST eps = 1./static_cast<ST>(epsI);
 
     const ST epsX = ( (bcY||bcZ)?eps:1. );
     const ST epsY = ( (bcX||bcZ)?eps:1. );
@@ -281,15 +280,14 @@ public:
           );
   }
 
-  constexpr ST innerStenc2D( const DomainFieldT& x, const OT& i, const OT& j,
-                             const OT& k ) const {
+  constexpr ST innerStenc2D( const DomainFieldT& x, const OT i, const OT j, const OT k ) {
 
     const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
                      (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
     const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
                      (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-    const ST& eps = 1./static_cast<ST>(epsI);
+    const ST eps = 1./static_cast<ST>(epsI);
 
     const ST epsX = (bcY)?eps:1.;
     const ST epsY = (bcX)?eps:1.;
@@ -301,7 +299,7 @@ public:
           );
   }
 
-  constexpr ST innerDiag3D( const OT& i, const OT& j, const OT& k ) {
+  constexpr ST innerDiag3D( const OT i, const OT j, const OT k ) {
 
     const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
                      (               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
@@ -310,7 +308,7 @@ public:
     const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
                      (               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-    const ST& eps = 1./static_cast<ST>(epsI);
+    const ST eps = 1./static_cast<ST>(epsI);
 
     const ST epsX = ( (bcY||bcZ)?eps:1. );
     const ST epsY = ( (bcX||bcZ)?eps:1. );
@@ -319,15 +317,14 @@ public:
     return( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
   }
 
-  constexpr ST innerDiag2D( const OT& i, const OT& j,
-                            const OT& k ) {
+  constexpr ST innerDiag2D( const OT i, const OT j, const OT k ) {
 
     const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
                      (               space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
     const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
                      (               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-    const ST& eps = 1./static_cast<ST>(epsI);
+    const ST eps = 1./static_cast<ST>(epsI);
 
     const ST epsX = ( bcY?eps:1. );
     const ST epsY = ( bcX?eps:1. );
@@ -346,19 +343,19 @@ public:
     return(space_);
   };
 
-  constexpr const ST* getC( const ECoord& dir) const  {
-    return( getC( static_cast<const int&>(dir) ) );
+  constexpr const ST* getC( const ECoord dir) const  {
+    return( getC( static_cast<const int>(dir) ) );
   }
 
-  constexpr const ST* getC( const int& dir) const  {
+  constexpr const ST* getC( const int dir) const  {
     return( c_[dir].get() );
   }
 
-  constexpr const ST& getC( const ECoord& dir, OT i, OT off ) const  {
-    return( getC( static_cast<const int&>(dir), i, off ) );
+  constexpr ST getC( const ECoord dir, OT i, OT off ) const  {
+    return( getC( static_cast<const int>(dir), i, off ) );
   }
 
-  constexpr const ST& getC( const int& dir, OT i, OT off ) const  {
+  constexpr ST getC( const int dir, OT i, OT off ) const  {
     return( c_[dir](i,off) );
   }
 

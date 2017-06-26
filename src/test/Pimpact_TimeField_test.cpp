@@ -82,7 +82,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 10.1; ++i ) {
     p.init(i/2.);
-    norm = p.norm(Belos::InfNorm);
+    norm = p.norm(Pimpact::ENorm::Inf);
     TEST_FLOATING_EQUALITY( i/2., norm, eps );
 
   }
@@ -97,7 +97,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
     init = (size-1)*i-1.;
     init = (init<0)?-init:init;
     p.init(rank*i-1.);
-    norm = p.norm(Belos::InfNorm);
+    norm = p.norm(Pimpact::ENorm::Inf);
     TEST_FLOATING_EQUALITY( init, norm, eps );
   }
 }
@@ -119,8 +119,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
-//    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm) );
-    TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm), eps );
+//    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Pimpact::ENorm::One) );
+    TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Pimpact::ENorm::One), eps );
 
   }
 }
@@ -141,7 +141,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
-    TEST_FLOATING_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm), eps );
+    TEST_FLOATING_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Pimpact::ENorm::Two), eps );
   }
 }
 
@@ -206,7 +206,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
   p->init(1.);
   p->scale(2.);
-  norm = p->norm(Belos::TwoNorm);
+  norm = p->norm(Pimpact::ENorm::Two);
   TEST_FLOATING_EQUALITY( std::sqrt(4*N), norm, eps )
 
 }
@@ -229,7 +229,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
   p->init(1.);
   p->random();
-  norm = p->norm(Belos::TwoNorm);
+  norm = p->norm(Pimpact::ENorm::Two);
   TEST_INEQUALITY( N, norm)
 
 }
@@ -261,7 +261,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   vel3->init(1./3.);
 
   vel1->add( 2., *vel2, 0., *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
+  norm = vel1->norm(Pimpact::ENorm::Two);
   TEST_EQUALITY( std::sqrt(N), norm )
 
   vel1->init(0.);
@@ -269,7 +269,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   vel3->init(1./3.);
 
   vel1->add( 0., *vel2, 3., *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
+  norm = vel1->norm(Pimpact::ENorm::Two);
   TEST_EQUALITY( std::sqrt(N), norm )
 
   vel1->init(0.);
@@ -277,7 +277,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   vel3->init(1.);
 
   vel1->add( 0.5, *vel2, 0.5, *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
+  norm = vel1->norm(Pimpact::ENorm::Two);
   TEST_EQUALITY( std::sqrt(N), norm )
 }
 
@@ -327,16 +327,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 
   for( ST i=0.; i< 10.1; ++i ) {
     field1->init(i/2.);
-    ST norm_ = field1->norm(Belos::InfNorm);
+    ST norm_ = field1->norm(Pimpact::ENorm::Inf);
     TEST_EQUALITY( i/2., norm_ );
     field2->init(i/2.);
-    norm_ = field2->norm(Belos::InfNorm);
+    norm_ = field2->norm(Pimpact::ENorm::Inf);
     TEST_EQUALITY( i/2., norm_ );
   }
   field2->init(1.);
   for( double i=0.; i< 10.1; ++i ) {
     field1->init(i/2.);
-    TEST_EQUALITY( (i/2.)*field1->getLength(), field1->norm(Belos::OneNorm) );
+    TEST_EQUALITY( (i/2.)*field1->getLength(), field1->norm(Pimpact::ENorm::One) );
     TEST_EQUALITY( (i/2.)*field1->getLength(), field1->dot(*field2) );
   }
 
@@ -453,8 +453,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
 		er.add( 1., y, -1., sol );
 
-		error2[n] = std::log10( er.norm( Belos::TwoNorm ) / sol.norm( Belos::TwoNorm ) );
-		errorInf[n] = std::log10( er.norm( Belos::InfNorm ) / sol.norm( Belos::InfNorm ) );
+		error2[n] = std::log10( er.norm( Pimpact::ENorm::Two ) / sol.norm( Pimpact::ENorm::Two ) );
+		errorInf[n] = std::log10( er.norm( Pimpact::ENorm::Inf ) / sol.norm( Pimpact::ENorm::Inf ) );
 		dofs[n] = std::log10( n0*std::pow(2.,n) );
 
 		if( 0==space->rankST() )
@@ -510,7 +510,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 
 	if( write ) y.write();
 
-	ST error = y.norm( Belos::TwoNorm, Pimpact::B::N );
+	ST error = y.norm( Pimpact::ENorm::Two, Pimpact::B::N );
 	std::cout << "error: " <<  error << "\n";
 	TEST_EQUALITY( error<eps, true );
 }
@@ -1085,7 +1085,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeOperator, TimeDtConvectionDiffusionOp2, O
 			//}
 
 			error2(nX,nT)   = err.norm()/sol.norm();
-			errorInf(nX,nT) = err.norm(Belos::InfNorm)/sol.norm(Belos::InfNorm);
+			errorInf(nX,nT) = err.norm(Pimpact::ENorm::Inf)/sol.norm(Pimpact::ENorm::Inf);
 
 			std::cout << "\nnx: " << dofS[nX] << "^2\n";
 			std::cout << "\nnt: " << dofT[nT] << "\n";

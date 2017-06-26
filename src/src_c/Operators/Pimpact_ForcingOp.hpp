@@ -41,7 +41,7 @@ public:
     forcing_ = forcing;
   }
 
-  void setMultiplicator( const Scalar& mul ) {
+  void setMultiplicator( const Scalar mul ) {
     mul_ = mul;
   }
 

@@ -47,7 +47,7 @@ protected:
   Teuchos::Tuple<StencS,3> cRS_;
   Teuchos::Tuple<StencV,3> cRV_;
 
-  Ordinal getIF( const int& dir, const Ordinal& ii ) const {
+  Ordinal getIF( const int dir, const Ordinal ii ) const {
 
     Ordinal i=this->dd_[dir]*( ii-1 ) + 1;
 
@@ -64,7 +64,7 @@ protected:
     // ------------------------- CRS, CRV
     for( int dir=0; dir<3; ++dir ) {
 
-      const Ordinal& iimax = this->iimax_[dir];
+      const Ordinal iimax = this->iimax_[dir];
 
       cRS_[dir] = StencS( iimax );
 

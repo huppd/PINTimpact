@@ -251,7 +251,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
 	//if( write ) err.write( 0 );
 	if( 1==print ) err.print(   );
 
-	ST error = err.norm(Belos::InfNorm)/rhs.norm(Belos::InfNorm);
+	ST error = err.norm(Pimpact::ENorm::Inf)/rhs.norm(Pimpact::ENorm::Inf);
 	std::cout << "\nresidual: " << error << "\n";
 	if( 1==domain )
 		TEST_EQUALITY( error<(1./nx/ny), true );
@@ -265,7 +265,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
 	if( write ) err.write( 0 );
 	if( print ) err.print(   );
 
-	error = err.norm(Belos::InfNorm);
+	error = err.norm(Pimpact::ENorm::Inf);
 	std::cout << "\nerror: " << error << "\n";
 	if( 1==domain )
 		TEST_EQUALITY( error<1.e-6, true );
@@ -499,7 +499,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicSolver, MultiHarmonicDiagOp, Spa
 	////if( write ) err.write( 0 );
 	//if( 1==print ) err.print(   );
 
-	//ST error = err.norm(Belos::InfNorm)/rhs.norm(Belos::InfNorm);
+	//ST error = err.norm(Pimpact::ENorm::Inf)/rhs.norm(Pimpact::ENorm::Inf);
 	//std::cout << "\nresidual: " << error << "\n";
 	//if( 1==domain )
 		//TEST_EQUALITY( error<(1./nx/ny), true );
@@ -513,7 +513,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicSolver, MultiHarmonicDiagOp, Spa
 	if( write ) err.write( 0 );
 	if( print ) err.print(   );
 
-	ST error = err.norm(Belos::InfNorm);
+	ST error = err.norm(Pimpact::ENorm::Inf);
 	std::cout << "\nerror: " << error << "\n";
 	if( 1==domain )
 		TEST_EQUALITY( error<1.e-6, true );

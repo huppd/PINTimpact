@@ -55,7 +55,7 @@ public:
   template< class SP1T, class SP2T>
   void apply( const ScalarField<SP1T>& x, ScalarField<SP2T>& y ) const {
 
-    const F& fType = x.getType();
+    const F fType = x.getType();
 
     assert( fType == y.getType() );
 

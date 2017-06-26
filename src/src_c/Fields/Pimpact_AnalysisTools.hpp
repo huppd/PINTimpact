@@ -17,31 +17,33 @@
 namespace Pimpact {
 
 
-template<class SpaceT>
-typename SpaceT::Scalar computeEnergy( const VectorField<SpaceT>& vel ) {
+/// \note has not a very good parallel efficiency( exchange) so only use for analyzing
+template<class MultiHarmonicFieldT>
+void writeSpectrum( const MultiHarmonicFieldT& field,
+    std::ostream& out=std::cout ) {
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using OT = typename MultiHarmonicFieldT::SpaceT::Ordinal;
 
-  auto space = vel.space();
-  auto coord = space->getCoordinatesLocal();
+  auto space = field.space();
 
-  ScalarField<SpaceT> temp(space);
+  // making sure one works on global operator, could be make more efficient to do that
+  // just on rank "zero"
+  Teuchos::RCP<const MultiHarmonicFieldT> y;
 
-  ST energy = Teuchos::ScalarTraits<ST>::zero();
-
-  for( F f=F::U; f<SpaceT::sdim; ++f ) {
-
-    space->getInterpolateV2S()->apply( vel(f), temp );
-
-    for( OT k=space->si(F::S,Z); k<=space->ei(F::S,Z); ++k )
-      for( OT j=space->si(F::S,Y); j<=space->ei(F::S,Y); ++j )
-        for( OT i=space->si(F::S,X); i<=space->ei(F::S,X); ++i ) {
-          ST volume = coord->dx(F::S,X,i) * coord->dx(F::S,Y,j) * coord->dx(F::S,Z,k);
-          energy += volume * std::pow( temp(i,j,k), 2 );
-        }
+  if( field.global() )
+    y = Teuchos::rcpFromRef( field );
+  else {
+    Teuchos::RCP<MultiHarmonicFieldT> temp =
+      Teuchos::rcp( new MultiHarmonicFieldT( space, true ) );
+    *temp = field;
+    y = temp;
   }
-  return( vel.allReduce( energy ) );
+  y->exchange();
+
+
+  out << 0 << "\t" << y->get0Field().norm(ENorm::L2)*std::sqrt(2.) << "\n";
+  for( OT i=1; i<=space->nGlo(3); ++i )
+    out << i << "\t" << y->getField(i).norm(ENorm::L2) << "\n";
 }
 
 

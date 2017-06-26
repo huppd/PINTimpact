@@ -48,14 +48,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivOp, SpaceT ) {
 
 	op->apply( vel, p );
 
-	TEST_EQUALITY( p.norm( Belos::InfNorm )<eps, true );
+	TEST_EQUALITY( p.norm( Pimpact::ENorm::Inf )<eps, true );
 
 	// random test
 	vel.random();
 
 	op->apply( vel, p );
 
-	TEST_EQUALITY( p.norm( Belos::InfNorm )>eps, true );
+	TEST_EQUALITY( p.norm( Pimpact::ENorm::Inf )>eps, true );
 
 	// circle XY test
 	vel( Pimpact::F::U ).initField( Pimpact::Grad2D_inY, -1. );
@@ -64,7 +64,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivOp, SpaceT ) {
 
 	op->apply( vel, p );
 
-	TEST_EQUALITY( p.norm( Belos::InfNorm )<eps, true );
+	TEST_EQUALITY( p.norm( Pimpact::ENorm::Inf )<eps, true );
 
 	// circle XZ test
 	vel( Pimpact::F::U ).initField( Pimpact::Grad2D_inY, -1. );
@@ -73,7 +73,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivOp, SpaceT ) {
 
 	op->apply( vel, p );
 
-	TEST_EQUALITY( p.norm( Belos::InfNorm )<eps, true );
+	TEST_EQUALITY( p.norm( Pimpact::ENorm::Inf )<eps, true );
 
 	// Grad test
 	vel( Pimpact::F::U ).initField( Pimpact::Grad2D_inX );
@@ -87,7 +87,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivOp, SpaceT ) {
 	sol.initField( Pimpact::ConstField, SpaceT::sdim );
 	sol.add( 1., sol, -1., p );
 
-	ST error = sol.norm( Belos::InfNorm );
+	ST error = sol.norm( Pimpact::ENorm::Inf );
 	if( 0==rank )	std::cout << "GradXYZ error: " << error << "\n";
 	TEST_EQUALITY( error>eps, true );
 
@@ -100,7 +100,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivOp, SpaceT ) {
 
 	op->apply( vel, p );
 
-	error = p.norm( Belos::InfNorm );
+	error = p.norm( Pimpact::ENorm::Inf );
 	if( 0==rank )	std::cout << "GradZXY error: " << error << "\n";
 	TEST_EQUALITY( error<eps, true );
 
@@ -113,7 +113,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivOp, SpaceT ) {
 
 	op->apply( vel, p );
 
-	error = p.norm( Belos::InfNorm );
+	error = p.norm( Pimpact::ENorm::Inf );
 	if( 0==rank ) std::cout << "erro: " << error << "\n";
 	TEST_EQUALITY( error<eps, true );
 
@@ -155,7 +155,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateV2SOp, SpaceT ) {
 			op->apply( vel(i), p );
 			sol.add( 1., sol, -1., p );
 
-			ST error = sol.norm( Belos::InfNorm );
+			ST error = sol.norm( Pimpact::ENorm::Inf );
 			if( 0==space->rankST() ) std::cout << "field " << i <<
 				", error("<< type <<"): " << error << "\n";
 			TEST_EQUALITY( error<eps, true );
@@ -207,7 +207,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateS2VOp, SpaceT ) {
 			op->apply( p, vel( i ) );
 			sol.add( 1., sol, -1., vel(i) );
 
-			ST error = sol.norm( Belos::InfNorm );
+			ST error = sol.norm( Pimpact::ENorm::Inf );
 			if( 0==rank ) std::cout << "field " << i
 					<< ", error("<< type <<"): "
 					<< error << "\n";
@@ -254,7 +254,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, TransferOp, SpaceT ) {
   op->apply( fx, cx );
 
 	cxs.add( 1., cxs, -1., cx );
-  TEST_EQUALITY( cxs.norm(Belos::InfNorm)<eps, true );
+  TEST_EQUALITY( cxs.norm(Pimpact::ENorm::Inf)<eps, true );
 
 
   cx.initField( Pimpact::Poiseuille2D_inX );
@@ -265,7 +265,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, TransferOp, SpaceT ) {
 
 	fxs.add( 1., fxs, -1., fx );
 	
-  TEST_EQUALITY( fxs.norm(Belos::InfNorm)<eps, true );
+  TEST_EQUALITY( fxs.norm(Pimpact::ENorm::Inf)<eps, true );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, TransferOp, D2 )
@@ -295,17 +295,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, VectorFieldOpWrap, SpaceT ) {
 
   op->apply( fx, cx );
 
-  TEST_FLOATING_EQUALITY( fx.norm(Belos::OneNorm), cx.norm(Belos::OneNorm), eps );
-  TEST_FLOATING_EQUALITY( fx.norm(Belos::TwoNorm), cx.norm(Belos::TwoNorm), eps );
-  TEST_FLOATING_EQUALITY( fx.norm(Belos::InfNorm), cx.norm(Belos::InfNorm), eps );
+  TEST_FLOATING_EQUALITY( fx.norm(Pimpact::ENorm::One), cx.norm(Pimpact::ENorm::One), eps );
+  TEST_FLOATING_EQUALITY( fx.norm(Pimpact::ENorm::Two), cx.norm(Pimpact::ENorm::Two), eps );
+  TEST_FLOATING_EQUALITY( fx.norm(Pimpact::ENorm::Inf), cx.norm(Pimpact::ENorm::Inf), eps );
 
   fx.random();
 
   op->apply( cx, fx );
 
-  TEST_FLOATING_EQUALITY( fx.norm(Belos::OneNorm), cx.norm(Belos::OneNorm), eps );
-  TEST_FLOATING_EQUALITY( fx.norm(Belos::TwoNorm), cx.norm(Belos::TwoNorm), eps );
-  TEST_FLOATING_EQUALITY( fx.norm(Belos::InfNorm), cx.norm(Belos::InfNorm), eps );
+  TEST_FLOATING_EQUALITY( fx.norm(Pimpact::ENorm::One), cx.norm(Pimpact::ENorm::One), eps );
+  TEST_FLOATING_EQUALITY( fx.norm(Pimpact::ENorm::Two), cx.norm(Pimpact::ENorm::Two), eps );
+  TEST_FLOATING_EQUALITY( fx.norm(Pimpact::ENorm::Inf), cx.norm(Pimpact::ENorm::Inf), eps );
 
 }
 
@@ -341,7 +341,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, GradOp, SpaceT ) {
 
 		sol.add( 1., sol, -1., v );
 
-		ST error = sol.norm( Belos::InfNorm, Pimpact::B::N );
+		ST error = sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N );
 		if( 0==rank ) std::cout << "error: " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
 
@@ -355,7 +355,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, GradOp, SpaceT ) {
 
 		sol.add( 1., sol, -1., v );
 
-		error = sol.norm( Belos::InfNorm, Pimpact::B::N  );
+		error = sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N  );
 		if( 0==rank ) std::cout << "error: " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
 
@@ -369,7 +369,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, GradOp, SpaceT ) {
 
 		sol.add( 1., sol, -1., v );
 
-		error = sol.norm( Belos::InfNorm, Pimpact::B::N  );
+		error = sol.norm( Pimpact::ENorm::Inf, Pimpact::B::N  );
 		if( 0==rank ) std::cout << "error: " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
 	}
@@ -419,7 +419,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		bs.add( 1., bs, -1, b);
 
-		ST error = bs.norm( Belos::InfNorm, Pimpact::B::N );
+		ST error = bs.norm( Pimpact::ENorm::Inf, Pimpact::B::N );
 		if( 0==rank ) std::cout << "error(poiseuilleX): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
 		if( error>= eps ){
@@ -440,7 +440,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		bs.add( 1., bs, -1, b );
 
-		error = bs.norm( Belos::InfNorm, Pimpact::B::N );
+		error = bs.norm( Pimpact::ENorm::Inf, Pimpact::B::N );
 		if( 0==rank ) std::cout << "error(poiseuilleY): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
 		if( error>= eps ){
@@ -463,7 +463,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		bs.add( 1., bs, -1, b);
 
-		error = bs.norm( Belos::InfNorm, Pimpact::B::N );
+		error = bs.norm( Pimpact::ENorm::Inf, Pimpact::B::N );
 		if( 0==rank ) std::cout << "error(poiseuilleZ): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
 		if( error>= eps ){
@@ -485,7 +485,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		bs.add( 1., bs, -1, b );
 
-		error = bs.norm( Belos::InfNorm, Pimpact::B::N );
+		error = bs.norm( Pimpact::ENorm::Inf, Pimpact::B::N );
 		if( 0==rank ) std::cout << "error(circleXY): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
 		if( error>= eps ){
@@ -508,7 +508,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		bs.add( 1., bs, -1, b );
 
-		error = bs.norm( Belos::InfNorm, Pimpact::B::N );
+		error = bs.norm( Pimpact::ENorm::Inf, Pimpact::B::N );
 		if( 0==rank ) std::cout << "error(circleXZ): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
 		if( error>= eps ){
@@ -949,7 +949,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Op, SpaceT ) {
 
   op->apply( b, x );
 
-	ST error = x.norm( Belos::InfNorm );
+	ST error = x.norm( Pimpact::ENorm::Inf );
 	if( 0==rank )
 		std::cout << "error(zero): " << error << "\n";
   TEST_EQUALITY( error<eps, true );
@@ -959,7 +959,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Op, SpaceT ) {
 
   op2->apply( b, x );
 
-	error = x.norm( Belos::InfNorm );
+	error = x.norm( Pimpact::ENorm::Inf );
 	if( 0==rank )
 		std::cout << "error(zero) O2: " << error << "\n";
   TEST_EQUALITY( error<eps, true );
@@ -970,7 +970,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Op, SpaceT ) {
 
   op->apply( b, x );
 
-	error = x.norm( Belos::InfNorm );
+	error = x.norm( Pimpact::ENorm::Inf );
 	if( 0==rank )
 		std::cout << "error(const): " << error << "\n";
 	TEST_EQUALITY( error<eps, true );
@@ -980,7 +980,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Op, SpaceT ) {
 
   op2->apply( b, x );
 
-	error = x.norm( Belos::InfNorm );
+	error = x.norm( Pimpact::ENorm::Inf );
 	if( 0==rank )
 		std::cout << "error(const) O2: " << error << "\n";
 	if( error>= eps ) {
@@ -994,8 +994,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Op, SpaceT ) {
 	op2->apply( b, x2 );
 
 	diff.add( 1., x2, -1., x );
-	ST errInf = diff.norm( Belos::InfNorm );
-	ST err2 = diff.norm( Belos::TwoNorm )/std::sqrt( diff.getLength() );
+	ST errInf = diff.norm( Pimpact::ENorm::Inf );
+	ST err2 = diff.norm( Pimpact::ENorm::Two )/std::sqrt( diff.getLength() );
 	if( 0==rank )
 		std::cout << "consistency error random: inf: " << errInf << ", two: " << err2 << "\n";
 	TEST_EQUALITY( errInf<eps, true );
@@ -1013,8 +1013,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Op, SpaceT ) {
 		op2->apply( b, x2 );
 
 		diff.add( 1., x2, -1., x );
-		errInf = diff.norm( Belos::InfNorm );
-		err2 = diff.norm( Belos::TwoNorm )/std::sqrt( diff.getLength() );
+		errInf = diff.norm( Pimpact::ENorm::Inf );
+		err2 = diff.norm( Pimpact::ENorm::Two )/std::sqrt( diff.getLength() );
 		if( 0==rank )
 			std::cout << "consistency error(" << type << "): inf: " << errInf << ", two: " << err2 << "\n";
 		TEST_EQUALITY( errInf<eps, true );
@@ -1042,7 +1042,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Op, SpaceT ) {
 
 	diff.add( 1., x2, -1., b );
 	if( write ) diff.write(2);
-	error = diff.norm( Belos::InfNorm );
+	error = diff.norm( Pimpact::ENorm::Inf );
 	if( 0==space->rankST() ) 
 		std::cout << "diff InvDiag: " << error << "\n";
 	TEST_EQUALITY( error<eps, true );
@@ -1205,14 +1205,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 			std::cout << 0 << "\t" << 1. << "\n";
 		}
 	}
-	ST err0 = x->norm( Belos::InfNorm );
+	ST err0 = x->norm( Pimpact::ENorm::Inf );
 	ST errP = err0;
 
 	if( write ) x->write( 0 );
 	for( int i=1; i<=nIter; ++i ) {
 		smoother->apply( *b, *x );
 		if( write ) x->write(i);
-		ST err = x->norm( Belos::InfNorm );
+		ST err = x->norm( Pimpact::ENorm::Inf );
 		if( 0==rank ) {
 				std::cout << i << "\t" << err/err0 << "\t" << err/errP << "\n";
 				//fstream << i << "\t" << err/err0 << "\t" << err/errP << "\n";
@@ -1287,8 +1287,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 		x->level();
 
 		xp.add( 1., xp, -1., *x );
-		ST err2 = xp.norm( Belos::InfNorm )/std::sqrt( static_cast<ST>(xp.getLength()) );
-		ST errInf = xp.norm( Belos::InfNorm );
+		ST err2 = xp.norm( Pimpact::ENorm::Inf )/std::sqrt( static_cast<ST>(xp.getLength()) );
+		ST errInf = xp.norm( Pimpact::ENorm::Inf );
 
 		if( 0==rank ) {
 			std::cout << "consistency for " << dir << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
@@ -1353,12 +1353,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Inv, SpaceT ) {
 		xp.add( 1., xp, -1., x );
 		xp.level();
 
-		ST err2 = xp.norm( Belos::InfNorm )/std::sqrt( static_cast<ST>(xp.getLength()) );
-		ST errInf = xp.norm( Belos::InfNorm );
+		ST err2 = xp.norm( Pimpact::ENorm::Inf )/std::sqrt( static_cast<ST>(xp.getLength()) );
+		ST errInf = xp.norm( Pimpact::ENorm::Inf );
 		if( errInf>=eps ) {
 			if( write ) xp.write();
 			if( print ) xp.print();
-			//std::cout << "rank: " << rank << "\te: " << xp.norm( Belos::InfNorm, false ) << "\n";
+			//std::cout << "rank: " << rank << "\te: " << xp.norm( Pimpact::ENorm::Inf, false ) << "\n";
 			//if( 0==rank )
 				//xp.print();
 		}
@@ -1400,7 +1400,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ForcingOp, SpaceT ) {
 	op->apply( *vel, *res );
 	vel->add( 1., *res, -1., *force );
 
-	TEST_EQUALITY( vel->norm( Belos::InfNorm )<eps, true );
+	TEST_EQUALITY( vel->norm( Pimpact::ENorm::Inf )<eps, true );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, ForcingOp, D2 )
@@ -1581,8 +1581,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivOp, SpaceT ) {
 			// compute error
 			p.add( 1., sol, -1., p );
 			if( write ) p.write(n);
-			error2[n] = std::log10( p.norm( Belos::TwoNorm ) / sol.norm( Belos::TwoNorm ) );
-			errorInf[n] = std::log10( p.norm( Belos::InfNorm ) / sol.norm( Belos::InfNorm ) );
+			error2[n] = std::log10( p.norm( Pimpact::ENorm::Two ) / sol.norm( Pimpact::ENorm::Two ) );
+			errorInf[n] = std::log10( p.norm( Pimpact::ENorm::Inf ) / sol.norm( Pimpact::ENorm::Inf ) );
 			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
@@ -1678,8 +1678,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateV2SOp, SpaceT ) {
 			if( write ) p.write( n );
 			if( print ) p.print();
 
-			error2[n]   = std::log10( p.norm( Belos::TwoNorm ) / sol.norm( Belos::TwoNorm ) );
-			errorInf[n] = std::log10( p.norm( Belos::InfNorm ) / sol.norm( Belos::InfNorm ) );
+			error2[n]   = std::log10( p.norm( Pimpact::ENorm::Two ) / sol.norm( Pimpact::ENorm::Two ) );
+			errorInf[n] = std::log10( p.norm( Pimpact::ENorm::Inf ) / sol.norm( Pimpact::ENorm::Inf ) );
 			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 
 			if( 0==rank )	
@@ -1774,8 +1774,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateS2VOp, SpaceT ) {
 			vel(dir).add( 1., sol(dir), -1., vel(dir) );
 			if( write ) vel.write(n);
 
-			error2[n]   = std::log10( vel(dir).norm( Belos::TwoNorm ) / sol(dir).norm( Belos::TwoNorm ) );
-			errorInf[n] = std::log10( vel(dir).norm( Belos::InfNorm ) / sol(dir).norm( Belos::InfNorm ) );
+			error2[n]   = std::log10( vel(dir).norm( Pimpact::ENorm::Two ) / sol(dir).norm( Pimpact::ENorm::Two ) );
+			errorInf[n] = std::log10( vel(dir).norm( Pimpact::ENorm::Inf ) / sol(dir).norm( Pimpact::ENorm::Inf ) );
 			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
@@ -1866,8 +1866,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, extrapolateBC, SpaceT ) {
 				vel(dir).add( 1., sol(dir), -1., vel(dir), Pimpact::B::Y );
 				if( write ) vel.write( n );
 
-				error2[n]   = std::log10( vel(dir).norm( Belos::TwoNorm ) / sol(dir).norm( Belos::TwoNorm ) );
-				errorInf[n] = std::log10( vel(dir).norm( Belos::InfNorm ) / sol(dir).norm( Belos::InfNorm ) );
+				error2[n]   = std::log10( vel(dir).norm( Pimpact::ENorm::Two ) / sol(dir).norm( Pimpact::ENorm::Two ) );
+				errorInf[n] = std::log10( vel(dir).norm( Pimpact::ENorm::Inf ) / sol(dir).norm( Pimpact::ENorm::Inf ) );
 
 				dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 				if( 0==rank )	
@@ -1984,8 +1984,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, GradOp, SpaceT ) {
 			if( write ) sol.write( n );
 			vel(dir).add( 1., sol(dir), -1., vel(dir), Pimpact::B::Y );
 			
-			error2[n]   = std::log10( vel(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) / sol(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) );
-			errorInf[n] = std::log10( vel(dir).norm( Belos::InfNorm, Pimpact::B::Y ) / sol(dir).norm( Belos::InfNorm, Pimpact::B::Y ) );
+			error2[n]   = std::log10( vel(dir).norm( Pimpact::ENorm::Two, Pimpact::B::Y ) / sol(dir).norm( Pimpact::ENorm::Two, Pimpact::B::Y ) );
+			errorInf[n] = std::log10( vel(dir).norm( Pimpact::ENorm::Inf, Pimpact::B::Y ) / sol(dir).norm( Pimpact::ENorm::Inf, Pimpact::B::Y ) );
 			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
@@ -2158,12 +2158,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 
 			// compute error
 			e->add( 1., *sol, -1., *y );
-			error2[n] = std::log10( e->norm( Belos::TwoNorm ) / sol->norm( Belos::TwoNorm ) );
-			errorInf[n] = std::log10( e->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
+			error2[n] = std::log10( e->norm( Pimpact::ENorm::Two ) / sol->norm( Pimpact::ENorm::Two ) );
+			errorInf[n] = std::log10( e->norm( Pimpact::ENorm::Inf ) / sol->norm( Pimpact::ENorm::Inf ) );
 			dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 			eRef->add( 1., *yRef, -1., *y );
-			error2Ref[n] = std::log10( eRef->norm( Belos::TwoNorm ) / std::sqrt( dofs[n] ) );
-			errorInfRef[n] = std::log10( eRef->norm( Belos::InfNorm ) );
+			error2Ref[n] = std::log10( eRef->norm( Pimpact::ENorm::Two ) / std::sqrt( dofs[n] ) );
+			errorInfRef[n] = std::log10( eRef->norm( Pimpact::ENorm::Inf ) );
 			if( 0==rank )	 {
 				std::cout  << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\t";
 				std::cout                                  << std::pow(10.,error2Ref[n]) << "\t" << std::pow(10.,errorInfRef[n]) << "\n";
@@ -2412,8 +2412,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 				y(field).add( 1., sol(field), -1., y(field) );
 				//if( print ) sol->print();
 				if( write ) y.write( n );
-				error2[n]   = std::log10( y(field).norm( Belos::TwoNorm ) / sol(field).norm( Belos::TwoNorm ) );
-				errorInf[n] = std::log10( y(field).norm( Belos::InfNorm ) / sol(field).norm( Belos::InfNorm ) );
+				error2[n]   = std::log10( y(field).norm( Pimpact::ENorm::Two ) / sol(field).norm( Pimpact::ENorm::Two ) );
+				errorInf[n] = std::log10( y(field).norm( Pimpact::ENorm::Inf ) / sol(field).norm( Pimpact::ENorm::Inf ) );
 				dofs[n] = std::log10( n0*std::pow(2.,n)+1. );
 				if( 0==rank )	
 					std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";

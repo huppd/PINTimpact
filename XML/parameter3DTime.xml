@@ -66,35 +66,21 @@
         value="false" />
     </ParameterList>
   </ParameterList>
-    <ParameterList id="9" name="NOX write">
-    <ParameterList id="10" name="sol">
-      <ParameterList id="11" name="iter">
-        <Parameter docString="" id="81" isDefault="true" isUsed="true" name="post" type="bool"
-          value="false" />
-        <Parameter docString="" id="82" isDefault="true" isUsed="true" name="pre" type="bool"
-          value="false" />
-      </ParameterList>
-      <ParameterList id="12" name="solv">
-        <Parameter docString="" id="83" isDefault="true" isUsed="true" name="post" type="bool"
-          value="false" />
-        <Parameter docString="" id="84" isDefault="true" isUsed="true" name="pre" type="bool"
-          value="false" />
-      </ParameterList>
+  <ParameterList id="7" name="NOX write">
+    <Parameter docString="" id="5252" isDefault="true" isUsed="true" name="solution"
+      type="int" value="-1"/>
+    <Parameter docString="" id="5353" isDefault="true" isUsed="true" name="residual"
+      type="int" value="-1"/>
+    <Parameter docString="" id="5454" isDefault="true" isUsed="true" name="update"
+      type="int" value="-1"/>
+    <ParameterList id="5757" name="iteration">
+      <Parameter docString="" id="5555" isDefault="true" isUsed="true" name="pre" type="bool" value="false"/>
+      <Parameter docString="" id="5656" isDefault="true" isUsed="true" name="post" type="bool" value="false"/>
     </ParameterList>
-    <ParameterList id="13" name="res">
-      <ParameterList id="14" name="iter">
-        <Parameter docString="" id="85" isDefault="true" isUsed="true" name="post" type="bool"
-          value="false" />
-        <Parameter docString="" id="86" isDefault="true" isUsed="true" name="pre" type="bool"
-          value="false" />
+      <ParameterList id="5050" name="solve">
+        <Parameter docString="" id="4848" isDefault="true" isUsed="true" name="post" type="bool" value="false"/>
+        <Parameter docString="" id="4949" isDefault="true" isUsed="true" name="pre" type="bool" value="false"/>
       </ParameterList>
-      <ParameterList id="15" name="solv">
-        <Parameter docString="" id="87" isDefault="true" isUsed="true" name="post" type="bool"
-          value="false" />
-        <Parameter docString="" id="88" isDefault="true" isUsed="true" name="pre" type="bool"
-          value="false" />
-      </ParameterList>
-    </ParameterList>
   </ParameterList>
 	<ParameterList id="16" name="NOX Status Test">
 		<Parameter docString="" id="89" isDefault="false" isUsed="true" name="Test Type" type="string" value="Combo" />

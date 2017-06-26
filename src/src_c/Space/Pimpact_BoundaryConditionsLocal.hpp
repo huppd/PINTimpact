@@ -76,10 +76,10 @@ public:
   /// \name getter
   /// @{
 
-  constexpr const int& getBCL( const int& dir ) const {
+  constexpr const int getBCL( const int dir ) const {
     return( BCL_int_[dir] );
   }
-  constexpr const int& getBCU( const int& dir ) const {
+  constexpr const int getBCU( const int dir ) const {
     return( BCU_int_[dir] );
   }
 

@@ -72,7 +72,7 @@ public:
 
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
-  void apply(const DomainFieldT& b, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply(const DomainFieldT& b, RangeFieldT& y, const Add add=Add::N ) const {
 
     DomainFieldT temp( space() );
 
@@ -141,7 +141,7 @@ public:
 protected:
 
   constexpr ST innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
-                             const OT& i, const OT& j, const OT& k ) const {
+                             const OT i, const OT j, const OT k ) const {
 
     const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
                      (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
@@ -150,8 +150,8 @@ protected:
     const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S,Z) ) ||
                      (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S,Z) ) ;
 
-    //const ST& eps = 0.1;
-    const ST& eps = 1./static_cast<ST>(OperatorT::epsI);
+    //const ST eps = 0.1;
+    const ST eps = 1./static_cast<ST>(OperatorT::epsI);
 
     const ST epsX = (bcY||bcZ)?eps:1.;
     const ST epsY = (bcX||bcZ)?eps:1.;
@@ -169,16 +169,16 @@ protected:
               epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) - epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) ) );
   }
 
-  constexpr ST innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
-                             const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerStenc2D( const DomainFieldT& b, const DomainFieldT& x, const OT i,
+      const OT j, const OT k ) const {
 
     const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S,X) ) ||
                      (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S,X) ) ;
     const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S,Y) ) ||
                      (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S,Y) ) ;
 
-    //const ST& eps = 0.1;
-    const ST& eps = 1./static_cast<ST>(OperatorT::epsI);
+    //const ST eps = 0.1;
+    const ST eps = 1./static_cast<ST>(OperatorT::epsI);
 
     const ST epsX = bcY?eps:1.;
     const ST epsY = bcX?eps:1.;
@@ -192,19 +192,19 @@ protected:
                           epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) ) );
   }
 
-  constexpr const ST* getC( const ECoord& dir) const  {
+  constexpr const ST* getC( const ECoord dir) const  {
     return( op_->getC( dir ) );
   }
 
-  constexpr const ST* getC( const int& dir) const  {
+  constexpr const ST* getC( const int dir) const  {
     return( op_->getC( dir ) );
   }
 
-  constexpr const ST& getC( const ECoord& dir, OT i, OT off ) const  {
+  constexpr const ST getC( const ECoord dir, OT i, OT off ) const  {
     return( op_->getC( dir, i, off ) );
   }
 
-  constexpr const ST& getC( const int& dir, OT i, OT off ) const  {
+  constexpr const ST getC( const int dir, OT i, OT off ) const  {
     return( op_->getC( dir, i, off ) );
   }
 

@@ -81,14 +81,14 @@ public:
 
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     assert( x.getType() == F::S );
     assert( y.getType() != F::S );
     assert( !(y.getType() == F::W && SpaceT::sdim==2) );
 
     int m = static_cast<int>( y.getType() );
-    const F& field = y.getType();
+    const F field = y.getType();
 
 
     x.exchange(m);
@@ -138,7 +138,7 @@ public:
     return( "InterpolateS2V" );
   };
 
-  constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
+  constexpr const Scalar getC( const ECoord dir, Ordinal i, Ordinal off ) const {
     return( c_[dir]( i, off ) );
   }
 

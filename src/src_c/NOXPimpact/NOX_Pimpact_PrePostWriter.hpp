@@ -26,7 +26,7 @@ class PrePostWriter : public NOX::Abstract::PrePostOperator {
 
     Teuchos::rcp_const_cast<FieldT>(
         Teuchos::rcp_dynamic_cast<const FieldT>(
-          group.getXPtr() ))->getField().write();
+          group.getXPtr() ))->getField().write(sol_);
   };
 
 
@@ -36,79 +36,105 @@ class PrePostWriter : public NOX::Abstract::PrePostOperator {
 
     Teuchos::rcp_const_cast<FieldT>(
         Teuchos::rcp_dynamic_cast<const FieldT>(
-          group.getFPtr() ))->getField().write();
+          group.getFPtr() ))->getField().write(res_);
   };
 
 
-  bool writeSolIterPost_;
-  bool writeSolIterPre_;
-  bool writeResIterPost_;
-  bool writeResIterPre_;
+  void writeCor(const NOX::Solver::Generic& solver) {
 
-  bool writeSolSolPost_;
-  bool writeSolSolPre_;
-  bool writeResSolPost_;
-  bool writeResSolPre_;
+    const NOX::Abstract::Group& group = solver.getSolutionGroup();
+
+    Teuchos::rcp_const_cast<FieldT>(
+        Teuchos::rcp_dynamic_cast<const FieldT>(
+          group.getNewtonPtr() ))->getField().write(cor_);
+  };
+
+
+  int sol_;
+  int res_;
+  int cor_;
+
+  bool writeIterPre_;
+  bool writeIterPost_;
+
+  bool writeSolvePre_;
+  bool writeSolvePost_;
 
 public:
 
   PrePostWriter():
-    writeSolIterPost_(false),
-    writeSolIterPre_(false),
-    writeResIterPost_(false),
-    writeResIterPre_(false),
-    writeSolSolPost_(false),
-    writeSolSolPre_(false),
-    writeResSolPost_(false),
-    writeResSolPre_(false) {};
+    sol_(-1),
+    res_(-1),
+    cor_(-1),
+    writeIterPre_(false),
+    writeIterPost_(false),
+    writeSolvePre_(false),
+    writeSolvePost_(false) {};
 
   PrePostWriter(const Teuchos::RCP<Teuchos::ParameterList>& pl):
-    writeSolIterPost_( pl->sublist("sol").sublist("iter").get<bool>("post", false) ),
-    writeSolIterPre_(  pl->sublist("sol").sublist("iter").get<bool>("pre", false) ),
-    writeResIterPost_( pl->sublist("res").sublist("iter").get<bool>("post", false) ),
-    writeResIterPre_(  pl->sublist("res").sublist("iter").get<bool>("pre", false) ),
-    writeSolSolPost_(  pl->sublist("sol").sublist("solv").get<bool>("post", false) ),
-    writeSolSolPre_(   pl->sublist("sol").sublist("solv").get<bool>("pre", false) ),
-    writeResSolPost_(  pl->sublist("res").sublist("solv").get<bool>("post", false) ),
-    writeResSolPre_(   pl->sublist("res").sublist("solv").get<bool>("pre", false) ) {};
+    sol_( pl->get<int>("solution", -1 )),
+    res_( pl->get<int>("residual", -1 )),
+    cor_( pl->get<int>("update", -1 )),
+    writeIterPre_(  pl->sublist("iteration").get<bool>("pre", false) ),
+    writeIterPost_( pl->sublist("iteration").get<bool>("post", false) ),
+    writeSolvePre_(  pl->sublist("solve").get<bool>("pre", false) ),
+    writeSolvePost_(  pl->sublist("solve").get<bool>("post", false) ) {
+
+      if( (sol_<0 or res_<0 or cor_<0) and ( !writeIterPre_ and !writeIterPost_ and
+            !writeSolvePre_ and !writeSolvePost_ ) ) 
+        std::cout << "Warning!!! no write happening!\n";
+    };
+
 
   PrePostWriter(const NOX::Abstract::PrePostOperator& ) = delete;
 
   PrePostWriter(NOX::Abstract::PrePostOperator&& that) {
     NOX::Pimpact::PrePostWriter<FieldT>& that_ (that);
 
-    writeSolIterPost_ = that_.writeSolIterPost_;
-    writeSolIterPre_  = that_.writeSolIterPre_;
-    writeResIterPost_ = that_.writeResIterPost_;
-    writeResIterPre_  = that_.writeResIterPre_;
+    sol_ = that_.sol_;
+    res_ = that_.res_;
+    cor_ = that_.cor_;
 
-    writeSolSolPost_ =  that_.writeSolSolPost_;
-    writeSolSolPre_  =  that_.writeSolSolPre_;
-    writeResSolPost_ =  that_.writeResSolPost_;
-    writeResSolPre_  =  that_.writeResSolPre_;
+    writeIterPre_  = that_.writeIterPre_;
+    writeIterPost_ = that_.writeIterPost_;
+
+    writeSolvePre_  =  that_.writeSolvePre_;
+    writeSolvePost_ =  that_.writeSolvePost_;
   }
 
 
   virtual ~PrePostWriter() {};
 
   virtual void runPreIterate(const NOX::Solver::Generic& solver) {
-    if( writeSolIterPre_ ) writeSol(solver);
-    if( writeResIterPre_ ) writeRes(solver);
+    if( writeIterPre_ ) {
+      if( sol_>=0 ) writeSol(solver);
+      if( res_>=0 ) writeRes(solver);
+      if( cor_>=0 ) writeCor(solver);
+    }
   }
 
   virtual void runPostIterate(const NOX::Solver::Generic& solver) {
-    if( writeSolIterPost_ ) writeSol(solver);
-    if( writeResIterPost_ ) writeRes(solver);
+    if( writeIterPost_ ) {
+      if( sol_>=0 ) writeSol(solver);
+      if( res_>=0 ) writeRes(solver);
+      if( cor_>=0 ) writeCor(solver);
+    }
   }
 
   virtual void runPreSolve(const NOX::Solver::Generic& solver) {
-    if( writeSolSolPre_ ) writeSol(solver);
-    if( writeResSolPre_ ) writeRes(solver);
+    if( writeSolvePre_ ) {
+      if( sol_>=0 ) writeSol(solver);
+      if( res_>=0 ) writeRes(solver);
+      if( cor_>=0 ) writeCor(solver);
+    }
   }
 
   virtual void runPostSolve(const NOX::Solver::Generic& solver) {
-    if( writeSolSolPost_ ) writeSol(solver);
-    if( writeResSolPost_ ) writeRes(solver);
+    if( writeSolvePost_ ) {
+      if( sol_>=0 ) writeSol(solver);
+      if( res_>=0 ) writeRes(solver);
+      if( cor_>=0 ) writeCor(solver);
+    }
   }
 
 }; // class PrePostWriter

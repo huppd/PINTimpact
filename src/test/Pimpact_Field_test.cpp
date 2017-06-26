@@ -76,7 +76,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNormAndInit, FType ) {
   // test different float values, assures that initial and norm work smoothly
   for( ST i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
-    norm = p->norm(Belos::InfNorm);
+    norm = p->norm(Pimpact::ENorm::Inf);
     TEST_FLOATING_EQUALITY( i/2., norm, eps );
 
   }
@@ -91,9 +91,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNormAndInit, FType ) {
     init = ( size-1 )*i-1.;
     init = std::abs( init );
     p->init( rank*i-1. );
-    norm = p->norm( Belos::InfNorm );
+    norm = p->norm( Pimpact::ENorm::Inf );
     TEST_FLOATING_EQUALITY( std::max(init,1.), norm, eps );
-
   }
 }
 
@@ -125,8 +124,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNormAndInit, FType ) {
   // test different float values, assures that initial and norm work smoothly
   for( ST i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
-//    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm) );
-    TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm), eps );
+//    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Pimpact::ENorm::One) );
+    TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Pimpact::ENorm::One), eps );
 
   }
 }
@@ -158,7 +157,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNormAndInit, FType ) {
   // test different float values, assures that initial and norm work smoothly
   for( ST i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
-    TEST_FLOATING_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm), eps );
+    TEST_FLOATING_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Pimpact::ENorm::Two), eps );
   }
 }
 
@@ -245,7 +244,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
   p->init(1.);
   p->scale(2.);
-  norm = p->norm(Belos::TwoNorm);
+  norm = p->norm(Pimpact::ENorm::Two);
   TEST_EQUALITY( std::sqrt(4*N), norm)
 
 }
@@ -280,7 +279,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
   p->init(1.);
   p->random();
-  norm = p->norm(Belos::TwoNorm);
+  norm = p->norm(Pimpact::ENorm::Two);
   TEST_INEQUALITY( N, norm)
 
 }
@@ -324,7 +323,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   vel3->init(1./3.);
 
   vel1->add( 2., *vel2, 0., *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
+  norm = vel1->norm(Pimpact::ENorm::Two);
   TEST_EQUALITY( std::sqrt(N), norm )
 
   vel1->init(0.);
@@ -332,7 +331,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   vel3->init(1./3.);
 
   vel1->add( 0., *vel2, 3., *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
+  norm = vel1->norm(Pimpact::ENorm::Two);
   TEST_EQUALITY( std::sqrt(N), norm )
 
   vel1->init(0.);
@@ -340,7 +339,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   vel3->init(1.);
 
   vel1->add( 0.5, *vel2, 0.5, *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
+  norm = vel1->norm(Pimpact::ENorm::Two);
   TEST_EQUALITY( std::sqrt(N), norm )
 
 }

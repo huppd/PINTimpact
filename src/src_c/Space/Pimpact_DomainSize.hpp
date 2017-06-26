@@ -63,7 +63,7 @@ public:
     return( domainSize_.getRawPtr() );
   }
 
-  constexpr const ScalarT& getSize( const int& i) const {
+  constexpr const ScalarT& getSize( const int i) const {
     return( domainSize_[i] );
   }
 
@@ -71,7 +71,7 @@ public:
     return( origin_.getRawPtr() );
   }
 
-  constexpr const ScalarT& getOrigin( const int& i) const {
+  constexpr const ScalarT& getOrigin( const int i) const {
     return( origin_[i] );
   }
 

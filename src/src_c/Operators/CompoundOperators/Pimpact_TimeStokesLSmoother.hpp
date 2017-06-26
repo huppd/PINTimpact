@@ -3,7 +3,11 @@
 #define PIMPACT_TIMESTOKESLSMOOTHER_HPP
 
 
+#include "Teuchos_ParameterList.hpp"
 #include "Teuchos_RCP.hpp"
+
+#include "Pimpact_CompoundField.hpp"
+
 
 namespace Pimpact {
 
@@ -79,8 +83,8 @@ public:
     op_( op ),
     numIters_( pl->get<int>("numIters",4) ) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y, const Ordinal L=1,
-             const Belos::ETrans& trans=Belos::NOTRANS  ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y, const Ordinal L=1, const Belos::ETrans
+      trans=Belos::NOTRANS  ) const {
 
     Scalar pi = 4.*std::atan(1.);
     Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;
@@ -104,8 +108,10 @@ public:
         xp(i).exchange();
       }
 
+      int dimens = SpaceT::sdim;
+
       OP_TimeStokesLSmoother(
-        SpaceT::sdim,
+        dimens,
         space()->nLoc(),
         space()->bl(),
         space()->bu(),

@@ -57,7 +57,7 @@ public:
 
   /// \brief constructor taking a \c FieldT constructing multiple shallow copys.
   /// \note maybe hide and make it private
-  MultiField( const InnerFieldT& field, const int& numvecs, ECopy ctyp=ECopy::Shallow ):
+  MultiField( const InnerFieldT& field, const int numvecs, const ECopy ctyp=ECopy::Shallow ):
     AF( field.space() ), mfs_(numvecs) {
     for( int i=0; i<numvecs; ++i )
       mfs_[i] = field.clone(ctyp);
@@ -73,7 +73,7 @@ public:
   }
 
 
-  MultiField( const FieldT& mv, ECopy ctype ):
+  MultiField( const FieldT& mv, const ECopy ctype ):
     AF( mv.space() ), mfs_( mv.getNumberVecs() ) {
 
     for( int i=0; i<getNumberVecs(); ++i )
@@ -86,7 +86,7 @@ public:
   /// \param space
   /// \param numvecs
   /// \return
-  MultiField( const Teuchos::RCP<const SpaceT>& space, const int& numvecs=1 ):
+  MultiField( const Teuchos::RCP<const SpaceT>& space, const int numvecs=1 ):
     AF( space ), mfs_(numvecs) {
 
     for( int i=0; i<numvecs; ++i )
@@ -99,7 +99,7 @@ public:
   /// The returned Pimpact::MultiField has the same (distribution over one or
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
-  Teuchos::RCP< FieldT > clone( const int& numvecs ) const {
+  Teuchos::RCP< FieldT > clone( const int numvecs ) const {
     return( Teuchos::rcp( new FieldT( *mfs_[0], numvecs ) ) );
   }
 
@@ -109,7 +109,7 @@ public:
   /// The returned Pimpact::MultiField has the same (distribution over one or
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
-  Teuchos::RCP< FieldT > clone( ECopy ctype = ECopy::Deep ) const {
+  Teuchos::RCP< FieldT > clone( const ECopy ctype = ECopy::Deep ) const {
     return( Teuchos::rcp( new FieldT(*this,ctype) ) );
   }
 
@@ -225,9 +225,9 @@ public:
   /// \param a Vector
   /// \param b Matrix
   /// \param beta
-  void TimesMatAdd( const ST& alpha, const FieldT& a,
+  void TimesMatAdd( const ST alpha, const FieldT& a,
                     const Teuchos::SerialDenseMatrix<int,ST>& b,
-                    const ST& beta ) {
+                    const ST beta ) {
 
     int m1 = a.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
     int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
@@ -245,7 +245,7 @@ public:
 
 
   /// \brief <tt>mv := alpha*a + beta*b</tt>
-  void add( ST alpha, const FieldT& a, ST beta, const FieldT& b, const B& wb=B::Y ) {
+  void add( ST alpha, const FieldT& a, ST beta, const FieldT& b, const B wb=B::Y ) {
     for( int i=0; i<getNumberVecs(); ++i )
       mfs_[i]->add( alpha, *a.mfs_[i], beta, *b.mfs_[i], wb );
   }
@@ -278,7 +278,7 @@ public:
   ///
   /// Here x represents on \c Field, and we update it as
   /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
-  void scale( const ST& alpha ) {
+  void scale( const ST alpha ) {
     for( int i=0; i<getNumberVecs(); ++i )
       mfs_[i]->scale(alpha);
   }
@@ -313,11 +313,11 @@ public:
   /// \param A
   /// \param C
   /// \todo make dot local and reduce over C (cf dot)
-  void Trans( ST alpha, const FieldT& A,
+  void Trans( const ST alpha, const FieldT& A,
               Teuchos::SerialDenseMatrix<int,ST>& C) const {
 
-    const int& n1 = getNumberVecs();
-    const int& n2 = A.getNumberVecs();
+    const int n1 = getNumberVecs();
+    const int n2 = A.getNumberVecs();
 
     assert( n1==C.numRows() );
     assert( n2==C.numCols() );
@@ -363,44 +363,49 @@ public:
 
   /// \brief Compute the norm of each individual vector.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  void norm(
-    std::vector<typename Teuchos::ScalarTraits<ST>::magnitudeType> &normvec,
-    Belos::NormType type=Belos::TwoNorm ) const {
+  void norm( std::vector<typename Teuchos::ScalarTraits<ST>::magnitudeType> &normvec,
+      const ENorm type=ENorm::Two ) const {
 
     const int n = getNumberVecs();
     ST* temp = new ST[n];
 
+    for( int i=0; i<n; ++i )
+      temp[i] = mfs_[i]->normLoc(type);
+
     switch( type ) {
-    case Belos::OneNorm:
-      for( int i=0; i<n; ++i )
-        temp[i] = mfs_[i]->normLoc(type);
-      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
-      break;
-    case Belos::TwoNorm:
-      for( int i=0; i<n; ++i )
-        temp[i] = mfs_[i]->normLoc(type);
-      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
-      for( int i=0; i<n; ++i )
-        normvec[i] = std::sqrt( normvec[i] );
-      break;
-    case Belos::InfNorm:
-      for( int i=0; i<n; ++i )
-        temp[i] = mfs_[i]->normLoc(type);
-      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, comm() );
-      break;
+      case ENorm::One: {
+        MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
+        break;
+      }
+      case ENorm::Two: {
+        MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
+        for( int i=0; i<n; ++i )
+          normvec[i] = std::sqrt( normvec[i] );
+        break;
+      }
+      case ENorm::Inf: {
+        MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, comm() );
+        break;
+      }
+      case ENorm::L2: {
+        MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
+        for( int i=0; i<n; ++i )
+          normvec[i] = std::sqrt( normvec[i] );
+        break;
+      }
     }
     delete[] temp;
   }
 
 
   /// \brief Compute the norm for the \c MultiField as it is considered as one Vector .
-  constexpr ST normLoc(  Belos::NormType type = Belos::TwoNorm ) {
+  constexpr ST normLoc(  ENorm type = ENorm::Two ) {
 
     ST normvec = 0.;
 
     for( int i=0; i<getNumberVecs(); ++i )
       normvec =
-        (Belos::InfNorm==type)?
+        (ENorm::Inf==type)?
         (std::max( mfs_[i]->normLoc(type), normvec )):
         (normvec+mfs_[i]->normLoc(type));
 
@@ -409,15 +414,15 @@ public:
 
 /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr ST norm( Belos::NormType type = Belos::TwoNorm ) {
+  constexpr ST norm( ENorm type = ENorm::Two ) {
 
     ST normvec = this->reduce(
                    comm(),
                    normLoc( type ),
-                   (Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+                   (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
 
     normvec =
-      (Belos::TwoNorm==type) ?
+      (ENorm::Two==type || ENorm::L2==type) ?
       std::sqrt(normvec) :
       normvec;
 
@@ -481,20 +486,20 @@ public:
   }
 
   /// \brief Replace the vectors with a random vectors.
-  void random(bool useSeed = false, int seed = 1) {
+  void random( const bool useSeed = false, const int seed = 1) {
     const int n = getNumberVecs();
     for( int i=0; i<n; ++i )
       mfs_[i]->random();
   }
 
   /// \brief \f[ *this = \alpha \f]
-  void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& wB=B::Y ) {
+  void init( const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y ) {
     const int n = getNumberVecs();
     for( int i=0; i<n; ++i )
       mfs_[i]->init(alpha,wB);
   }
 
-  void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
     const int n = getNumberVecs();
     for( int i=0; i<n; ++i )
       mfs_[i]->extrapolateBC( trans );
@@ -523,10 +528,10 @@ public:
   /// \name Attribute methods
   /// @{
 
-  InnerFieldT& getField( const int& i ) {
+  InnerFieldT& getField( const int i ) {
     return( *mfs_[i] );
   }
-  constexpr const InnerFieldT& getField( const int& i ) {
+  constexpr const InnerFieldT& getField( const int i ) {
     return( *mfs_[i] );
   }
 

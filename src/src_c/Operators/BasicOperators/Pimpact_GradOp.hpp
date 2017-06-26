@@ -140,7 +140,7 @@ public:
   };
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     applyG( x, y, add );
 
@@ -149,7 +149,7 @@ public:
   }
 
 
-  void applyG( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
+  void applyG( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
 
     const B& b = ( (Add::N==add) ? B::Y : B::N );
     //const B& b = B::N;
@@ -186,7 +186,7 @@ public:
   void applyJ( RangeFieldT& y ) const {
 
     // BC scaling
-    const ST& eps = 1./static_cast<ST>(epsI);
+    const ST eps = 1./static_cast<ST>(epsI);
 
     for( F dir=F::U; dir<SpaceT::sdim; ++dir ) {
       B bc2 = B::Y;
@@ -243,7 +243,7 @@ public:
   }
 
 
-  void apply( const RangeFieldT& x, DomainFieldT& y, const Add& add=Add::N ) const {
+  void apply( const RangeFieldT& x, DomainFieldT& y, const Add add=Add::N ) const {
 
     for( int dir=0; dir<SpaceT::sdim; ++dir )
       x.exchange( dir, dir );
@@ -282,15 +282,15 @@ public:
     return(space_);
   };
 
-  constexpr const ST* getC( const ECoord& dir ) const {
+  constexpr const ST* getC( const ECoord dir ) const {
     return( c_[dir].get() );
   }
 
-  constexpr const ST& getC( const ECoord& dir, OT i, OT off ) const {
+  constexpr ST getC( const ECoord dir, OT i, OT off ) const {
     return( c_[dir](i,off) );
   }
 
-  constexpr const ST& getCTrans( const ECoord& dir, OT i, OT off ) const {
+  constexpr ST getCTrans( const ECoord dir, OT i, OT off ) const {
     return( cT_[dir](i,off) );
   }
 
@@ -320,8 +320,7 @@ public:
 
 protected:
 
-  constexpr ST innerStencU( const DomainFieldT& x,
-                            const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerStencU( const DomainFieldT& x, const OT i, const OT j, const OT k ) {
 
     ST grad = 0.;
 
@@ -331,8 +330,7 @@ protected:
     return( grad );
   }
 
-  constexpr ST innerStencV( const DomainFieldT& x,
-                            const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerStencV( const DomainFieldT& x, const OT i, const OT j, const OT k ) {
 
     ST grad = 0.;
 
@@ -342,8 +340,7 @@ protected:
     return( grad );
   }
 
-  constexpr ST innerStencW( const DomainFieldT& x,
-                            const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerStencW( const DomainFieldT& x, const OT i, const OT j, const OT k ) {
 
     ST grad = 0.;
 
@@ -353,8 +350,7 @@ protected:
     return( grad );
   }
 
-  constexpr ST innerStenc3D( const RangeFieldT& x,
-                             const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerStenc3D( const RangeFieldT& x, const OT i, const OT j, const OT k ) {
 
     ST gradT = 0.;
 
@@ -370,8 +366,7 @@ protected:
     return( gradT );
   }
 
-  constexpr ST innerStenc2D( const RangeFieldT& x,
-                             const OT& i, const OT& j, const OT& k ) const {
+  constexpr ST innerStenc2D( const RangeFieldT& x, const OT i, const OT j, const OT k ) {
 
     ST gradT = 0.;
 
