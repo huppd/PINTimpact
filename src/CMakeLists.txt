@@ -50,23 +50,23 @@ message( "MPI Fortran LIBRARIES =    ${MPI_Fortran_LIBRARIES}\n" )
 option( findHDF5 "findHDF5" OFF)
 
 if( findHDF5 )
-  find_package( HDF5 QUIET COMPONENTS C Fortran HL Fortran_HL )
-	message( "\nHDF5? ${HDF5_FOUND}" )
-	message( "HDF5_IS_PARALLEL? ${HDF5_IS_PARALLEL}" )
-	message( "HDF5_INCLUDE_DIRS: ${HDF5_INCLUDE_DIRS}" )
-	message( "HDF5_DEFINITIONS: ${HDF5_DEFINITIONS}" )
-	message( "HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}" )
-	message( "HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}" )
-	message( "HDF5_Fortran_LIBRARIES: ${HDF5_Fortran_LIBRARIES}" )
-	message( "HDF5_HL_LIBRARIES: ${HDF5_HL_LIBRARIES}" )
-	message( "HDF5_Fortran_HL_LIBRARIES: ${HDF5_Fortran_HL_LIBRARIES}" )
-	message( "HDF5_LIBRARIES: ${HDF5_LIBRARIES}" )
-	message( "HDF5_LIBRARY_DIRS: ${HDF5_LIBRARY_DIRS}" )
+    find_package( HDF5 QUIET COMPONENTS C Fortran HL Fortran_HL )
+    message( "\nHDF5? ${HDF5_FOUND}" )
+    message( "HDF5_IS_PARALLEL? ${HDF5_IS_PARALLEL}" )
+    message( "HDF5_INCLUDE_DIRS: ${HDF5_INCLUDE_DIRS}" )
+    message( "HDF5_DEFINITIONS: ${HDF5_DEFINITIONS}" )
+    message( "HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}" )
+    message( "HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}" )
+    message( "HDF5_Fortran_LIBRARIES: ${HDF5_Fortran_LIBRARIES}" )
+    message( "HDF5_HL_LIBRARIES: ${HDF5_HL_LIBRARIES}" )
+    message( "HDF5_Fortran_HL_LIBRARIES: ${HDF5_Fortran_HL_LIBRARIES}" )
+    message( "HDF5_LIBRARIES: ${HDF5_LIBRARIES}" )
+    message( "HDF5_LIBRARY_DIRS: ${HDF5_LIBRARY_DIRS}" )
 
-	add_definitions( ${HDF5_DEFINITIONS} )
+    add_definitions( ${HDF5_DEFINITIONS} )
 else()
-	message( "findHDF5? off ")
-	set( HDF5_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5 z m )
+    message( "findHDF5? off ")
+    set( HDF5_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5 z m )
 endif()
 
 
@@ -79,10 +79,6 @@ else()
 	message( "Pimpact:	disabled ETI\n" )
 endif()
 
-# Make sure to use same compilers and flags as Trilinos
-set( CMAKE_CXX_COMPILER     ${Trilinos_CXX_COMPILER}     )
-set( CMAKE_C_COMPILER       ${Trilinos_C_COMPILER}       )
-set( CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 
 
 set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${Trilinos_CXX_COMPILER_FLAGS}     -Wall -pedantic -std=c++11" )
@@ -91,20 +87,25 @@ set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLA
 
 
 if( CMAKE_COMPILER_IS_GNUCXX )
-	set( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=0 -funroll-all-loops -ftree-vectorize  -ffast-math -funsafe-math-optimizations -fargument-noalias-global -march=native -malign-double ")
-	set( CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} ${CMAKE_CXX_FLAGS_RELEASE}  -g ")# -pg
-	set( CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -Wall -cpp " )
-	set( CMAKE_Fortran_FLAGS_RELEASE  " ${CMAKE_Fortran_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=0  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno -fargument-noalias-global -malign-double" )
-	set( CMAKE_Fortran_FLAGS_PROFILE "${CMAKE_Fortran_FLAGS_PROFILE} ${CMAKE_Fortran_FLAGS_RELEASE}  -g  ")  # -pg
-	set( CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -fdefault-real-8 -fdefault-double-8  "  )
+    #message( "CMAKE_COMPILER_IS_GNUCXX: ${CMAKE_COMPILER_IS_GNUCXX}" )
+    set( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=0 -funroll-all-loops -ftree-vectorize  -ffast-math -funsafe-math-optimizations -fargument-noalias-global -march=native -malign-double ")
+    set( CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} ${CMAKE_CXX_FLAGS_RELEASE}  -g ")# -pg
+    set( CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -Wall -cpp " )
+    set( CMAKE_Fortran_FLAGS_RELEASE  " ${CMAKE_Fortran_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=0  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno -fargument-noalias-global -malign-double" )
+    set( CMAKE_Fortran_FLAGS_PROFILE "${CMAKE_Fortran_FLAGS_PROFILE} ${CMAKE_Fortran_FLAGS_RELEASE}  -g  ")  # -pg
+    set( CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -fdefault-real-8 -fdefault-double-8  "  )
 else()
-	set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -vec-report2 -ip -fno-alias -march=native " )
-	set( CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} ${CMAKE_CXX_FLAGS_RELEASE}  -g ")# -pg 
-	set( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -march=native -fomit-frame-pointer -fno-math-errno -vec-report2 -ip -fno-alias  " )
-	set( CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -free -fpp -r8   "  )
-	set( CMAKE_Fortran_COMPILE_FLAGS_RELEASE "${CMAKE_Fortran_COMPILE_FLAGS_RELEASE} ${Trilinos_Fortran_COMPILER_FLAGS} -ip -fno-alias -march=native "  )
-enDIF()
+    set( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -vec-report2 -ip -fno-alias -march=native " )
+    set( CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} ${CMAKE_CXX_FLAGS_RELEASE}  -g ")# -pg 
+    set( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -march=native -fomit-frame-pointer -fno-math-errno -vec-report2 -ip -fno-alias  " )
+    set( CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -free -fpp -r8   "  )
+    set( CMAKE_Fortran_COMPILE_FLAGS_RELEASE "${CMAKE_Fortran_COMPILE_FLAGS_RELEASE} ${Trilinos_Fortran_COMPILER_FLAGS} -ip -fno-alias -march=native "  )
+endif()
 
+# Make sure to use same compilers and flags as Trilinos
+set( CMAKE_CXX_COMPILER     ${Trilinos_CXX_COMPILER}     )
+set( CMAKE_C_COMPILER       ${Trilinos_C_COMPILER}       )
+set( CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 
 message( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )
 message( "Fortran flags: " ${CMAKE_Fortran_FLAGS} )

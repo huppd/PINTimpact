@@ -222,28 +222,30 @@
     <ParameterList id="31" name="Solver">
       <Parameter docString="" id="154" isDefault="false" isUsed="true" name="Block Size"
         type="int" value="2" />
-      <Parameter docString="" id="155" isDefault="false" isUsed="true" name="Maximum
-        Iterations" type="int" value="80" />
+      <Parameter docString="" id="155" isDefault="false" isUsed="true"
+        name="Maximum Iterations" type="int" value="80" />
       <Parameter docString="" id="156" isDefault="false" isUsed="true" name="Num Blocks"
         type="int" value="40" />
-      <Parameter docString="" id="157" isDefault="false" isUsed="true" name="Convergence
-        Tolerance" type="double" value="1.0e-03" />
+      <Parameter docString="" id="157" isDefault="false" isUsed="true"
+        name="Convergence Tolerance" type="double" value="1.0e-03" />
       <Parameter docString="" id="158" isDefault="false" isUsed="true" name="Verbosity"
         type="int" value="111" />
       <Parameter docString="" id="159" isDefault="false" isUsed="true" name="Timer Label"
         type="string" value="DivGrad" />
-      <Parameter docString="" id="160" isDefault="false" isUsed="true" name="Output
-        Frequency" type="int" value="-1" />
+      <Parameter docString="" id="160" isDefault="false" isUsed="true"
+        name="Output Frequency" type="int" value="-1" />
       <Parameter docString="" id="161" isDefault="false" isUsed="true" name="Output Style"
         type="int" value="1" />
-      <Parameter docString="" id="162" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="Norm of RHS" />
-      <Parameter docString="" id="163" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of RHS" />
+      <Parameter docString="" id="162" isDefault="false" isUsed="true"
+        name="Implicit Residual Scaling" type="string" value="Norm of RHS" />
+      <Parameter docString="" id="163" isDefault="false" isUsed="true"
+        name="Explicit Residual Scaling" type="string" value="Norm of RHS" />
     </ParameterList>
     <ParameterList id="32" name="Multi Grid">
       <Parameter docString="" id="164" isDefault="false" isUsed="true" name="numCycles"
         type="int" value="1" />
       <Parameter docString="" id="165" isDefault="false" isUsed="true" name="init zero"
-        type="bool" value="false" />
+        type="bool" value="true" />
       <Parameter docString="" id="166" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false" />
       <Parameter docString="" id="167" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
       <ParameterList id="33" name="Smoother">
@@ -288,8 +290,8 @@
         Iterations" type="int" value="40" />
       <Parameter docString="" id="201" isDefault="false" isUsed="true" name="Num Blocks"
         type="int" value="10" />
-      <Parameter docString="" id="202" isDefault="false" isUsed="true" name="Maximum
-        Restarts" type="int" value="10" />
+      <Parameter docString="" id="202" isDefault="false" isUsed="true"
+        name="Maximum Restarts" type="int" value="10" />
       <Parameter docString="" id="205" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-3" />
       <Parameter docString="" id="206" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="207" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ConvectionDiffusionVOp" />
@@ -302,7 +304,7 @@
       <Parameter docString="" id="212" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
       <Parameter docString="" id="213" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false" />
       <Parameter docString="" id="214" isDefault="true" isUsed="true" name="init zero"
-        type="bool" value="false" />
+        type="bool" value="true" />
       <Parameter docString="" id="215" isDefault="true" isUsed="true" name="numCycles" type="int" value="1" />
       <ParameterList id="40" name="Coarse Grid Solver">
         <Parameter docString="" id="216" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
