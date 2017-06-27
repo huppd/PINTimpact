@@ -70,14 +70,14 @@ class PrePostEnergyCompute : public NOX::Abstract::PrePostOperator {
 
     for( OT i=std::max(space->si(::Pimpact::F::U,3),1); i<=space->ei(::Pimpact::F::U,3); ++i ) {
       {
-        auto out = ::Pimpact::createOstream( prefix + "_C"+std::to_string(i) + ".txt",
+        auto out = ::Pimpact::createOstream( prefix + "C"+std::to_string(i) + ".txt",
             space->getProcGrid()->getRankBar(dir_) );
 
         ::Pimpact::computeEnergyDir(
             x.getField(0).getVField().getCField(i), *out, dir_, gamma_ );
       }
       {
-        auto out = ::Pimpact::createOstream( prefix + "_S"+std::to_string(i) + ".txt",
+        auto out = ::Pimpact::createOstream( prefix + "S"+std::to_string(i) + ".txt",
             space->getProcGrid()->getRankBar(dir_) );
 
         ::Pimpact::computeEnergyDir(

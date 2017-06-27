@@ -40,7 +40,7 @@ NPZ = 2
 NPF = 1
 
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimate'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimate3'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
@@ -55,11 +55,11 @@ for re in RES:
             ma.setParameter(ROOT, 'Re', re)
             ma.setParameter(ROOT, 'alpha2', 2.*pi*st*re)
             ma.setParameter(ROOT, 'lx', 18.)
-            ma.setParameter(ROOT, 'ly', 200.)
+            ma.setParameter(ROOT, 'ly', 100.)
             ma.setParameter(ROOT, 'lz', 40.)
             ma.setParameter(ROOT, 'origin z', 20.)
             ma.setParameter(ROOT, 'nx', 31)
-            ma.setParameter(ROOT, 'ny', 145)
+            ma.setParameter(ROOT, 'ny', 73)
             ma.setParameter(ROOT, 'nz', 65)
             ma.setParameter(ROOT, 'nf', nf)
             ma.setParameter(ROOT, 'max refinement', 3-nf)

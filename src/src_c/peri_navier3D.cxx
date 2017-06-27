@@ -539,12 +539,14 @@ int main( int argi, char** argv ) {
           Teuchos::rcp(
             new NOX::Pimpact::PrePostErrorCompute<NV>(Teuchos::sublist(pl, "NOX error"), sol)) );
 
-      pl->sublist("NOX energy").set<int>( "refinement", refine );
-      prePostOperators->pushBack( 
-          Teuchos::rcp(
-            new NOX::Pimpact::PrePostEnergyCompute<NV>(
-              Teuchos::sublist(pl, "NOX energy"),
-              x->getField(0).getVField().get0Field().clone(Pimpact::ECopy::Deep) )) );
+      {
+        auto base = x->getField(0).getVField().get0Field().clone(Pimpact::ECopy::Shallow);
+        base->initField( pl->sublist("Base flow") );
+        pl->sublist("NOX energy").set<int>( "refinement", refine );
+        prePostOperators->pushBack( 
+            Teuchos::rcp( new NOX::Pimpact::PrePostEnergyCompute<NV>(
+                Teuchos::sublist(pl, "NOX energy"), base)));
+      }
 
       prePostOperators->pushBack( 
           Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ) ) );
