@@ -31,11 +31,29 @@ STS = [1./60.]
 
 NFS = [0, 1, 2]
 
-NPX = 1
+NPX = 2
 NPY = 2
-NPZ = 2
+NPZ = 4
 NPF = 1
 
+LXO = 22.5
+LYO = 600.
+LZO = 150.
+NXO = 97
+NYO = 1537
+NZO = 513
+
+NX = NXO
+NY = 65
+NZ = 129
+
+LX = LXO/(NXO-1)*(NX-1)
+LY = 2.*LYO/(NYO-1)*(NY-1)
+LZ = 3.*LZO/(NZO-1)*(NZ-1)
+
+print('LX', LX)
+print('LY', LY)
+print('LZ', LZ)
 
 CASE_PATH[0] = pp.DATA_PATH + '/ultimate3'
 pp.mkdir(CASE_PATH, 0)
@@ -51,13 +69,13 @@ for re in RES:
             #
             ma.setParameter(ROOT, 'Re', re)
             ma.setParameter(ROOT, 'alpha2', 2.*pi*st*re)
-            ma.setParameter(ROOT, 'lx', 18.)
-            ma.setParameter(ROOT, 'ly', 100.)
-            ma.setParameter(ROOT, 'lz', 40.)
-            ma.setParameter(ROOT, 'origin z', 20.)
-            ma.setParameter(ROOT, 'nx', 31)
-            ma.setParameter(ROOT, 'ny', 73)
-            ma.setParameter(ROOT, 'nz', 65)
+            ma.setParameter(ROOT, 'lx', LX)
+            ma.setParameter(ROOT, 'ly', LY)
+            ma.setParameter(ROOT, 'lz', LZ)
+            ma.setParameter(ROOT, 'origin z', LZ/2.)
+            ma.setParameter(ROOT, 'nx', NX)
+            ma.setParameter(ROOT, 'ny', NY)
+            ma.setParameter(ROOT, 'nz', NZ)
             ma.setParameter(ROOT, 'nf', nf)
             ma.setParameter(ROOT, 'max refinement', 3-nf)
             ma.setParameter(ROOT, 'npx', NPX)
