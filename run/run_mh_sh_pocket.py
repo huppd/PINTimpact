@@ -31,9 +31,9 @@ STS = [1./60.]
 
 NFS = [0, 1, 2]
 
-NPX = 2
+NPX = 3
 NPY = 2
-NPZ = 4
+NPZ = 2
 NPF = 1
 
 LXO = 22.5
@@ -44,12 +44,12 @@ NYO = 1537
 NZO = 513
 
 NX = NXO
-NY = 65
-NZ = 129
+NY = 129
+NZ = 65
 
 LX = LXO/(NXO-1)*(NX-1)
-LY = 2.*LYO/(NYO-1)*(NY-1)
-LZ = 3.*LZO/(NZO-1)*(NZ-1)
+LY = LYO/(NYO-1)*(NY-1)
+LZ = LZO/(NZO-1)*(NZ-1)
 
 print('LX', LX)
 print('LY', LY)
@@ -77,17 +77,17 @@ for re in RES:
             ma.setParameter(ROOT, 'ny', NY)
             ma.setParameter(ROOT, 'nz', NZ)
             ma.setParameter(ROOT, 'nf', nf)
-            ma.setParameter(ROOT, 'max refinement', 3-nf)
+            ma.setParameter(ROOT, 'max refinement', 4-nf)
             ma.setParameter(ROOT, 'npx', NPX)
             ma.setParameter(ROOT, 'npy', NPY)
             ma.setParameter(ROOT, 'npz', NPZ)
             ma.setParameter(ROOT, 'npf', NPF)
             TREE.write('parameter3D.xml')
             nptot = NPX*NPY*NPZ*NPF
-            memtot = max(1024*8/nptot, 1024)
+            memtot = int(1024.*max(8/nptot, 2))
             print()
             print(CASE_PATH)
-            EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 -R "rusage[mem=' +
+            EXE_STRING = pp.exe_pre(nptot, ' -N -W 2:00 -R "rusage[mem=' +
                                     str(memtot) + ']" ') + \
                 pp.EXE_PATH + '/'+EXE
             print(EXE_STRING)
