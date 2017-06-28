@@ -31,7 +31,7 @@
     <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="66" isDefault="false"
       isUsed="true" name="nz" type="int" value="33" />
     <Parameter docString="amount of grid points in f-direction" id="67" isDefault="false"
-      isUsed="true" name="nf" type="int" value="0" />
+      isUsed="true" name="nf" type="int" value="1" />
     <Parameter docString="amount of processors in x-direction" id="68" isDefault="false"
       isUsed="true" name="npx" type="int" value="2" />
     <Parameter docString="amount of processors in y-direction" id="69" isDefault="false"
@@ -74,15 +74,15 @@
     <Parameter docString="" id="80808080" isDefault="false" isUsed="true" name="gamma" type="double"
       value="0.0" />
     <ParameterList id="777" name="iter">
-      <Parameter docString="" id="7777" isDefault="true" isUsed="true" name="post" type="bool"
-        value="false" />
       <Parameter docString="" id="7878" isDefault="true" isUsed="true" name="pre" type="bool"
         value="true" />
+      <Parameter docString="" id="7777" isDefault="true" isUsed="true" name="post" type="bool"
+        value="false" />
     </ParameterList>
     <ParameterList id="98888" name="solv">
-      <Parameter docString="" id="7979" isDefault="true" isUsed="true" name="post" type="bool"
-        value="true" />
       <Parameter docString="" id="8080" isDefault="true" isUsed="true" name="pre" type="bool"
+        value="true" />
+      <Parameter docString="" id="7979" isDefault="true" isUsed="true" name="post" type="bool"
         value="true" />
     </ParameterList>
   </ParameterList>
@@ -133,7 +133,7 @@
 				<Parameter docString="" id="101" isDefault="false" isUsed="true" name="Test Type"
           type="string" value="MaxIters" />
 				<Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations"
-          type="int" value="5" />
+          type="int" value="10" />
 			</ParameterList>
 			<ParameterList id="13" name="Test 3">
 				<Parameter docString="" id="103" isDefault="false" isUsed="true" name="Test Type"

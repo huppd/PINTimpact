@@ -51,7 +51,7 @@ class PrePostEnergyCompute : public NOX::Abstract::PrePostOperator {
 
     auto& x = Teuchos::rcp_const_cast<NV>( Teuchos::rcp_dynamic_cast<const NV>(
             group.getXPtr() ))->getField();
-    auto space = base_->space();
+    auto space = x.space();
 
     std::string prefix = "energy_"+ ::Pimpact::toString(dir_) +"_r" +
       std::to_string(refinement_) + "_i" + std::to_string(nIter) + "_";

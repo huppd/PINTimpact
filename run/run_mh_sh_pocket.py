@@ -13,9 +13,6 @@ ROOT = TREE.getroot()
 ma.setParameter(ROOT, 'withoutput', 1)
 ma.setParameter(ROOT, 'refinement step', 1)
 ma.setParameter(ROOT, 'refinement tol', 1.e-4)
-ma.setParameter(ROOT, 'nx', 31)
-ma.setParameter(ROOT, 'ny', 73)
-ma.setParameter(ROOT, 'nz', 65)
 
 # make executable ready
 EXE = 'peri_navier3D'
