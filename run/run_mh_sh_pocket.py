@@ -31,7 +31,7 @@ STS = [1./60.]
 
 NFS = [0, 1, 2]
 
-NPX = 3
+NPX = 1
 NPY = 2
 NPZ = 2
 NPF = 1
