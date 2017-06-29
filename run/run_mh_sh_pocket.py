@@ -44,13 +44,16 @@ NYO = 1537
 NZO = 513
 
 # NX = NXO
-NX = 65 
-NY = 129
+# NX = (65-1)/2 +1
+# NY = (129-1)/2 + 1
+# NZ = (65-1)/2 + 1
+NX = 31
+NY = 73
 NZ = 65
 
-LX = 1.125*LXO/(NXO-1)*(NX-1)
-LY = 2.*LYO/(NYO-1)*(NY-1)
-LZ = 2.*LZO/(NZO-1)*(NZ-1)
+LX = round(2.5*LXO/(NXO-1)*(NX-1))
+LY = round(4.*LYO/(NYO-1)*(NY-1))
+LZ = round(2.*LZO/(NZO-1)*(NZ-1))
 
 print('LX', LX)
 print('LY', LY)
