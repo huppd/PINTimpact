@@ -264,12 +264,16 @@
         <Parameter docString="" id="168" isDefault="false" isUsed="true" name="numIters" type="int" value="4" />
         <Parameter docString="" id="169" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
         <Parameter docString="" id="170" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+        <Parameter docString="" id="170170" isDefault="true" isUsed="true" name="Jacobi"
+          type="bool" value="true" />
       </ParameterList>
       <ParameterList id="34" name="Coarse Grid Solver">
         <Parameter docString="" id="168168" isDefault="false" isUsed="true"
           name="numIters" type="int" value="4" />
         <Parameter docString="" id="169169" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
-        <Parameter docString="" id="170170" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+        <Parameter docString="" id="170172" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
+        <Parameter docString="" id="170170170170" isDefault="true" isUsed="true" name="Jacobi"
+          type="bool" value="true" />
         <!--<Parameter docString="" id="147147" isDefault="true" isUsed="true" name="Solver name"-->
           <!--type="string" value="GMRES" />-->
         <!--<Parameter docString="" id="148148" isDefault="true" isUsed="true" name="level"-->

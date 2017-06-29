@@ -43,6 +43,8 @@ protected:
 
   bool levelYes_;
 
+  bool jacobi_;
+
   const Teuchos::RCP<const OperatorT> op_;
 
 public:
@@ -55,18 +57,34 @@ public:
   ///   - "omega" - a \c ST damping factor. Default: for 2D 0.8 for 3D 6./7.  /
   ///   - "numIters" - a \c int number of smoothing steps. Default: 4  /
   ///   - "BC smoothing" - a \c int type of BC smoothing 0, 0: Jacbobian, else: direct. Default: 0 /
-  ///   - "level" - a \c bool number of smoothing steps. Default: false  /
+  ///   - "level" - a \c bool if pressure is leveled. Default: false  /
+  ///   - "Jacobi" - a \c bool if Jacbonian is used or GausSeidel. Default: true
   DivGradO2JSmoother(
-    const Teuchos::RCP<const OperatorT>& op,
-    const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
+      const Teuchos::RCP<const OperatorT>& op,
+      const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
     omega_( pl->get<ST>("omega", (2==SpaceT::sdim)?0.8:6./7. ) ),
     nIter_( pl->get<int>( "numIters", 2 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-    op_(op) {}
+    jacobi_( pl->get<bool>( "Jacobi", true) ),
+    op_(op) {
+
+      if( !jacobi_ )
+        omega_ = 1.;
+    }
 
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
   void apply(const DomainFieldT& b, RangeFieldT& y, const Add add=Add::N ) const {
+    if( jacobi_ )
+      applyJ(b, y, add);
+    else
+      applyGS(b, y, add);
+  }
+
+protected:
+
+  /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
+  void applyJ(const DomainFieldT& b, RangeFieldT& y, const Add add=Add::N ) const {
 
     DomainFieldT temp( space() );
 
@@ -108,6 +126,35 @@ public:
     if( levelYes_ )
       y.level();
   }
+
+
+  /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
+  void applyGS(const DomainFieldT& b, RangeFieldT& y, const Add add=Add::N ) const {
+
+    for( int i=0; i<nIter_; ++i) {
+
+      y.exchange();
+
+      if( 3==SpaceT::sdim )
+        for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+          for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+            for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+              y(i,j,k) = innerStenc3D( b, y, i,j,k);
+            }
+      else
+        for( OT k=space()->si(F::S,Z); k<=space()->ei(F::S,Z); ++k )
+          for( OT j=space()->si(F::S,Y); j<=space()->ei(F::S,Y); ++j )
+            for( OT i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i ) {
+              y(i,j,k) = innerStenc2D( b, y, i,j,k);
+            }
+
+      y.changed();
+    }
+    if( levelYes_ )
+      y.level();
+  }
+
+public:
 
   void assignField( const DomainFieldT& mv ) {};
 
