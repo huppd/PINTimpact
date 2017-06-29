@@ -266,7 +266,8 @@
         <Parameter docString="" id="170" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
       </ParameterList>
       <ParameterList id="34" name="Coarse Grid Solver">
-        <Parameter docString="" id="168168" isDefault="false" isUsed="true" name="numIters" type="int" value="8" />
+        <Parameter docString="" id="168168" isDefault="false" isUsed="true" name="numIters"
+          type="int" value="12" />
         <Parameter docString="" id="169169" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
         <Parameter docString="" id="170170" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
       </ParameterList>

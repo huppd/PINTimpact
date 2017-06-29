@@ -43,19 +43,20 @@ NXO = 97
 NYO = 1537
 NZO = 513
 
-NX = NXO
+# NX = NXO
+NX = 65 
 NY = 129
 NZ = 65
 
-LX = LXO/(NXO-1)*(NX-1)
-LY = LYO/(NYO-1)*(NY-1)
-LZ = LZO/(NZO-1)*(NZ-1)
+LX = 1.125*LXO/(NXO-1)*(NX-1)
+LY = 2.*LYO/(NYO-1)*(NY-1)
+LZ = 2.*LZO/(NZO-1)*(NZ-1)
 
 print('LX', LX)
 print('LY', LY)
 print('LZ', LZ)
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimate3'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimate'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
@@ -87,7 +88,7 @@ for re in RES:
             memtot = int(1024.*max(8/nptot, 2))
             print()
             print(CASE_PATH)
-            EXE_STRING = pp.exe_pre(nptot, ' -N -W 2:00 -R "rusage[mem=' +
+            EXE_STRING = pp.exe_pre(nptot, ' -N -W 12:00 -R "rusage[mem=' +
                                     str(memtot) + ']" ') + \
                 pp.EXE_PATH + '/'+EXE
             print(EXE_STRING)
