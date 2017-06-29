@@ -47,12 +47,6 @@ protected:
 
 public:
 
-  DivGradO2JSmoother( const Teuchos::RCP<const SpaceT>& space ):
-    omega_( (2==SpaceT::sdim)?0.8:6./7. ),
-    nIter_( 4 ),
-    levelYes_( false ),
-    op_( Teuchos::rcp( new OperatorT(space) ) ) {}
-
   /// \brief constructor
   ///
   /// \param[in] op pointer to operator that is smoothed
