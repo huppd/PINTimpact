@@ -7,6 +7,7 @@ import manipulator as ma
 
 
 # load parameter file
+ma.set_ids('../XML/parameterSHLabs.xml')
 TREE = ET.parse('../XML/parameterSHLabs.xml')
 ROOT = TREE.getroot()
 
@@ -33,7 +34,7 @@ NFS = [0, 1, 2]
 NFS = [0]
 
 NPX = 1
-NPY = 2
+NPY = 3
 NPZ = 2
 NPF = 1
 
@@ -48,12 +49,12 @@ NZO = 513
 # NX = (65-1)/2 +1
 # NY = (129-1)/2 + 1
 # NZ = (65-1)/2 + 1
-NX = 31
-NY = 73
+NX = 33
+NY = 97 
 NZ = 65
 
 LX = round(2.5*LXO/(NXO-1)*(NX-1))
-LY = round(4.*LYO/(NYO-1)*(NY-1))
+LY = round(3.*LYO/(NYO-1)*(NY-1))
 LZ = round(2.*LZO/(NZO-1)*(NZ-1))
 
 print('LX', LX)
@@ -61,7 +62,7 @@ print('LY', LY)
 print('LZ', LZ)
 
 JACOBIAN = [True, False]
-NITERS = [2, 4, 8]
+NITERS = [4, 8, 16]
 
 CASE_PATH[0] = pp.DATA_PATH + '/ultimate'
 pp.mkdir(CASE_PATH, 0)
@@ -92,8 +93,9 @@ for re in RES:
                     ma.set_parameter(ROOT, 'npy', NPY)
                     ma.set_parameter(ROOT, 'npz', NPZ)
                     ma.set_parameter(ROOT, 'npf', NPF)
-                    ma.set_parameter(ROOT, 'Jacobi', jacobi)
-                    ma.set_insublist(ROOT, 'DivGrad', 'numIters', n_iters)
+                    ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', n_iters)
+                    ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
+                            jacobi)
                     TREE.write('parameter3D.xml')
                     nptot = NPX*NPY*NPZ*NPF
                     memtot = int(1024.*max(8/nptot, 2))
