@@ -391,7 +391,7 @@ int main( int argi, char** argv ) {
           auto modePrec =
             Pimpact::createMultiOperatorBase(
               Pimpact::create<Pimpact::EddyPrec>(
-                zeroInv,
+                zeroInv, // mgConvDiff, // instead?
                 Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
 
           if("right" == modeConvDiffPrecString)
