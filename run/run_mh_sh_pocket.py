@@ -97,7 +97,7 @@ for re in RES:
         memtot = int(1024.*max(8/nptot, 2))
         print()
         print(CASE_PATH)
-        EXE_STRING = pp.exe_pre(nptot, ' -N -W 4:00 ' +
+        EXE_STRING = pp.exe_pre(nptot, ' -N -W 18:00 ' +
                                 '-R "rusage[mem=' + str(memtot) +
                                 ']" ') + pp.EXE_PATH + '/'+EXE
         print(EXE_STRING)
