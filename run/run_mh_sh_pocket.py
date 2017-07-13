@@ -50,12 +50,12 @@ NZO = 513
 # NX = (65-1)/2 +1
 # NY = (129-1)/2 + 1
 # NZ = (65-1)/2 + 1
-NX = 49 
-NY = 97 
+NX = 49
+NY = 145
 NZ = 65
 
 LX = round(2*LXO/(NXO-1)*(NX-1), 1)
-LY = round(3.*LYO/(NYO-1)*(NY-1), 1)
+LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
 LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
 
 print('LX', LX)

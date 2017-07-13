@@ -415,7 +415,7 @@ public:
       case ConstFlow : {
         ST u = para.get<ST>( "U", 1.);
         ST v = para.get<ST>( "V", 1.);
-        ST w = para.get<ST>( "V", 1.);
+        ST w = para.get<ST>( "W", 1.);
 
         at(F::U).initFromFunction( [&u]( ST x, ST y, ST z)->ST{
             return( u ); },

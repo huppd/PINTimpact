@@ -149,7 +149,6 @@ int main( int argi, char** argv ) {
       wrapMultiField( createCompoundField(
             Teuchos::rcp( new VF(space,true) ),
             Teuchos::rcp( new SF(space) ) ) ) ;
-    Teuchos::RCP<MF> fu = x->clone( Pimpact::ECopy::Shallow );
 
     // init Fields
     x->getField(0).getVField().initField( pl->sublist("Base flow") );
@@ -166,7 +165,6 @@ int main( int argi, char** argv ) {
       auto op = Pimpact::createCompoundOpWrap(
                   opV2V, opS2V, opV2S );
 
-      if( 0==space->rankST() ) std::cout << "create RHS:\n";
       if( 0==space->rankST() ) std::cout << "\tdiv test\n";
       {
         auto tempField = x->getField(0).getSField().clone();
@@ -180,15 +178,18 @@ int main( int argi, char** argv ) {
       if( maxRefinement>1 )
         rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
-      if( 0==space->rankST() ) std::cout << "\tcreate RHS\n";
+      if( 0==space->rankST() ) std::cout << "create RHS:\n";
+      Teuchos::RCP<MF> fu = x->clone( Pimpact::ECopy::Shallow );
       auto sol = fu->clone( Pimpact::ECopy::Shallow);
 
-      if( 0==refine ) {
+      {
         if( 0==space->rankST() ) std::cout << "\tBC interpolation\n";
         {
+          auto temp = x->getField(0).getVField().clone(Pimpact::ECopy::Shallow);
+          temp->initField( pl->sublist("Base flow") );
           // to get the Dirichlet for the RHS (necessary interpolation) ugly
           // super ugly hack for BC::Dirichlet
-          opV2V->apply( x->getField(0).getVField(), fu->getField(0).getVField() );
+          opV2V->apply( *temp, fu->getField(0).getVField() );
           fu->init( 0., Pimpact::B::N );
         }
 
@@ -392,16 +393,9 @@ int main( int argi, char** argv ) {
 
           auto modePrec =
             Pimpact::createMultiOperatorBase(
-              Pimpact::create<Pimpact::EddyPrec>(
-                //zeroInv,
-                //Pimpact::createMultiOperatorBase(mgConvDiff),
-                mgConvDiff,
-                Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
-
-          if("right" == modeConvDiffPrecString)
-            modeInv->setRightPrec(modePrec);
-
-                Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
+                Pimpact::create<Pimpact::EddyPrec>(
+                  mgConvDiff,
+                  Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
 
           if("right" == modeConvDiffPrecString)
             modeInv->setRightPrec(modePrec);
@@ -654,10 +648,10 @@ int main( int argi, char** argv ) {
           createCompoundField(
               Teuchos::rcp( new VF(spaceF,true) ),
               Teuchos::rcp( new SF(spaceF) ) );
-        Teuchos::RCP<CF> fuf =
-          createCompoundField(
-              Teuchos::rcp( new VF(spaceF,true) ),
-              Teuchos::rcp( new SF(spaceF) ) );
+        //Teuchos::RCP<CF> fuf =
+          //createCompoundField(
+              //Teuchos::rcp( new VF(spaceF,true) ),
+              //Teuchos::rcp( new SF(spaceF) ) );
         //xf->getVField().initField( pl->sublist("Base flow") );
 
         //Teuchos::RCP<CF> temp =
@@ -667,12 +661,12 @@ int main( int argi, char** argv ) {
 
         //refineOp->apply( x->getField(0), *temp );
         refineOp->apply( x->getField(0), *xf );
-        refineOp->apply( fu->getField(0), *fuf );
+        //refineOp->apply( fu->getField(0), *fuf );
 
         //xf->add( 1., *temp, 0., *temp, Pimpact::B::N );
 
         x = Pimpact::wrapMultiField( xf );
-        fu = Pimpact::wrapMultiField( fuf );
+        //fu = Pimpact::wrapMultiField( fuf );
         space = spaceF;
       }
       prePostOperators->clear();
