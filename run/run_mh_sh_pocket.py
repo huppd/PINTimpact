@@ -29,9 +29,10 @@ RES = [300]
 STS = [1./60., 1./30., 1./10.]
 STS = [1./60., 1./10.]
 STS = [1./60.]
+st = STS[0]
 
 NFS = [0, 1, 2]
-NFS = [0]
+# NFS = [0]
 
 NPX = 1
 NPY = 3
@@ -64,45 +65,40 @@ print('LZ', LZ)
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimate'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateRef7'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
     for nf in NFS:
-        for st in STS:
-            for jacobi in JACOBIAN:
-                CASE_PATH[1] = '/jacobi_'+str(jacobi)
-                pp.mkdir(CASE_PATH, 1)
-                for n_iters in NITERS:
-                    CASE_PATH[2] = '/sweeps_'+str(n_iters)
-                    pp.mkdir(CASE_PATH, 2)
-                    pp.chdir(CASE_PATH, 2)
-                    #
-                    ma.set_parameter(ROOT, 'Re', re)
-                    ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
-                    ma.set_parameter(ROOT, 'lx', LX)
-                    ma.set_parameter(ROOT, 'ly', LY)
-                    ma.set_parameter(ROOT, 'lz', LZ)
-                    ma.set_parameter(ROOT, 'origin z', LZ/2.)
-                    ma.set_parameter(ROOT, 'nx', NX)
-                    ma.set_parameter(ROOT, 'ny', NY)
-                    ma.set_parameter(ROOT, 'nz', NZ)
-                    ma.set_parameter(ROOT, 'nf', nf)
-                    ma.set_parameter(ROOT, 'max refinement', 4-nf)
-                    ma.set_parameter(ROOT, 'npx', NPX)
-                    ma.set_parameter(ROOT, 'npy', NPY)
-                    ma.set_parameter(ROOT, 'npz', NPZ)
-                    ma.set_parameter(ROOT, 'npf', NPF)
-                    ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', n_iters)
-                    ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
-                            jacobi)
-                    TREE.write('parameter3D.xml')
-                    nptot = NPX*NPY*NPZ*NPF
-                    memtot = int(1024.*max(8/nptot, 2))
-                    print()
-                    print(CASE_PATH)
-                    EXE_STRING = pp.exe_pre(nptot, ' -N -W 12:00 ' +
-                                            '-R "rusage[mem=' + str(memtot) +
-                                            ']" ') + pp.EXE_PATH + '/'+EXE
-                    print(EXE_STRING)
-                    os.system(EXE_STRING)
+        CASE_PATH[1] = '/nf_'+str(nf)
+        pp.mkdir(CASE_PATH, 1)
+        pp.chdir(CASE_PATH, 1)
+        #
+        ma.set_parameter(ROOT, 'Re', re)
+        ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
+        ma.set_parameter(ROOT, 'lx', LX)
+        ma.set_parameter(ROOT, 'ly', LY)
+        ma.set_parameter(ROOT, 'lz', LZ)
+        ma.set_parameter(ROOT, 'origin z', LZ/2.)
+        ma.set_parameter(ROOT, 'nx', NX)
+        ma.set_parameter(ROOT, 'ny', NY)
+        ma.set_parameter(ROOT, 'nz', NZ)
+        ma.set_parameter(ROOT, 'nf', nf)
+        ma.set_parameter(ROOT, 'max refinement', 5-nf)
+        ma.set_parameter(ROOT, 'npx', NPX)
+        ma.set_parameter(ROOT, 'npy', NPY)
+        ma.set_parameter(ROOT, 'npz', NPZ)
+        ma.set_parameter(ROOT, 'npf', NPF)
+        # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', 4)
+        # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
+                # True)
+        TREE.write('parameter3D.xml')
+        nptot = NPX*NPY*NPZ*NPF
+        memtot = int(1024.*max(8/nptot, 2))
+        print()
+        print(CASE_PATH)
+        EXE_STRING = pp.exe_pre(nptot, ' -N -W 20:00 ' +
+                                '-R "rusage[mem=' + str(memtot) +
+                                ']" ') + pp.EXE_PATH + '/'+EXE
+        print(EXE_STRING)
+        os.system(EXE_STRING)
