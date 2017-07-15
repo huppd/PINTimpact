@@ -65,7 +65,7 @@ print('LZ', LZ)
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateRef8'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateRef9'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
