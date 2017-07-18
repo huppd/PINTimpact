@@ -53,8 +53,9 @@ NZO = 513
 NX = 49
 NY = 145
 NZ = 65
+# NY = 193 
 
-LX = round(2*LXO/(NXO-1)*(NX-1), 1)
+LX = round(2.*LXO/(NXO-1)*(NX-1), 1)
 LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
 LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
 
@@ -65,7 +66,7 @@ print('LZ', LZ)
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateRef9'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateRef15'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
@@ -94,10 +95,10 @@ for re in RES:
                 # True)
         TREE.write('parameter3D.xml')
         nptot = NPX*NPY*NPZ*NPF
-        memtot = int(1024.*max(8/nptot, 2))
+        memtot = int(1024.*max(16/nptot, 2))
         print()
         print(CASE_PATH)
-        EXE_STRING = pp.exe_pre(nptot, ' -N -W 18:00 ' +
+        EXE_STRING = pp.exe_pre(nptot, ' -N -W 20:00 ' +
                                 '-R "rusage[mem=' + str(memtot) +
                                 ']" ') + pp.EXE_PATH + '/'+EXE
         print(EXE_STRING)
