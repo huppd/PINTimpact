@@ -542,8 +542,8 @@ public:
       case Streaming2DC : {
         ST amp = space()->getDomainSize()->getRe();
         ST pi = 4.*std::atan(1.);
-        ST L1 = space()->getDomainSize()->getSize(X);
-        ST om = 2.*pi/L1;
+        //ST L1 = space()->getDomainSize()->getSize(X);
+        ST om = 2.*pi;
 
         if( Add::N==add ) at(F::U).init();
         at(F::V).initFromFunction(
@@ -556,8 +556,8 @@ public:
       case Streaming2DS: {
         ST amp = space()->getDomainSize()->getRe();
         ST pi = 4.*std::atan(1.);
-        ST L1 = space()->getDomainSize()->getSize(X);
-        ST om = 2.*pi/L1;
+        //ST L1 = space()->getDomainSize()->getSize(X);
+        ST om = 2.*pi;
 
         if( Add::N==add ) at(F::U).init();
         at(F::V).initFromFunction(

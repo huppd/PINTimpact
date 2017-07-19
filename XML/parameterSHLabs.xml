@@ -76,12 +76,12 @@
     <Parameter docString="" id="47" isDefault="true" isUsed="true" name="residual" type="int" value="1000" />
     <Parameter docString="" id="48" isDefault="true" isUsed="true" name="update" type="int" value="2000" />
     <ParameterList id="229" name="iteration">
-      <Parameter docString="" id="49" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
+      <Parameter docString="" id="49" isDefault="true" isUsed="true" name="pre" type="bool" value="true" />
       <Parameter docString="" id="50" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
     </ParameterList>
     <ParameterList id="230" name="solve">
       <Parameter docString="" id="51" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
-      <Parameter docString="" id="52" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
+      <Parameter docString="" id="52" isDefault="true" isUsed="true" name="post" type="bool" value="true" />
     </ParameterList>
   </ParameterList>
   <ParameterList id="231" name="NOX Status Test">
