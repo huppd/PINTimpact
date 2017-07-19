@@ -31,12 +31,12 @@ STS = [1./60., 1./10.]
 STS = [1./60.]
 st = STS[0]
 
-NFS = [0, 1, 2]
-# NFS = [0]
+# NFS = [0, 1, 2]
+NFS = [1]
 
 NPX = 1
-NPY = 3
-NPZ = 2
+NPY = 4
+NPZ = 4
 NPF = 1
 
 LXO = 22.5
@@ -50,9 +50,9 @@ NZO = 513
 # NX = (65-1)/2 +1
 # NY = (129-1)/2 + 1
 # NZ = (65-1)/2 + 1
-NX = 49
-NY = 145
-NZ = 65
+NX = (49-1)*1+1
+NY = (145-1)/3*4+1
+NZ = (65-1)*2+1
 # NY = 193 
 
 LX = round(2.*LXO/(NXO-1)*(NX-1), 1)
@@ -66,7 +66,7 @@ print('LZ', LZ)
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateRef15'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateRef16s'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
@@ -98,7 +98,7 @@ for re in RES:
         memtot = int(1024.*max(16/nptot, 2))
         print()
         print(CASE_PATH)
-        EXE_STRING = pp.exe_pre(nptot, ' -N -W 20:00 ' +
+        EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
                                 '-R "rusage[mem=' + str(memtot) +
                                 ']" ') + pp.EXE_PATH + '/'+EXE
         print(EXE_STRING)
