@@ -51,8 +51,8 @@ NZO = 513
 # NY = (129-1)/2 + 1
 # NZ = (65-1)/2 + 1
 NX = (49 - 1)*1 + 1
-NY = (145 - 1)*4/3 + 1
-NZ = (65 - 1)*3/2 + 1
+NY = (145 - 1)*1 + 1
+NZ = (65 - 1)*1 + 1
 # NY = 193 
 
 LX = round(2.*LXO/(NXO-1)*(NX-1), 1)
@@ -66,7 +66,7 @@ print('LZ', LZ)
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateRef16yz'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateTFQMR1'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
