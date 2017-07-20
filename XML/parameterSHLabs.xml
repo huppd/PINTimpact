@@ -27,7 +27,7 @@
     <Parameter docString="" id="22" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="true" />
     <ParameterList id="217" name="Stretching in X">
       <Parameter docString="" id="23" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="parabola" />
-      <Parameter docString="" id="24" isDefault="true" isUsed="true" name="alpha" type="double" value="1.00e-02" />
+      <Parameter docString="" id="24" isDefault="true" isUsed="true" name="alpha" type="double" value="1.0e-02" />
     </ParameterList>
     <ParameterList id="218" name="Stretching in Y">
     </ParameterList>
@@ -279,7 +279,7 @@
       <ParameterList id="261" name="Solver">
         <Parameter docString="" id="186" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="90" />
         <Parameter docString="" id="187" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="2" />
-        <Parameter docString="" id="188" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000002e-01" />
+        <Parameter docString="" id="188" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
         <Parameter docString="" id="189" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
         <Parameter docString="" id="190" isDefault="false" isUsed="true" name="Timer Label" type="string" value="MHDtConvectionDiffusion" />
         <Parameter docString="" id="191" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
