@@ -140,10 +140,10 @@ protected:
   Teuchos::Tuple<Ordinal,dimension> iimax_;
   Teuchos::Tuple<Ordinal,dimension> dd_;
 
-  Teuchos::ArrayRCP<Ordinal> offsI_;
-  Teuchos::ArrayRCP<Ordinal> sizsI_;
-  Teuchos::ArrayRCP<Ordinal> recvI_;
-  Teuchos::ArrayRCP<Ordinal> dispI_;
+  Teuchos::ArrayRCP<Ordinal> offs_;
+  Teuchos::ArrayRCP<Ordinal> sizs_;
+  Teuchos::ArrayRCP<Ordinal> recv_;
+  Teuchos::ArrayRCP<Ordinal> disp_;
 
   Teuchos::Tuple<StencS,3> cIS_;
   Teuchos::Tuple<StencV,3> cIV_;
@@ -175,10 +175,10 @@ protected:
       }
     }
 
-    offsI_ = Teuchos::arcp<Ordinal>( 3*nGatherTotal );
-    sizsI_ = Teuchos::arcp<Ordinal>( 3*nGatherTotal );
-    recvI_ = Teuchos::arcp<Ordinal>(   nGatherTotal );
-    dispI_ = Teuchos::arcp<Ordinal>(   nGatherTotal );
+    offs_ = Teuchos::arcp<Ordinal>( 3*nGatherTotal );
+    sizs_ = Teuchos::arcp<Ordinal>( 3*nGatherTotal );
+    recv_ = Teuchos::arcp<Ordinal>(   nGatherTotal );
+    disp_ = Teuchos::arcp<Ordinal>(   nGatherTotal );
 
     MPI_Request req_o, req_s;  
 
@@ -307,7 +307,7 @@ protected:
       }
 
       MPI_Group_free( &baseGroup );
-      // ------------------------- offsI_, sizsI_
+      // ------------------------- offs_, sizs_
 
       if( spaceF_->getProcGrid()->participating() )  {
         int rank_comm2;
@@ -317,13 +317,13 @@ protected:
             iiShift.getRawPtr(), //void* send_data,
             3,                   //int send_count,
             MPI_INTEGER,         //MPI_Datatype send_datatype,
-            offsI_.getRawPtr(),  //void* recv_data,
+            offs_.getRawPtr(),  //void* recv_data,
             3,                   //int recv_count,
             MPI_INTEGER,         //MPI_Datatype recv_datatype,
             comm2_,              //MPI_Comm communicator
             &req_o );              //MPI_Request 
 
-        Teuchos::ArrayRCP<Ordinal> sizs_local = Teuchos::arcp<Ordinal>(3);
+        Teuchos::Tuple<Ordinal, 3> sizs_local;//  = Teuchos::arcp<Ordinal>(3);
 
         for( Ordinal i=0; i<3; ++i )
           sizs_local[i] = iimax_[i]+1;
@@ -332,27 +332,27 @@ protected:
             sizs_local.getRawPtr(), //void* send_data,
             3,                   //int send_count,
             MPI_INTEGER,         //MPI_Datatype send_datatype,
-            sizsI_.getRawPtr(),  //void* recv_data,
+            sizs_.getRawPtr(),  //void* recv_data,
             3,                   //int recv_count,
             MPI_INTEGER,         //MPI_Datatype recv_datatype,
             comm2_,              //MPI_Comm communicator
             &req_s );              //MPI_Request 
 
         MPI_Wait(&req_s, MPI_STATUS_IGNORE); 
-        MPI_Wait(&req_o, MPI_STATUS_IGNORE); 
 
         Ordinal counter = 0;
         for( int k=0; k<nGather_[2]; ++k )
           for( int j=0; j<nGather_[1]; ++j )
             for( int i=0; i<nGather_[0]; ++i ) {
-              recvI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ]
-                = sizsI_[ 0 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-                  * sizsI_[ 1 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-                  * sizsI_[ 2 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ];
+              recv_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ]
+                = sizs_[ 0 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
+                  * sizs_[ 1 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
+                  * sizs_[ 2 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ];
 
-              dispI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
-              counter += recvI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
+              disp_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
+              counter += recv_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
             }
+        MPI_Wait(&req_o, MPI_STATUS_IGNORE); 
       }
     }
     // ------------------ cIS, cIV
@@ -445,8 +445,8 @@ public:
           spaceC_->getProcGrid()->participating(),
           rankc2_,
           MPI_Comm_c2f(comm2_),
-          dispI_.getRawPtr(),
-          offsI_.getRawPtr(),
+          disp_.getRawPtr(),
+          offs_.getRawPtr(),
           x.getConstRawPtr() );
       }
 
@@ -502,8 +502,8 @@ public:
           spaceC_->getProcGrid()->participating(),
           rankc2_,
           MPI_Comm_c2f(comm2_),
-          dispI_.getRawPtr(),
-          offsI_.getRawPtr(),
+          disp_.getRawPtr(),
+          offs_.getRawPtr(),
           x.getConstRawPtr() );
       }
 
@@ -542,8 +542,8 @@ public:
     out << "iimax:\t" << iimax_ << "\n";
     out << "rankc2:\t" << rankc2_ << "\n";
     out << "comm2:\t" << comm2_ << "\n";
-    //		out << "offsI:\t" << offsI_ << "\n";
-    //		out << "dispI:\t" << dispI_ << "\n";
+    //		out << "offs:\t" << offs_ << "\n";
+    //		out << "dispI:\t" << disp_ << "\n";
     out << "\n";
     for( int j=0; j<3; ++j ) {
       out << "\n Scalar dir: " << j << ":\n";

@@ -262,8 +262,7 @@ std::ostream& operator<<( std::ostream& out, const EScalarField& c ) {
 /// \param rank if rank==0 then file is created otherwise ostream is a blackhole, 'default'=0
 ///
 /// \return  pointer to a std::ofstream
-Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank=0
-                                        ) {
+Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank=0 ) {
 
   if( 0==rank )
     return( Teuchos::rcp( new std::ofstream( fname ) ) );

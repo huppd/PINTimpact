@@ -114,8 +114,7 @@ public:
       x.getConstRawPtr(),
       y.getRawPtr() );
 
-    if( this->nGather_[0]*this->nGather_[1]*this->nGather_[2]>1 )
-      this->gather( y.getRawPtr() );
+    this->gather( y.getRawPtr() );
 
     y.changed();
   }

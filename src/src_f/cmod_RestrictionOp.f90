@@ -341,6 +341,8 @@ contains
   subroutine MG_RestrictGather( &
       Nc,                       &
       bLc,bUc,                  &
+      bCL_loc,                  &
+      bCL_glo,                  &
       iimax,                    &
       n_gather,                 &
       participate_yes,          &
@@ -360,11 +362,14 @@ contains
     integer(c_int), intent(in)     :: bLc(3)
     integer(c_int), intent(in)     :: bUc(3)
 
+    integer(c_int), intent(in)     :: bCL_loc(3)
+    integer(c_int), intent(in)     :: bCL_glo(3)
+
     integer(c_int), intent(in)     :: iimax(3)
 
     integer(c_int), intent(in)     :: n_gather(3)
 
-    logical(c_bool), intent(in)     :: participate_yes
+    logical(c_bool), intent(in)    :: participate_yes
 
     integer(c_int), intent(in)     :: rankc2
 
@@ -391,6 +396,11 @@ contains
 
     !if (n_gather(1)*n_gather(2)*n_gather(3) > 1) then
     SS(:) = 1
+
+    if( 0<BCL_loc(1) ) SS(1) = 0
+    if( 0<BCL_loc(2) ) SS(2) = 0
+    if( 0<BCL_loc(3) ) SS(3) = 0
+
 
     ! Anmerkung: Besser nicht fest allocieren um Speicherplatz zu sparen, ODER
     ! gleich "phic" verwenden!
@@ -424,14 +434,18 @@ contains
         do j = 1, n_gather(2)
           do i = 1, n_gather(1)
 
-            sizsg(1:3) = sizsR(1:3,i+(j-SS(2))*n_gather(1)+(k-SS(3))*n_gather(1)*n_gather(2))
-            offsg(1:3) = offsR(1:3,i+(j-SS(2))*n_gather(1)+(k-SS(3))*n_gather(1)*n_gather(2))
-            dispg      = dispR(    i+(j-SS(2))*n_gather(1)+(k-SS(3))*n_gather(1)*n_gather(2))
+            sizsg(1:3) = sizsR(1:3,i+(j-1)*n_gather(1)+(k-1)*n_gather(1)*n_gather(2))
+            offsg(1:3) = offsR(1:3,i+(j-1)*n_gather(1)+(k-1)*n_gather(1)*n_gather(2))
+            dispg      = dispR(    i+(j-1)*n_gather(1)+(k-1)*n_gather(1)*n_gather(2))
 
-            do kk = SS(3), sizsg(3)
-              do jj = SS(2), sizsg(2)
-                do ii = SS(1), sizsg(1)
-                  phic(ii+offsg(1),jj+offsg(2),kk+offsg(3)) = recvbuf(dispg+ii+(jj-SS(2))*sizsg(1)+(kk-SS(3))*sizsg(1)*sizsg(2))
+            if( 1==i .and. 0<BCL_glo(1) ) offsg(1) = -1
+            if( 1==j .and. 0<BCL_glo(2) ) offsg(2) = -1
+            if( 1==k .and. 0<BCL_glo(3) ) offsg(3) = -1
+
+            do kk = 1, sizsg(3)
+              do jj = 1, sizsg(2)
+                do ii = 1, sizsg(1)
+                  phic(ii+offsg(1),jj+offsg(2),kk+offsg(3)) = recvbuf(dispg+ii+(jj-1)*sizsg(1)+(kk-1)*sizsg(1)*sizsg(2))
                 end do
               end do
             end do

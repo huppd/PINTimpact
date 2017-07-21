@@ -4,6 +4,7 @@
 
 
 #include "Teuchos_Array.hpp"
+#include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_TestForException.hpp"
 
@@ -117,6 +118,8 @@ extern "C" {
     const int* const Nc,
     const int* const bLc,
     const int* const bUc,
+    const int* const BCL_local,
+    const int* const BCL_global,
     const int* const iimax,
     const int* const n_gather,
     const bool& participate_yes,
@@ -167,10 +170,10 @@ protected:
   Teuchos::Tuple<Ordinal,dimension> iimax_; ///< coarsen N + neighbor stuff (NC-1)/nGather + 1
   Teuchos::Tuple<Ordinal,dimension> dd_;    ///< coarsening factor
 
-  Ordinal* offsR_;
-  Ordinal* sizsR_;
-  Ordinal* recvR_;
-  Ordinal* dispR_;
+  Teuchos::ArrayRCP<Ordinal> offs_;
+  Teuchos::ArrayRCP<Ordinal> sizs_;
+  Teuchos::ArrayRCP<Ordinal> recv_;
+  Teuchos::ArrayRCP<Ordinal> disp_;
 
 
   void init( const Teuchos::Tuple<int,dimension>& np ) {
@@ -211,10 +214,12 @@ protected:
             iiShift[i] = iiShift[i] - 1;
     }
 
-    offsR_ = new Ordinal[3*nGatherTotal];
-    sizsR_ = new Ordinal[3*nGatherTotal];
-    recvR_ = new Ordinal[  nGatherTotal];
-    dispR_ = new Ordinal[  nGatherTotal];
+    offs_ = Teuchos::arcp<Ordinal>( 3*nGatherTotal );
+    sizs_ = Teuchos::arcp<Ordinal>( 3*nGatherTotal );
+    recv_ = Teuchos::arcp<Ordinal>( nGatherTotal );
+    disp_ = Teuchos::arcp<Ordinal>( nGatherTotal );
+
+    MPI_Request req_o, req_s;  
 
     // ------------- rank2_, comm2_
     if( nGatherTotal>1 ) {
@@ -344,54 +349,53 @@ protected:
 
       MPI_Group_free( &baseGroup );
       delete[] newRanks;
-      // ------------------------- offsR_, sizsR_
+      // ------------------------- offs_, sizs_
 
       if( spaceF_->getProcGrid()->participating() )  {
         int rank_comm2;
         MPI_Comm_rank( comm2_, &rank_comm2 );
 
-        std::vector<Ordinal> offs_global(3*nGatherTotal);
-        std::vector<Ordinal> sizs_global(3*nGatherTotal);
+        MPI_Iallgather(
+            iiShift.getRawPtr(), //void* send_data,
+            3,                   //int send_count,
+            MPI_INTEGER,         //MPI_Datatype send_datatype,
+            offs_.getRawPtr(),  //void* recv_data,
+            3,                   //int recv_count,
+            MPI_INTEGER,         //MPI_Datatype recv_datatype,
+            comm2_,              //MPI_Comm communicator
+            &req_o );              //MPI_Request 
 
-        for( Ordinal i=0; i<3*nGatherTotal; ++i ) {
-          offs_global[i] = 0;
-          sizs_global[i] = 0;
+        Teuchos::Tuple<Ordinal, 3> sizs_local;
+
+        for( int i=0; i<3; ++i ) {
+          sizs_local[i] = iimax_[i];
+          if( 0<spaceF_->bcl(i) ) sizs_local[i] +=1;
         }
 
-
-        for( Ordinal i=0; i<3; ++i ) {
-          offs_global[ i + rank_comm2*3 ] = iiShift[i];
-          sizs_global[ i + rank_comm2*3 ] = iimax_[i];
-        }
-
-
-        MPI_Allreduce(
-          offs_global.data(),
-          offsR_,
-          3*nGatherTotal,
-          MPI_INTEGER,
-          MPI_SUM,
-          comm2_ );
-        MPI_Allreduce(
-          sizs_global.data(),
-          sizsR_,
-          3*nGatherTotal,
-          MPI_INTEGER,
-          MPI_SUM,
-          comm2_ );
+        MPI_Iallgather(
+            sizs_local.getRawPtr(), // void* send_data,
+            3,                      // int send_count,
+            MPI_INTEGER,            // MPI_Datatype send_datatype,
+            sizs_.getRawPtr(),      // void* recv_data,
+            3,                      // int recv_count,
+            MPI_INTEGER,            // MPI_Datatype recv_datatype,
+            comm2_,                 // MPI_Comm communicator
+            &req_s );               // MPI_Request 
+        MPI_Wait(&req_s, MPI_STATUS_IGNORE); 
 
         Ordinal counter = 0;
         for( int k=0; k<nGather_[2]; ++k )
           for( int j=0; j<nGather_[1]; ++j )
             for( int i=0; i<nGather_[0]; ++i ) {
-              recvR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ]
-                = sizsR_[ 0 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-                  * sizsR_[ 1 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-                  * sizsR_[ 2 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ];
+              recv_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ]
+                = sizs_[ 0 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
+                  * sizs_[ 1 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
+                  * sizs_[ 2 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ];
 
-              dispR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
-              counter += recvR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
+              disp_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
+              counter += recv_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
             }
+        MPI_Wait(&req_o, MPI_STATUS_IGNORE); 
       }
     }
   }
@@ -421,29 +425,24 @@ public:
   }
 
 
-  ~RestrictionBaseOp() {
-    delete[] offsR_;
-    delete[] sizsR_;
-    delete[] recvR_;
-    delete[] dispR_;
-  }
-
-
   void gather( Scalar* y ) const {
 
+    if( nGather_[0]*nGather_[1]*nGather_[2]>1 )
       MG_RestrictGather(
         spaceC_->nLoc(),
         spaceC_->bl(),
         spaceC_->bu(),
+        spaceF_->getBCLocal()->getBCL(),
+        spaceF_->getBCGlobal()->getBCL(),
         iimax_.getRawPtr(),
         nGather_.getRawPtr(),
         spaceC_->getProcGrid()->participating(),
         rankc2_,
         MPI_Comm_c2f(comm2_),
-        recvR_,
-        dispR_,
-        sizsR_,
-        offsR_,
+        recv_.getRawPtr(),
+        disp_.getRawPtr(),
+        sizs_.getRawPtr(),
+        offs_.getRawPtr(),
         y );
   }
 

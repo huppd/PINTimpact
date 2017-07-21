@@ -259,15 +259,7 @@ public:
       }
     }
 
-    if( this->nGather_[0]*this->nGather_[1]*this->nGather_[2]>1 ) {
-      RangeFieldT ys( spaceC() );
-      spaceC()->getInterpolateV2S()->apply( y, ys );
-      //spaceC()->getInterpolateV2S()->print();
-      this->gather( ys.getRawPtr() );
-      auto inter = create<InterpolateS2V>( spaceC() );
-      //inter->print();
-      inter->apply( ys, y );
-    }
+    this->gather( y.getRawPtr() );
 
     y.changed();
   }
