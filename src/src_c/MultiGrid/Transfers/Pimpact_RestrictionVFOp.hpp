@@ -9,6 +9,7 @@
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Stencil.hpp"
+#include "Pimpact_InterpolateS2VOp.hpp"
 
 
 
@@ -258,7 +259,15 @@ public:
       }
     }
 
-    this->gather( y.getRawPtr() );
+    if( this->nGather_[0]*this->nGather_[1]*this->nGather_[2]>1 ) {
+      RangeFieldT ys( spaceC() );
+      spaceC()->getInterpolateV2S()->apply( y, ys );
+      //spaceC()->getInterpolateV2S()->print();
+      this->gather( ys.getRawPtr() );
+      auto inter = create<InterpolateS2V>( spaceC() );
+      //inter->print();
+      inter->apply( ys, y );
+    }
 
     y.changed();
   }

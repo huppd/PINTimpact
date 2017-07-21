@@ -24,16 +24,13 @@ const ST pi2 = 2.*std::acos(-1.);
 using CSpace2DT = Pimpact::Space<ST,OT,2,d,2>;
 using CSpace3DT = Pimpact::Space<ST,OT,3,d,2>;
 
-using CCSpace2DT = Pimpact::Space<ST,OT,2,d,3>;
-using CCSpace3DT = Pimpact::Space<ST,OT,3,d,3>;
-
 using CSL2D = Pimpact::CoarsenStrategy<D2,CSpace2DT>;
 using CSG2D = Pimpact::CoarsenStrategyGlobal<D2,CSpace2DT>;
 
 using CSL3D = Pimpact::CoarsenStrategy<D3,CSpace3DT>;
 using CSG3D = Pimpact::CoarsenStrategyGlobal<D3,CSpace3DT>;
 
-using CCSL3D = Pimpact::CoarsenStrategy<D3,D2>;
+using CCSL3D = Pimpact::CoarsenStrategy<D3,D3>;
 using CCSG3D = Pimpact::CoarsenStrategyGlobal<D3,D3>;
 
 using Spaces2D = Pimpact::MGSpaces<D2,CSpace2DT>;
@@ -425,10 +422,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType )
 			if( mgSpaces->participating(level-1) ) op->apply( fieldf, fieldc );
 
 			if( mgSpaces->participating(level-1) )
-				TEST_FLOATING_EQUALITY( 0., fieldf.norm(), eps );
+				TEST_EQUALITY( fieldf.norm()<eps, true );
 
 			if( mgSpaces->participating(level) ) 
-				TEST_FLOATING_EQUALITY( 0., fieldc.norm(), eps );
+				TEST_EQUALITY( fieldc.norm()<eps, true );
 
 			// the random test
 			fieldf.random();
@@ -1417,7 +1414,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG3D, CDJ3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG2D, CDSOR2D )
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG3D, CDSOR3D )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CCSG3D, CCDSOR3D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CCSG3D, CCDSOR3D )
 
 
 
