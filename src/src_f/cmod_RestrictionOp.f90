@@ -394,7 +394,8 @@ contains
     !if (n_gather(1)*n_gather(2)*n_gather(3) > 1) then
     SS(:) = 1
 
-    ! Anmerkung: Besser nicht fest allocieren um Speicherplatz zu sparen, ODER gleich "phic" verwenden!
+    ! Anmerkung: Besser nicht fest allocieren um Speicherplatz zu sparen, ODER
+    ! gleich "phic" verwenden!
     allocate(sendbuf(SS(1):iimax(1),SS(2):iimax(2),SS(3):iimax(3)))
 
     do kk = SS(3), iimax(3)
