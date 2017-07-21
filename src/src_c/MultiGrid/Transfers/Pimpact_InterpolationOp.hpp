@@ -180,6 +180,8 @@ protected:
     recvI_ = Teuchos::arcp<Ordinal>(   nGatherTotal );
     dispI_ = Teuchos::arcp<Ordinal>(   nGatherTotal );
 
+    MPI_Request req_o, req_s;  
+
     // ------------- rank2_, comm2_
     if( nGatherTotal>1 ) {
       Teuchos::ArrayRCP<int> newRanks = Teuchos::arcp<int>(nGatherTotal);
@@ -311,34 +313,33 @@ protected:
         int rank_comm2;
         MPI_Comm_rank( comm2_, &rank_comm2 );
 
-        Teuchos::ArrayRCP<Ordinal> offs_global = Teuchos::arcp<Ordinal>(3*nGatherTotal);
-        Teuchos::ArrayRCP<Ordinal> sizs_global = Teuchos::arcp<Ordinal>(3*nGatherTotal);
+        MPI_Iallgather(
+            iiShift.getRawPtr(), //void* send_data,
+            3,                   //int send_count,
+            MPI_INTEGER,         //MPI_Datatype send_datatype,
+            offsI_.getRawPtr(),  //void* recv_data,
+            3,                   //int recv_count,
+            MPI_INTEGER,         //MPI_Datatype recv_datatype,
+            comm2_,              //MPI_Comm communicator
+            &req_o );              //MPI_Request 
 
-        for( Ordinal i=0; i<3*nGatherTotal; ++i ) {
-          offs_global[i] = 0;
-          sizs_global[i] = 0;
-        }
+        Teuchos::ArrayRCP<Ordinal> sizs_local = Teuchos::arcp<Ordinal>(3);
 
-        for( Ordinal i=0; i<3; ++i ) {
-          offs_global[ i + rank_comm2*3 ] = iiShift[i];
-          sizs_global[ i + rank_comm2*3 ] = iimax_[i]+1;
-        }
+        for( Ordinal i=0; i<3; ++i )
+          sizs_local[i] = iimax_[i]+1;
 
+        MPI_Iallgather(
+            sizs_local.getRawPtr(), //void* send_data,
+            3,                   //int send_count,
+            MPI_INTEGER,         //MPI_Datatype send_datatype,
+            sizsI_.getRawPtr(),  //void* recv_data,
+            3,                   //int recv_count,
+            MPI_INTEGER,         //MPI_Datatype recv_datatype,
+            comm2_,              //MPI_Comm communicator
+            &req_s );              //MPI_Request 
 
-        MPI_Allreduce(
-          offs_global.getRawPtr(),
-          offsI_.getRawPtr(),
-          3*nGatherTotal,
-          MPI_INTEGER,
-          MPI_SUM,
-          comm2_ );
-        MPI_Allreduce(
-          sizs_global.getRawPtr(),
-          sizsI_.getRawPtr(),
-          3*nGatherTotal,
-          MPI_INTEGER,
-          MPI_SUM,
-          comm2_ );
+        MPI_Wait(&req_s, MPI_STATUS_IGNORE); 
+        MPI_Wait(&req_o, MPI_STATUS_IGNORE); 
 
         Ordinal counter = 0;
         for( int k=0; k<nGather_[2]; ++k )
