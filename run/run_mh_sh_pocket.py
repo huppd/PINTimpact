@@ -33,47 +33,50 @@ st = STS[0]
 
 # NFS = [0, 1, 2]
 NFS = [1]
+nf = 1
 
-NPX = 1
-NPY = 3
-NPZ = 2
-NPF = 1
-
-LXO = 22.5
-LYO = 600.
-LZO = 150.
-NXO = 97
-NYO = 1537
-NZO = 513
-
-# NX = NXO
-# NX = (65-1)/2 +1
-# NY = (129-1)/2 + 1
-# NZ = (65-1)/2 + 1
-NX = (49 - 1)*1 + 1
-NY = (145 - 1)*1 + 1
-NZ = (65 - 1)*1 + 1
-# NY = 193 
-
-LX = round(2.*LXO/(NXO-1)*(NX-1), 1)
-LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
-LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
-
-print('LX', LX)
-print('LY', LY)
-print('LZ', LZ)
+NYS = [65, 129, 257]
 
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateTFQMR1'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateTFQMR3'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
-    for nf in NFS:
-        CASE_PATH[1] = '/nf_'+str(nf)
+    for NY in NYS:
+        CASE_PATH[1] = '/ny_'+str(NY)
         pp.mkdir(CASE_PATH, 1)
         pp.chdir(CASE_PATH, 1)
+        #
+        NPX = 1
+        NPY = 4
+        NPZ = 2
+        NPF = 1
+        #
+        LXO = 22.5
+        LYO = 600.
+        LZO = 150.
+        NXO = 97
+        NYO = 1537
+        NZO = 513
+        #
+        # NX = NXO
+        # NX = (65-1)/2 +1
+        # NY = (129-1)/2 + 1
+        # NZ = (65-1)/2 + 1
+        NX = (49 - 1)*1 + 1
+        # NY = (145 - 1)*1 + 1
+        NZ = (65 - 1)*1 + 1
+        # NY = 193 
+        #
+        LX = round(2.*LXO/(NXO-1)*(NX-1), 1)
+        LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
+        LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
+        #
+        print('LX', LX)
+        print('LY', LY)
+        print('LZ', LZ)
         #
         ma.set_parameter(ROOT, 'Re', re)
         ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
@@ -98,7 +101,7 @@ for re in RES:
         memtot = int(1024.*max(16/nptot, 2))
         print()
         print(CASE_PATH)
-        EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
+        EXE_STRING = pp.exe_pre(nptot, ' -N -W 18:00 ' +
                                 '-R "rusage[mem=' + str(memtot) +
                                 ']" ') + pp.EXE_PATH + '/'+EXE
         print(EXE_STRING)
