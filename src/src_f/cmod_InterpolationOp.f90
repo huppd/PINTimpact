@@ -852,7 +852,8 @@ contains
     real(c_double), allocatable   ::  recvbuf(:,:,:)
     integer(c_int)                ::  offsg(1:3), dispg
     !real(c_double)                ::  sendbuf( 1:( ( Nc(1)+np(1)-1 )*( Nc(2)+np(2)-1 )*( Nc(3)+np(3)-1 ) ) ) ! from IMPACT
-    real(c_double)                ::  sendbuf( 0:( ( Nc(1)+np(1)*3 )*( Nc(2)+np(2)*3 )*( Nc(3)+np(3)*3 ) ) )
+    !real(c_double)                ::  sendbuf( 0:( ( Nc(1)+np(1)*3 )*( Nc(2)+np(2)*3 )*( Nc(3)+np(3)*3 ) ) )
+    real(c_double)                ::  sendbuf( 0:( (iimax(1)+1)*(iimax(2)+1)*(iimax(3)+1)*n_gather(1)*n_gather(2)*n_gather(3) ) )
     !real(c_double)                ::  sendbuf( 0:( ( Nc(1)+12 )*( Nc(2)+12 )*( Nc(3)+12 ) ) )
 
 

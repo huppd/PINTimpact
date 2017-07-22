@@ -9,6 +9,7 @@
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Stencil.hpp"
+#include "Pimpact_InterpolateS2VOp.hpp"
 
 
 
@@ -152,113 +153,121 @@ public:
     x.exchange( );
 
     switch( fType ) {
-    case( F::U ) : {
-      if( 2==ST::sdim ) {
-        for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
-          Ordinal k = kk;
-          for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-            Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
-            for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-              Ordinal i = getIF(X,ii);
+      case( F::U ) : {
+        if( 2==ST::sdim ) {
+          for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+            Ordinal k = kk;
+            for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+              Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
+              for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+                Ordinal i = getIF(X,ii);
 
-              y(ii,jj,kk) = 0.;
+                y(ii,jj,kk) = 0.;
 
-              for( int jjj=-1; jjj<=1; ++jjj )
-                for( int iii=0; iii<=1; ++iii )
-                  y(ii,jj,kk) +=
-                    cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*x(i+iii,j+jjj,k) ;
-            }
-          }
-        }
-      } else {
-        for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
-          Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
-          for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-            Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
-            for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-              Ordinal i = getIF(X,ii);
-
-              y(ii,jj,kk) = 0.;
-
-              for( int kkk=-1; kkk<=1; ++kkk )
                 for( int jjj=-1; jjj<=1; ++jjj )
                   for( int iii=0; iii<=1; ++iii )
                     y(ii,jj,kk) +=
-                      cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
+                      cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*x(i+iii,j+jjj,k) ;
+              }
+            }
+          }
+        } else {
+          for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+            Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
+            for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+              Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
+              for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+                Ordinal i = getIF(X,ii);
+
+                y(ii,jj,kk) = 0.;
+
+                for( int kkk=-1; kkk<=1; ++kkk )
+                  for( int jjj=-1; jjj<=1; ++jjj )
+                    for( int iii=0; iii<=1; ++iii )
+                      y(ii,jj,kk) +=
+                        cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
+              }
             }
           }
         }
+        break;
       }
-      break;
-    }
-    case( F::V ) : {
+      case( F::V ) : {
 
-      if( 2==ST::sdim ) {
-        for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
-          Ordinal k = kk;
-          for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-            Ordinal j = getIF(Y,jj);
-            for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-              Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
+        if( 2==ST::sdim ) {
+          for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+            Ordinal k = kk;
+            for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+              Ordinal j = getIF(Y,jj);
+              for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+                Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
 
-              y(ii,jj,kk) = 0.;
+                y(ii,jj,kk) = 0.;
 
-              for( int jjj=0; jjj<=1; ++jjj )
-                for( int iii=-1; iii<=1; ++iii )
-                  y(ii,jj,kk) +=
-                    cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*x(i+iii,j+jjj,k) ;
-            }
-          }
-        }
-      } else {
-        for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
-          Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
-          for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-            Ordinal j = getIF(Y,jj);
-            for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-              Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
-
-              y(ii,jj,kk) = 0.;
-
-              for( int kkk=-1; kkk<=1; ++kkk )
                 for( int jjj=0; jjj<=1; ++jjj )
                   for( int iii=-1; iii<=1; ++iii )
                     y(ii,jj,kk) +=
-                      cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
+                      cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*x(i+iii,j+jjj,k) ;
+              }
+            }
+          }
+        } else {
+          for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+            Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
+            for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+              Ordinal j = getIF(Y,jj);
+              for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+                Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
+
+                y(ii,jj,kk) = 0.;
+
+                for( int kkk=-1; kkk<=1; ++kkk )
+                  for( int jjj=0; jjj<=1; ++jjj )
+                    for( int iii=-1; iii<=1; ++iii )
+                      y(ii,jj,kk) +=
+                        cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
+              }
             }
           }
         }
+        break;
       }
-      break;
-    }
-    case( F::W ) : {
+      case( F::W ) : {
 
-      for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
-        Ordinal k = getIF(Z,kk);
-        for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-          Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
-          for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-            Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
+        for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+          Ordinal k = getIF(Z,kk);
+          for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
+            Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
+            for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
+              Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
 
-            y(ii,jj,kk) = 0.;
+              y(ii,jj,kk) = 0.;
 
-            for( int kkk=0; kkk<=1; ++kkk )
-              for( int jjj=-1; jjj<=1; ++jjj )
-                for( int iii=-1; iii<=1; ++iii )
-                  y(ii,jj,kk) +=
-                    cRS_[X](ii,iii)*cRS_[Y](jj,jjj)*cRV_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
+              for( int kkk=0; kkk<=1; ++kkk )
+                for( int jjj=-1; jjj<=1; ++jjj )
+                  for( int iii=-1; iii<=1; ++iii )
+                    y(ii,jj,kk) +=
+                      cRS_[X](ii,iii)*cRS_[Y](jj,jjj)*cRV_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
+            }
           }
         }
+        break;
       }
-      break;
-    }
-    case( F::S ) : {
-      // todo: throw exception
-      break;
-    }
+      case( F::S ) : {
+        // todo: throw exception
+        break;
+      }
     }
 
-    this->gather( y.getRawPtr() );
+    if( this->nGather_[0]*this->nGather_[1]*this->nGather_[2]>1 ) {
+      RangeFieldT ys( spaceC() );
+      spaceC()->getInterpolateV2S()->apply( y, ys );
+      //spaceC()->getInterpolateV2S()->print();
+      this->gather( ys.getRawPtr() );
+      auto inter = create<InterpolateS2V>( spaceC() );
+      //inter->print();
+      inter->apply( ys, y );
+    }
 
     y.changed();
   }

@@ -431,7 +431,6 @@ public:
 
   void gather( Scalar* y ) const {
 
-    if( nGather_[0]*nGather_[1]*nGather_[2]>1 )
       MG_RestrictGather(
         spaceC_->nLoc(),
         spaceC_->bl(),

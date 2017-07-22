@@ -37,8 +37,8 @@ using ST = double;
 using OT= int;
 
 const int d = 4;
-const int dNC = 4;
-//const int dNC = 3;
+//const int dNC = 4;
+const int dNC = 3;
 
 using D2 = Pimpact::Space<ST,OT,2,d,dNC>;
 using D3 = Pimpact::Space<ST,OT,3,d,dNC>;
