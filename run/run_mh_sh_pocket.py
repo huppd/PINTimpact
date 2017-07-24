@@ -40,7 +40,7 @@ NYS = [65, 129, 257]
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateTFQMR3'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateTFQMR4'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
@@ -50,7 +50,7 @@ for re in RES:
         pp.chdir(CASE_PATH, 1)
         #
         NPX = 1
-        NPY = 4
+        NPY = 2
         NPZ = 2
         NPF = 1
         #
