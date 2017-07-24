@@ -65,14 +65,14 @@ for re in RES:
         # NX = (65-1)/2 +1
         # NY = (129-1)/2 + 1
         # NZ = (65-1)/2 + 1
-        NX = (49 - 1)*1 + 1
+        NX = (65 - 1)*1 + 1
         # NY = (145 - 1)*1 + 1
-        NZ = (65 - 1)*1 + 1
+        NZ = (129 - 1)*1 + 1
         # NY = 193 
         #
-        LX = round(2.*LXO/(NXO-1)*(NX-1), 1)
-        LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
-        LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
+        LX = round(1.5*LXO/(NXO-1)*(NX-1), 1)
+        LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
+        LZ = round(1.5*LZO/(NZO-1)*(NZ-1), 1)
         #
         print('LX', LX)
         print('LY', LY)
