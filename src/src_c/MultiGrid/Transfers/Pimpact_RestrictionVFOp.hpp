@@ -52,9 +52,9 @@ protected:
 
     Ordinal i=this->dd_[dir]*( ii-1 ) + 1;
 
-    if( 0<spaceC()->getBCLocal()->getBCL(dir) )
+    if( 0<spaceF()->getBCLocal()->getBCL(dir) )
       i = std::max( 0, i );
-    if( 0<spaceC()->getBCLocal()->getBCU(dir) )
+    if( 0<spaceF()->getBCLocal()->getBCU(dir) )
       i = std::min( spaceF()->ei(F::S,dir)-1, i );
     return( i );
   }
@@ -88,7 +88,7 @@ protected:
       cRV_[dir] = StencV( iimax );
 
       const auto& xf = spaceF()->getCoordinatesLocal()->getV(dir);
-      const auto& xc = spaceC()->getCoordinatesLocal()->getV(dir);
+      const auto& xs = spaceF()->getCoordinatesLocal()->getS(dir);
 
       // Restriktion, linienweise, 1d
       // fine
@@ -99,17 +99,27 @@ protected:
       //                  xc(ii)
       //
       // coarse
-      for( Ordinal ii =0; ii<=iimax; ++ii ) {
+      for( Ordinal ii=0; ii<=iimax; ++ii ) {
 
         Ordinal i = getIF( dir, ii );
 
         Scalar dx12 = xf[i+1] - xf[i];
 
-        cRV_[dir](ii,0) = ( xf[i+1]-xc[ii] )/dx12;
-        cRV_[dir](ii,1) = ( xc[ii ]-xf[i ] )/dx12;
+        cRV_[dir](ii,0) = ( xf[i+1]-xs[i+1] )/dx12;
+        cRV_[dir](ii,1) = ( xs[i+1]-xf[i ] )/dx12;
       }
 
-      // a little bit shaky, please verify this when IO is ready
+      // Dirichlet boundary conditions
+      if( 0<spaceF()->getBCLocal()->getBCL(dir) ) {
+        cRV_[dir](0,0) = 1.;
+        cRV_[dir](0,1) = 0.;
+      }
+      if( 0<spaceF()->getBCLocal()->getBCU(dir) ) {
+        cRV_[dir](iimax,0) = 0.;
+        cRV_[dir](iimax,1) = 1.;
+      }
+
+      // symmetric boundary conditions
       if( BC::Symmetry==spaceC()->getBCLocal()->getBCL(dir) ) {
         cRV_[dir](0,0) = 0.;
         cRV_[dir](0,1) = 0.;
