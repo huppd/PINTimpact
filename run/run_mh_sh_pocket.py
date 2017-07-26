@@ -35,14 +35,14 @@ st = STS[0]
 NFS = [1]
 nf = 1
 
-NYS = [65, 129, 257]
+# NYS = [97, 129, 193]
+# NYS = [65, 129, 257]
 NYS = [65, 97, 129]
-# NYS = [97, 129, 192]
 
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateTFQMR5big'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateTFQMR7'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
@@ -51,10 +51,10 @@ for re in RES:
         pp.mkdir(CASE_PATH, 1)
         pp.chdir(CASE_PATH, 1)
         #
-        NPX = 1
+        NPX = 2
         NPY = 2
         NPZ = 2
-        NPF = 1
+        NPF = 2
         #
         LXO = 22.5
         LYO = 600.
@@ -103,7 +103,7 @@ for re in RES:
         memtot = int(1024.*max(16/nptot, 2))
         print()
         print(CASE_PATH)
-        EXE_STRING = pp.exe_pre(nptot, ' -N -W 18:00 ' +
+        EXE_STRING = pp.exe_pre(nptot, ' -N -W 8:00 ' +
                                 '-R "rusage[mem=' + str(memtot) +
                                 ']" ') + pp.EXE_PATH + '/'+EXE
         print(EXE_STRING)
