@@ -36,12 +36,13 @@ NFS = [1]
 nf = 1
 
 NYS = [65, 129, 257]
-NYS = [97, 129, 192]
+NYS = [65, 97, 129]
+# NYS = [97, 129, 192]
 
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateTFQMR4big'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateTFQMR5big'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:
@@ -51,8 +52,8 @@ for re in RES:
         pp.chdir(CASE_PATH, 1)
         #
         NPX = 1
-        NPY = 4
-        NPZ = 4
+        NPY = 2
+        NPZ = 2
         NPF = 1
         #
         LXO = 22.5
@@ -68,7 +69,7 @@ for re in RES:
         # NZ = (65-1)/2 + 1
         NX = (65 - 1)*1 + 1
         # NY = (145 - 1)*1 + 1
-        NZ = (65 - 1)*2 + 1
+        NZ = (65 - 1)*1 + 1
         # NY = 193 
         #
         LX = round(1.5*LXO/(NXO-1)*(NX-1), 1)
