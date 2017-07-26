@@ -27,7 +27,7 @@
     <Parameter docString="" id="22" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="true" />
     <ParameterList id="213" name="Stretching in X">
       <Parameter docString="" id="23" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="parabola" />
-      <Parameter docString="" id="24" isDefault="true" isUsed="true" name="alpha" type="double" value="1.0e-01" />
+      <Parameter docString="" id="24" isDefault="true" isUsed="true" name="alpha" type="double" value="1.0e-03" />
     </ParameterList>
     <ParameterList id="214" name="Stretching in Y">
     </ParameterList>
