@@ -1,9 +1,10 @@
 """ runner for swept Hiemenz flow """
-import os
 from math import pi
+import os
 import xml.etree.ElementTree as ET
-import platform_paths as pp
 import manipulator as ma
+import platform_paths as pp
+
 
 
 # load parameter file
@@ -15,13 +16,6 @@ ma.set_parameter(ROOT, 'withoutput', 1)
 ma.set_parameter(ROOT, 'refinement step', 1)
 ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
-# make executable ready
-EXE = 'peri_navier3D'
-os.chdir(pp.EXE_PATH)
-os.system('make '+EXE+' -j4')
-
-
-CASE_PATH = ['']*5
 
 RUNS = range(1)
 
@@ -42,8 +36,15 @@ NYS = [65, 97, 129]
 JACOBIAN = [True, False]
 NITERS = [4, 8, 16]
 
+CASE_PATH = ['']*5
 CASE_PATH[0] = pp.DATA_PATH + '/ultimate'
 pp.mkdir(CASE_PATH, 0)
+
+# make executable ready
+EXE = 'peri_navier3D'
+os.chdir(pp.EXE_PATH)
+os.system('make '+EXE+' -j4')
+
 
 for re in RES:
     for NY in NYS:
@@ -70,9 +71,9 @@ for re in RES:
         # NX = (65 - 1)*1 + 1
         # NY = (145 - 1)*1 + 1
         NZ = (65 - 1)*1 + 1
-        # NY = 193 
+        # NY = 193
         #
-        LX = LXO # round(1.0*LXO/(NXO-1)*(NX-1), 1)
+        LX = LXO  # round(1.0*LXO/(NXO-1)*(NX-1), 1)
         LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
         LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
         #

@@ -11,8 +11,8 @@ import numpy as np
 TREE = ET.parse('../XML/parameterModeConvDiff.xml')
 ROOT = TREE.getroot()
 
-# ma.setParameter( ROOT, 'withoutput', 0 )
-# ma.setParameter( ROOT, 'refinement level', 1 )
+# ma.set_parameter( ROOT, 'withoutput', 0 )
+# ma.set_parameter( ROOT, 'refinement level', 1 )
 
 # make executable ready
 EXE = 'modeConvDiff'
@@ -58,18 +58,18 @@ for side in ['left', 'right']:
                     #
                     pp.chdir(CASE_PATH, 4)
                     #
-                    ma.setParameter(ROOT, 'preconditioner', side)
-                    ma.setParameter(ROOT, 'type', prec)
-                    ma.setParameter(ROOT, 'Re', re)
-                    ma.setParameter(ROOT, 'alpha2', 2.*pi*alpha2)
-                    ma.setParameter(ROOT, 'nx', 16*nx+1)
-                    ma.setParameter(ROOT, 'ny', 32*nx+1)
-                    ma.setParameter(ROOT, 'nz', 6*nx+1)
-                    ma.setParameter(ROOT, 'nf', 1)
-                    ma.setParameter(ROOT, 'NPX', 1)
-                    ma.setParameter(ROOT, 'npy', 1)
-                    ma.setParameter(ROOT, 'npz', 1)
-                    ma.setParameter(ROOT, 'npf', 1)
+                    ma.set_parameter(ROOT, 'preconditioner', side)
+                    ma.set_parameter(ROOT, 'type', prec)
+                    ma.set_parameter(ROOT, 'Re', re)
+                    ma.set_parameter(ROOT, 'alpha2', 2.*pi*alpha2)
+                    ma.set_parameter(ROOT, 'nx', 16*nx+1)
+                    ma.set_parameter(ROOT, 'ny', 32*nx+1)
+                    ma.set_parameter(ROOT, 'nz', 6*nx+1)
+                    ma.set_parameter(ROOT, 'nf', 1)
+                    ma.set_parameter(ROOT, 'NPX', 1)
+                    ma.set_parameter(ROOT, 'npy', 1)
+                    ma.set_parameter(ROOT, 'npz', 1)
+                    ma.set_parameter(ROOT, 'npf', 1)
                     TREE.write('parameter3D.xml')
                     nptot = 1
                     for run in RUNS:

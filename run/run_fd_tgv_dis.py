@@ -10,9 +10,9 @@ import manipulator as ma
 TREE = ET.parse('../XML/parameter3DTime.xml')
 ROOT = TREE.getroot()
 
-ma.setParameter(ROOT, 'withoutput', 1)
-ma.setParameter(ROOT, 'initial guess', 'zero')
-# ma.setParameter(ROOT, 'refinement level', 1)
+ma.set_parameter(ROOT, 'withoutput', 1)
+ma.set_parameter(ROOT, 'initial guess', 'zero')
+# ma.set_parameter(ROOT, 'refinement level', 1)
 
 # make executable ready
 EXE = 'peri_navier3DTime'
@@ -29,9 +29,9 @@ STS = [0.1, 1., 10.]
 
 NFS = [96, 128, 192]
 
-ma.setParameter(ROOT, 'nx', 65)
-ma.setParameter(ROOT, 'ny', 65)
-ma.setParameter(ROOT, 'nz', 5)
+ma.set_parameter(ROOT, 'nx', 65)
+ma.set_parameter(ROOT, 'ny', 65)
+ma.set_parameter(ROOT, 'nz', 5)
 
 CASE_PATH[0] = pp.DATA_PATH + '/FDTGV_dis'
 pp.mkdir(CASE_PATH, 0)
@@ -48,13 +48,13 @@ for re in RES:
             #
             pp.chdir(CASE_PATH, 3)
             #
-            ma.setParameter(ROOT, 'Re', re)
-            ma.setParameter(ROOT, 'alpha2', 2.*pi*st*re)
-            ma.setParameter(ROOT, 'nf', nf)
-            ma.setParameter(ROOT, 'npx', 1)
-            ma.setParameter(ROOT, 'npy', 1)
-            ma.setParameter(ROOT, 'npz', 1)
-            ma.setParameter(ROOT, 'npf', 12)
+            ma.set_parameter(ROOT, 'Re', re)
+            ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
+            ma.set_parameter(ROOT, 'nf', nf)
+            ma.set_parameter(ROOT, 'npx', 1)
+            ma.set_parameter(ROOT, 'npy', 1)
+            ma.set_parameter(ROOT, 'npz', 1)
+            ma.set_parameter(ROOT, 'npf', 12)
             TREE.write('parameter3D.xml')
             # nptot = npx[i]*npy[i]*npf[i]
             nptot = 12

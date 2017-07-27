@@ -10,9 +10,9 @@ import manipulator as ma
 TREE = ET.parse('../XML/parameter3D.xml')
 ROOT = TREE.getroot()
 
-ma.setParameter(ROOT, 'withoutput', 0)
-ma.setParameter(ROOT, 'refinement level', 1)
-# ma.setParameter(ROOT, 'Verbosity', 0)
+ma.set_parameter(ROOT, 'withoutput', 0)
+ma.set_parameter(ROOT, 'refinement level', 1)
+# ma.set_parameter(ROOT, 'Verbosity', 0)
 
 
 # make executable ready
@@ -66,16 +66,16 @@ for nf in nfs:
                 os.chdir(pp.DATA_PATH + CASE_PATH[0] + CASE_PATH[1] +
                          CASE_PATH[2] + CASE_PATH[3] + CASE_PATH[4])
                 os.system(' rm ./* -r -v  ')
-                ma.setParameter(ROOT, 'Re', re)
-                ma.setParameter(ROOT, 'alpha2', 2.*pi*st*re)
-                ma.setParameter(ROOT, 'nx', 64*n+1)
-                ma.setParameter(ROOT, 'ny', 16*n+1)
-                ma.setParameter(ROOT, 'nz', 32*n+1)
-                ma.setParameter(ROOT, 'nf', nf)
-                ma.setParameter(ROOT, 'npx', np)
-                ma.setParameter(ROOT, 'npy', max(np/4, 1))
-                ma.setParameter(ROOT, 'npz', max(np/2, 1))
-                ma.setParameter(ROOT, 'npf', npf)
+                ma.set_parameter(ROOT, 'Re', re)
+                ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
+                ma.set_parameter(ROOT, 'nx', 64*n+1)
+                ma.set_parameter(ROOT, 'ny', 16*n+1)
+                ma.set_parameter(ROOT, 'nz', 32*n+1)
+                ma.set_parameter(ROOT, 'nf', nf)
+                ma.set_parameter(ROOT, 'npx', np)
+                ma.set_parameter(ROOT, 'npy', max(np/4, 1))
+                ma.set_parameter(ROOT, 'npz', max(np/2, 1))
+                ma.set_parameter(ROOT, 'npf', npf)
                 TREE.write('parameter3D.xml')
                 for run in RUNS:
                     exe_str = pp.exe_pre(npf*np*max(np/2, 1)*max(np/4, 1),

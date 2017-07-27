@@ -11,8 +11,8 @@ import manipulator as ma
 TREE = ET.parse('../XML/parameter3D.xml')
 ROOT = TREE.getroot()
 
-ma.setParameter(ROOT, 'withoutput', 0)
-ma.setParameter(ROOT, 'refinement level', 1)
+ma.set_parameter(ROOT, 'withoutput', 0)
+ma.set_parameter(ROOT, 'refinement level', 1)
 
 # make executable ready
 EXE = 'peri_navier3D'
@@ -56,16 +56,16 @@ for re in RES:
                         #
                         pp.chdir(CASE_PATH, 6)
                         #
-                        ma.setParameter(ROOT, 'Re', re)
-                        ma.setParameter(ROOT, 'alpha2', 2.*pi*st*re)
-                        ma.setParameter(ROOT, 'nx', 64*nx+1)
-                        ma.setParameter(ROOT, 'ny', 16*nx+1)
-                        ma.setParameter(ROOT, 'nz', 32*nx+1)
-                        ma.setParameter(ROOT, 'nf', nf)
-                        ma.setParameter(ROOT, 'npx', npx)
-                        ma.setParameter(ROOT, 'npy', max(npx/4, 1))
-                        ma.setParameter(ROOT, 'npz', max(npx/2, 1))
-                        ma.setParameter(ROOT, 'npf', npf)
+                        ma.set_parameter(ROOT, 'Re', re)
+                        ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
+                        ma.set_parameter(ROOT, 'nx', 64*nx+1)
+                        ma.set_parameter(ROOT, 'ny', 16*nx+1)
+                        ma.set_parameter(ROOT, 'nz', 32*nx+1)
+                        ma.set_parameter(ROOT, 'nf', nf)
+                        ma.set_parameter(ROOT, 'npx', npx)
+                        ma.set_parameter(ROOT, 'npy', max(npx/4, 1))
+                        ma.set_parameter(ROOT, 'npz', max(npx/2, 1))
+                        ma.set_parameter(ROOT, 'npf', npf)
                         TREE.write('parameter3D.xml')
                         nptot = npx*max(npx/4, 1)*max(npx/2, 1)*npf
                         for run in RUNS:

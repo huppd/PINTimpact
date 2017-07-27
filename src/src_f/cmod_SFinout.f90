@@ -146,7 +146,6 @@ contains
     if( 0==ftype ) dsetname = 'velX'
     if( 1==ftype ) dsetname = 'velY'
     if( 4==ftype ) dsetname = 'pre'
-    !        dsetname = 'pre'
     !============================================================================
 
     do j = SS(2), NN(2)
@@ -222,31 +221,31 @@ contains
   !------------------------------------------------------------------------------
   ! Write the attributes:
   attr_yes = .true.
-  !        call write_hdf_infoINT (1     ,.true. ,attr_yes,'restart'          ,scalar=restart          )
+  !call write_hdf_infoINT (1     ,.true. ,attr_yes,'restart'          ,scalar=restart          )
   call write_hdf_infoINT (memtypeINT,file_id,dset_id,1     ,.true. ,attr_yes,'write_count'      ,scalar=filecount      )
-  !        call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'time_out_vect'    ,scalar=time_out_vect    )
-  !        call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'time_out_scal'    ,scalar=time_out_scal    )
-  !        call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'dtime_out_vect'   ,scalar=dtime_out_vect   )
-  !        call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'dtime_out_scal'   ,scalar=dtime_out_scal   )
-  !        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_vect'   ,scalar=write_out_vect   )
-  !        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_scal'   ,scalar=write_out_scal   )
-  !        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'new_dtime'        ,scalar=new_dtime        )
+  !call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'time_out_vect'    ,scalar=time_out_vect    )
+  !call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'time_out_scal'    ,scalar=time_out_scal    )
+  !call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'dtime_out_vect'   ,scalar=dtime_out_vect   )
+  !call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'dtime_out_scal'   ,scalar=dtime_out_scal   )
+  !call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_vect'   ,scalar=write_out_vect   )
+  !call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_scal'   ,scalar=write_out_scal   )
+  !call write_hdf_infoLOG (1     ,.true. ,attr_yes,'new_dtime'        ,scalar=new_dtime        )
 
   call write_hdf_infoINT (memtypeINT,file_id,dset_id,2     ,.false.,attr_yes,'S1w S2w'          ,array =(/S1w,S2w/)      )
   call write_hdf_infoINT (memtypeINT,file_id,dset_id,2     ,.false.,attr_yes,'M1w M2w'          ,array =(/M1w,M2w/)      )
 
-  !        call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'time'             ,scalar=time             )
-  !        call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'dtime'            ,scalar=dtime            )
-  !        call write_hdf_infoINT (1     ,.true. ,attr_yes,'timestep'         ,scalar=timestep         )
+  !call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'time'             ,scalar=time             )
+  !call write_hdf_infoREAL(memtypeREAL,1     ,.true. ,attr_yes,'dtime'            ,scalar=dtime            )
+  !call write_hdf_infoINT (1     ,.true. ,attr_yes,'timestep'         ,scalar=timestep         )
 
-  !        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'concentration_yes',scalar=concentration_yes)
-  !        call write_hdf_infoINT (1     ,.true. ,attr_yes,'n_conc'           ,scalar=n_conc           )
-  !        call write_hdf_infoREAL(3     ,.false.,attr_yes,'gravity'          ,array =gravity          )
+  !call write_hdf_infoLOG (1     ,.true. ,attr_yes,'concentration_yes',scalar=concentration_yes)
+  !call write_hdf_infoINT (1     ,.true. ,attr_yes,'n_conc'           ,scalar=n_conc           )
+  !call write_hdf_infoREAL(3     ,.false.,attr_yes,'gravity'          ,array =gravity          )
   call write_hdf_infoREAL(memtypeREAL,file_id, dset_id,1     ,.true. ,attr_yes,'Re'               ,scalar=Re               )
   call write_hdf_infoREAL(memtypeREAL,file_id, dset_id,1     ,.true. ,attr_yes,'alpha2'               ,scalar=alpha2               )
-  !        call write_hdf_infoREAL(memtypeREAL,n_conc,.false.,attr_yes,'Sc'               ,array =Sc               )
-  !        call write_hdf_infoREAL(memtypeREAL,n_conc,.false.,attr_yes,'Ric'              ,array =Ric              )
-  !        call write_hdf_infoREAL(memtypeREAL,n_conc,.false.,attr_yes,'usc'              ,array =usc              )
+  !call write_hdf_infoREAL(memtypeREAL,n_conc,.false.,attr_yes,'Sc'               ,array =Sc               )
+  !call write_hdf_infoREAL(memtypeREAL,n_conc,.false.,attr_yes,'Ric'              ,array =Ric              )
+  !call write_hdf_infoREAL(memtypeREAL,n_conc,.false.,attr_yes,'usc'              ,array =usc              )
   !------------------------------------------------------------------------------
   ! Select hyperslab in the file space / memory space:
   call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
@@ -305,8 +304,9 @@ contains
   !! \param[in] y3w
   !! \param[in] Re
   !! \param[in] alpha2
-  !! \note the interval bounds, offset and block size are not global because of vel_dir
+  !! \note the interval bounds, offset and block size are not global because ofvel_dir
   subroutine write_hdf_3D(    &
+      restart_yes,            &
       rank,                   &
       COMM_CART,              &
       M,                      &
@@ -337,6 +337,8 @@ contains
       ) bind (c,name='write_hdf_3D')
 
     implicit none
+
+    logical(c_bool),intent(in) :: restart_yes
 
     integer(c_int), intent(in) :: rank
 
@@ -372,7 +374,8 @@ contains
 
     integer(c_int), intent(in) :: namelen
 
-    real(c_double), intent(in) :: phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
+    real(c_double), intent(in) :: phi( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), &
+      bL(3):(N(3)+bU(3)) )
 
     real(c_double), intent(in) :: y1p( 1:M(1) )
     real(c_double), intent(in) :: y2p( 1:M(2) )
@@ -427,14 +430,19 @@ contains
     !====================================================================================
     !=== Ausschrieb-Nr. als String fuer File-Namen ======================================
     !====================================================================================
-    !  call num_to_string(5,write_count,count_char)
     call num_to_string(rank,5,filecount,count_char)
-    if( 1==dir_name ) filename = 'velX_'//count_char
-    if( 2==dir_name ) filename = 'velY_'//count_char
-    if( 3==dir_name ) filename = 'velZ_'//count_char
-    if( 5==dir_name ) filename = 'pre_'//count_char
-    !        filename = 'pre_'//count_char
-    !
+    if( restart_yes ) then
+      if( 1==dir_name ) filename = 'velX_restart'//count_char
+      if( 2==dir_name ) filename = 'velY_restart'//count_char
+      if( 3==dir_name ) filename = 'velZ_restart'//count_char
+      if( 5==dir_name ) filename = 'pre_restart'//count_char
+    else
+      if( 1==dir_name ) filename = 'velX_'//count_char
+      if( 2==dir_name ) filename = 'velY_'//count_char
+      if( 3==dir_name ) filename = 'velZ_'//count_char
+      if( 5==dir_name ) filename = 'pre_'//count_char
+    endif
+     
     if( 1==dir_name ) dsetname = 'velX'
     if( 2==dir_name ) dsetname = 'velY'
     if( 3==dir_name ) dsetname = 'velZ'
@@ -510,15 +518,15 @@ contains
     !------------------------------------------------------------------------------------
     ! Write the attributes:
     attr_yes = .true.
-    !        call write_hdf_infoINT (1     ,.true. ,attr_yes,'restart'          ,scalar=restart          )
-    !        call write_hdf_infoINT (1     ,.true. ,attr_yes,'write_count'      ,scalar=write_count      )
-    !        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_vect'    ,scalar=time_out_vect    )
-    !        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_scal'    ,scalar=time_out_scal    )
-    !        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_vect'   ,scalar=dtime_out_vect   )
-    !        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_scal'   ,scalar=dtime_out_scal   )
-    !        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_vect'   ,scalar=write_out_vect   )
-    !        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_scal'   ,scalar=write_out_scal   )
-    !        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'new_dtime'        ,scalar=new_dtime        )
+    !call write_hdf_infoINT (1     ,.true. ,attr_yes,'restart'          ,scalar=restart          )
+    !call write_hdf_infoINT (1     ,.true. ,attr_yes,'write_count'      ,scalar=write_count      )
+    !call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_vect'    ,scalar=time_out_vect    )
+    !call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_scal'    ,scalar=time_out_scal    )
+    !call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_vect'   ,scalar=dtime_out_vect   )
+    !call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_scal'   ,scalar=dtime_out_scal   )
+    !call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_vect'   ,scalar=write_out_vect   )
+    !call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_scal'   ,scalar=write_out_scal   )
+    !call write_hdf_infoLOG (1     ,.true. ,attr_yes,'new_dtime'        ,scalar=new_dtime        )
 
     call write_hdf_infoINT (memtypeINT,file_id,dset_id,3     ,.false.,attr_yes,'M1  M2  M3 '      ,array =(/M(1), M(2), M(3) /)  )
     call write_hdf_infoINT (memtypeINT,file_id,dset_id,3     ,.false.,attr_yes,'S1w S2w S3w'      ,array =(/S1w,S2w,S3w/)  )
@@ -555,17 +563,17 @@ contains
     call write_hdf_infoINT (memtypeINT,file_id,dset_id,3,.false.,attr_yes,'BC_iL',array=(/BC_L_global(1),BC_L_global(2),BC_L_global(3)/))
     call write_hdf_infoINT (memtypeINT,file_id,dset_id,3,.false.,attr_yes,'BC_iU',array=(/BC_U_global(1),BC_U_global(2),BC_U_global(3)/))
 
-    !        call write_hdf_infoINT (dim_ncb1c,.false.,attr_yes,'ncb1c',array=ncb1c    )
-    !        call write_hdf_infoINT (dim_ncb1g,.false.,attr_yes,'ncb1g',array=ncb1g    )
-    !        call write_hdf_infoINT (dim_ncb1d,.false.,attr_yes,'ncb1d',array=ncb1d    )
-    !
-    !        call write_hdf_infoINT (dim_ncb2c,.false.,attr_yes,'ncb2c',array=ncb2c    )
-    !        call write_hdf_infoINT (dim_ncb2g,.false.,attr_yes,'ncb2g',array=ncb2g    )
-    !        call write_hdf_infoINT (dim_ncb2d,.false.,attr_yes,'ncb2d',array=ncb2d    )
-    !
-    !        call write_hdf_infoINT (dim_ncb3c,.false.,attr_yes,'ncb3c',array=ncb3c    )
-    !        call write_hdf_infoINT (dim_ncb3g,.false.,attr_yes,'ncb3g',array=ncb3g    )
-    !        call write_hdf_infoINT (dim_ncb3d,.false.,attr_yes,'ncb3d',array=ncb3d    )
+    !call write_hdf_infoINT (dim_ncb1c,.false.,attr_yes,'ncb1c',array=ncb1c    )
+    !call write_hdf_infoINT (dim_ncb1g,.false.,attr_yes,'ncb1g',array=ncb1g    )
+    !call write_hdf_infoINT (dim_ncb1d,.false.,attr_yes,'ncb1d',array=ncb1d    )
+
+    !call write_hdf_infoINT (dim_ncb2c,.false.,attr_yes,'ncb2c',array=ncb2c    )
+    !call write_hdf_infoINT (dim_ncb2g,.false.,attr_yes,'ncb2g',array=ncb2g    )
+    !call write_hdf_infoINT (dim_ncb2d,.false.,attr_yes,'ncb2d',array=ncb2d    )
+
+    !call write_hdf_infoINT (dim_ncb3c,.false.,attr_yes,'ncb3c',array=ncb3c    )
+    !call write_hdf_infoINT (dim_ncb3g,.false.,attr_yes,'ncb3g',array=ncb3g    )
+    !call write_hdf_infoINT (dim_ncb3d,.false.,attr_yes,'ncb3d',array=ncb3d    )
 
     call write_hdf_infoREAL(memtypeREAL,file_id, dset_id, M(1)      ,.false.,attr_yes,'y1p'  ,array=y1p(1:M(1)))
     call write_hdf_infoREAL(memtypeREAL,file_id, dset_id, M(2)      ,.false.,attr_yes,'y2p'  ,array=y2p(1:M(2)))
@@ -665,12 +673,6 @@ contains
 
 
 
-
-
-
-
-
-
   subroutine write_hdf_infoINT(memtypeINT,file_id,dset_id,NN,scalar_yes,attr_yes,name,array,scalar)
 
     implicit none
@@ -716,14 +718,6 @@ contains
 
 
   end subroutine write_hdf_infoINT
-
-
-
-
-
-
-
-
 
 
 
@@ -795,7 +789,7 @@ contains
     integer     , intent(in ) ::  num
     character(len=n_digits), intent(out) ::  num_char
 
-    !        integer                   ::  tenthousands, thousands, hundreds, tens, ones
+    !integer                   ::  tenthousands, thousands, hundreds, tens, ones
 
 
     !====================================================================================
@@ -836,7 +830,6 @@ contains
       write(num_char,'(i5.5)') num
     end if
     !====================================================================================
-
 
   end subroutine num_to_string
 
@@ -965,144 +958,15 @@ contains
 
     dims_file = (/dim1,dim2,dim3/)
 
-
   end subroutine filespace_props
 
 
 
-  !subroutine read_restart(    &
-      !rank,                   &
-      !COMM_CART,              &
-      !MM,                     &
-      !BC_L_global,            &
-      !BC_U_global,            &
-      !N,                      &
-      !bL,bU,                  &
-      !SS,                     &
-      !NN,                     &
-      !ls,                     &
-      !NB,                     &
-      !iB,                     &
-      !iShift,                 &
-      !dir_name,               &
-      !vel_dir,                &
-      !filecount,              &
-      !namelen,                &
-      !stride,                 &
-      !phi,                    &
-      !M,                      &
-      !y1p,                    &
-      !y2p,                    &
-      !y3p,                    &
-      !y1u,                    &
-      !y2v,                    &
-      !y3w,                    &
-      !Re,                     &
-      !alpha2                  &
-      !) bind (c,name='read_restart')
-
-    !implicit none
-
-    !integer(c_int), intent(in) :: rank
-
-    !integer(c_int), intent(in) :: COMM_Cart
-
-    !integer(c_int), intent(in) :: MM(1:3)
-
-    !integer(c_int), intent(in) :: BC_L_global(1:3)
-    !integer(c_int), intent(in) :: BC_U_global(1:3)
-
-    !integer(c_int), intent(in) :: N(1:3)
-
-    !integer(c_int), intent(in) :: bL(1:3)
-    !integer(c_int), intent(in) :: bU(1:3)
-
-    !integer(c_int), intent(in) :: SS(1:3)
-
-    !integer(c_int), intent(in) :: NN(1:3)
-
-    !integer(c_int), intent(in) :: ls(1:3)
-
-    !integer(c_int), intent(in) :: NB(1:3)
-
-    !integer(c_int), intent(in) :: iB(1:3)
-
-    !integer(c_int), intent(in) :: iShift(1:3)
-
-    !integer(c_int), intent(in) :: dir_name
-
-    !integer(c_int), intent(in) :: vel_dir
-
-    !integer(c_int), intent(in) :: filecount
-
-    !integer(c_int), intent(in) :: namelen
-
-    !integer(c_int), intent(in)    ::  stride(1:3)
-
-    !real(c_double), intent(inout) :: phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
-
-    !integer(c_int), intent(in) :: M(1:3)
-
-    !real(c_double), intent(in) :: y1p( 1:M(1) )
-    !real(c_double), intent(in) :: y2p( 1:M(2) )
-    !real(c_double), intent(in) :: y3p( 1:M(3) )
-
-    !real(c_double), intent(in) :: y1u( 0:M(1) )
-    !real(c_double), intent(in) :: y2v( 0:M(2) )
-    !real(c_double), intent(in) :: y3w( 0:M(3) )
-
-    !real(c_double), intent(in) :: Re
-    !real(c_double), intent(in) :: alpha2
-
-    !!integer(c_int)         :: m
-
-    !integer(c_int)         :: i, ii
-    !integer(c_int)         :: j, jj
-    !integer(c_int)         :: k, kk
-
-    !real(c_double)         :: old_dtime_out_scal
-    !real(c_double)         :: old_dtime_out_vect
-
-    !character(len=1)       :: conc_number
-
-
-    !if (rank == 0) write(*,'(a,i3,a)') 'reading data for restart',restart,' ...'
-    !if (rank == 0) write(*,*)
-
-    !!------------------------------------------------------------------------------
-    !!  call num_to_string(5,write_count,count_char)
-    !call num_to_string(rank,5,filecount,count_char)
-    !if( 1==dir_name ) filename = 'velX_'//count_char
-    !if( 2==dir_name ) filename = 'velY_'//count_char
-    !if( 3==dir_name ) filename = 'velZ_'//count_char
-    !if( 5==dir_name ) filename = 'pre_'//count_char
-    !!        filename = 'pre_'//count_char
-    !!
-    !if( 1==dir_name ) dsetname = 'velX'
-    !if( 2==dir_name ) dsetname = 'velY'
-    !if( 3==dir_name ) dsetname = 'velZ'
-    !if( 5==dir_name ) dsetname = 'pre'
-
-    !call read2_hdf( filename, dsetname,SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),1,vel(bl(1),bl(2),bl(3),vel_dir))
-    !!call read2_hdf('velX_restart'//restart_char,'velX_restart',S11B,S21B,S31B,N11B,N21B,N31B,1,vel(bl(1),bl(2),bl(3),1))
-    !!call read2_hdf('velY_restart'//restart_char,'velY_restart',S12B,S22B,S32B,N12B,N22B,N32B,2,vel(bl(1),bl(2),bl(3),2))
-    !!if (dimens == 3) call read2_hdf('velZ_restart'//restart_char,'velZ_restart',S13B,S23B,S33B,N13B,N23B,N33B,3,vel(bl(1),bl(2),bl(3),3))
-    !!------------------------------------------------------------------------------
-    !!call read2_hdf('pre_restart'//restart_char,'pre_restart',S1p,S2p,S3p,N1p,N2p,N3p,0,pre)
-    !!------------------------------------------------------------------------------
-
-  !end subroutine read_restart
-
-
-  !> \note - Kann im Gegensatz zu "read_hdf" das eingelesene Feld beliebg im
-  !!         Raum anordnen!
-  subroutine read2_hdf( &
+  subroutine read_hdf( &
       rank,             &
       COMM_CART,        &
       BC_L_global,      &
       BC_U_global,      &
-      filename,         &
-      dsetname,         &
       N,                &
       bL,bU,            &
       SS,               &
@@ -1112,7 +976,8 @@ contains
       iShift,           &
       vel_dir,          &
       filecount,        &
-      phi )
+      namelen,          &
+      phi ) bind (c, name='read_hdf')
 
     implicit none
 
@@ -1123,8 +988,6 @@ contains
     integer(c_int), intent(in) :: BC_L_global(1:3)
     integer(c_int), intent(in) :: BC_U_global(1:3)
 
-    character(*), intent(in)   :: filename
-    character(*), intent(in)   :: dsetname
 
     integer(c_int), intent(in) :: N(1:3)
 
@@ -1143,24 +1006,32 @@ contains
 
     integer(c_int), intent(in) :: vel_dir
 
-    integer(c_int), intent(out):: filecount
+    integer(c_int), intent(in) :: filecount
 
-    real(c_double), intent(out):: phi(bl(1):(N(1)+bu(1)),bl(2):(N(2)+bu(2)),bl(3):(N(3)+bu(3)))
+    integer(c_int), intent(in) :: namelen
 
-    integer(HSIZE_T )          :: dims_mem(1:3), dims_data(1:3)
-    integer(HSSIZE_T)          :: offset_mem(1:3)
+    real(c_double), intent(inout):: phi(bl(1):(N(1)+bu(1)), bl(2):(N(2)+bu(2)), &
+      bl(3):(N(3)+bu(3)))
 
-    integer(c_int)             :: S1w, M1w, dim1
-    integer(c_int)             :: S2w, M2w, dim2
-    integer(c_int)             :: S3w, M3w, dim3
+    character(len=namelen)      :: filename
+    character(len=namelen)      :: dsetname
 
-    integer(c_int)             :: S1r, N1r, i0, iGrid
-    integer(c_int)             :: S2r, N2r, j0, jGrid
-    integer(c_int)             :: S3r, N3r, k0, kGrid
+    character(len=5)   ::  count_char
 
-    integer(c_int)             :: Siw(1:3), Miw(1:3)
+    integer(HSIZE_T ) :: dims_mem(1:3), dims_data(1:3)
+    integer(HSSIZE_T) :: offset_mem(1:3)
 
-    logical                    :: attr_yes
+    integer(c_int)    :: S1w, M1w, dim1
+    integer(c_int)    :: S2w, M2w, dim2
+    integer(c_int)    :: S3w, M3w, dim3
+
+    integer(c_int)    :: S1r, N1r, i0, iGrid
+    integer(c_int)    :: S2r, N2r, j0, jGrid
+    integer(c_int)    :: S3r, N3r, k0, kGrid
+
+    integer(c_int)    :: Siw(1:3), Miw(1:3)
+
+    logical           :: attr_yes
 
 
     integer(HID_T)  :: memtypeREAL, memtypeINT
@@ -1177,6 +1048,16 @@ contains
     !       h5dump -d /dsetname -s "11,14,0" -c "1,1,10" filename.h5                    !
     !-----------------------------------------------------------------------------------!
 
+    call num_to_string(rank,5,filecount,count_char)
+    if( 1==vel_dir ) filename = 'velX_restart'//count_char
+    if( 2==vel_dir ) filename = 'velY_restart'//count_char
+    if( 3==vel_dir ) filename = 'velZ_restart'//count_char
+    if( 5==vel_dir ) filename = 'pre_restart'//count_char
+     
+    if( 1==vel_dir ) dsetname = 'velX'
+    if( 2==vel_dir ) dsetname = 'velY'
+    if( 3==vel_dir ) dsetname = 'velZ'
+    if( 5==vel_dir ) dsetname = 'pre'
 
     !====================================================================================
     !=== File oeffnen ===================================================================
@@ -1212,25 +1093,25 @@ contains
       call MPI_FINALIZE(merror)
       stop
     end if
-    !------------------------------------------------------------------------------------
-    ! Read the attributes:
+
+    !!------------------------------------------------------------------------------------
+    !! Read the attributes:
     attr_yes = .true.
-    !call read_hdf_infoREAL( rank, 1,.true. ,attr_yes,'time'          ,scalar=time          )
-    !call read_hdf_infoREAL( rank, 1,.true. ,attr_yes,'dtime'         ,scalar=dtime         )
-    !call read_hdf_infoREAL( rank, 1,.true. ,attr_yes,'time_out_vect' ,scalar=time_out_vect )
-    !call read_hdf_infoREAL( rank, 1,.true. ,attr_yes,'time_out_scal' ,scalar=time_out_scal )
-    !call read_hdf_infoINT( rank, COMM_CART, memtypeINT, file_id, dset_id, 1,.true. ,attr_yes,'timestep'      ,scalar=timestep      )
-    call read_hdf_infoINT( rank, COMM_CART, memtypeINT, file_id, dset_id, 1,.true. ,attr_yes,'write_count'   ,scalar=filecount   )
-    !call read_hdf_infoLOG (1,.true. ,attr_yes,'write_out_vect',scalar=write_out_vect)
-    !call read_hdf_infoLOG (1,.true. ,attr_yes,'write_out_scal',scalar=write_out_scal)
-    !call read_hdf_infoLOG (1,.true. ,attr_yes,'new_dtime'     ,scalar=new_dtime     )
+    !!call read_hdf_infoREAL( rank, 1,.true. ,attr_yes,'time'          ,scalar=time          )
+    !!call read_hdf_infoREAL( rank, 1,.true. ,attr_yes,'dtime'         ,scalar=dtime         )
+    !!call read_hdf_infoREAL( rank, 1,.true. ,attr_yes,'time_out_vect' ,scalar=time_out_vect )
+    !!call read_hdf_infoREAL( rank, 1,.true. ,attr_yes,'time_out_scal' ,scalar=time_out_scal )
+    !!call read_hdf_infoINT( rank, COMM_CART, memtypeINT, file_id, dset_id, 1,.true. ,attr_yes,'timestep'      ,scalar=timestep      )
+    !call read_hdf_infoINT( rank, COMM_CART, memtypeINT, file_id, dset_id, 1,.true. ,attr_yes,'write_count'   ,scalar=filecount   )
+    !!call read_hdf_infoLOG (1,.true. ,attr_yes,'write_out_vect',scalar=write_out_vect)
+    !!call read_hdf_infoLOG (1,.true. ,attr_yes,'write_out_scal',scalar=write_out_scal)
+    !!call read_hdf_infoLOG (1,.true. ,attr_yes,'new_dtime'     ,scalar=new_dtime     )
     call read_hdf_infoINT( rank, COMM_CART, memtypeINT, file_id, dset_id, 3,.false.,attr_yes,'S1w S2w S3w'   ,array =Siw           )
     call read_hdf_infoINT( rank, COMM_CART, memtypeINT, file_id, dset_id, 3,.false.,attr_yes,'M1w M2w M3w'   ,array =Miw           )
-    !call read_hdf_infoINT( rank, COMM_CART, memtypeINT, file_id, dset_id, 1,.true. ,attr_yes,'n_conc'        ,scalar=n_conc_old    )
-    !------------------------------------------------------------------------------------
+    !!call read_hdf_infoINT( rank, COMM_CART, memtypeINT, file_id, dset_id, 1,.true. ,attr_yes,'n_conc'        ,scalar=n_conc_old    )
+    !!------------------------------------------------------------------------------------
     call h5dclose_f(dset_id,herror)
-    !====================================================================================
-
+    !!====================================================================================
 
     !====================================================================================
     !=== Dimensionen und Offsets ========================================================
@@ -1352,7 +1233,6 @@ contains
     !====================================================================================
 
 
-
     !====================================================================================
     !=== Feld lesen =====================================================================
     !====================================================================================
@@ -1389,7 +1269,7 @@ contains
     call h5fclose_f(file_id,herror)
     !====================================================================================
 
-  end subroutine read2_hdf
+  end subroutine read_hdf
 
 
 
