@@ -465,9 +465,9 @@ int main( int argi, char** argv ) {
                            //Pimpact::DivGradO2SORSmoother,
                            //MOP
                            //Pimpact::Chebyshev
-                           //Pimpact::DivGradO2Inv
                            //Pimpact::DivGradO2SORSmoother
                            Pimpact::DivGradO2JSmoother
+                           //Pimpact::DivGradO2Inv
                            >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
 
           if( 0==space->rankST() )

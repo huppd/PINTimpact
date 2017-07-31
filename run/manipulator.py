@@ -2,13 +2,6 @@
 import xml.etree.ElementTree as ET
 
 
-def setParameter(root, name, value):
-    """ deprecated """
-    for child in root.iter('Parameter'):
-        if child.attrib['name'] == name:
-            child.attrib['value'] = str(value)
-
-
 def set_parameter(root, name, value):
     """ sets parameter to value """
     for child in root.iter('Parameter'):

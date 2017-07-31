@@ -1,8 +1,8 @@
 """ platfomrpaths and useful stuff """
 import os
 
-HPC = False
 HPC = True
+HPC = False
 
 # exection path
 if HPC:
