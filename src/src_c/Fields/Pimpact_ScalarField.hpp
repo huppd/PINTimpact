@@ -1091,6 +1091,43 @@ public:
         int stride[3] = {1,1,1};
 
         write_hdf_3D(
+            false,
+            space()->rankS(),
+            MPI_Comm_c2f( space()->comm() ),
+            space()->nGlo(),
+            space()->getBCGlobal()->getBCL(),
+            space()->getBCGlobal()->getBCU(),
+            space()->nLoc(),
+            space()->bl(),
+            space()->bu(),
+            space()->sInd(F::S),
+            space()->eInd(F::S),
+            space()->getStencilWidths()->getLS(),
+            space()->np(),
+            space()->ib(),
+            space()->getShift(),
+            (int)fType_+1,
+            (int)F::S+1,
+            count,
+            (F::S==fType_)?9:10,
+            stride,
+            (F::S==fType_)?s_:temp->s_,
+            space()->getCoordinatesGlobal()->getX(F::S,0),
+            space()->getCoordinatesGlobal()->getX(F::S,1),
+            space()->getCoordinatesGlobal()->getX(F::S,2),
+            space()->getCoordinatesGlobal()->getX(F::U,0),
+            space()->getCoordinatesGlobal()->getX(F::V,1),
+            space()->getCoordinatesGlobal()->getX(F::W,2),
+            space()->getDomainSize()->getRe(),
+            space()->getDomainSize()->getAlpha2() );
+
+      }
+    } else {
+
+      int stride[3] = {1,1,1};
+
+      write_hdf_3D(
+          true,
           space()->rankS(),
           MPI_Comm_c2f( space()->comm() ),
           space()->nGlo(),
@@ -1099,18 +1136,18 @@ public:
           space()->nLoc(),
           space()->bl(),
           space()->bu(),
-          space()->sInd(F::S),
-          space()->eInd(F::S),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
           space()->getStencilWidths()->getLS(),
           space()->np(),
           space()->ib(),
           space()->getShift(),
           (int)fType_+1,
-          (int)F::S+1,
+          (int)fType_+1,
           count,
-          (F::S==fType_)?9:10,
+          ((F::S==fType_)?9:10)+7,
           stride,
-          (F::S==fType_)?s_:temp->s_,
+          s_,
           space()->getCoordinatesGlobal()->getX(F::S,0),
           space()->getCoordinatesGlobal()->getX(F::S,1),
           space()->getCoordinatesGlobal()->getX(F::S,2),
@@ -1119,45 +1156,31 @@ public:
           space()->getCoordinatesGlobal()->getX(F::W,2),
           space()->getDomainSize()->getRe(),
           space()->getDomainSize()->getAlpha2() );
+    }
+  }
 
-      }
-    } else {
+  void read( int count=0 ) const {
 
-      int stride[3] = {1,1,1};
-
-      write_hdf_3D(
+    int vel_dir = static_cast<int>(fType_) + 1;
+    read_hdf(
         space()->rankS(),
         MPI_Comm_c2f( space()->comm() ),
-        space()->nGlo(),
         space()->getBCGlobal()->getBCL(),
         space()->getBCGlobal()->getBCU(),
         space()->nLoc(),
         space()->bl(),
         space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
+        space()->sIndB(fType_),
+        space()->eIndB(fType_),
         space()->getStencilWidths()->getLS(),
-        space()->np(),
         space()->ib(),
         space()->getShift(),
-        (int)fType_+1,
-        (int)fType_+1,
+        vel_dir,
         count,
-        (F::S==fType_)?9:10,
-        stride,
-        s_,
-        space()->getCoordinatesGlobal()->getX(F::S,0),
-        space()->getCoordinatesGlobal()->getX(F::S,1),
-        space()->getCoordinatesGlobal()->getX(F::S,2),
-        space()->getCoordinatesGlobal()->getX(F::U,0),
-        space()->getCoordinatesGlobal()->getX(F::V,1),
-        space()->getCoordinatesGlobal()->getX(F::W,2),
-        space()->getDomainSize()->getRe(),
-        space()->getDomainSize()->getAlpha2() );
-    }
-  }
+        ((F::S==fType_)?9:10)+7,
+        s_ );
 
-  void read( int count=0 ) const {
+    changed();
   }
 
 

@@ -10,9 +10,9 @@ import manipulator as ma
 TREE = ET.parse('../XML/parameterTGV.xml')
 ROOT = TREE.getroot()
 
-ma.setParameter(ROOT, 'withoutput', 0)
-ma.setParameter(ROOT, 'initial guess', 'disturbed')
-# ma.setParameter( ROOT, 'refinement level', 1 )
+ma.set_parameter(ROOT, 'withoutput', 0)
+ma.set_parameter(ROOT, 'initial guess', 'disturbed')
+# ma.set_parameter( ROOT, 'refinement level', 1 )
 
 # make executable ready
 EXE = 'peri_navier3D'
@@ -50,16 +50,16 @@ for nx in NXS:
             #
             pp.chdir(CASE_PATH, 2)
             #
-            ma.setParameter(ROOT, 'Re', RE)
-            ma.setParameter(ROOT, 'alpha2', 2.*pi*st*RE)
-            ma.setParameter(ROOT, 'nx', nx)
-            ma.setParameter(ROOT, 'ny', nx)
-            ma.setParameter(ROOT, 'nz', 5)
-            # ma.setParameter(ROOT, 'nf', nf)
-            ma.setParameter(ROOT, 'npx', NPX[i])
-            ma.setParameter(ROOT, 'npy', NPY[i])
-            ma.setParameter(ROOT, 'npz', 1)
-            ma.setParameter(ROOT, 'npf', NPF[i])
+            ma.set_parameter(ROOT, 'Re', RE)
+            ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*RE)
+            ma.set_parameter(ROOT, 'nx', nx)
+            ma.set_parameter(ROOT, 'ny', nx)
+            ma.set_parameter(ROOT, 'nz', 5)
+            # ma.set_parameter(ROOT, 'nf', nf)
+            ma.set_parameter(ROOT, 'npx', NPX[i])
+            ma.set_parameter(ROOT, 'npy', NPY[i])
+            ma.set_parameter(ROOT, 'npz', 1)
+            ma.set_parameter(ROOT, 'npf', NPF[i])
             TREE.write('parameter3D.xml')
             nptot = NPX[i]*NPY[i]*NPF[i]
             mem = int(max(1024, 16*1024/nptot))

@@ -10,15 +10,15 @@ import manipulator as ma
 TREE = ET.parse('../XML/parameter3D.xml')
 ROOT = TREE.getroot()
 
-ma.setParameter(ROOT, 'withoutput', 1)
+ma.set_parameter(ROOT, 'withoutput', 1)
 npx = 8
 npy = 2
 npz = 2
-ma.setParameter(ROOT, 'npx', npx)
-ma.setParameter(ROOT, 'npy', npy)
-ma.setParameter(ROOT, 'npz', npz)
+ma.set_parameter(ROOT, 'npx', npx)
+ma.set_parameter(ROOT, 'npy', npy)
+ma.set_parameter(ROOT, 'npz', npz)
 
-ma.setParameter(ROOT, 'Convergence Tolerance', 1.e-1)
+ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-1)
 
 EXE = 'peri_navier3D'
 
@@ -32,7 +32,7 @@ CASE_PATH = ['']*4
 refinement = [12, 1]
 ns = [1, 7]
 
-ma.setParameter(ROOT, 'alpha2', 2*pi*0.2*200)
+ma.set_parameter(ROOT, 'alpha2', 2*pi*0.2*200)
 
 CASE_PATH[0] = '/case_study_small'
 if not os.path.exists(pp.DATA_PATH+CASE_PATH[0]):
@@ -43,11 +43,11 @@ for i in range(0, 1):
         os.mkdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
     os.chdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1])
     os.system(' rm ./* -r -v  ')
-    ma.setParameter(ROOT, 'refinement level', refinement[i])
-    ma.setParameter(ROOT, 'nx', 256+1)
-    ma.setParameter(ROOT, 'ny', 64+1)
-    ma.setParameter(ROOT, 'nz', 128+1)
-    ma.setParameter(ROOT, 'nf', ns[i])
+    ma.set_parameter(ROOT, 'refinement level', refinement[i])
+    ma.set_parameter(ROOT, 'nx', 256+1)
+    ma.set_parameter(ROOT, 'ny', 64+1)
+    ma.set_parameter(ROOT, 'nz', 128+1)
+    ma.set_parameter(ROOT, 'nf', ns[i])
     TREE.write('parameter3D.xml')
     os.system(pp.exe_pre(npx*npy*npz, ' -W 48:00 -N -R "rusage[mem=8192]"') +
               pp.EXE_PATH+EXE + ' > output ')

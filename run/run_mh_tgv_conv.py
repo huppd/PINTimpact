@@ -12,11 +12,11 @@ ROOT = TREE.getroot()
 
 RE = 10.
 
-ma.setParameter(ROOT, 'withoutput', 1)
-ma.setParameter(ROOT, 'initial guess', 'zero')
-# ma.setParameter( ROOT, 'refinement level', 1 )
+ma.set_parameter(ROOT, 'withoutput', 1)
+ma.set_parameter(ROOT, 'initial guess', 'zero')
+# ma.set_parameter( ROOT, 'refinement level', 1 )
 
-ma.setParameter(ROOT, 'Re', RE)
+ma.set_parameter(ROOT, 'Re', RE)
 
 # make executable ready
 EXE = 'peri_navier3D'
@@ -42,15 +42,15 @@ for st in STS:
     #
     pp.chdir(CASE_PATH, 1)
     #
-    ma.setParameter(ROOT, 'alpha2', 2.*pi*st*RE)
-    # ma.setParameter( ROOT, 'nx', 64*+1 )
-    # ma.setParameter( ROOT, 'ny', 64*+1 )
-    # ma.setParameter( ROOT, 'nz', 5 )
-    # ma.setParameter( ROOT, 'nf', nf )
-    ma.setParameter(ROOT, 'npx', 1)
-    ma.setParameter(ROOT, 'npy', 1)
-    ma.setParameter(ROOT, 'npz', 1)
-    ma.setParameter(ROOT, 'npf', 1)
+    ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*RE)
+    # ma.set_parameter( ROOT, 'nx', 64*+1 )
+    # ma.set_parameter( ROOT, 'ny', 64*+1 )
+    # ma.set_parameter( ROOT, 'nz', 5 )
+    # ma.set_parameter( ROOT, 'nf', nf )
+    ma.set_parameter(ROOT, 'npx', 1)
+    ma.set_parameter(ROOT, 'npy', 1)
+    ma.set_parameter(ROOT, 'npz', 1)
+    ma.set_parameter(ROOT, 'npf', 1)
     TREE.write('parameter3D.xml')
     nptot = 1
     mem = int(max(1024, 16*1024/nptot))

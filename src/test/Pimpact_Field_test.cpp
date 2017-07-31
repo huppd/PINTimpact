@@ -423,19 +423,29 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, ReadWrite, SpaceT ) {
 
   Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
-	Pimpact::ScalarField<SpaceT> write( space );
-	Pimpact::ScalarField<SpaceT> read( space );
-	Pimpact::ScalarField<SpaceT> err( space );
+  std::vector<Pimpact::F> types;
+  types.push_back( Pimpact::F::S );
+  types.push_back( Pimpact::F::U );
+  types.push_back( Pimpact::F::V );
+  types.push_back( Pimpact::F::W );
 
-  for( int i=1; i<=6; ++i ) {
-    write.initField( static_cast<Pimpact::EScalarField>(i) );
-    write.write( i, true );
-		read.read(i);
+  for( auto type: types ) {
+    Pimpact::ScalarField<SpaceT> write( space, true, type );
+    Pimpact::ScalarField<SpaceT> read( space, true, type );
+    Pimpact::ScalarField<SpaceT> err( space, true, type );
 
-		err.add( 1., read, -1., write );
-		ST error = err.norm();
-		if( 0==space->rankST() ) std::cout << "\nerror: " << error << "\n";
-		TEST_EQUALITY( std::abs(error)<eps, true );
+    for( int i=1; i<=6; ++i ) {
+      write.initField( static_cast<Pimpact::EScalarField>(i) );
+      write.write( i, true );
+      read.read(i);
+
+      err.add( 1., read, -1., write );
+      ST error = err.norm();
+      if( 0==space->rankST() ) std::cout << "\nerror(" << type << "): " << error << "\n";
+      TEST_EQUALITY( std::abs(error)<eps, true );
+      if( std::abs(error)>eps )
+        err.print();
+    }
   }
 }
 

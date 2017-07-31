@@ -9,14 +9,14 @@ import manipulator as ma
 TREE = ET.parse('../XML/parameter3D.xml')
 ROOT = TREE.getroot()
 
-ma.setParameter(ROOT, 'withoutput', 0)
-ma.setParameter(ROOT, 'refinement tol', 1.e-6)
+ma.set_parameter(ROOT, 'withoutput', 0)
+ma.set_parameter(ROOT, 'refinement tol', 1.e-6)
 npx = 8
 npy = 2
 npz = 4
-ma.setParameter(ROOT, 'npx', npx)
-ma.setParameter(ROOT, 'npy', npy)
-ma.setParameter(ROOT, 'npz', npz)
+ma.set_parameter(ROOT, 'npx', npx)
+ma.set_parameter(ROOT, 'npy', npy)
+ma.set_parameter(ROOT, 'npz', npz)
 
 # make executable ready
 EXE = 'peri_navier3D'
@@ -52,11 +52,11 @@ for n in ns:
             os.chdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
             os.system(' rm ./* -r -v  ')
             #
-            ma.setParameter(ROOT, 'Re', re)
-            ma.setParameter(ROOT, 'alpha2', 2.*pi*st*re)
-            ma.setParameter(ROOT, 'nx', 128*2+1)
-            ma.setParameter(ROOT, 'ny',  32*2+1)
-            ma.setParameter(ROOT, 'nz',  64*2+1)
+            ma.set_parameter(ROOT, 'Re', re)
+            ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
+            ma.set_parameter(ROOT, 'nx', 128*2+1)
+            ma.set_parameter(ROOT, 'ny',  32*2+1)
+            ma.set_parameter(ROOT, 'nz',  64*2+1)
             TREE.write('parameter3D.xml')
             # os.system(pp.exe_pre(npx*npy*npz,' -W 48:00 ') + pp.EXE_PATH+EXE + ' > output ')
             print(pp.exe_pre(npx*npy*npz, ' -W 48:00 ') + pp.EXE_PATH+EXE + ' > output ')

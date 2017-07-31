@@ -9,7 +9,7 @@ import manipulator as ma
 TREE = ET.parse('../XML/parameter3D.xml')
 ROOT = TREE.getroot()
 
-ma.setParameter(ROOT, 'withoutput', 0)
+ma.set_parameter(ROOT, 'withoutput', 0)
 
 
 # make executable ready
@@ -51,14 +51,14 @@ for nx in nxs:
         os.chdir(pp.DATA_PATH+CASE_PATH[0]+CASE_PATH[1]+CASE_PATH[2]+CASE_PATH[3])
         os.system(' rm ./* -r -v  ')
         case_para = ' --nx='+str(128*np*nx/2+1)+' --ny='+str(32*np*nx/2+1)+' --nz='+str(64*np*nx/2+1)+' --npx='+str(4*np)+' --npy='+str(np)+' --npz='+str(np*2)+' --maxGrids='+str(int(3+log2(np*nx)))+' --re='+str(re)+' --alpha2='+str(st)+' --lx='+str(8)+'. --lz='+str(4)+'. '
-        ma.setParameter(ROOT, 'Re', re)
-        ma.setParameter(ROOT, 'alpha2', 2.*pi*st*re)
-        ma.setParameter(ROOT, 'nx', 128*nx*np+1)
-        ma.setParameter(ROOT, 'ny',  32*nx*np/2+1)
-        ma.setParameter(ROOT, 'nz',  64*nx*np+1)
-        ma.setParameter(ROOT, 'npx', 4*np)
-        ma.setParameter(ROOT, 'npy',   np)
-        ma.setParameter(ROOT, 'npz', 2*np)
+        ma.set_parameter(ROOT, 'Re', re)
+        ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
+        ma.set_parameter(ROOT, 'nx', 128*nx*np+1)
+        ma.set_parameter(ROOT, 'ny',  32*nx*np/2+1)
+        ma.set_parameter(ROOT, 'nz',  64*nx*np+1)
+        ma.set_parameter(ROOT, 'npx', 4*np)
+        ma.set_parameter(ROOT, 'npy',   np)
+        ma.set_parameter(ROOT, 'npz', 2*np)
         TREE.write('parameter3D.xml')
         for run in runs:
             print(pp.exe_pre(8*np*np*np, ' -R "select[model==Opteron6174"] ')+pp.EXE_PATH+EXE+case_para +' > output ')
