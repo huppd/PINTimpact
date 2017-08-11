@@ -926,7 +926,7 @@ public:
   /// \param count
   /// \param restart decides if velocity is interpolated to pressure points
   /// \todo implement/test restart and read
-  void write( int count=0, bool restart=false ) const {
+  void write( const int count=0, const bool restart=false ) const {
 
     if( 0==space()->rankS() ) {
       Teuchos::Tuple<OT,3> N;
@@ -989,6 +989,11 @@ public:
     }
     for( F i=F::U; i<SpaceT::sdim; ++i )
       at(i).write( count, restart );
+  }
+
+  void read( const int count=0 ) {
+    for( F i=F::U; i<SpaceT::sdim; ++i )
+      at(i).read(count);
   }
 
 

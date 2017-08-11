@@ -519,11 +519,19 @@ public:
   }
 
 
-  void write( int count=0 ) const {
+  void write( const int count=0, const bool restart=false ) const {
     const int n = getNumberVecs();
     for( int i=0; i<n; ++i )
-      mfs_[i]->write(count + i);
+      mfs_[i]->write(count + i, restart);
   }
+
+
+  void read( const int count=0 ) {
+    const int n = getNumberVecs();
+    for( int i=0; i<n; ++i )
+      mfs_[i]->read(count + i);
+  }
+
 
   /// \name Attribute methods
   /// @{

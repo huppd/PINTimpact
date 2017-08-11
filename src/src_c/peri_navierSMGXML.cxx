@@ -262,7 +262,7 @@ int main(int argi, char** argv ) {
     if( pl->sublist("Solver").get<int>("withoutput") ) {
       x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
       Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write( 800 );
-      Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().write( 400, true );
+      Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().writeEvol( 400 );
       //		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstField().write(900);
     }
 

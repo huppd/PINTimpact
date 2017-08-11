@@ -340,11 +340,15 @@ public:
 
 
 
-  void write( int count=0 ) const {
+  void write( int count=0, const bool restart=false ) const {
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      at(i).write(count++ + space()->getShift(3) );
+      at(i).write(count++ + space()->getShift(3), restart);
   }
 
+  void read( int count=0 ) {
+    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
+      at(i).read(count++ + space()->getShift(3));
+  }
 
   constexpr const MPI_Comm& comm() const {
     return( space()->getProcGrid()->getCommWorld() );

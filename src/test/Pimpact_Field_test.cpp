@@ -398,23 +398,45 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, writeRestart, FType ) {
 
 	setParameter( FType::SpaceT::sdim );
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
+  Teuchos::RCP<const typename FType::SpaceT> space =
+    Pimpact::create<typename FType::SpaceT>( pl );
 
-  auto p = Pimpact::create<FType>(space);
+  FType write(space);
+  FType read (space);
+  FType err(space);
 
-  p->init(1.);
-  p->write();
+  write.init(1.);
+  write.write(1, true);
+  read.read(1);
 
-  p->random();
-  p->write( 99, true );
+  err.add( 1., read, -1., write );
+  ST error = err.norm();
+  if( 0==space->rankST() ) std::cout << "\nerror: " << error << "\n";
+  TEST_EQUALITY( std::abs(error)<eps, true );
 
+  write.random();
+  write.write( 99, true );
+  read.read(99);
+
+  err.add( 1., read, -1., write );
+  error = err.norm();
+  if( 0==space->rankST() ) std::cout << "\nerror: " << error << "\n";
+  TEST_EQUALITY( std::abs(error)<eps, true );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, SF2D )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, VF2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, MSF2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, MVF2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, CF2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, CMF2D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, SF3D )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, VF3D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, MSF3D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, MVF3D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, CF3D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, CMF3D )
 	
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, ReadWrite, SpaceT ) {

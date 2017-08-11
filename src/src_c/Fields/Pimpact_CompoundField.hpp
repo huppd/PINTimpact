@@ -283,12 +283,16 @@ public:
   }
 
 
-  void write( const int count=0 ) const {
-    vfield_->write(count);
-    sfield_->write(count);
+  void write( const int count=0, const bool restart=false ) const {
+    vfield_->write(count, restart);
+    sfield_->write(count, restart);
   }
 
 
+  void read( const int count=0 ) {
+    vfield_->read(count);
+    sfield_->read(count);
+  }
 
 
 }; // end of class CompoundField

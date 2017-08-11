@@ -327,9 +327,14 @@ public:
     fields_.print( out );
   }
 
-  void write( int count=0 ) const {
-    fieldc_.write(count);
-    fields_.write(count+1);
+  void write( const int count=0, const bool restart=false ) const {
+    fieldc_.write(count, restart);
+    fields_.write(count+1, restart);
+  }
+
+  void read( const int count=0 ) {
+    fieldc_.read(count);
+    fields_.read(count+1);
   }
 
   /// \name comunication methods.

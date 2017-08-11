@@ -986,8 +986,7 @@ public:
 
 
   /// Write the ScalarField to an hdf5 file, the velocities are interpolated to the pressure points
-  /// \todo add restart
-  void write( int count=0 , bool restart=false ) const {
+  void write( const int count=0 , const bool restart=false ) const {
 
     if( 0==space()->rankS() )
       switch(fType_) {
@@ -1159,7 +1158,7 @@ public:
     }
   }
 
-  void read( int count=0 ) const {
+  void read( const int count=0 ) {
 
     int vel_dir = static_cast<int>(fType_) + 1;
     read_hdf(

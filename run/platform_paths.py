@@ -2,7 +2,7 @@
 import os
 
 HPC = True
-HPC = False
+# HPC = False
 
 # exection path
 if HPC:

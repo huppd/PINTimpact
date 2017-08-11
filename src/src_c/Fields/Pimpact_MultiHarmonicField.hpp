@@ -502,9 +502,8 @@ public:
   }
 
 
-  void write( const int count=0, const bool time_evol_yes=false ) const {
+  void writeEvol( const int count=0 ) const {
 
-    if( time_evol_yes ) {
       exchange();
 
       if( space()->getProcGrid()->getIB(3)==1 ) {
@@ -525,15 +524,28 @@ public:
           }
         }
       }
-    } else {
+  }
 
-      if( 0==space()->si(F::U,3) )
-        get0Field().write(count);
 
-      for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
-        getCField(i).write( count+2*i-1 );
-        getSField(i).write( count+2*i   );
-      }
+  void write( const int count=0, const bool restart=false ) const {
+
+    if( 0==space()->si(F::U,3) )
+      get0Field().write(count, restart);
+
+    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+      getCField(i).write( count+2*i-1, restart );
+      getSField(i).write( count+2*i, restart   );
+    }
+  }
+
+
+  void read( const int count=0 ) {
+    if( 0==space()->si(F::U,3) )
+      get0Field().read(count);
+
+    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+      getCField(i).read( count+2*i-1 );
+      getSField(i).read( count+2*i   );
     }
   }
 
