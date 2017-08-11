@@ -27,7 +27,7 @@
     <Parameter docString="" id="22" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="true" />
     <ParameterList id="214" name="Stretching in X">
       <Parameter docString="" id="23" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="parabola" />
-      <Parameter docString="" id="24" isDefault="true" isUsed="true" name="alpha" type="double" value="1.0e-03" />
+      <Parameter docString="" id="24" isDefault="true" isUsed="true" name="alpha" type="double" value="1.0e-01" />
     </ParameterList>
     <ParameterList id="215" name="Stretching in Y">
     </ParameterList>
@@ -38,13 +38,13 @@
   <ParameterList id="217" name="Solver">
     <Parameter docString="" id="26" isDefault="false" isUsed="true" name="withprec" type="int" value="3" />
     <Parameter docString="" id="27" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
-    <Parameter docString="" id="28" isDefault="false" isUsed="true" name="max refinement" type="int" value="3" />
+    <Parameter docString="" id="28" isDefault="false" isUsed="true" name="max refinement" type="int" value="4" />
     <Parameter docString="" id="29" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.0e-04" />
     <Parameter docString="" id="30" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
     <Parameter docString="" id="31" isDefault="false" isUsed="true" name="initial guess" type="string" value="base" />
   </ParameterList>
   <ParameterList id="218" name="Multi Grid">
-    <Parameter docString="" id="32" isDefault="false" isUsed="true" name="maxGrids" type="int" value="6" />
+    <Parameter docString="" id="32" isDefault="false" isUsed="true" name="maxGrids" type="int" value="10" />
   </ParameterList>
   <ParameterList id="219" name="NOX energy">
     <Parameter docString="" id="33" isDefault="false" isUsed="true" name="dir" type="int" value="1" />
@@ -160,22 +160,22 @@
     </ParameterList>
   </ParameterList>
   <ParameterList id="243" name="DivGrad">
-    <Parameter docString="" id="98" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
+    <Parameter docString="" id="98" isDefault="true" isUsed="true" name="Solver name" type="string" value="Pseudoblock TFQMR" />
     <Parameter docString="" id="99" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-    <Parameter docString="" id="100" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
+    <Parameter docString="" id="100" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
     <Parameter docString="" id="101" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
     <Parameter docString="" id="102" isDefault="true" isUsed="true" name="scaling" type="string" value="none" />
     <Parameter docString="" id="103" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true" />
     <Parameter docString="" id="104" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="244" name="Solver">
-      <Parameter docString="" id="105" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="120" />
+      <Parameter docString="" id="105" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="60" />
       <Parameter docString="" id="106" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
       <Parameter docString="" id="107" isDefault="false" isUsed="true" name="Block Size" type="int" value="3" />
       <Parameter docString="" id="108" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
       <Parameter docString="" id="109" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="110" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
       <Parameter docString="" id="111" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
-      <Parameter docString="" id="112" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
+      <Parameter docString="" id="112" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />0
       <Parameter docString="" id="113" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="Norm of RHS" />
       <Parameter docString="" id="114" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of RHS" />
     </ParameterList>
@@ -185,16 +185,16 @@
       <Parameter docString="" id="117" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false" />
       <Parameter docString="" id="118" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
       <ParameterList id="246" name="Smoother">
-        <Parameter docString="" id="119" isDefault="false" isUsed="true" name="numIters" type="int" value="12" />
-        <Parameter docString="" id="120" isDefault="true" isUsed="true" name="omega" type="double" value="1." />
+        <Parameter docString="" id="119" isDefault="false" isUsed="true" name="numIters" type="int" value="8" />
+        <Parameter docString="" id="120" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
         <Parameter docString="" id="121" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-        <Parameter docString="" id="122" isDefault="true" isUsed="true" name="Jacobi" type="bool" value="false" />
+        <Parameter docString="" id="122" isDefault="true" isUsed="true" name="Jacobi" type="bool" value="true" />
       </ParameterList>
       <ParameterList id="247" name="Coarse Grid Solver">
-        <Parameter docString="" id="123" isDefault="false" isUsed="true" name="numIters" type="int" value="12" />
-        <Parameter docString="" id="124" isDefault="true" isUsed="true" name="omega" type="double" value="1." />
+        <Parameter docString="" id="123" isDefault="false" isUsed="true" name="numIters" type="int" value="4" />
+        <Parameter docString="" id="124" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
         <Parameter docString="" id="125" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-        <Parameter docString="" id="126" isDefault="true" isUsed="true" name="Jacobi" type="bool" value="false" />
+        <Parameter docString="" id="126" isDefault="true" isUsed="true" name="Jacobi" type="bool" value="true" />
       </ParameterList>
     </ParameterList>
   </ParameterList>
