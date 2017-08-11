@@ -34,7 +34,7 @@ SOLVERS = ['TFQMR', 'GMRES']
 NITERS = [1, 2, 3, 4]
 NCYCLES = [1, 2, 4]
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateGG'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimate'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 

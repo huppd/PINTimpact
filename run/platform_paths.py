@@ -5,10 +5,10 @@ HPC = True
 # HPC = False
 
 # exection path
-if HPC:
-    EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")  # hpc
-else:
-    EXE_PATH = os.path.expanduser("~/Pimpact/release/src_c")  # euler
+EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")  # hpc
+# if HPC:
+# else:
+    # EXE_PATH = os.path.expanduser("~/Pimpact/release/src_c")  # euler
 
 # data patch
 if HPC:
