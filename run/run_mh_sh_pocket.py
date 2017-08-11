@@ -33,11 +33,7 @@ NYS = [97, 109, 128, 144]
 
 CASE_PATH = ['']*2
 
-<<<<<<< HEAD
-CASE_PATH[0] = pp.DATA_PATH + '/ultimate'
-=======
 CASE_PATH[0] = pp.DATA_PATH + '/ultimateNY'
->>>>>>> 4acefeb7c8b9d2622b18fa655dbcfc5cde42d84e
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
