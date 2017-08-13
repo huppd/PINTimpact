@@ -1,7 +1,7 @@
 """ platfomrpaths and useful stuff """
 import os
 
-# HPC = True
+HPC = True
 HPC = False
 
 # exection path
