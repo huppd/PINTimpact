@@ -29,21 +29,20 @@ st = STS[0]
 
 NF = 1
 
-NYS = [97, 109, 128, 144]
+# NYS = [97, 109, 128, 144]
+LYS = [1.5, 2.25, 3.]
 
 CASE_PATH = ['']*2
 
-CASE_PATH[0] = pp.DATA_PATH + '/ultimateNY'
+CASE_PATH[0] = pp.DATA_PATH + '/ultimateLZ2'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
 
-for NY in NYS:
-    CASE_PATH[1] = '/ny_'+str(NY)
-    pp.mkdir(CASE_PATH, 1)
-    pp.chdir(CASE_PATH, 1)
+for i, ys in enumerate(LYS):
+# for NY in NYS:
     #
-    NPX = 2
+    NPX = 1
     NPY = 2
     NPZ = 2
     NPF = 1
@@ -56,11 +55,15 @@ for NY in NYS:
     NZO = 513
     #
     NX = 65
+    NY = 129
     NZ = 65
     #
-    LX = round(1.0*LXO/(NXO-1)*(NX-1), 1)
-    LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
-    LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
+    LX = round(1.5*LXO/(NXO-1)*(NX-1), 1)
+    LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
+    LZ = round(ys*LZO/(NZO-1)*(NZ-1), 1)
+    CASE_PATH[1] = '/ny_'+str(int(LZ))
+    pp.mkdir(CASE_PATH, 1)
+    pp.chdir(CASE_PATH, 1)
     #
     print('LX', LX)
     print('LY', LY)
@@ -89,7 +92,7 @@ for NY in NYS:
     memtot = int(1024.*max(16/nptot, 2))
     print()
     print(CASE_PATH)
-    EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
+    EXE_STRING = pp.exe_pre(nptot, ' -N -W 42:00 ' +
                             '-R "rusage[mem=' + str(memtot) +
                             ']" ') + pp.EXE_PATH + '/'+EXE
     print(EXE_STRING)

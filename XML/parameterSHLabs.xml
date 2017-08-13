@@ -160,7 +160,7 @@
     </ParameterList>
   </ParameterList>
   <ParameterList id="243" name="DivGrad">
-    <Parameter docString="" id="98" isDefault="true" isUsed="true" name="Solver name" type="string" value="Pseudoblock TFQMR" />
+    <Parameter docString="" id="98" isDefault="true" isUsed="true" name="Solver name" type="string" value="Pseudoblock GMRES" />
     <Parameter docString="" id="99" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
     <Parameter docString="" id="100" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
     <Parameter docString="" id="101" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
