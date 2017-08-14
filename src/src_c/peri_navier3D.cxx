@@ -177,7 +177,7 @@ int main( int argi, char** argv ) {
       {
         auto tempField = x->getField(0).getSField().clone();
         opV2S->apply( x->getField(0).getVField(), *tempField );
-        ST divergence = tempField->norm();
+        ST divergence = tempField->norm(Pimpact::ENorm::L2);
         if( 0==space->rankST() )
           std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
       }
