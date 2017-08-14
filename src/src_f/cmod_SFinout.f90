@@ -389,9 +389,9 @@ contains
     real(c_double), intent(in) :: alpha2
 
 
-    real(c_double)     ::  temp(1:N(1),1:N(2))
+    !real(c_double)     ::  temp(1:N(1),1:N(2))
 
-    integer(c_int)     ::  i,j
+    !integer(c_int)     ::  i,j
 
 
     character(len=5)   ::  count_char

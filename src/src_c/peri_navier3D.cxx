@@ -27,6 +27,7 @@
 #include "NOX_Pimpact_PrePostEnergy.hpp"
 #include "NOX_Pimpact_PrePostSpectrum.hpp"
 #include "NOX_Pimpact_PrePostWriter.hpp"
+#include "NOX_Pimpact_PrePostWriteRestart.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
@@ -115,13 +116,19 @@ int main( int argi, char** argv ) {
 
     std::string xmlFilename = "parameter3D.xml";
     my_CLP.setOption("filename", &xmlFilename, "file name of the input xml parameterlist");
+    int restart = -1;
+    my_CLP.setOption("restart", &restart, "number of restart");
 
     my_CLP.recogniseAllOptions(true);
     my_CLP.throwExceptions(true);
 
     my_CLP.parse(argi,argv);
 
-    auto pl = Teuchos::getParametersFromXmlFile( xmlFilename );
+    Teuchos::RCP<Teuchos::ParameterList> pl;
+    if( restart==-1 )
+      pl = Teuchos::getParametersFromXmlFile( xmlFilename );
+    else
+      pl = Teuchos::getParametersFromXmlFile( "parameterOut.xml" );
     //pl->print();
 
     ////////////////////////////////////////// end of set up parameters /////////////////////////
@@ -153,6 +160,8 @@ int main( int argi, char** argv ) {
     x->getField(0).getVField().initField( pl->sublist("Base flow") );
 
     auto base = x->getField(0).getVField().get0Field().clone(Pimpact::ECopy::Deep);
+    if( restart!=-1 )
+      x->getField(0).read( restart );
     /*********************************************************************************/
     for( int refine=0; refine<maxRefinement; ++refine ) {
 
@@ -248,7 +257,7 @@ int main( int argi, char** argv ) {
         }   
 
         if( 0==space->rankST() ) std::cout << "set initial conditions\n";
-        if( 0==refine ) {
+        if( 0==refine && restart==-1) {
           if( "zero"==initGuess )
             x->init( 0. );
           else if( "almost zero"==initGuess ) {
@@ -271,16 +280,15 @@ int main( int argi, char** argv ) {
               x->getField(0).getVField() = sol->getField(0).getVField();
 
             ST pi2 = 2.*std::acos(-1.);
-            ST alpha2 = space->getDomainSize()->getAlpha2();
-            ST re = space->getDomainSize()->getRe();
+
             ST A  =  pl->sublist("Force").get<ST>("A");
             ST B  =  pl->sublist("Force").get<ST>("B");
-            ST C  =  pl->sublist("Force").get<ST>("C");
+            //ST C  =  pl->sublist("Force").get<ST>("C");
             ST D0 =  pl->sublist("Force").get<ST>("D0");
             ST D1 =  pl->sublist("Force").get<ST>("D1");
             ST a  =  pl->sublist("Force").get<ST>("a");
             ST b  =  pl->sublist("Force").get<ST>("b");
-            ST c  =  pl->sublist("Force").get<ST>("c");
+            //ST c  =  pl->sublist("Force").get<ST>("c");
 
             if( 0==space->si(Pimpact::F::U,3) ) {
               x->getField(0).getSField().get0Field().initFromFunction(
@@ -554,6 +562,9 @@ int main( int argi, char** argv ) {
       prePostOperators->pushBack( 
           Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ) ) );
 
+      prePostOperators->pushBack( 
+          Teuchos::rcp(new NOX::Pimpact::PrePostWriteRestart<NV>( Teuchos::sublist(pl, "NOX write restart") ) ) );
+
       pl->sublist("NOX spectrum").set<int>( "refinement", refine );
       prePostOperators->pushBack( 
           Teuchos::rcp(new NOX::Pimpact::PrePostSpectrum<NV>(Teuchos::sublist(pl, "NOX spectrum"))));
@@ -568,6 +579,13 @@ int main( int argi, char** argv ) {
       if( 0==space->rankST() )
         std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
 
+      // write ParameterList for restart
+      if( 0==space->rankST() ) {
+        pl->sublist("Space").set<OT>( "nf", space->nGlo(3) );
+        pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, should be fixed in NOX
+        pl->sublist("NOX Solver").sublist("Solver Options").remove("User Defined Merit Function"); // dirty fix probably, should be fixed in NOX, just needed for restart
+        Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+      }
       // Solve the nonlinear system
       {
         Teuchos::TimeMonitor LocalTimer(*Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time"));
@@ -679,10 +697,6 @@ int main( int argi, char** argv ) {
 
     Teuchos::TimeMonitor::summarize();
 
-    if( 0==space->rankST() ) {
-      pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
-      Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
-    }
   }
   MPI_Finalize();
   return( 0 );
