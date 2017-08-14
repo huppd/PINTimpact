@@ -35,7 +35,7 @@ DIRS = ['Y', 'Z']
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/scale'
+CASE_PATH[0] = pp.DATA_PATH + '/scaleFullStep'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
@@ -64,12 +64,12 @@ for di in DIRS:
         NY = 129
         NZ = 65
         #
-        LX = round(1.5*LXO/(NXO-1)*(NX-1), 1)
+        LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
         if di == 'Y':
             LY = round(ys*LYO/(NYO-1)*(NY-1), 1)
-            LZ = round(1.5*LZO/(NZO-1)*(NZ-1), 1)
+            LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
         else:
-            LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
+            LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
             LZ = round(ys*LZO/(NZO-1)*(NZ-1), 1)
         CASE_PATH[2] = '/scale_' + str(i)
         pp.mkdir(CASE_PATH, 2)
@@ -102,7 +102,7 @@ for di in DIRS:
         memtot = int(1024.*max(16/nptot, 2))
         print()
         print(CASE_PATH)
-        EXE_STRING = pp.exe_pre(nptot, ' -N -W 12:00 ' +
+        EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
                                 '-R "rusage[mem=' + str(memtot) +
                                 ']" ') + pp.EXE_PATH + '/'+EXE
         print(EXE_STRING)
