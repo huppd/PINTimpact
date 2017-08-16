@@ -51,7 +51,7 @@
   </ParameterList>
   <ParameterList id="218" name="NOX energy">
     <Parameter docString="" id="33" isDefault="false" isUsed="true" name="dir" type="int" value="1" />
-    <Parameter docString="" id="34" isDefault="false" isUsed="true" name="gamma" type="double" value="20.0" />
+    <Parameter docString="" id="34" isDefault="false" isUsed="true" name="gamma" type="double" value="10.0" />
     <ParameterList id="219" name="iter">
       <Parameter docString="" id="35" isDefault="true" isUsed="true" name="pre" type="bool" value="true" />
       <Parameter docString="" id="36" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
