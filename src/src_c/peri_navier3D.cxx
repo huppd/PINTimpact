@@ -460,7 +460,7 @@ int main( int argi, char** argv ) {
         }
 
         std::string divGradPrecString =
-          pl->sublist("DivGrad").get<std::string>("preconditioner","none");
+          pl->sublist("DivGrad").get<std::string>("preconditioner", "none");
 
         if( "none" != divGradPrecString ) { // init multigrid divgrad
 

@@ -144,8 +144,8 @@ public:
           //std::cout << std::setprecision( std::numeric_limits<long double>::digits10 + 1);
           //std::cout << *x_[dir] << "\n";
 
-          Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "null.txt" );
-          x_[dir]->print( *output );
+          //Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "null.txt" );
+          //x_[dir]->print( *output );
         }
       }
     }

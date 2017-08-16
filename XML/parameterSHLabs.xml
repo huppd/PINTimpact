@@ -19,10 +19,10 @@
     <Parameter docString="amount of grid points in x-direction: a*2**q+1" id="14" isDefault="false" isUsed="true" name="nx" type="int" value="65" />
     <Parameter docString="amount of grid points in y-direction: a*2**q+1" id="15" isDefault="false" isUsed="true" name="ny" type="int" value="97" />
     <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="16" isDefault="false" isUsed="true" name="nz" type="int" value="65" />
-    <Parameter docString="amount of grid points in f-direction" id="17" isDefault="false" isUsed="true" name="nf" type="int" value="0" />
+    <Parameter docString="amount of grid points in f-direction" id="17" isDefault="false" isUsed="true" name="nf" type="int" value="1" />
     <Parameter docString="amount of processors in x-direction" id="18" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
-    <Parameter docString="amount of processors in y-direction" id="19" isDefault="false" isUsed="true" name="npy" type="int" value="1" />
-    <Parameter docString="amount of processors in z-direction" id="20" isDefault="false" isUsed="true" name="npz" type="int" value="1" />
+    <Parameter docString="amount of processors in y-direction" id="19" isDefault="false" isUsed="true" name="npy" type="int" value="2" />
+    <Parameter docString="amount of processors in z-direction" id="20" isDefault="false" isUsed="true" name="npz" type="int" value="2" />
     <Parameter docString="amount of processors in f-direction" id="21" isDefault="false" isUsed="true" name="npf" type="int" value="1" />
     <Parameter docString="" id="22" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="true" />
     <ParameterList id="213" name="Stretching in X">

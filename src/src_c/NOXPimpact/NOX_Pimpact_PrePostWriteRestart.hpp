@@ -38,7 +38,6 @@ public:
     writeIterPost_ = that_.writeIterPost_;
   }
 
-
   virtual ~PrePostWriteRestart() {};
 
   virtual void runPreIterate(const NOX::Solver::Generic& solver) {}

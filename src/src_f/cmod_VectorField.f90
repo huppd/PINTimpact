@@ -1833,7 +1833,7 @@ contains
 
     if( 1==IB1 ) then ! change to BCL(1)
       do ii = 0, dU(1)
-        write(*,*) ii, cIup(ii),baseflow_global(1+ii,1)
+        !write(*,*) ii, cIup(ii),baseflow_global(1+ii,1)
         baseflow_global(0,1) = baseflow_global(0,1) - cIup(ii)*baseflow_global(1+ii,1)
       end do
       baseflow_global(0,1) = baseflow_global(0,1) / cIup(-1)
