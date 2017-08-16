@@ -44,7 +44,8 @@
     <Parameter docString="" id="31" isDefault="false" isUsed="true" name="initial guess" type="string" value="base" />
   </ParameterList>
   <ParameterList id="218" name="Multi Grid">
-    <Parameter docString="" id="32" isDefault="false" isUsed="true" name="maxGrids" type="int" value="10" />
+    <Parameter docString="" id="32" isDefault="false" isUsed="true" name="maxGrids"
+      type="int" value="5" />
   </ParameterList>
   <ParameterList id="219" name="NOX energy">
     <Parameter docString="" id="33" isDefault="false" isUsed="true" name="dir" type="int" value="1" />
