@@ -495,8 +495,10 @@ protected:
     else if( "poiseuille in z" == lcName ) return( Poiseuille2D_inZ );
     else if( "point" == lcName ) return( FPoint );
     else {
+#ifndef NDEBUG
       const bool& Flow_Type_not_known = false;
       assert( Flow_Type_not_known );
+#endif
     }
     return( ConstField ); // just to please the compiler
   }
