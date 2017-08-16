@@ -29,21 +29,23 @@ st = STS[0]
 
 NF = 1
 
-NYS = [129, 145, 193]
+NYS = [97, 129, 193]
+# NYS = [129, 145, 193]
 # LYS = [1., 1.5, 2.25]
 DIRS = ['Y', 'Z']
 DIRS = ['Y']
+DIRS = ['zero', 'base']
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/scaleN'
+CASE_PATH[0] = pp.DATA_PATH + '/fullstep'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
 
 
 for di in DIRS:
-    CASE_PATH[1] = '/di_' + di
+    CASE_PATH[1] = '/init_' + di
     pp.mkdir(CASE_PATH, 1)
     pp.chdir(CASE_PATH, 1)
     # for i, ys in enumerate(LYS):
@@ -66,12 +68,8 @@ for di in DIRS:
         NZ = 65
         #
         LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
-        # if di == 'Y':
-            # LY = round(ys*LYO/(NYO-1)*(NY-1), 1)
         LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
-        # else:
         LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
-            # LZ = round(ys*LZO/(NZO-1)*(NZ-1), 1)
         CASE_PATH[2] = '/NY_' + str(NY)
         pp.mkdir(CASE_PATH, 2)
         pp.chdir(CASE_PATH, 2)
@@ -80,6 +78,7 @@ for di in DIRS:
         print('LY', LY)
         print('LZ', LZ)
         #
+        ma.set_parameter(ROOT, 'initial guess', di)
         ma.set_parameter(ROOT, 'Re', 300.)
         ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*300.)
         ma.set_parameter(ROOT, 'lx', LX)
@@ -100,7 +99,7 @@ for di in DIRS:
                 # True)
         TREE.write('parameter3D.xml')
         nptot = NPX*NPY*NPZ*NPF
-        memtot = int(1024.*max(16/nptot, 2))
+        memtot = int(1024.*max(30/nptot, 2))
         print()
         print(CASE_PATH)
         EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
