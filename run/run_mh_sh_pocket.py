@@ -24,23 +24,25 @@ ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
 STS = [1./60., 1./30., 1./10.]
 STS = [1./60., 1./10.]
-STS = [1./60.]
+STS = [1./30.]
 st = STS[0]
 
 NF = 1
 
-NYS = [129, 257]
+NYS = [129, 193, 257]
 # NYS = [129, 145, 193]
 # LYS = [1., 1.5, 2.25]
 DIRS = ['Y', 'Z']
 DIRS = ['Y']
 DIRS = ['zero', 'base']
+DIRS = ['base']
 
 BACKS = [True, False]
+BACKS = [False]
 
 CASE_PATH = ['']*4
 
-CASE_PATH[0] = pp.DATA_PATH + '/help'
+CASE_PATH[0] = pp.DATA_PATH + '/help2'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
@@ -59,7 +61,7 @@ for di in DIRS:
             #
             NPX = 1
             NPY = 4
-            NPZ = 2
+            NPZ = 4
             NPF = 1
             #
             LXO = 22.5
@@ -71,7 +73,7 @@ for di in DIRS:
             #
             NX = 65
             # NY = 129
-            NZ = 65
+            NZ = 129
             #
             LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
             LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
