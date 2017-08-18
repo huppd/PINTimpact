@@ -66,8 +66,8 @@ void write_hdf_3D(
     const double* const y1u,
     const double* const y2v,
     const double* const y3w,
-    const double& Re,
-    const double& alpha2 );
+    const double& Re/*,*/
+    /*const double& alpha2 */);
 
 
 void read_hdf(

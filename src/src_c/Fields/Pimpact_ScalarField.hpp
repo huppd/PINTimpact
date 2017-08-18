@@ -1119,8 +1119,8 @@ public:
             space()->getCoordinatesGlobal()->getX(F::U,0),
             space()->getCoordinatesGlobal()->getX(F::V,1),
             space()->getCoordinatesGlobal()->getX(F::W,2),
-            space()->getDomainSize()->getRe(),
-            space()->getDomainSize()->getAlpha2() );
+            space()->getDomainSize()->getRe()/*,*/
+            /*space()->getDomainSize()->getAlpha2()*/ );
 
       }
     } else {
@@ -1155,8 +1155,8 @@ public:
           space()->getCoordinatesGlobal()->getX(F::U,0),
           space()->getCoordinatesGlobal()->getX(F::V,1),
           space()->getCoordinatesGlobal()->getX(F::W,2),
-          space()->getDomainSize()->getRe(),
-          space()->getDomainSize()->getAlpha2() );
+          space()->getDomainSize()->getRe()/*,*/
+          /*space()->getDomainSize()->getAlpha2() */);
     }
   }
 

@@ -332,8 +332,8 @@ contains
       y1u,                    &
       y2v,                    &
       y3w,                    &
-      Re,                     &
-      alpha2                  &
+      Re                     &
+      !alpha2                  &
       ) bind (c,name='write_hdf_3D')
 
     implicit none
@@ -386,7 +386,7 @@ contains
     real(c_double), intent(in) :: y3w( 0:M(3) )
 
     real(c_double), intent(in) :: Re
-    real(c_double), intent(in) :: alpha2
+    !real(c_double), intent(in) :: alpha2
 
 
     !real(c_double)     ::  temp(1:N(1),1:N(2))

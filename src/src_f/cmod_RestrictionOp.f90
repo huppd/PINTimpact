@@ -589,213 +589,124 @@ contains
 
 
 
-  !> \note - Null-Setzen am Rand nicht notwendig!
-  !!       - Da nur in Richtung der jeweiligen Geschwindigkeitskomponente
-  !!         gemittelt wird, muss nicht die spezialisierte Helmholtz-Variante
-  !!         aufgerufen werden.                                  
-  !!       - Austauschrichtung ist invers zu ex1, ex2, ex3. Bei mehreren Blöcken
-  !!         wird auch der jeweils redundante "überlappende" Punkt aufgrund der
-  !!         zu grossen Intervallgrenzen (1:iimax) zwar berechnet, aber aufgrund
-  !!         des Einweg-Austauschs falsch berechnet! Dieses Vorgehen wurde
-  !!         bislang aus übersichtsgründen vorgezogen, macht aber eine
-  !!         Initialisierung notwendig.      
-  !!         Dabei werden Intervalle der Form 0:imax anstelle von 1:imax
-  !!         bearbeitet, da hier nur die das feinste Geschwindigkeitsgitter
-  !!         behandelt wird!                                        
-  !!       - INTENT(inout) ist bei den feinen Gittern notwendig, da Ghost-Werte
-  !!         ausgetauscht werden müssen.
-  !!       - Zuviele Daten werden ausgetauscht; eigentlich müsste in der
-  !!         Grenzfläche nur jeder 4. Punkt behandelt werden (4x zuviel!).
-  !!         Leider etwas unschön, könnte aber durch eine spezialisierte
-  !!         Austauschroutine behandelt werden, da das übergeben von Feldern mit
-  !!         Intervallen von b1L:(iimax+b1U) nur sehr schlecht funktionieren
-  !!         würde (d.h. mit Umkopieren).
-  subroutine MG_restrictFWV(    &
-      dimens,                   &
-      dir,                      &
-      Nf,                       &
-      bLf,bUf,                  &
-      SSf,NNf,                  &
-      Nc,                       &
-      bLc,bUc,                  &
-      SSc,NNc,                  &
-      iimax,                    &
-      dd,                       &
-      cRV,                      &
-      cR1,cR2,cR3,              &
-      phif,                     &
-      phic ) bind (c,name='MG_restrictFWV')
+  !!> \note - Null-Setzen am Rand nicht notwendig!
+  !!!       - Da nur in Richtung der jeweiligen Geschwindigkeitskomponente
+  !!!         gemittelt wird, muss nicht die spezialisierte Helmholtz-Variante
+  !!!         aufgerufen werden.                                  
+  !!!       - Austauschrichtung ist invers zu ex1, ex2, ex3. Bei mehreren Blöcken
+  !!!         wird auch der jeweils redundante "überlappende" Punkt aufgrund der
+  !!!         zu grossen Intervallgrenzen (1:iimax) zwar berechnet, aber aufgrund
+  !!!         des Einweg-Austauschs falsch berechnet! Dieses Vorgehen wurde
+  !!!         bislang aus übersichtsgründen vorgezogen, macht aber eine
+  !!!         Initialisierung notwendig.      
+  !!!         Dabei werden Intervalle der Form 0:imax anstelle von 1:imax
+  !!!         bearbeitet, da hier nur die das feinste Geschwindigkeitsgitter
+  !!!         behandelt wird!                                        
+  !!!       - INTENT(inout) ist bei den feinen Gittern notwendig, da Ghost-Werte
+  !!!         ausgetauscht werden müssen.
+  !!!       - Zuviele Daten werden ausgetauscht; eigentlich müsste in der
+  !!!         Grenzfläche nur jeder 4. Punkt behandelt werden (4x zuviel!).
+  !!!         Leider etwas unschön, könnte aber durch eine spezialisierte
+  !!!         Austauschroutine behandelt werden, da das übergeben von Feldern mit
+  !!!         Intervallen von b1L:(iimax+b1U) nur sehr schlecht funktionieren
+  !!!         würde (d.h. mit Umkopieren).
+  !subroutine MG_restrictFWV(    &
+      !dimens,                   &
+      !dir,                      &
+      !Nf,                       &
+      !bLf,bUf,                  &
+      !SSf,NNf,                  &
+      !Nc,                       &
+      !bLc,bUc,                  &
+      !SSc,NNc,                  &
+      !iimax,                    &
+      !dd,                       &
+      !cRV,                      &
+      !cR1,cR2,cR3,              &
+      !phif,                     &
+      !phic ) bind (c,name='MG_restrictFWV')
 
-    implicit none
+    !implicit none
 
-    integer(c_int), intent(in)     :: dimens
+    !integer(c_int), intent(in)     :: dimens
 
-    integer(c_int), intent(in)     :: dir
+    !integer(c_int), intent(in)     :: dir
 
-    integer(c_int), intent(in)     :: Nf(1:3)
+    !integer(c_int), intent(in)     :: Nf(1:3)
 
-    integer(c_int), intent(in)     :: bLf(1:3)
-    integer(c_int), intent(in)     :: bUf(1:3)
+    !integer(c_int), intent(in)     :: bLf(1:3)
+    !integer(c_int), intent(in)     :: bUf(1:3)
 
-    integer(c_int), intent(in)     :: SSf(1:3)
-    integer(c_int), intent(in)     :: NNf(1:3)
+    !integer(c_int), intent(in)     :: SSf(1:3)
+    !integer(c_int), intent(in)     :: NNf(1:3)
 
-    integer(c_int), intent(in)     :: Nc(1:3)
+    !integer(c_int), intent(in)     :: Nc(1:3)
 
-    integer(c_int), intent(in)     :: bLc(1:3)
-    integer(c_int), intent(in)     :: bUc(1:3)
+    !integer(c_int), intent(in)     :: bLc(1:3)
+    !integer(c_int), intent(in)     :: bUc(1:3)
 
-    integer(c_int), intent(in)     :: SSc(1:3)
-    integer(c_int), intent(in)     :: NNc(1:3)
+    !integer(c_int), intent(in)     :: SSc(1:3)
+    !integer(c_int), intent(in)     :: NNc(1:3)
 
-    integer(c_int), intent(in)     :: iimax(1:3)
+    !integer(c_int), intent(in)     :: iimax(1:3)
 
-    integer(c_int), intent(in)     :: dd(1:3)
+    !integer(c_int), intent(in)     :: dd(1:3)
 
-    real(c_double),  intent(in)    :: cRV ( 1:2, 0:iimax(dir) )
+    !real(c_double),  intent(in)    :: cRV ( 1:2, 0:iimax(dir) )
 
-    real(c_double),  intent(in)    :: cR1 ( -1:1, 1:iimax(1) )
-    real(c_double),  intent(in)    :: cR2 ( -1:1, 1:iimax(2) )
-    real(c_double),  intent(in)    :: cR3 ( -1:1, 1:iimax(3) )
+    !real(c_double),  intent(in)    :: cR1 ( -1:1, 1:iimax(1) )
+    !real(c_double),  intent(in)    :: cR2 ( -1:1, 1:iimax(2) )
+    !real(c_double),  intent(in)    :: cR3 ( -1:1, 1:iimax(3) )
 
-    real(c_double),  intent(in)    :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
+    !real(c_double),  intent(in)    :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
 
-    real(c_double),  intent(out)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
-
-
-    integer(c_int)               ::  i, ii
-    integer(c_int)               ::  j, jj
-    integer(c_int)               ::  k, kk
+    !real(c_double),  intent(out)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
 
 
+    !integer(c_int)               ::  i, ii
+    !integer(c_int)               ::  j, jj
+    !integer(c_int)               ::  k, kk
 
-    ! TEST!!! Test schreiben, um n_gather(:,2) .GT. 1 hier zu vermeiden!
-    ! Gleiches gilt natürlich für die Interpolation.
 
-    !====================================================================================
-    if( 1==dir ) then
 
-      if( 2==dimens ) then
+    !! TEST!!! Test schreiben, um n_gather(:,2) .GT. 1 hier zu vermeiden!
+    !! Gleiches gilt natürlich für die Interpolation.
 
-        !write(*,*)
-        !do kk = SSc(3), iimax(3)
-          !k = kk 
-          !do jj = SSc(2), iimax(2)
-            !j = dd(2)*(jj-1)+1
-            !do ii = SSc(1), iimax(1)
-              !!i = max( dd(1)*(ii-1)+1, 0 )
-              !i =  dd(1)*(ii-1)+1
-              !!write(*,*) jj, j
-              !if( 1==dd(1) ) then
-                !!phic(ii,jj,kk) = &
-                  !!&  cR2( -1, jj)*phif(i,j-1,k  ) + &
-                  !!&  cR2(  0, jj)*phif(i,j  ,k  ) + &
-                  !!&  cR2( +1, jj)*phif(i,j+1,k  )
-                  !!!                                    
-              !else
-                !!phic(ii,jj,kk) = &
-                  !!& cRV(1,ii)*cR2(-1,jj)*phif(i  ,j-1,k  ) + &
-                  !!& cRV(2,ii)*cR2(-1,jj)*phif(i+1,j-1,k  ) + &
-                  !!!
-                !!&   cRV(1,ii)*cR2( 0,jj)*phif(i  ,j  ,k  ) + &
-                  !!& cRV(2,ii)*cR2( 0,jj)*phif(i+1,j  ,k  ) + &
-                  !!!
-                !!&   cRV(1,ii)*cR2(+1,jj)*phif(i  ,j+1,k  ) + &
-                  !!& cRV(2,ii)*cR2(+1,jj)*phif(i+1,j+1,k  ) 
-                  !!!
-              !end if
-            !end do
-          !end do
-        !end do
-
-      else
-
-        do kk = SSc(3), iimax(3)
-          k = dd(3)*(kk-1)+1
-          do jj = SSc(2), iimax(2)
-            j = dd(2)*(jj-1)+1
-            do ii = SSc(1), iimax(1)
-              !i = max( dd(1)*(ii-1)+1, 0 )
-              i = dd(1)*(ii-1)+1
-              if( 1==dd(1) ) then
-                !phic(ii,jj,kk) = &
-                  !&  cR2( -1, jj)*cR3(-1,kk)*phif(i,j-1,k-1) + &
-                  !&  cR2(  0, jj)*cR3(-1,kk)*phif(i,j  ,k-1) + &
-                  !&  cR2( +1, jj)*cR3(-1,kk)*phif(i,j+1,k-1) + &
-                  !!                                    
-                !&    cR2( -1, jj)*cR3( 0,kk)*phif(i,j-1,k  ) + &
-                  !&  cR2(  0, jj)*cR3( 0,kk)*phif(i,j  ,k  ) + &
-                  !&  cR2( +1, jj)*cR3( 0,kk)*phif(i,j+1,k  ) + &
-                  !!                                    
-                !&    cR2( -1, jj)*cR3(+1,kk)*phif(i,j-1,k+1) + &
-                  !&  cR2(  0, jj)*cR3(+1,kk)*phif(i,j  ,k+1) + &
-                  !&  cR2( +1, jj)*cR3(+1,kk)*phif(i,j+1,k+1)    
-              else
-                !phic(ii,jj,kk) = &
-                  !& cRV(1,ii)*cR2(-1,jj)*cR3(-1,kk)*phif(i  ,j-1,k-1) + &
-                  !& cRV(2,ii)*cR2(-1,jj)*cR3(-1,kk)*phif(i+1,j-1,k-1) + &
-                  !!
-                !&   cRV(1,ii)*cR2( 0,jj)*cR3(-1,kk)*phif(i  ,j  ,k-1) + &
-                  !& cRV(2,ii)*cR2( 0,jj)*cR3(-1,kk)*phif(i+1,j  ,k-1) + &
-                  !!
-                !&   cRV(1,ii)*cR2(+1,jj)*cR3(-1,kk)*phif(i  ,j+1,k-1) + &
-                  !& cRV(2,ii)*cR2(+1,jj)*cR3(-1,kk)*phif(i+1,j+1,k-1) + &
-                  !!
-                !&   cRV(1,ii)*cR2(-1,jj)*cR3( 0,kk)*phif(i  ,j-1,k  ) + &
-                  !& cRV(2,ii)*cR2(-1,jj)*cR3( 0,kk)*phif(i+1,j-1,k  ) + &
-                  !!
-                !&   cRV(1,ii)*cR2( 0,jj)*cR3( 0,kk)*phif(i  ,j  ,k  ) + &
-                  !& cRV(2,ii)*cR2( 0,jj)*cR3( 0,kk)*phif(i+1,j  ,k  ) + &
-                  !!
-                !&   cRV(1,ii)*cR2(+1,jj)*cR3( 0,kk)*phif(i  ,j+1,k  ) + &
-                  !& cRV(2,ii)*cR2(+1,jj)*cR3( 0,kk)*phif(i+1,j+1,k  ) + &
-                  !!
-                !&   cRV(1,ii)*cR2(-1,jj)*cR3(+1,kk)*phif(i  ,j-1,k+1) + &
-                  !& cRV(2,ii)*cR2(-1,jj)*cR3(+1,kk)*phif(i+1,j-1,k+1) + &
-                  !!
-                !&   cRV(1,ii)*cR2( 0,jj)*cR3(+1,kk)*phif(i  ,j  ,k+1) + &
-                  !& cRV(2,ii)*cR2( 0,jj)*cR3(+1,kk)*phif(i+1,j  ,k+1) + &
-                  !!
-                !&   cRV(1,ii)*cR2(+1,jj)*cR3(+1,kk)*phif(i  ,j+1,k+1) + &
-                  !& cRV(2,ii)*cR2(+1,jj)*cR3(+1,kk)*phif(i+1,j+1,k+1)    
-              end if
-            end do
-          end do
-        end do
-
-      end if
-
-    end if
-    !====================================================================================
-    if( 2==dir ) then
+    !!====================================================================================
+    !if( 1==dir ) then
 
       !if( 2==dimens ) then
 
-        !do kk = SSc(3), iimax(3)
-          !k = kk 
-          !do jj = SSc(2), iimax(2)
+        !!write(*,*)
+        !!do kk = SSc(3), iimax(3)
+          !!k = kk 
+          !!do jj = SSc(2), iimax(2)
             !!j = dd(2)*(jj-1)+1
-            !j = dd(2)*(jj-1)+1
-            !do ii = SSc(1), iimax(1)
-              !i = dd(1)*(ii-1)+1
-              !if( 1==dd(2) ) then
-                !phic(ii,jj,kk) = &
-                  !&  cR1( -1, ii)*phif(i-1,j,k  ) + &
-                  !&  cR1(  0, ii)*phif(i  ,j,k  ) + &
-                  !&  cR1( +1, ii)*phif(i+1,j,k  )
-              !else
-                !phic(ii,jj,kk) = &
-                  !& cR1(-1,ii)*cRV(1,jj)*phif(i-1,j  ,k  ) + &
-                  !& cR1( 0,ii)*cRV(1,jj)*phif(i  ,j  ,k  ) + &
-                  !& cR1(+1,ii)*cRV(1,jj)*phif(i+1,j  ,k  ) + &
-                  !!
-                !&   cR1(-1,ii)*cRV(2,jj)*phif(i-1,j+1,k  ) + &
-                  !& cR1( 0,ii)*cRV(2,jj)*phif(i  ,j+1,k  ) + &
-                  !& cR1(+1,ii)*cRV(2,jj)*phif(i+1,j+1,k  )
-              !end if
-            !end do
-          !end do
-        !end do
+            !!do ii = SSc(1), iimax(1)
+              !!!i = max( dd(1)*(ii-1)+1, 0 )
+              !!i =  dd(1)*(ii-1)+1
+              !!!write(*,*) jj, j
+              !!if( 1==dd(1) ) then
+                !!!phic(ii,jj,kk) = &
+                  !!!&  cR2( -1, jj)*phif(i,j-1,k  ) + &
+                  !!!&  cR2(  0, jj)*phif(i,j  ,k  ) + &
+                  !!!&  cR2( +1, jj)*phif(i,j+1,k  )
+                  !!!!                                    
+              !!else
+                !!!phic(ii,jj,kk) = &
+                  !!!& cRV(1,ii)*cR2(-1,jj)*phif(i  ,j-1,k  ) + &
+                  !!!& cRV(2,ii)*cR2(-1,jj)*phif(i+1,j-1,k  ) + &
+                  !!!!
+                !!!&   cRV(1,ii)*cR2( 0,jj)*phif(i  ,j  ,k  ) + &
+                  !!!& cRV(2,ii)*cR2( 0,jj)*phif(i+1,j  ,k  ) + &
+                  !!!!
+                !!!&   cRV(1,ii)*cR2(+1,jj)*phif(i  ,j+1,k  ) + &
+                  !!!& cRV(2,ii)*cR2(+1,jj)*phif(i+1,j+1,k  ) 
+                  !!!!
+              !!end if
+            !!end do
+          !!end do
+        !!end do
 
       !else
 
@@ -804,45 +715,49 @@ contains
           !do jj = SSc(2), iimax(2)
             !j = dd(2)*(jj-1)+1
             !do ii = SSc(1), iimax(1)
+              !!i = max( dd(1)*(ii-1)+1, 0 )
               !i = dd(1)*(ii-1)+1
-              !if( 1==dd(2) ) then
-                !phic(ii,jj,kk) = &
-                  !&  cR1( -1, ii)*cR3(-1,kk)*phif(i-1,j,k-1) + &
-                  !&  cR1(  0, ii)*cR3(-1,kk)*phif(i  ,j,k-1) + &
-                  !&  cR1( +1, ii)*cR3(-1,kk)*phif(i+1,j,k-1) + &
-                  !!
-                !&    cR1( -1, ii)*cR3( 0,kk)*phif(i-1,j,k  ) + &
-                  !&  cR1(  0, ii)*cR3( 0,kk)*phif(i  ,j,k  ) + &
-                  !&  cR1( +1, ii)*cR3( 0,kk)*phif(i+1,j,k  ) + &
-                  !!
-                !&    cR1( -1, ii)*cR3(+1,kk)*phif(i-1,j,k+1) + &
-                  !&  cR1(  0, ii)*cR3(+1,kk)*phif(i  ,j,k+1) + &
-                  !&  cR1( +1, ii)*cR3(+1,kk)*phif(i+1,j,k+1)    
+              !if( 1==dd(1) ) then
+                !!phic(ii,jj,kk) = &
+                  !!&  cR2( -1, jj)*cR3(-1,kk)*phif(i,j-1,k-1) + &
+                  !!&  cR2(  0, jj)*cR3(-1,kk)*phif(i,j  ,k-1) + &
+                  !!&  cR2( +1, jj)*cR3(-1,kk)*phif(i,j+1,k-1) + &
+                  !!!                                    
+                !!&    cR2( -1, jj)*cR3( 0,kk)*phif(i,j-1,k  ) + &
+                  !!&  cR2(  0, jj)*cR3( 0,kk)*phif(i,j  ,k  ) + &
+                  !!&  cR2( +1, jj)*cR3( 0,kk)*phif(i,j+1,k  ) + &
+                  !!!                                    
+                !!&    cR2( -1, jj)*cR3(+1,kk)*phif(i,j-1,k+1) + &
+                  !!&  cR2(  0, jj)*cR3(+1,kk)*phif(i,j  ,k+1) + &
+                  !!&  cR2( +1, jj)*cR3(+1,kk)*phif(i,j+1,k+1)    
               !else
-                !phic(ii,jj,kk) = &
-                  !& cR1(-1,ii)*cRV(1,jj)*cR3(-1,kk)*phif(i-1,j  ,k-1) + &
-                  !& cR1( 0,ii)*cRV(1,jj)*cR3(-1,kk)*phif(i  ,j  ,k-1) + &
-                  !& cR1(+1,ii)*cRV(1,jj)*cR3(-1,kk)*phif(i+1,j  ,k-1) + &
-                  !!
-                !&   cR1(-1,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i-1,j+1,k-1) + &
-                  !& cR1( 0,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i  ,j+1,k-1) + &
-                  !& cR1(+1,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i+1,j+1,k-1) + &
-                  !!
-                !&   cR1(-1,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i-1,j  ,k  ) + &
-                  !& cR1( 0,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i  ,j  ,k  ) + &
-                  !& cR1(+1,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i+1,j  ,k  ) + &
-                  !!
-                !&   cR1(-1,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i-1,j+1,k  ) + &
-                  !& cR1( 0,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i  ,j+1,k  ) + &
-                  !& cR1(+1,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i+1,j+1,k  ) + &
-                  !!
-                !&   cR1(-1,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i-1,j  ,k+1) + &
-                  !& cR1( 0,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i  ,j  ,k+1) + &
-                  !& cR1(+1,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i+1,j  ,k+1) + &
-                  !!
-                !&   cR1(-1,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i-1,j+1,k+1) + &
-                  !& cR1( 0,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i  ,j+1,k+1) + &
-                  !& cR1(+1,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i+1,j+1,k+1)    
+                !!phic(ii,jj,kk) = &
+                  !!& cRV(1,ii)*cR2(-1,jj)*cR3(-1,kk)*phif(i  ,j-1,k-1) + &
+                  !!& cRV(2,ii)*cR2(-1,jj)*cR3(-1,kk)*phif(i+1,j-1,k-1) + &
+                  !!!
+                !!&   cRV(1,ii)*cR2( 0,jj)*cR3(-1,kk)*phif(i  ,j  ,k-1) + &
+                  !!& cRV(2,ii)*cR2( 0,jj)*cR3(-1,kk)*phif(i+1,j  ,k-1) + &
+                  !!!
+                !!&   cRV(1,ii)*cR2(+1,jj)*cR3(-1,kk)*phif(i  ,j+1,k-1) + &
+                  !!& cRV(2,ii)*cR2(+1,jj)*cR3(-1,kk)*phif(i+1,j+1,k-1) + &
+                  !!!
+                !!&   cRV(1,ii)*cR2(-1,jj)*cR3( 0,kk)*phif(i  ,j-1,k  ) + &
+                  !!& cRV(2,ii)*cR2(-1,jj)*cR3( 0,kk)*phif(i+1,j-1,k  ) + &
+                  !!!
+                !!&   cRV(1,ii)*cR2( 0,jj)*cR3( 0,kk)*phif(i  ,j  ,k  ) + &
+                  !!& cRV(2,ii)*cR2( 0,jj)*cR3( 0,kk)*phif(i+1,j  ,k  ) + &
+                  !!!
+                !!&   cRV(1,ii)*cR2(+1,jj)*cR3( 0,kk)*phif(i  ,j+1,k  ) + &
+                  !!& cRV(2,ii)*cR2(+1,jj)*cR3( 0,kk)*phif(i+1,j+1,k  ) + &
+                  !!!
+                !!&   cRV(1,ii)*cR2(-1,jj)*cR3(+1,kk)*phif(i  ,j-1,k+1) + &
+                  !!& cRV(2,ii)*cR2(-1,jj)*cR3(+1,kk)*phif(i+1,j-1,k+1) + &
+                  !!!
+                !!&   cRV(1,ii)*cR2( 0,jj)*cR3(+1,kk)*phif(i  ,j  ,k+1) + &
+                  !!& cRV(2,ii)*cR2( 0,jj)*cR3(+1,kk)*phif(i+1,j  ,k+1) + &
+                  !!!
+                !!&   cRV(1,ii)*cR2(+1,jj)*cR3(+1,kk)*phif(i  ,j+1,k+1) + &
+                  !!& cRV(2,ii)*cR2(+1,jj)*cR3(+1,kk)*phif(i+1,j+1,k+1)    
               !end if
             !end do
           !end do
@@ -850,63 +765,148 @@ contains
 
       !end if
 
-    end if
-    !====================================================================================
-    if( 3==dimens .and. dir==3 ) then
+    !end if
+    !!====================================================================================
+    !if( 2==dir ) then
 
-      do kk = SSc(3), iimax(3)
-        k = dd(3)*(kk-1)+1
-        do jj = SSc(2), iimax(2)
-          j = dd(2)*(jj-1)+1
-          do ii = SSc(1), iimax(1)
-            i = dd(1)*(ii-1)+1
-            if( 1==dd(3) ) then
-              phic(ii,jj,kk) = &
-                & cR1(-1,ii)*cR2(-1,jj)*phif(i-1,j-1,k) + &
-                & cR1( 0,ii)*cR2(-1,jj)*phif(i  ,j-1,k) + &
-                & cR1(+1,ii)*cR2(-1,jj)*phif(i+1,j-1,k) + &
-                !
-              &   cR1(-1,ii)*cR2( 0,jj)*phif(i-1,j  ,k) + &
-                & cR1( 0,ii)*cR2( 0,jj)*phif(i  ,j  ,k) + &
-                & cR1(+1,ii)*cR2( 0,jj)*phif(i+1,j  ,k) + &
-                !
-              &   cR1(-1,ii)*cR2(+1,jj)*phif(i-1,j+1,k) + &
-                & cR1( 0,ii)*cR2(+1,jj)*phif(i  ,j+1,k) + &
-                & cR1(+1,ii)*cR2(+1,jj)*phif(i+1,j+1,k)
-            else
-              phic(ii,jj,kk) = &
-                & cR1(-1,ii)*cR2(-1,jj)*cRV(1,kk)*phif(i-1,j-1,k  ) + &
-                & cR1( 0,ii)*cR2(-1,jj)*cRV(1,kk)*phif(i  ,j-1,k  ) + &
-                & cR1(+1,ii)*cR2(-1,jj)*cRV(1,kk)*phif(i+1,j-1,k  ) + &
-                !
-              &   cR1(-1,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i-1,j-1,k+1) + &
-                & cR1( 0,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i  ,j-1,k+1) + &
-                & cR1(+1,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i+1,j-1,k+1) + &
-                !
-              &   cR1(-1,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i-1,j  ,k  ) + &
-                & cR1( 0,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i  ,j  ,k  ) + &
-                & cR1(+1,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i+1,j  ,k  ) + &
-                !
-              &   cR1(-1,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i-1,j  ,k+1) + &
-                & cR1( 0,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i  ,j  ,k+1) + &
-                & cR1(+1,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i+1,j  ,k+1) + &
-                !
-              &   cR1(-1,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i-1,j+1,k  ) + &
-                & cR1( 0,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i  ,j+1,k  ) + &
-                & cR1(+1,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i+1,j+1,k  ) + &
-                !
-              &   cR1(-1,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i-1,j+1,k+1) + &
-                & cR1( 0,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i  ,j+1,k+1) + &
-                & cR1(+1,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i+1,j+1,k+1)    
-            end if
-          end do
-        end do
-      end do
+      !!if( 2==dimens ) then
 
-    end if
-    !===========================================================================================
+        !!do kk = SSc(3), iimax(3)
+          !!k = kk 
+          !!do jj = SSc(2), iimax(2)
+            !!!j = dd(2)*(jj-1)+1
+            !!j = dd(2)*(jj-1)+1
+            !!do ii = SSc(1), iimax(1)
+              !!i = dd(1)*(ii-1)+1
+              !!if( 1==dd(2) ) then
+                !!phic(ii,jj,kk) = &
+                  !!&  cR1( -1, ii)*phif(i-1,j,k  ) + &
+                  !!&  cR1(  0, ii)*phif(i  ,j,k  ) + &
+                  !!&  cR1( +1, ii)*phif(i+1,j,k  )
+              !!else
+                !!phic(ii,jj,kk) = &
+                  !!& cR1(-1,ii)*cRV(1,jj)*phif(i-1,j  ,k  ) + &
+                  !!& cR1( 0,ii)*cRV(1,jj)*phif(i  ,j  ,k  ) + &
+                  !!& cR1(+1,ii)*cRV(1,jj)*phif(i+1,j  ,k  ) + &
+                  !!!
+                !!&   cR1(-1,ii)*cRV(2,jj)*phif(i-1,j+1,k  ) + &
+                  !!& cR1( 0,ii)*cRV(2,jj)*phif(i  ,j+1,k  ) + &
+                  !!& cR1(+1,ii)*cRV(2,jj)*phif(i+1,j+1,k  )
+              !!end if
+            !!end do
+          !!end do
+        !!end do
+
+      !!else
+
+        !!do kk = SSc(3), iimax(3)
+          !!k = dd(3)*(kk-1)+1
+          !!do jj = SSc(2), iimax(2)
+            !!j = dd(2)*(jj-1)+1
+            !!do ii = SSc(1), iimax(1)
+              !!i = dd(1)*(ii-1)+1
+              !!if( 1==dd(2) ) then
+                !!phic(ii,jj,kk) = &
+                  !!&  cR1( -1, ii)*cR3(-1,kk)*phif(i-1,j,k-1) + &
+                  !!&  cR1(  0, ii)*cR3(-1,kk)*phif(i  ,j,k-1) + &
+                  !!&  cR1( +1, ii)*cR3(-1,kk)*phif(i+1,j,k-1) + &
+                  !!!
+                !!&    cR1( -1, ii)*cR3( 0,kk)*phif(i-1,j,k  ) + &
+                  !!&  cR1(  0, ii)*cR3( 0,kk)*phif(i  ,j,k  ) + &
+                  !!&  cR1( +1, ii)*cR3( 0,kk)*phif(i+1,j,k  ) + &
+                  !!!
+                !!&    cR1( -1, ii)*cR3(+1,kk)*phif(i-1,j,k+1) + &
+                  !!&  cR1(  0, ii)*cR3(+1,kk)*phif(i  ,j,k+1) + &
+                  !!&  cR1( +1, ii)*cR3(+1,kk)*phif(i+1,j,k+1)    
+              !!else
+                !!phic(ii,jj,kk) = &
+                  !!& cR1(-1,ii)*cRV(1,jj)*cR3(-1,kk)*phif(i-1,j  ,k-1) + &
+                  !!& cR1( 0,ii)*cRV(1,jj)*cR3(-1,kk)*phif(i  ,j  ,k-1) + &
+                  !!& cR1(+1,ii)*cRV(1,jj)*cR3(-1,kk)*phif(i+1,j  ,k-1) + &
+                  !!!
+                !!&   cR1(-1,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i-1,j+1,k-1) + &
+                  !!& cR1( 0,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i  ,j+1,k-1) + &
+                  !!& cR1(+1,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i+1,j+1,k-1) + &
+                  !!!
+                !!&   cR1(-1,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i-1,j  ,k  ) + &
+                  !!& cR1( 0,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i  ,j  ,k  ) + &
+                  !!& cR1(+1,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i+1,j  ,k  ) + &
+                  !!!
+                !!&   cR1(-1,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i-1,j+1,k  ) + &
+                  !!& cR1( 0,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i  ,j+1,k  ) + &
+                  !!& cR1(+1,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i+1,j+1,k  ) + &
+                  !!!
+                !!&   cR1(-1,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i-1,j  ,k+1) + &
+                  !!& cR1( 0,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i  ,j  ,k+1) + &
+                  !!& cR1(+1,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i+1,j  ,k+1) + &
+                  !!!
+                !!&   cR1(-1,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i-1,j+1,k+1) + &
+                  !!& cR1( 0,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i  ,j+1,k+1) + &
+                  !!& cR1(+1,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i+1,j+1,k+1)    
+              !!end if
+            !!end do
+          !!end do
+        !!end do
+
+      !!end if
+
+    !end if
+    !!====================================================================================
+    !if( 3==dimens .and. dir==3 ) then
+
+      !do kk = SSc(3), iimax(3)
+        !k = dd(3)*(kk-1)+1
+        !do jj = SSc(2), iimax(2)
+          !j = dd(2)*(jj-1)+1
+          !do ii = SSc(1), iimax(1)
+            !i = dd(1)*(ii-1)+1
+            !if( 1==dd(3) ) then
+              !phic(ii,jj,kk) = &
+                !& cR1(-1,ii)*cR2(-1,jj)*phif(i-1,j-1,k) + &
+                !& cR1( 0,ii)*cR2(-1,jj)*phif(i  ,j-1,k) + &
+                !& cR1(+1,ii)*cR2(-1,jj)*phif(i+1,j-1,k) + &
+                !!
+              !&   cR1(-1,ii)*cR2( 0,jj)*phif(i-1,j  ,k) + &
+                !& cR1( 0,ii)*cR2( 0,jj)*phif(i  ,j  ,k) + &
+                !& cR1(+1,ii)*cR2( 0,jj)*phif(i+1,j  ,k) + &
+                !!
+              !&   cR1(-1,ii)*cR2(+1,jj)*phif(i-1,j+1,k) + &
+                !& cR1( 0,ii)*cR2(+1,jj)*phif(i  ,j+1,k) + &
+                !& cR1(+1,ii)*cR2(+1,jj)*phif(i+1,j+1,k)
+            !else
+              !phic(ii,jj,kk) = &
+                !& cR1(-1,ii)*cR2(-1,jj)*cRV(1,kk)*phif(i-1,j-1,k  ) + &
+                !& cR1( 0,ii)*cR2(-1,jj)*cRV(1,kk)*phif(i  ,j-1,k  ) + &
+                !& cR1(+1,ii)*cR2(-1,jj)*cRV(1,kk)*phif(i+1,j-1,k  ) + &
+                !!
+              !&   cR1(-1,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i-1,j-1,k+1) + &
+                !& cR1( 0,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i  ,j-1,k+1) + &
+                !& cR1(+1,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i+1,j-1,k+1) + &
+                !!
+              !&   cR1(-1,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i-1,j  ,k  ) + &
+                !& cR1( 0,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i  ,j  ,k  ) + &
+                !& cR1(+1,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i+1,j  ,k  ) + &
+                !!
+              !&   cR1(-1,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i-1,j  ,k+1) + &
+                !& cR1( 0,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i  ,j  ,k+1) + &
+                !& cR1(+1,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i+1,j  ,k+1) + &
+                !!
+              !&   cR1(-1,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i-1,j+1,k  ) + &
+                !& cR1( 0,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i  ,j+1,k  ) + &
+                !& cR1(+1,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i+1,j+1,k  ) + &
+                !!
+              !&   cR1(-1,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i-1,j+1,k+1) + &
+                !& cR1( 0,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i  ,j+1,k+1) + &
+                !& cR1(+1,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i+1,j+1,k+1)    
+            !end if
+          !end do
+        !end do
+      !end do
+
+    !end if
+    !!===========================================================================================
 
 
-  end subroutine MG_restrictFWV
+  !end subroutine MG_restrictFWV
 
 end module cmod_RestrictionOp

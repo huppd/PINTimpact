@@ -92,27 +92,27 @@ extern "C" {
     const double* const phif,
     double* const phic );
 
-  void MG_restrictFWV(
-    const int& dimens,
-    const int& dir,
-    const int* const Nf,
-    const int* const bLf,
-    const int* const bUf,
-    const int* const SSf,
-    const int* const NNf,
-    const int* const Nc,
-    const int* const bLc,
-    const int* const bUc,
-    const int* const SSc,
-    const int* const NNc,
-    const int* const iimax,
-    const int* const dd,
-    const double* const cRV,
-    const double* const cR1,
-    const double* const cR2,
-    const double* const cR3,
-    const double* const phif,
-    double* const phic );
+  //void MG_restrictFWV(
+    //const int& dimens,
+    //const int& dir,
+    //const int* const Nf,
+    //const int* const bLf,
+    //const int* const bUf,
+    //const int* const SSf,
+    //const int* const NNf,
+    //const int* const Nc,
+    //const int* const bLc,
+    //const int* const bUc,
+    //const int* const SSc,
+    //const int* const NNc,
+    //const int* const iimax,
+    //const int* const dd,
+    //const double* const cRV,
+    //const double* const cR1,
+    //const double* const cR2,
+    //const double* const cR3,
+    //const double* const phif,
+    //double* const phic );
 
   void MG_RestrictGather(
     const int* const Nc,
