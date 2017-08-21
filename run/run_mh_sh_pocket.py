@@ -30,6 +30,7 @@ st = STS[0]
 NF = 1
 
 NYS = [129, 193, 257]
+NYS = [513]
 # NYS = [129, 145, 193]
 # LYS = [1., 1.5, 2.25]
 DIRS = ['Y', 'Z']
@@ -42,10 +43,9 @@ BACKS = [False]
 
 CASE_PATH = ['']*4
 
-CASE_PATH[0] = pp.DATA_PATH + '/help2'
+CASE_PATH[0] = pp.DATA_PATH + '/IWantItAll'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
-
 
 
 for di in DIRS:
@@ -60,8 +60,8 @@ for di in DIRS:
         for NY in NYS:
             #
             NPX = 1
-            NPY = 4
-            NPZ = 4
+            NPY = 6
+            NPZ = 8
             NPF = 1
             #
             LXO = 22.5
@@ -73,11 +73,11 @@ for di in DIRS:
             #
             NX = 65
             # NY = 129
-            NZ = 129
+            NZ = 193
             #
-            LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
-            LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
-            LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
+            LX = round(1.5*LXO/(NXO-1)*(NX-1), 1)
+            LZ = round(1.5*LZO/(NZO-1)*(NZ-1), 1)
+            LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
             CASE_PATH[3] = '/NY_' + str(NY)
             pp.mkdir(CASE_PATH, 3)
             pp.chdir(CASE_PATH, 3)
