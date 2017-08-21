@@ -75,9 +75,9 @@ for di in DIRS:
             # NY = 129
             NZ = 193
             #
-            LX = round(1.5*LXO/(NXO-1)*(NX-1), 1)
-            LZ = round(1.5*LZO/(NZO-1)*(NZ-1), 1)
-            LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
+            LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
+            LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
+            LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
             CASE_PATH[3] = '/NY_' + str(NY)
             pp.mkdir(CASE_PATH, 3)
             pp.chdir(CASE_PATH, 3)
