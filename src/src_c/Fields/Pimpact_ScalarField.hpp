@@ -55,6 +55,9 @@ protected:
 
   const F fType_; /// < make template parameter (default:=S)
 
+  const OT stride1_;
+  const OT stride2_;
+
   void allocate() {
     OT n = getStorageSize();
     s_ = new ST[n];
@@ -66,7 +69,10 @@ public:
     AbstractField<SpaceT>( space ),
     owning_(owning),
     exchangedState_( Teuchos::tuple( true, true, true ) ),
-    fType_(fType) {
+    fType_(fType),
+    stride1_(space->nLoc(0)+SW::BU(0)-SW::BL(0)+1),
+    stride2_( (space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1)*(
+          space->nLoc(1)+SW::BU(1)-SW::BL(1)+1) ) {
 
       if( owning_ ) {
         allocate();
@@ -84,7 +90,9 @@ public:
     AbstractField<SpaceT>( sF.space() ),
     owning_( sF.owning_ ),
     exchangedState_( sF.exchangedState_ ),
-    fType_( sF.fType_ ) {
+    fType_( sF.fType_ ),
+    stride1_( sF.stride1_ ),
+    stride2_( sF.stride2_ ) {
 
       if( owning_ ) {
 
@@ -1293,54 +1301,49 @@ public:
 
   /// \}
 
-  /// \name indexing
-  /// @{
 
 protected:
 
-  /// \brief stride in X direction
-  constexpr OT stride0() {
-    return( 1 );
-  }
+  /// \name indexing
+  /// @{
 
   /// \brief stride in Y direction
-  constexpr OT stride1() {
-    return( space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1 );
-  }
+  //constexpr OT stride1() {
+    //return( space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1 );
+  //}
 
   /// \brief stride in Z direction
-  constexpr OT stride2() {
-    return(
-            ( space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1 )*(
-              space()->nLoc(1)+SW::BU(1)-SW::BL(1)+1 ) );
-  }
+  //constexpr OT stride2() {
+    //return(
+          //(space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1)*(
+            //space()->nLoc(1)+SW::BU(1)-SW::BL(1)+1 ) );
+  //}
 
 
-  /// \brief stride
+
+  /// \brief comput index
   ///
-  /// \param dir direction of stride
-  constexpr OT stride( const int dir ) {
-    return(
-            (0==dir)?
-            stride0():
-            ( (1==dir)?
-              stride1():
-              stride2()
-            )
-          );
+  /// \param i index in x-direction
+  /// \param j index in y-direction
+  /// \param k index in z-direction
+  constexpr OT index( const OT* const i ) {
+    return( (i[0]-SW::BL(0)) +
+            (i[1]-SW::BL(1))*stride1_ +
+            (i[2]-SW::BL(2))*stride2_ );
   }
 
 
-  /// \brief computed index
+  /// \brief comput index
   ///
   /// \param i index in x-direction
   /// \param j index in y-direction
   /// \param k index in z-direction
   constexpr OT index( const OT i, const OT j, const OT k ) {
     return( (i-SW::BL(0)) +
-            (j-SW::BL(1))*stride1() +
-            (k-SW::BL(2))*stride2() );
+            (j-SW::BL(1))*stride1_ +
+            (k-SW::BL(2))*stride2_ );
   }
+
 
   /// \brief field access
   ///
@@ -1368,13 +1371,13 @@ protected:
   ///
   /// \param i index coordinate
   constexpr ST at( const OT* const i ) {
-    return( s_[ index(i[0],i[1],i[2]) ] );
+    return( s_[ index(i) ] );
   }
   /// \brief field access
   ///
   /// \param i index coordinate
   ST& at( const OT* const i ) {
-    return( s_[ index(i[0],i[1],i[2]) ] );
+    return( s_[ index(i) ] );
   }
 
   /// \brief field access
@@ -1400,7 +1403,7 @@ public:
   ///
   /// \return const reference
   constexpr ST operator()( const OT i, const OT j, const OT k ) {
-    return( s_[ index(i,j,k) ] );
+    return( at(i,j,k) );
   }
 
   /// \brief field access
@@ -1411,33 +1414,33 @@ public:
   ///
   /// \return reference
   ST& operator()( const OT i, const OT j, const OT k )  {
-    return( s_[ index(i,j,k) ] );
+    return( at(i,j,k) );
   }
 
   /// \brief field access
   ///
   /// \param i index coordinate
   constexpr ST operator()( const OT* const i ) {
-    return( s_[ index(i[0],i[1],i[2]) ] );
+    return( at(i) );
   }
   /// \brief field access
   ///
   /// \param i index coordinate
   ST& operator()( const OT* const i ) {
-    return( s_[ index(i[0],i[1],i[2]) ] );
+    return( at(i) );
   }
 
   /// \brief field access
   ///
   /// \param i index coordinate
   ST& operator()( const Teuchos::Tuple<const OT,3>& i ) {
-    return( s_[ index(i[0],i[1],i[2]) ] );
+    return( at(i) );
   }
   /// \brief field access
   ///
   /// \param i index coordinate
   constexpr ST operator()( const Teuchos::Tuple<const OT,3>& i ) {
-    return( s_[ index(i[0],i[1],i[2]) ] );
+    return( at(i) );
   }
 
 }; // end of class ScalarField
