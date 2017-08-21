@@ -102,10 +102,10 @@ for di in DIRS:
             ma.set_parameter(ROOT, 'npy', NPY)
             ma.set_parameter(ROOT, 'npz', NPZ)
             ma.set_parameter(ROOT, 'npf', NPF)
-            if back:
-                ma.set_insublist(ROOT, 'Line Search', 'Method', 'Backtrack')
-            else:
-                ma.set_insublist(ROOT, 'Line Search', 'Method', 'Full Step')
+            # if back:
+                # ma.set_insublist(ROOT, 'Line Search', 'Method', 'Backtrack')
+            # else:
+            ma.set_insublist(ROOT, 'Line Search', 'Method', 'Full Step')
             # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', 4)
             # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
                     # True)

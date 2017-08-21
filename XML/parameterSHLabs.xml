@@ -41,8 +41,7 @@
     <Parameter docString="" id="28" isDefault="false" isUsed="true" name="max refinement" type="int" value="4" />
     <Parameter docString="" id="29" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.0e-04" />
     <Parameter docString="" id="30" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-    <Parameter docString="" id="31" isDefault="false" isUsed="true" name="initial guess"
-      type="string" value="base" />
+    <Parameter docString="" id="31" isDefault="false" isUsed="true" name="initial guess" type="string" value="base" />
   </ParameterList>
   <ParameterList id="217" name="NOX write restart">
     <Parameter docString="" id="32" isDefault="true" isUsed="true" name="restart" type="int" value="5" />
