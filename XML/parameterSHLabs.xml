@@ -44,7 +44,7 @@
     <Parameter docString="" id="31" isDefault="false" isUsed="true" name="initial guess" type="string" value="base" />
   </ParameterList>
   <ParameterList id="217" name="NOX write restart">
-    <Parameter docString="" id="32" isDefault="true" isUsed="true" name="restart" type="int" value="5" />
+    <Parameter docString="" id="32" isDefault="true" isUsed="true" name="restart" type="int" value="1" />
   </ParameterList>
   <ParameterList id="218" name="NOX energy">
     <Parameter docString="" id="33" isDefault="false" isUsed="true" name="dir" type="int" value="1" />
@@ -102,7 +102,7 @@
     </ParameterList>
     <ParameterList id="230" name="Test 2">
       <Parameter docString="" id="64" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-      <Parameter docString="" id="65" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="15" />
+      <Parameter docString="" id="65" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
     </ParameterList>
   </ParameterList>
   <ParameterList id="231" name="NOX Solver">
@@ -220,7 +220,7 @@
       <Parameter docString="" id="140" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
       <Parameter docString="" id="141" isDefault="true" isUsed="true" name="defect correction" type="bool" value="true" />
       <Parameter docString="" id="142" isDefault="true" isUsed="true" name="init zero" type="bool" value="true" />
-      <Parameter docString="" id="143" isDefault="true" isUsed="true" name="numCycles" type="int" value="5" />
+      <Parameter docString="" id="143" isDefault="true" isUsed="true" name="numCycles" type="int" value="4" />
       <ParameterList id="251" name="Coarse Grid Solver">
         <Parameter docString="" id="144" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
         <Parameter docString="" id="145" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />
@@ -230,7 +230,7 @@
         <Parameter docString="" id="149" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
         <ParameterList id="252" name="Solver">
           <Parameter docString="" id="150" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
-          <Parameter docString="" id="151" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
+          <Parameter docString="" id="151" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
           <Parameter docString="" id="152" isDefault="false" isUsed="true" name="Verbosity" type="int" value="0" />
           <Parameter docString="" id="153" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Coarse Grid Solver(ConvectionDiffusionVOp)" />
           <Parameter docString="" id="154" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -252,11 +252,11 @@
       <Parameter docString="" id="163" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
       <Parameter docString="" id="164" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-4" />
       <ParameterList id="255" name="Eddy prec">
-        <Parameter docString="" id="165" isDefault="true" isUsed="true" name="type" type="int" value="-1" />
+        <Parameter docString="" id="165" isDefault="true" isUsed="true" name="type" type="int" value="4" />
       </ParameterList>
       <ParameterList id="256" name="Solver">
-        <Parameter docString="" id="166" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="400" />
-        <Parameter docString="" id="167" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
+        <Parameter docString="" id="166" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="200" />
+        <Parameter docString="" id="167" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="40" />
         <Parameter docString="" id="168" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
         <Parameter docString="" id="169" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
         <Parameter docString="" id="170" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />

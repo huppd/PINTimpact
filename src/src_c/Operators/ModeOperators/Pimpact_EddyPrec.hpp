@@ -76,9 +76,9 @@ public:
       }
       default: {
         if( mulI_>=mulC_ && mulI_>=mulL_ )
-          applyCDinv( x, y );
-        else
           applyERinv( x, y );
+        else
+          applyCDinv( x, y );
         break;
       }
     }
