@@ -100,10 +100,10 @@ int main( int argi, char** argv ) {
     Teuchos::RCP<ConvDiffOpT<SpaceT>> zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
     auto modeOp = Teuchos::rcp(
-                    new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
+        new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
     pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-      "Output Stream", Teuchos::rcpFromRef(std::cout) );
+        "Output Stream", Teuchos::rcpFromRef(std::cout) );
     auto modeInv = Pimpact::createInverseOp( modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
     auto mgSpaces =
@@ -112,9 +112,8 @@ int main( int argi, char** argv ) {
     pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
         Pimpact::createOstream( zeroOp->getLabel()+".txt", space->rankST() ) );
 
-    auto
-    zeroInv = Pimpact::createInverseOp(
-                zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
+    auto zeroInv = Pimpact::createInverseOp(
+        zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
 
     auto mgConvDiff =
       Pimpact::createMultiGrid<
@@ -147,7 +146,8 @@ int main( int argi, char** argv ) {
     auto modePrec =
       Pimpact::createMultiOperatorBase(
         Pimpact::create<Pimpact::EddyPrec>(
-          zeroInv,
+          //zeroInv,
+          mgConvDiff,
           Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
 
     if("right" == modeConvDiffPrecString)

@@ -26,7 +26,7 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 1
+NF = 0
 
 
 CASE_PATH = ['']*3
@@ -38,8 +38,8 @@ pp.chdir(CASE_PATH, 0)
 
 #
 NPX = 1
-NPY = 16
-NPZ = 6
+NPY = 2
+NPZ = 2
 NPF = 1
 #
 LXO = 22.5
@@ -50,8 +50,8 @@ NYO = 1537
 NZO = 513
 #
 NX = 65
-NY = 513
-NZ = 193
+NY = 129
+NZ = 129
 #
 LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
 LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)

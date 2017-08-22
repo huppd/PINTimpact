@@ -361,18 +361,18 @@ int main( int argi, char** argv ) {
                            zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
 
           auto modeOp = Teuchos::rcp(
-                          new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
+              new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
           if( withoutput )
             pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-              "Output Stream",
-              Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
+                "Output Stream",
+                Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
           else
             pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-              "Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
+                "Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
 
           auto modeInv = Pimpact::createInverseOp(
-                           modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
+              modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
           auto mgConvDiff =
             Pimpact::createMultiGrid<
