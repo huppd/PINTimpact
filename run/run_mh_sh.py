@@ -31,7 +31,7 @@ NF = 0
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/All'
+CASE_PATH[0] = pp.DATA_PATH + '/All1'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
@@ -50,7 +50,7 @@ NYO = 1537
 NZO = 513
 #
 NX = 65
-NY = 257
+NY = 385
 NZ = 129
 #
 LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)

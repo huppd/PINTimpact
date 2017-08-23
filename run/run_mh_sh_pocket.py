@@ -31,7 +31,7 @@ NF = 0
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/All'
+CASE_PATH[0] = pp.DATA_PATH + '/All1'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
@@ -78,7 +78,7 @@ ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', NPF)
 ma.set_parameter(ROOT, 'initial guess', 'base')
 ma.set_insublist(ROOT, 'Line Search', 'Method', 'Full Step')
-ma.set_parameter(ROOT, 'Convergence Tolerance', 0.1)
+ma.set_parameter(ROOT, 'Convergence Tolerance', 0.01)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', 4)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
         # True)
