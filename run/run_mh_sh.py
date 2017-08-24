@@ -38,7 +38,7 @@ pp.chdir(CASE_PATH, 0)
 
 #
 NPX = 1
-NPY = 8
+NPY = 12
 NPZ = 4
 NPF = 1
 #
@@ -78,7 +78,7 @@ ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', NPF)
 ma.set_parameter(ROOT, 'initial guess', 'base')
 ma.set_insublist(ROOT, 'Line Search', 'Method', 'Full Step')
-ma.set_parameter(ROOT, 'Convergence Tolerance', 0.01)
+# ma.set_parameter(ROOT, 'Convergence Tolerance', 0.01)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', 4)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
         # True)

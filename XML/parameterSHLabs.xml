@@ -152,7 +152,7 @@
     <Parameter docString="" id="89" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="242" name="Solver">
       <Parameter docString="" id="90" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="180" />
-      <Parameter docString="" id="91" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-2" />
+      <Parameter docString="" id="91" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-1" />
       <Parameter docString="" id="92" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
       <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
