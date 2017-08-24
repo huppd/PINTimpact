@@ -50,7 +50,7 @@ NYO = 1537
 NZO = 513
 #
 NX = 65
-NY = 129
+NY = 193
 NZ = 129
 #
 LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
@@ -78,7 +78,7 @@ ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', NPF)
 ma.set_parameter(ROOT, 'initial guess', 'base')
 ma.set_insublist(ROOT, 'Line Search', 'Method', 'Full Step')
-ma.set_parameter(ROOT, 'Convergence Tolerance', 0.01)
+# ma.set_parameter(ROOT, 'Convergence Tolerance', 0.01)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', 4)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
         # True)
