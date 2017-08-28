@@ -30,6 +30,9 @@
       <Parameter docString="" id="24" isDefault="true" isUsed="true" name="alpha" type="double" value="1.0e-01" />
     </ParameterList>
     <ParameterList id="214" name="Stretching in Y">
+      <!--<Parameter docString="" id="232323" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="parabola" />-->
+      <!--<Parameter docString="" id="242424" isDefault="true" isUsed="true"-->
+          <!--name="alpha" type="double" value="1.0e-02" />-->
     </ParameterList>
     <ParameterList id="215" name="Stretching in Z">
       <Parameter docString="" id="25" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
@@ -108,7 +111,7 @@
       <Parameter docString="" id="108108" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
       <Parameter docString="" id="109109" isDefault="false" isUsed="true" name="Tolerance"
         type="double" value="1.0e+00" />
-      <Parameter docString="" id="110110" isDefault="false" isUsed="true" name="Consecutive Iterations" type="int" value="2" />
+      <Parameter docString="" id="110110" isDefault="false" isUsed="true" name="Consecutive Iterations" type="int" value="4" />
     </ParameterList>
   </ParameterList>
   <ParameterList id="231" name="NOX Solver">
@@ -225,8 +228,9 @@
     <ParameterList id="250" name="Multi Grid">
       <Parameter docString="" id="140" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
       <Parameter docString="" id="141" isDefault="true" isUsed="true" name="defect correction" type="bool" value="true" />
-      <Parameter docString="" id="142" isDefault="true" isUsed="true" name="init zero" type="bool" value="true" />
-      <Parameter docString="" id="143" isDefault="true" isUsed="true" name="numCycles" type="int" value="4" />
+      <Parameter docString="" id="142" isDefault="true" isUsed="true" name="init zero"
+        type="bool" value="false" />
+      <Parameter docString="" id="143" isDefault="true" isUsed="true" name="numCycles" type="int" value="2" />
       <ParameterList id="251" name="Coarse Grid Solver">
         <Parameter docString="" id="144" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
         <Parameter docString="" id="145" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />
@@ -235,22 +239,27 @@
         <Parameter docString="" id="148" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
         <Parameter docString="" id="149" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
         <ParameterList id="252" name="Solver">
-          <Parameter docString="" id="150" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
-          <Parameter docString="" id="151" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
-          <Parameter docString="" id="152" isDefault="false" isUsed="true" name="Verbosity" type="int" value="0" />
+          <Parameter docString="" id="150" isDefault="false" isUsed="true"
+              name="Maximum Iterations" type="int" value="10" />
+          <Parameter docString="" id="151" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
+          <Parameter docString="" id="152" isDefault="false" isUsed="true"
+              name="Verbosity" type="int" value="0" />
           <Parameter docString="" id="153" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Coarse Grid Solver(ConvectionDiffusionVOp)" />
           <Parameter docString="" id="154" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
           <Parameter docString="" id="155" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
         </ParameterList>
       </ParameterList>
       <ParameterList id="253" name="Smoother">
-        <Parameter docString="" id="156" isDefault="true" isUsed="true" name="omega" type="double" value="5.00000000000000000e-01" />
-        <Parameter docString="" id="157" isDefault="true" isUsed="true" name="numIters" type="int" value="2" />
+        <Parameter docString="" id="156" isDefault="true" isUsed="true" name="omega" type="double" value="1.0e+00" />
+        <Parameter docString="" id="157" isDefault="true" isUsed="true" name="numIters" type="int" value="1" />
+        <Parameter docString="" id="202202202" isDefault="true" isUsed="true" name="Ordering" type="int" value="2"/>
       </ParameterList>
     </ParameterList>
   </ParameterList>
     <ParameterList id="254" name="M_ConvDiff">
-      <Parameter docString="" id="158" isDefault="false" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
+      <!--<Parameter docString="" id="158" isDefault="false" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />-->
+      <Parameter docString="" id="158" isDefault="false" isUsed="true"
+          name="Solver name" type="string" value="TFQMR" />
       <Parameter docString="" id="159" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
       <Parameter docString="" id="160" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
       <Parameter docString="" id="161" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />

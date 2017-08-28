@@ -10,7 +10,7 @@
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_MultiGrid.hpp"
-//#include "Pimpact_CoarsenStrategyGlobal.hpp"
+#include "Pimpact_CoarsenStrategyGlobal.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
 
 
@@ -26,10 +26,10 @@ const int dNC = 4;
 using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 
 using FSpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
-using CSpaceT = Pimpact::Space<ST,OT,sd,4,2  >;
+using CSpaceT = Pimpact::Space<ST,OT,sd,4,2>;
 
-//using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
-using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>; // dirty fix: till gather isn't fixed
+using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
+//using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>; // dirty fix: till gather isn't fixed
 
 //using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 //using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
@@ -77,6 +77,9 @@ int main( int argi, char** argv ) {
     std::string xmlFilename = "parameter3D.xml";
     my_CLP.setOption("filename", &xmlFilename, "file name of the input xml parameterlist");
 
+    int realCase = 0;
+    my_CLP.setOption("realCase", &realCase, "real case");
+
     my_CLP.recogniseAllOptions(true);
     my_CLP.throwExceptions(true);
 
@@ -88,7 +91,7 @@ int main( int argi, char** argv ) {
     int withoutput=pl->sublist("Solver").get<int>( "withoutput", 1 );
 
     Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(
-                                         Teuchos::sublist( pl, "Space", true ) );
+        Teuchos::sublist( pl, "Space", true ) );
 
     Pimpact::ModeField< Pimpact::VectorField<SpaceT> > x( space );
     Pimpact::ModeField< Pimpact::VectorField<SpaceT> > y( space );
@@ -96,24 +99,23 @@ int main( int argi, char** argv ) {
     Pimpact::ModeField< Pimpact::VectorField<SpaceT> > sol( space );
     Pimpact::ModeField< Pimpact::VectorField<SpaceT> > err( space );
 
-    //auto
+    ST error;
+
     Teuchos::RCP<ConvDiffOpT<SpaceT>> zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
     auto modeOp = Teuchos::rcp(
         new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
     pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-        "Output Stream", Teuchos::rcpFromRef(std::cout) );
+        "Output Stream",
+        Pimpact::createOstream( modeOp->getLabel()+".txt", space->rankST() ) );
     auto modeInv = Pimpact::createInverseOp( modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
     auto mgSpaces =
       Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
-    pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
-        Pimpact::createOstream( zeroOp->getLabel()+".txt", space->rankST() ) );
-
-    auto zeroInv = Pimpact::createInverseOp(
-        zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
+    //pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
+        //Pimpact::createOstream( zeroOp->getLabel()+".txt", space->rankST() ) );
 
     auto mgConvDiff =
       Pimpact::createMultiGrid<
@@ -123,22 +125,16 @@ int main( int argi, char** argv ) {
       InterVF,
       ConvDiffOpT,
       ConvDiffOpT,
-      //ConvDiffSORT,
-      ConvDiffJT,
+      ConvDiffSORT,
+      //ConvDiffJT,
       MOP
+      //ConvDiffSORT
       //POP2
       //POP3
       > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
-    //if( 0==space->rankST() )
-    //mgConvDiff->print();
-
-    std::string convDiffPrecString =
-      pl->sublist("ConvDiff").get<std::string>( "preconditioner", "right" );
-    if( "right" == convDiffPrecString )
-      zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
-    if( "left" == convDiffPrecString )
-      zeroInv->setLeftPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+    if( 0==space->rankST() )
+      mgConvDiff->print();
 
     std::string modeConvDiffPrecString =
       pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
@@ -180,110 +176,125 @@ int main( int argi, char** argv ) {
     // initializtion
     {
       Pimpact::VectorField<SpaceT> wind( space );
-      wind(Pimpact::F::U).init( 1. );
-      wind(Pimpact::F::V).init( 1. );
-      wind(Pimpact::F::W).init( 1. );
+      if( realCase )
+        wind.initField( pl->sublist("Base flow").sublist("0 mode") );
+      else {
+        wind(Pimpact::F::U).init( 1. );
+        wind(Pimpact::F::V).init( 1. );
+        wind(Pimpact::F::W).init( 1. );
+      }
+      if( withoutput ) wind.write( 1000 );
 
       zeroOp->assignField( wind );
-      zeroInv->assignField( wind );
+      mgConvDiff->assignField( wind );
     }
 
-    auto initFunC = []( ST x, ST y ) ->ST { return( std::pow((y-0.5),2) ); };
-    auto initFunS = []( ST x, ST y ) ->ST { return( std::pow((x-0.5),1) ); };
-    auto deriFunC = [=]( ST y ) ->ST { return( 2.*(y-0.5)/ly - iRe*2./ly/ly ); };
-    auto deriFunS = [=]( ST x ) ->ST { return( 1./lx ); };
+    if( realCase ) {
+      rhs.getCField().initField( pl->sublist("Force").sublist("cos mode") );
+      rhs.getSField().initField( pl->sublist("Force").sublist("sin mode") );
+      if( withoutput ) rhs.write( 100 );
+    }
+    else{
+      auto initFunC = []( ST x, ST y ) ->ST { return( std::pow((y-0.5),2) ); };
+      auto initFunS = []( ST x, ST y ) ->ST { return( std::pow((x-0.5),1) ); };
+      auto deriFunC = [=]( ST y ) ->ST { return( 2.*(y-0.5)/ly - iRe*2./ly/ly ); };
+      auto deriFunS = [=]( ST x ) ->ST { return( 1./lx ); };
 
-    x.getCField()(Pimpact::F::U).initFromFunction(
-      [=]( ST x, ST y, ST z ) ->ST { return( initFunC(x,y) ); } );
-    x.getCField()(Pimpact::F::V).initFromFunction(
-      [=]( ST x, ST y, ST z ) ->ST { return( initFunC(x,y) ); } );
-    x.getSField()(Pimpact::F::U).initFromFunction(
-      [=]( ST x, ST y, ST z ) ->ST { return( initFunS(x,y) ); } );
-    x.getSField()(Pimpact::F::V).initFromFunction(
-      [=]( ST x, ST y, ST z ) ->ST { return( initFunS(x,y) ); } );
+      x.getCField()(Pimpact::F::U).initFromFunction(
+          [=]( ST x, ST y, ST z ) ->ST { return( initFunC(x,y) ); } );
+      x.getCField()(Pimpact::F::V).initFromFunction(
+          [=]( ST x, ST y, ST z ) ->ST { return( initFunC(x,y) ); } );
+      x.getSField()(Pimpact::F::U).initFromFunction(
+          [=]( ST x, ST y, ST z ) ->ST { return( initFunS(x,y) ); } );
+      x.getSField()(Pimpact::F::V).initFromFunction(
+          [=]( ST x, ST y, ST z ) ->ST { return( initFunS(x,y) ); } );
 
-    sol = x;
-    if( withoutput ) x.write( 10 );
+      sol = x;
+      if( withoutput ) x.write( 10 );
 
-    // solution init
-    rhs.getCField()(Pimpact::F::U).initFromFunction(
-    [=]( ST x, ST y, ST z ) ->ST {
-      if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
-      (  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
-      (  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
-      (  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
-      (  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
-      (  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-        return( initFunC( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
-      else
-        return( a2*initFunS(x,y) + deriFunC(y) ); } );
+      // solution init
+      rhs.getCField()(Pimpact::F::U).initFromFunction(
+          [=]( ST x, ST y, ST z ) ->ST {
+          if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+            (  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+            (  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+            (  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+            (  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+            (  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+          return( initFunC( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
+          else
+          return( a2*initFunS(x,y) + deriFunC(y) ); } );
 
-    rhs.getCField()(Pimpact::F::V).initFromFunction(
-    [=]( ST x, ST y, ST z ) ->ST {
-      if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
-      (  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
-      (  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
-      (  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
-      (  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
-      (  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-        return( initFunC( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
-      else
-        return( a2*initFunS(x,y) + deriFunC(y) ); } );
+      rhs.getCField()(Pimpact::F::V).initFromFunction(
+          [=]( ST x, ST y, ST z ) ->ST {
+          if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+            (  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+            (  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+            (  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+            (  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+            (  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+          return( initFunC( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
+          else
+          return( a2*initFunS(x,y) + deriFunC(y) ); } );
 
-    rhs.getSField()(Pimpact::F::U).initFromFunction(
-    [=]( ST x, ST y, ST z ) ->ST {
-      if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
-      (  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
-      (  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
-      (  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
-      (  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
-      (  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-        return( initFunS( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
-      else
-        return( -a2*initFunC(x,y) +deriFunS(x) ); } );
+      rhs.getSField()(Pimpact::F::U).initFromFunction(
+          [=]( ST x, ST y, ST z ) ->ST {
+          if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+            (  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+            (  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+            (  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+            (  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+            (  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+          return( initFunS( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
+          else
+          return( -a2*initFunC(x,y) +deriFunS(x) ); } );
 
-    rhs.getSField()(Pimpact::F::V).initFromFunction(
-    [=]( ST x, ST y, ST z ) ->ST {
-      if( (( x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
-      (  ( x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
-      (  ( y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
-      (  ( y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
-      (  ( z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
-      (  ( z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-        return( initFunS( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
-      else
-        return( -a2*initFunC(x,y) + deriFunS(x) ); } );
+      rhs.getSField()(Pimpact::F::V).initFromFunction(
+          [=]( ST x, ST y, ST z ) ->ST {
+          if( (( x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+            (  ( x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+            (  ( y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+            (  ( y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+            (  ( z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+            (  ( z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+          return( initFunS( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
+          else
+          return( -a2*initFunC(x,y) + deriFunS(x) ); } );
 
-    //if( withoutput ) rhs.write( 30 );
+      //if( withoutput ) rhs.write( 30 );
 
-    modeOp->apply( sol, y );
-    //if( withoutput ) y.write( 20 );
-    //if( 2==print ) y.print();
-    //if( 3==print ) rhs.print();
+      modeOp->apply( sol, y );
+      //if( withoutput ) y.write( 20 );
+      //if( 2==print ) y.print();
+      //if( 3==print ) rhs.print();
 
-    err.add( 1., y, -1., rhs );
-    //if( withoutput ) err.write( 0 );
-    //if( 1==print ) err.print(   );
+      err.add( 1., y, -1., rhs );
+      //if( withoutput ) err.write( 0 );
+      //if( 1==print ) err.print(   );
 
-    ST error = err.norm(Pimpact::ENorm::Inf)/rhs.norm(Pimpact::ENorm::Inf);
-    std::cout << "\nresidual: " << error << "\n";
+      error = err.norm(Pimpact::ENorm::Inf)/rhs.norm(Pimpact::ENorm::Inf);
+      std::cout << "\nresidual: " << error << "\n";
 
-    x.init();
+      x.init();
+    }
     modeInv->apply( rhs, x );
 
-    //if( withoutput ) x.write( 20 );
+    if( withoutput ) x.write( 10 );
 
-    err.add( 1., sol, -1., x );
-    if( withoutput ) err.write( 0 );
-    //if( print ) err.print(   );
+    if( realCase!=0 ) {
+      err.add( 1., sol, -1., x );
+      if( withoutput ) err.write( 0 );
+      //if( print ) err.print(   );
 
-    error = err.norm(Pimpact::ENorm::Inf);
-    std::cout << "\nerror: " << error << "\n";
+      error = err.norm(Pimpact::ENorm::Inf);
+      std::cout << "\nerror: " << error << "\n";
+    }
 
     if( 0==space->rankST() ) {
       //pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
       Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
     }
+    Teuchos::TimeMonitor::summarize();
   }
   MPI_Finalize();
   return( 0 );

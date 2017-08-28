@@ -48,6 +48,17 @@ protected:
 
 public:
 
+   /// \brief Basic constructor for ConvectionDiffusionSORSmoother.
+   /// 
+   /// This constructor accepts the operatore to be smoothed in addition to a parameter
+   /// list of options for the solver manager. These options include the following:
+   ///  - "omega" - a \c double smoothing factor. Default: 1. 
+   ///  - "numIters" - a \c int specifying the maximum number of iterations the underlying solver is allowed to perform. Default: 1
+   ///  - "ordering" - a \c int ordinering (0: specified by dirs, 1: all direction, 2:
+   ///    SHL). Default: 1. 
+   ///  - "dir X" - a \c short int if in X direction. Default: 1. 
+   ///  - "dir Y" - a \c short int if in Y direction. Default: 1. 
+   ///  - "dir Z" - a \c short int if in Z direction. Default: 1. 
   ConvectionDiffusionSORSmoother(
     const Teuchos::RCP<const OperatorT>& op,
     Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
@@ -86,14 +97,54 @@ public:
       x[vel_dir].exchange();
 
     for( int i=0; i<nIter_; ++i ) {
-      if( ordering_==0 )
-        apply( x, y, z, dirs_ );
-      else
-        applyNPoint( x, y, z );
+      switch( ordering_ ) {
+        case 0 : {
+          apply( x, y, z, dirs_ );
+          break;
+        }
+        case 2 :{
+          applySHL( x, y, z );
+          break;
+        }
+        default: {
+          applyNPoint( x, y, z );
+          break;
+        }
+      }
     }
   }
 
 protected:
+
+  void applySHL( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
+
+    Teuchos::Tuple<int,SpaceT::dimension> ib = space()->getProcGrid()->getNP();
+
+    Teuchos::Tuple<int,3>	dirS;
+    Teuchos::Tuple<int,3>	inc;
+
+    for( int i=0; i<3; ++i ) {
+      if( (ib[i]-1)%2 == 0 ) {
+        dirS[i] = -1;
+        inc[i] = 2;
+      } else {
+        dirS[i] = 1;
+        inc[i] = -2;
+      }
+    }
+
+    dirs_[1] = 1;
+    if( 3==SpaceT::sdim )
+      for( dirs_[2]=dirS[2]; std::abs(dirs_[2])<=1; dirs_[2]+=inc[2] )
+          for( dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0] )
+            apply( x, y, z, dirs_ );
+    else {
+      dirs_[2] = 1 ;
+      for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
+        for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
+          apply( x, y, z, dirs_ );
+    }
+  }
 
   void applyNPoint( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
 
@@ -189,7 +240,7 @@ protected:
           }
     }
 
-    applyBC( b, x );
+    //applyBC( b, x );
     x.changed();
   }
 

@@ -382,8 +382,8 @@ int main( int argi, char** argv ) {
             InterVF,
             ConvDiffOpT,
             ConvDiffOpT,
-            //ConvDiffSORT,
-            ConvDiffJT,
+            ConvDiffSORT,
+            //ConvDiffJT,
             MOP
             //POP2
             //POP3
