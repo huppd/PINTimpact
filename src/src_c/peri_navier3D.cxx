@@ -382,8 +382,8 @@ int main( int argi, char** argv ) {
             InterVF,
             ConvDiffOpT,
             ConvDiffOpT,
-            //ConvDiffSORT,
-            ConvDiffJT,
+            ConvDiffSORT,
+            //ConvDiffJT,
             MOP
             //POP2
             //POP3
@@ -587,22 +587,21 @@ int main( int argi, char** argv ) {
         Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
       }
       // Solve the nonlinear system
+      NOX::StatusTest::StatusType status = NOX::StatusTest::StatusType::Failed;
       {
         Teuchos::TimeMonitor LocalTimer(*Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time"));
         try {
-          solver->solve();
+          status = solver->solve();
         } catch( std::logic_error & e ) {
           std::cout << e.what() << "\n";
         }
       }
-
 
       // Get the answer
       *group = solver->getSolutionGroup();
 
       x = Teuchos::rcp_const_cast<NV>(
           Teuchos::rcp_dynamic_cast<const NV>(group->getXPtr()))->getFieldPtr();
-
 
       // spectral refinement
       if( maxRefinement>1 ) {
@@ -646,7 +645,7 @@ int main( int argi, char** argv ) {
         ST truncError = 1.;
         if( u_nf != u_1 ) // just in case u_1=u_nf=0
           truncError = u_nf / u_1 ;
-        if( truncError < refinementTol ) {
+        if( NOX::StatusTest::StatusType::Converged == status && truncError < refinementTol ) {
           if( 0==space->rankST() )
             std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " < " << refinementTol << "\n\n";
           break;

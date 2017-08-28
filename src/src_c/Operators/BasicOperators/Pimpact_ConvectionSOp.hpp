@@ -274,15 +274,15 @@ public:
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
 
-  constexpr const Scalar* getCU( const ECoord dir, const F ftype ) const  {
+  constexpr const Scalar* getCU( const ECoord dir, const F ftype ) {
     return( ( ((int)dir)==((int)ftype) )?cVU_[dir].get():cSU_[dir].get() );
   }
 
-  constexpr const Scalar* getCD( const ECoord dir, const F ftype ) const  {
+  constexpr const Scalar* getCD( const ECoord dir, const F ftype ) {
     return( ( ((int)dir)==((int)ftype) )?cVD_[dir].get():cSD_[dir].get() );
   }
 
-  constexpr Scalar getC( const Scalar wind, const ECoord dir, const F ftype, const int i, const int ii ) const {
+  constexpr Scalar getC( const Scalar wind, const ECoord dir, const F ftype, const int i, const int ii ) {
     return(
             ( static_cast<int>(dir)==static_cast<int>(ftype) )?
             (wind>=0? cVU_[dir](i,ii):cVD_[dir](i,ii))
@@ -297,11 +297,11 @@ public:
   const {
 
     Scalar dx = 0.;
-    for( int ii=space_->nl(X); ii<=space_->nu(X); ++ii )
+    for( int ii=SW::NL(X); ii<=SW::NU(X); ++ii )
       dx += getC( u,X, x.getType(),i,ii)*x(i+ii,j,k);
 
     Scalar dy = 0.;
-    for( int jj=space_->nl(Y); jj<=space_->nu(Y); ++jj )
+    for( int jj=SW::NL(Y); jj<=SW::NU(Y); ++jj )
       dy += getC( v,Y, x.getType(),j,jj)*x(i,j+jj,k);
 
     return( u*dx+v*dy );
@@ -311,15 +311,15 @@ public:
       RangeFieldT& x, const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
     Scalar dx = 0.;
-    for( int ii=space_->nl(X); ii<=space_->nu(X); ++ii )
+    for( int ii=SW::NL(X); ii<=SW::NU(X); ++ii )
       dx += getC( u,X, x.getType(),i,ii)*x(i+ii,j,k);
 
     Scalar dy = 0.;
-    for( int jj=space_->nl(Y); jj<=space_->nu(Y); ++jj )
+    for( int jj=SW::NL(Y); jj<=SW::NU(Y); ++jj )
       dy += getC( v,Y, x.getType(),j,jj)*x(i,j+jj,k);
 
     Scalar dz = 0.;
-    for( int kk=space_->nl(Z); kk<=space_->nu(Z); ++kk )
+    for( int kk=SW::NL(Z); kk<=SW::NU(Z); ++kk )
       dz += getC( w,Z, x.getType(),k,kk)*x(i,j,k+kk);
 
     return( u*dx+v*dy+w*dz );
