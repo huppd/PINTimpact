@@ -57,7 +57,7 @@ ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', NPF)
 
-NYS = [1, 2, 3]
+NYS = [1, 2, 3, 4]
 
 PRECS = [1, 2, 3, 4]
 PRECS = [2, 3, 4]
@@ -68,12 +68,14 @@ CYCLES = [1, 2, 4, 8, 16]
 CYCLES = [2, 3, 4, 6, 8]
 CYCLES = [2, 4, 6]
 CYCLES = [1, 2, 4, 6]
+CYCLES = [2, 4]
 
 SWEEPS = [1, 2, 4, 8, 16]
 SWEEPS = [1, 2, 4, 6]
+SWEEPS = [1, 2]
 
 MAXGRIDS = [1, 2, 3, 4, 5, 6]
-MAXGRIDS = [5]
+# MAXGRIDS = [5]
 
 CASE_PATH = ['']*6
 
@@ -99,9 +101,9 @@ for side in ['left']:
                     pp.mkdir(CASE_PATH, 3)
                     pp.chdir(CASE_PATH, 3)
                     for max_grids in MAXGRIDS:
-                        # CASE_PATH[4] = '/maxGrids_'+str(max_grids)
-                        # pp.mkdir(CASE_PATH, 4)
-                        pp.chdir(CASE_PATH, 4)
+                        CASE_PATH[5] = '/maxGrids_'+str(max_grids)
+                        pp.mkdir(CASE_PATH, 5)
+                        pp.chdir(CASE_PATH, 5)
                         #
                         NY = y*64 + 1
                         LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
@@ -117,7 +119,7 @@ for side in ['left']:
                         print(CASE_PATH)
                         exe_str = \
                             pp.exe_pre(nptot,
-                                       ' -N -W 4:00 -R "rusage[mem=' +
+                                       ' -N -W 1:00 -R "rusage[mem=' +
                                        str(max(1024*4, 1024)) + ']" ') + \
                             pp.EXE_PATH+'/'+EXE+' --realCase=1 '
                         print(exe_str)

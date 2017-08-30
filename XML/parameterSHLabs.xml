@@ -225,7 +225,7 @@
             <Parameter docString="" id="143" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
             <Parameter docString="" id="144" isDefault="true" isUsed="true" name="defect correction" type="bool" value="true" />
             <Parameter docString="" id="145" isDefault="true" isUsed="true" name="init zero" type="bool" value="false" />
-            <Parameter docString="" id="146" isDefault="true" isUsed="true" name="numCycles" type="int" value="2" />
+            <Parameter docString="" id="146" isDefault="true" isUsed="true" name="numCycles" type="int" value="4" />
             <ParameterList id="256" name="Coarse Grid Solver">
                 <!--<Parameter docString="" id="147" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />-->
                 <!--<Parameter docString="" id="148" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />-->

@@ -382,9 +382,10 @@ int main( int argi, char** argv ) {
             InterVF,
             ConvDiffOpT,
             ConvDiffOpT,
-            ConvDiffSORT,
-            //ConvDiffJT,
-            MOP
+            //ConvDiffSORT,
+            ConvDiffJT,
+            ConvDiffSORT
+            //MOP
             //POP2
             //POP3
             > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;

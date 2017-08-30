@@ -1,8 +1,9 @@
 """ platfomrpaths and useful stuff """
 import os
+import time
 
 HPC = True
-# HPC = False
+HPC = False
 
 # exection path
 EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")  # hpc
@@ -26,6 +27,8 @@ def exe_pre(npro, ops='', run=0):
     else:
         return "bsub -n " + str(npro) + ' ' + ops + ' ' + ' -oo output' + \
             str(run) + ' mpirun '
+        time.sleep(10)
+
 
 
 def get_path(path, npa):
