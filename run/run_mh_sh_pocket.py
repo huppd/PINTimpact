@@ -26,12 +26,12 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 0
+NF = 1
 
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/All2'
+CASE_PATH[0] = pp.DATA_PATH + '/All3'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
@@ -53,9 +53,9 @@ NX = 65
 NY = 193
 NZ = 129
 #
-LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
-LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
-LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
+LX = round(1.5*LXO/(NXO-1)*(NX-1), 1)
+LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
+LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
 #
 print('LX', LX)
 print('LY', LY)

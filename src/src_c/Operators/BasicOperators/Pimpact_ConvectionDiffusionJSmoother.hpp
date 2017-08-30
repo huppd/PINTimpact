@@ -115,7 +115,7 @@ protected:
           }
     }
 
-    applyBC( b, x, y );
+    //applyBC( b, x, y );
     y.changed();
   }
 
@@ -123,7 +123,7 @@ protected:
   /// in tangential / velocity direction or interpolation in wand normal
   /// direction
   /// \todo think of computing interpolated values in corner directly
-  void applyBC( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y	) const {
+  void applyBC( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y ) const {
 
     assert( b.getType()==y.getType() );
     assert( x.getType()==y.getType() );
@@ -131,9 +131,6 @@ protected:
     const F f = y.getType();
 
     const ST omegaBC = omega_;
-    //const ST omegaBC = 1.;
-    //const ST omegaBC = omega_/2.;
-
 
     // U-field
     if( F::U==f ) {

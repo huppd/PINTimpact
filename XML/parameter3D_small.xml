@@ -13,9 +13,12 @@
 		<Parameter docString="length in x-direction" id="61" isDefault="false" isUsed="true" name="lx" type="double" value="2.00000000000000000e+00" />
 		<Parameter docString="length in y-direction" id="62" isDefault="false" isUsed="true" name="ly" type="double" value="2.00000000000000000e+00" />
 		<Parameter docString="length in z-direction" id="63" isDefault="false" isUsed="true" name="lz" type="double" value="2.00000000000000000e+00" />
-		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="64" isDefault="false" isUsed="true" name="nx" type="int" value="17" />
-		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="65" isDefault="false" isUsed="true" name="ny" type="int" value="17" />
-		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="66" isDefault="false" isUsed="true" name="nz" type="int" value="17" />
+		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="64"
+      isDefault="false" isUsed="true" name="nx" type="int" value="33" />
+		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="65"
+      isDefault="false" isUsed="true" name="ny" type="int" value="33" />
+		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="66"
+      isDefault="false" isUsed="true" name="nz" type="int" value="33" />
 		<Parameter docString="amount of grid points in f-direction" id="67" isDefault="false" isUsed="true" name="nf" type="int" value="1" />
 		<Parameter docString="amount of processors in x-direction" id="68" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
 		<Parameter docString="amount of processors in y-direction" id="69" isDefault="false" isUsed="true" name="npy" type="int" value="1" />

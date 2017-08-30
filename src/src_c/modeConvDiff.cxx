@@ -125,12 +125,8 @@ int main( int argi, char** argv ) {
       InterVF,
       ConvDiffOpT,
       ConvDiffOpT,
-      ConvDiffSORT,
-      //ConvDiffJT,
-      MOP
-      //ConvDiffSORT
-      //POP2
-      //POP3
+      ConvDiffJT,
+      ConvDiffSORT
       > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
     if( 0==space->rankST() )

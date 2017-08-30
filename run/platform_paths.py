@@ -2,7 +2,7 @@
 import os
 
 HPC = True
-HPC = False
+# HPC = False
 
 # exection path
 EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")  # hpc
@@ -12,9 +12,9 @@ EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")  # hpc
 
 # data patch
 if HPC:
-    DATA_PATH = os.path.expanduser("~/data") # hpc
+    DATA_PATH = os.path.expanduser("~/data")  # hpc
 else:
-    DATA_PATH = "/cluster/scratch/huppd/data" # euler
+    DATA_PATH = "/cluster/scratch/huppd/data"  # euler
 
 
 # exection command
@@ -24,7 +24,8 @@ def exe_pre(npro, ops='', run=0):
     if HPC:
         return "mpirun -n "+str(npro)+' '  # hpc
     else:
-        return "bsub -n "+str(npro)+' '+ops+' '+' -oo output'+str(run)+' mpirun '
+        return "bsub -n " + str(npro) + ' ' + ops + ' ' + ' -oo output' + \
+            str(run) + ' mpirun '
 
 
 def get_path(path, npa):

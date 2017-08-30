@@ -2,6 +2,14 @@
   <ParameterList id="1" name="Space">
     <Parameter docString="Reynolds number" id="20" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+02" />
     <Parameter docString="Womersley square alpha^2" id="21" isDefault="false" isUsed="true" name="alpha2" type="double" value="2.51327412287183449e+02" />
+    <ParameterList id="222222" name="boundary conditions">
+      <Parameter docString="" id="220020" isDefault="false" isUsed="true" name="lower X" type="int" value="1" />
+      <Parameter docString="" id="221121" isDefault="false" isUsed="true" name="upper X" type="int" value="1" />
+      <Parameter docString="" id="222222" isDefault="false" isUsed="true" name="lower Y" type="int" value="1" />
+      <Parameter docString="" id="223323" isDefault="false" isUsed="true" name="upper Y" type="int" value="1" />
+      <Parameter docString="" id="224424" isDefault="false" isUsed="true" name="lower Z" type="int" value="1" />
+      <Parameter docString="" id="225525" isDefault="false" isUsed="true" name="upper Z" type="int" value="1" />
+    </ParameterList>
     <Parameter docString="length in x-direction" id="24" isDefault="false" isUsed="true" name="lx" type="double" value="3.00000000000000000e+01" />
     <Parameter docString="length in y-direction" id="25" isDefault="false" isUsed="true" name="ly" type="double" value="3.00000000000000000e+01" />
     <Parameter docString="length in z-direction" id="26" isDefault="false" isUsed="true" name="lz" type="double" value="3.00000000000000000e+01" />
