@@ -10,7 +10,7 @@ import manipulator as ma
 TREE = ET.parse('../XML/parameterSHLabs.xml')
 ROOT = TREE.getroot()
 
-ma.set_parameter(ROOT, 'withoutput', 1)
+ma.set_parameter(ROOT, 'withoutput', 0)
 
 # make executable ready
 EXE = 'modeConvDiff'
@@ -57,7 +57,7 @@ ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', NPF)
 
-NYS = [1, 2, 3, 4]
+NYS = [3]
 
 PRECS = [1, 2, 3, 4]
 PRECS = [2, 3, 4]
@@ -75,7 +75,7 @@ SWEEPS = [1, 2, 4, 6]
 SWEEPS = [1, 2]
 
 MAXGRIDS = [1, 2, 3, 4, 5, 6]
-# MAXGRIDS = [5]
+MAXGRIDS = [5]
 
 CASE_PATH = ['']*6
 
