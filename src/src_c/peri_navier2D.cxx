@@ -64,8 +64,7 @@ using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 using FSpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 using CSpaceT = Pimpact::Space<ST,OT,sd,4,2  >;
 
-//using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
-using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>; // dirty fix: till gather isn't fixed
+using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 
 using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
@@ -169,7 +168,7 @@ int main( int argi, char** argv ) {
       {
         auto tempField = x->getField(0).getSField().clone();
         opV2S->apply( x->getField(0).getVField(), *tempField );
-        ST divergence = tempField->norm();
+        ST divergence = tempField->norm(Pimpact::ENorm::L2);
         if( 0==space->rankST() )
           std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
       }
@@ -350,18 +349,18 @@ int main( int argi, char** argv ) {
                            zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
 
           auto modeOp = Teuchos::rcp(
-                          new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
+                  new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
           if( withoutput )
-            pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-              "Output Stream",
-              Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
+              pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+                      "Output Stream",
+                      Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
           else
-            pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-              "Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
+              pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+                      "Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
 
           auto modeInv = Pimpact::createInverseOp(
-                           modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
+                  modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
           auto mgConvDiff =
             Pimpact::createMultiGrid<
@@ -374,8 +373,6 @@ int main( int argi, char** argv ) {
             //ConvDiffSORT,
             ConvDiffJT,
             MOP
-            //POP2
-            //POP3
             > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
           if( 0==space->rankST() )
@@ -449,7 +446,7 @@ int main( int argi, char** argv ) {
         }
 
         std::string divGradPrecString =
-          pl->sublist("DivGrad").get<std::string>("preconditioner","none");
+            pl->sublist("DivGrad").get<std::string>("preconditioner","none");
 
         if( "none" != divGradPrecString ) { // init multigrid divgrad
 
@@ -468,6 +465,7 @@ int main( int argi, char** argv ) {
                            //Pimpact::DivGradO2Inv
                            //Pimpact::DivGradO2SORSmoother
                            Pimpact::DivGradO2JSmoother
+                           //Pimpact::DivGradO2Inv
                            >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
 
           if( 0==space->rankST() )

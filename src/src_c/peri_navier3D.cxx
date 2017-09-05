@@ -361,18 +361,18 @@ int main( int argi, char** argv ) {
                            zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
 
           auto modeOp = Teuchos::rcp(
-              new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
+                  new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
           if( withoutput )
-            pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-                "Output Stream",
-                Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
+              pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+                      "Output Stream",
+                      Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
           else
-            pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-                "Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
+              pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+                      "Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
 
           auto modeInv = Pimpact::createInverseOp(
-              modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
+                  modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
           auto mgConvDiff =
             Pimpact::createMultiGrid<
@@ -386,8 +386,6 @@ int main( int argi, char** argv ) {
             ConvDiffJT,
             ConvDiffSORT
             //MOP
-            //POP2
-            //POP3
             > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
           if( 0==space->rankST() )
@@ -461,7 +459,7 @@ int main( int argi, char** argv ) {
         }
 
         std::string divGradPrecString =
-          pl->sublist("DivGrad").get<std::string>("preconditioner", "none");
+            pl->sublist("DivGrad").get<std::string>("preconditioner", "none");
 
         if( "none" != divGradPrecString ) { // init multigrid divgrad
 
@@ -477,6 +475,7 @@ int main( int argi, char** argv ) {
                            //Pimpact::DivGradO2SORSmoother,
                            //MOP
                            //Pimpact::Chebyshev
+                           //Pimpact::DivGradO2Inv
                            //Pimpact::DivGradO2SORSmoother
                            Pimpact::DivGradO2JSmoother
                            //Pimpact::DivGradO2Inv
@@ -598,11 +597,13 @@ int main( int argi, char** argv ) {
         }
       }
 
+
       // Get the answer
       *group = solver->getSolutionGroup();
 
       x = Teuchos::rcp_const_cast<NV>(
           Teuchos::rcp_dynamic_cast<const NV>(group->getXPtr()))->getFieldPtr();
+
 
       // spectral refinement
       if( maxRefinement>1 ) {
@@ -697,6 +698,10 @@ int main( int argi, char** argv ) {
 
     Teuchos::TimeMonitor::summarize();
 
+    if( 0==space->rankST() ) {
+      pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
+      Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+    }
   }
   MPI_Finalize();
   return( 0 );

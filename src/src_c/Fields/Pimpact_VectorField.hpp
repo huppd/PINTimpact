@@ -554,7 +554,8 @@ public:
         break;
       }
       case Streaming2DS: {
-        ST amp = space()->getDomainSize()->getRe();
+        //ST amp = space()->getDomainSize()->getRe();
+        ST amp = 1.;
         ST pi = 4.*std::atan(1.);
         //ST L1 = space()->getDomainSize()->getSize(X);
         ST om = 2.*pi;
