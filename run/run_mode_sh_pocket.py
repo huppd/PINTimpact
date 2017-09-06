@@ -57,7 +57,7 @@ ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', NPF)
 
-NYS = [3]
+NYS = [1, 2, 3, 4]
 
 PRECS = [1, 2, 3, 4]
 PRECS = [2, 3, 4]
@@ -66,23 +66,20 @@ PRECS = [4]
 
 CYCLES = [1, 2, 4, 8, 16]
 CYCLES = [2, 3, 4, 6, 8]
-CYCLES = [2, 4, 6]
 CYCLES = [1, 2, 4, 6]
-CYCLES = [2, 4]
 
 SWEEPS = [1, 2, 4, 8, 16]
 SWEEPS = [1, 2, 4, 6]
-SWEEPS = [1, 2]
 
 MAXGRIDS = [1, 2, 3, 4, 5, 6]
-MAXGRIDS = [5]
+MAXGRIDS = [1, 2]
 
 CASE_PATH = ['']*6
 
 
 # for side in ['left', 'right']:
 for side in ['left']:
-    CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
+    CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec2_' + side
     pp.mkdir(CASE_PATH, 0)
     for y in NYS:
         CASE_PATH[1] = '/ny_'+str(y)

@@ -88,7 +88,7 @@ protected:
   /// \param[in] M
   /// \param[in] x0
   /// \param[out] x
-  void coord_equi( const ScalarT& i, const ScalarT& L, const ScalarT& M, const ScalarT& x0, ScalarT& x ) {
+  void coord_equi( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, ScalarT x ) {
     x  = i*L/( M-1. ) - x0;
   }
 
@@ -102,7 +102,7 @@ protected:
   /// \param[in] x0 origin
   /// \param[in] alpha parameter for parabola alpha=0 very parabolic alpha>>0 equidistant
   /// \param[out] x coordinate
-  void coord_parab( const ScalarT& i, const ScalarT& L, const ScalarT& M, const ScalarT& x0, const ScalarT& alpha, ScalarT& x ) {
+  void coord_parab( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, const ScalarT alpha, ScalarT x ) {
     x  = L*( std::pow(i,2)/std::pow(M-1.,2) + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
   }
 
@@ -131,15 +131,15 @@ protected:
   /// - so following is satisfied wL, wU >= 0..
   /// - identical to coord_tan except of std::cos functions.
   void coord_cos(
-    const ScalarT& i,
-    const ScalarT& L,
-    const ScalarT& M,
-    const ScalarT& x0,
-    const ScalarT& iML,
-    const ScalarT& iMU,
-    const ScalarT& i0L,
-    const ScalarT& i0U,
-    ScalarT& x ) {
+    const ScalarT i,
+    const ScalarT L,
+    const ScalarT M,
+    const ScalarT x0,
+    const ScalarT iML,
+    const ScalarT iMU,
+    const ScalarT i0L,
+    const ScalarT i0U,
+    ScalarT x ) {
 
     ScalarT wL;
     ScalarT wU;
@@ -413,14 +413,14 @@ public:
           );
   }
 
-  constexpr const ScalarT& operator()( const F ftype, const int dir, const OrdinalT& i) {
+  constexpr const ScalarT operator()( const F ftype, const int dir, const OrdinalT i) {
     return(
             ( F::S==ftype || dir!=ftype )?
             xS_[dir][i]:xV_[dir][i]
           );
   }
 
-  constexpr const ScalarT& getX( const F ftype, const int dir, const OrdinalT& i) {
+  constexpr const ScalarT getX( const F ftype, const int dir, const OrdinalT i) {
     return(
             ( F::S==ftype || dir!=ftype )?
             xS_[dir][i]:xV_[dir][i]

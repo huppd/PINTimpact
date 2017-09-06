@@ -117,6 +117,10 @@ int main( int argi, char** argv ) {
     //pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
         //Pimpact::createOstream( zeroOp->getLabel()+".txt", space->rankST() ) );
 
+    //auto mgConvDiff =
+      //Pimpact::create<ConvDiffSORT>(
+          //zeroOp,
+          //Teuchos::sublist(Teuchos::sublist(Teuchos::sublist(pl, "ConvDiff"), "Multi Grid"), "Coarse Grid Solver") ); 
     auto mgConvDiff =
       Pimpact::createMultiGrid<
       Pimpact::VectorField,
@@ -125,7 +129,8 @@ int main( int argi, char** argv ) {
       InterVF,
       ConvDiffOpT,
       ConvDiffOpT,
-      ConvDiffJT,
+      //ConvDiffJT,
+      ConvDiffSORT,
       ConvDiffSORT
       > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
