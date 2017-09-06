@@ -20,12 +20,12 @@ ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
 ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
-ma.set_parameter(ROOT, 'nf', 2)
+ma.set_parameter(ROOT, 'nf', 4)
 
 
-NXS = [33, 65, 129]
+NXS = [65, 129, 257]
 RES = np.linspace(1, 100, 5)
-STS = 10**np.linspace(-3, 1, 5)
+STS = np.linspace(1, 12, 5)
 
 # make executable ready
 EXE = 'peri_navier2D'

@@ -88,11 +88,12 @@ protected:
   /// \param[in] M
   /// \param[in] x0
   /// \param[out] x
-  void coord_equi( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, ScalarT x ) {
+  void coord_equi( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, ScalarT& x ) {
     x  = i*L/( M-1. ) - x0;
   }
 
-  /// \brief coordinate stretching for parabulas
+
+  /// \brief coordinate stretching for parabolas
   ///
   /// \f[ \mathrm{ x[i] = L\left( \frac{ i^2 }{ (M-1)^2 } + 2\alpha \frac{i}{M-1}  \right)\frac{1}{1+2\alpha)} - x0 } \f]
   ///
@@ -102,8 +103,23 @@ protected:
   /// \param[in] x0 origin
   /// \param[in] alpha parameter for parabola alpha=0 very parabolic alpha>>0 equidistant
   /// \param[out] x coordinate
-  void coord_parab( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, const ScalarT alpha, ScalarT x ) {
+  void coord_parab( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, const ScalarT alpha, ScalarT& x ) {
     x  = L*( std::pow(i,2)/std::pow(M-1.,2) + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
+  }
+
+
+  /// \brief coordinate stretching for parabolas at the end
+  ///
+  /// \f[ \mathrm{ x[i] = L\left( \frac{ i^2 }{ (M-1)^2 } + 2\alpha \frac{i}{M-1}  \right)\frac{1}{1+2\alpha)} - x0 } \f]
+  ///
+  /// \param[in] i index
+  /// \param[in] L length of domain
+  /// \param[in] M number of global grid points
+  /// \param[in] x0 origin
+  /// \param[in] alpha parameter for parabola alpha=0 very parabolic alpha>>0 equidistant
+  /// \param[out] x coordinate
+  void coord_parab_end( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, const ScalarT alpha, ScalarT& x ) {
+    x  = L*( std::pow(i-M-1,2)/std::pow(M-1.,2) + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
   }
 
 
@@ -139,7 +155,7 @@ protected:
     const ScalarT iMU,
     const ScalarT i0L,
     const ScalarT i0U,
-    ScalarT x ) {
+    ScalarT& x ) {
 
     ScalarT wL;
     ScalarT wU;
@@ -203,6 +219,7 @@ protected:
     else if( "parabola" == lcName ) return( 1 );
     else if( "parab" == lcName ) return( 1 );
     else if( "para" == lcName ) return( 1 );
+    else if( "para end" == lcName ) return( 3 );
     else if( "cos" == lcName ) return( 2 );
     else {
       const bool& Stertch_Type_not_known = true;
@@ -260,6 +277,9 @@ protected:
               stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
               stretchPara_[dir]->get<ScalarT>( "x0 U", 0. ),
               xS_[dir][i] );
+            break;
+          case 3:
+            coord_parab_end( is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xS_[dir][i] );
             break;
           default:
             coord_equi( is, L, Ms, x0, xS_[dir][i] );
