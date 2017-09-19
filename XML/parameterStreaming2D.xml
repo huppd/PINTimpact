@@ -150,7 +150,7 @@
     <Parameter docString="" id="85" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
     <Parameter docString="" id="86" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
     <ParameterList id="208" name="Solver">
-      <Parameter docString="" id="87" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
+      <Parameter docString="" id="87" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-03" />
       <Parameter docString="" id="88" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="89" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
       <Parameter docString="" id="90" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -169,7 +169,7 @@
     <Parameter docString="" id="100" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true" />
     <ParameterList id="210" name="Solver">
       <Parameter docString="" id="101" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
-      <Parameter docString="" id="102" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-2" />
+      <Parameter docString="" id="102" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-3" />
       <Parameter docString="" id="103" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="104" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
       <Parameter docString="" id="105" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -189,7 +189,7 @@
         <Parameter docString="" id="114" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
         <ParameterList id="214" name="Solver">
           <Parameter docString="" id="115" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
-          <Parameter docString="" id="116" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
+          <Parameter docString="" id="116" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-03" />
           <Parameter docString="" id="117" isDefault="false" isUsed="true" name="Verbosity" type="int" value="0" />
           <Parameter docString="" id="118" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Coarse Grid Solver(DivGradOp)" />
           <Parameter docString="" id="119" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -208,7 +208,7 @@
         <Parameter docString="" id="125" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />
         <ParameterList id="218" name="Solver">
           <Parameter docString="" id="126" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
-          <Parameter docString="" id="127" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-2" />
+          <Parameter docString="" id="127" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-3" />
           <Parameter docString="" id="128" isDefault="false" isUsed="true" name="Verbosity" type="int" value="0" />
           <Parameter docString="" id="129" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Coarse Grid Solver(ConvectionDiffusionVOp)" />
           <Parameter docString="" id="130" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -229,7 +229,7 @@
     </ParameterList>
     <ParameterList id="221" name="Solver">
       <Parameter docString="" id="139" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
-      <Parameter docString="" id="140" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
+      <Parameter docString="" id="140" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-03" />
       <Parameter docString="" id="141" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="142" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ConvectionDiffusionVOp" />
       <Parameter docString="" id="143" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -264,7 +264,7 @@
     <Parameter docString="" id="165" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
     <ParameterList id="225" name="Solver">
       <Parameter docString="" id="166" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="200" />
-      <Parameter docString="" id="167" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-2" />
+      <Parameter docString="" id="167" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-3" />
       <Parameter docString="" id="168" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="169" isDefault="false" isUsed="true" name="Timer Label" type="string" value="MHDtConvectionDiffusion" />
       <Parameter docString="" id="170" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />

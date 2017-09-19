@@ -820,9 +820,9 @@ public:
               ST z = z_*domain->getSize(Z) + domain->getOrigin(Z);
 
               ST w = 0.;
-              if( y<=0. && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
+              if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
                 w -= 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) );
-              if( y<=0. && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
+              if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
                 w += 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z+zc)/b ) );
               return( w ); },
             add );
@@ -834,9 +834,9 @@ public:
               ST z = z_*domain->getSize(Z) + domain->getOrigin(Z);
 
               ST u = 0.;
-              if( y<=0. && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
+              if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
                 u += 0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
-              if( y<=0. && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
+              if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
                 u -= 0.5*A*std::sin( pi*(z+zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
               return( u ); },
             add );

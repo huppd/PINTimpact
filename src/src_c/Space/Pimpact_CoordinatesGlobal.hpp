@@ -119,7 +119,7 @@ protected:
   /// \param[in] alpha parameter for parabola alpha=0 very parabolic alpha>>0 equidistant
   /// \param[out] x coordinate
   void coord_parab_end( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, const ScalarT alpha, ScalarT& x ) {
-    x  = L*( std::pow(i-M-1,2)/std::pow(M-1.,2) + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
+    x  = L*( -std::pow(i-M+1,2)/std::pow(M-1.,2) + 1. + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
   }
 
 
@@ -306,6 +306,9 @@ protected:
               stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
               stretchPara_[dir]->get<ScalarT>( "x0 U", 0.  ),
               xV_[dir][i] );
+            break;
+          case 3:
+            coord_parab_end( is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xV_[dir][i] );
             break;
           default:
             coord_equi( is, L, Ms, x0, xV_[dir][i] );

@@ -53,7 +53,7 @@ public:
 
 //public:
 
-  /// \brief gets ith smoother, similar to python i=-1 is gets you the coarses space
+  /// \brief gets ith smoother, similar to python i=-1 is gets you the coarsest space
   const Teuchos::RCP<SmootherT>& get( int i ) const {
     assert( -1!=i );
     if( i<0 )

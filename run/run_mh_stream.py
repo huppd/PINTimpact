@@ -20,7 +20,7 @@ ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
 ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
-ma.set_parameter(ROOT, 'nf', 4)
+ma.set_parameter(ROOT, 'nf', 6)
 
 
 NXS = [65, 129, 257]

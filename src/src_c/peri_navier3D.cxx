@@ -65,8 +65,8 @@ using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 using FSpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 using CSpaceT = Pimpact::Space<ST,OT,sd,4,2  >;
 
-//using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
-using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
+using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
+//using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
 
 using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
@@ -99,8 +99,6 @@ template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSm
 //template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::Chebyshev >;
 template<class T> using POP2  = Pimpact::PrecInverseOp< T, ConvDiffJT >;
 template<class T> using POP3  = Pimpact::PrecInverseOp< T, ConvDiffSORT >;
-
-
 
 
 
@@ -204,9 +202,9 @@ int main( int argi, char** argv ) {
 
         if( 0==space->rankST() ) std::cout << "\tforcing\n";
         // Taylor-Green Vortex
-        std::string forceType = pl->sublist("Force").get<std::string>("force type","Dirichlet");
+        std::string forceType = pl->sublist("Force").get<std::string>("force type", "Dirichlet");
         if( "force"== forceType )
-          fu->getField(0).getVField().initField( pl->sublist("Force"), Pimpact::Add::Y );
+          fu->getField(0).getVField().initField(pl->sublist("Force"), Pimpact::Add::Y);
         else if( "Taylor-Green"==forceType ) {
           ST pi2 = 2.*std::acos(-1.);
           ST alpha2 = space->getDomainSize()->getAlpha2();

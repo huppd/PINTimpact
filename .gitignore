@@ -1,6 +1,7 @@
 *.pyc
 *.swp
 *.txt
+*.mod
 debug/
 doc/
 profile/

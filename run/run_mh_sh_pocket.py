@@ -18,7 +18,7 @@ os.system('make '+EXE+' -j4')
 
 
 ma.set_parameter(ROOT, 'withoutput', 1)
-ma.set_parameter(ROOT, 'refinement step', 1)
+ma.set_parameter(ROOT, 'refinement step', 2)
 ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
 
@@ -26,12 +26,12 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 2
+NF = 0
 
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/all4'
+CASE_PATH[0] = pp.DATA_PATH + '/all6'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
@@ -50,16 +50,22 @@ NYO = 1537
 NZO = 513
 #
 NX = 65
-NY = 193
-NZ = 65
+NY = 257
+NZ = 257
 #
-LX = round(1.5*LXO/(NXO-1)*(NX-1), 1)
-LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
-LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
+# LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
+# LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
+# LZ = round(1.5*LZO/(NZO-1)*(NZ-1), 1)
+LX = LXO
+LY = LYO/2.
+LZ = LZO
 #
-print('LX', LX)
-print('LY', LY)
-print('LZ', LZ)
+# print('LX', LX)
+# print('LY', LY)
+# print('LZ', LZ)
+print('DX', LX/LXO*(NXO-1)/(NX-1))
+print('DY', LY/LYO*(NYO-1)/(NY-1))
+print('DZ', LZ/LZO*(NZO-1)/(NZ-1))
 #
 ma.set_parameter(ROOT, 'Re', 300.)
 ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*300.)

@@ -282,11 +282,14 @@ public:
 #endif
 
     ST b = Teuchos::ScalarTraits<ST>::zero();
+    //auto coord = space()->getCoordinatesLocal();
 
     for( OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
       for( OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j )
-        for( OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
-          b += at(i,j,k)*y.at(i,j,k);
+        for( OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i ) {
+          //ST volume = coord->dx(fType_,X,i) * coord->dx(fType_,Y,j) * coord->dx(fType_,Z,k);
+          b += /*volume**/at(i,j,k)*y.at(i,j,k);
+        }
 
     return( b );
   }
@@ -312,6 +315,7 @@ public:
 
   constexpr ST normLoc2( const B bcYes=B::Y ) {
 
+    //return( normLocL2( bcYes ) );
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
     for( OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )

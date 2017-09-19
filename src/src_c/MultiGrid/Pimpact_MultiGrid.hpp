@@ -76,6 +76,7 @@ protected:
   bool initZero_;
   int numCycles_;
   int cycleType_;
+  int numGrids_;
 
   const Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
@@ -110,12 +111,23 @@ public:
     initZero_( pl->get<bool>("init zero", false ) ),
     numCycles_( pl->get<int>("numCycles",FSpaceT::dimNC-CSpaceT::dimNC+1) ),
     cycleType_( pl->get<int>( "cycle type", 0 ) ),
+    numGrids_( pl->get<int>("numGrids", -1) ),
     mgSpaces_(mgSpaces),
     mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
     mgOps_(   createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
     mgSms_(   createMGSmoothers<SmootherT>( mgOps_, Teuchos::sublist(pl, "Smoother") ) ),
-    cGridSolver_(
-      mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::sublist(pl,"Coarse Grid Solver") ):Teuchos::null ) {}
+    //cGridSolver_( mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1),
+          //Teuchos::sublist(pl,"Coarse Grid Solver") ):Teuchos::null ) {
+    cGridSolver_( mgSpaces_->participating(numGrids_)?create<CGridSolverT>( mgOps_->get(numGrids_),
+          Teuchos::sublist(pl,"Coarse Grid Solver") ):Teuchos::null ) {
+
+      //print();
+      //assert( !(numGrids_==-1 || numGrids_<mgSpaces_->getNGrids()) );
+      if( numGrids_==-1 ) {
+        numGrids_ = mgSpaces_->getNGrids()-1;
+        pl->set<int>("numGrids", numGrids_); 
+      }
+    }
 
 
 
@@ -161,7 +173,7 @@ public:
 
       }
       int i;
-      for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
+      for( i=0; i<numGrids_-1; ++i ) {
         if( i>0 ) x.get(i).init(0.); // necessary? for DivGradOp yes
 
         if( mgSpaces_->participating(i) ) {
@@ -172,7 +184,8 @@ public:
       }
 
       // coarse grid solution
-      i = -1;
+      i = numGrids_;
+      //i = -1;
       if( mgSpaces_->participating(i) ) {
         x.get(i).init(0.);
         try {
@@ -188,7 +201,7 @@ public:
         //x.get(i).level();
       }
 
-      for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
+      for( i=numGrids_-1; i>=0; --i ) {
         // interpolate/correct/smooth
         if( mgSpaces_->participating(i) ) {
           mgTrans_->getInterpolationOp(i)->apply( x.get(i+1), temp.get(i) );
@@ -197,7 +210,7 @@ public:
           mgSms_->get( i )->apply( b.get(i), x.get(i) );
         }
       }
-      // use temp as stopping cirterion
+      // use temp as stopping criterion
       if( defectCorrection_ )
         mgTrans_->getTransferOp()->apply( x.get(0), y );
     }
@@ -321,7 +334,7 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
-    out << "#grids: " << mgSpaces_->getNGrids() << " numCycles: "<<numCycles_<< " init zero: "<<initZero_ << "\n";
+    out << "#grids: " << numGrids_ << " numCycles: "<<numCycles_<< " init zero: "<<initZero_ << "\n";
     out << "FOperator: " << mgOps_->get()->getLabel() << " d" << FSpaceT::dimNC << "\n";
     if( mgSpaces_->participating(0) )
       out << "COperator: " << mgOps_->get(0)->getLabel()  << " d" << CSpaceT::dimNC << "\n";
