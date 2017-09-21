@@ -14,18 +14,19 @@ ROOT = TREE.getroot()
 
 
 ma.set_parameter(ROOT, 'withoutput', 1)
-ma.set_parameter(ROOT, 'refinement step', 2)
-ma.set_parameter(ROOT, 'max refinement', 10)
+ma.set_parameter(ROOT, 'refinement step', 4)
+ma.set_parameter(ROOT, 'max refinement', 12)
 ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
 ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
-ma.set_parameter(ROOT, 'nf', 6)
+ma.set_parameter(ROOT, 'nf', 4)
 
 
-NXS = [65, 129, 257]
-RES = np.linspace(1, 100, 5)
-STS = np.linspace(1, 12, 5)
+NXS = [33]
+RES = [1, 25, 50, 75, 100]
+RES = [1, 50, 100] 
+STS = np.linspace(1, 10, 3)
 
 # make executable ready
 EXE = 'peri_navier2D'
@@ -34,7 +35,7 @@ os.system('make ' + EXE + ' -j4')
 
 # work direcotries
 CASE_PATH = ['']*4
-CASE_PATH[0] = pp.DATA_PATH + '/streaming'
+CASE_PATH[0] = pp.DATA_PATH + '/streaming4'
 pp.mkdir(CASE_PATH, 0)
 
 
