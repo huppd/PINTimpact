@@ -48,8 +48,8 @@ public:
       const NOX::Abstract::Group& group = solver.getSolutionGroup();
 
       Teuchos::rcp_const_cast<FieldT>( Teuchos::rcp_dynamic_cast<const FieldT>(
-            group.getXPtr() ))->getField().write(0, true);
-            //group.getXPtr() ))->getField().write(solver.getNumIterations()/writeIterPost_, true);
+            //group.getXPtr() ))->getField().write(0, true);
+            group.getXPtr() ))->getField().write(100*solver.getNumIterations()/writeIterPost_, true);
     }
   }
 
