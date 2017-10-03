@@ -362,8 +362,7 @@ int main( int argi, char** argv ) {
           auto modeInv = Pimpact::createInverseOp(
                   modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
-          auto mgConvDiff =
-            Pimpact::createMultiGrid<
+          auto mgConvDiff = Pimpact::createMultiGrid<
             Pimpact::VectorField,
             TransVF,
             RestrVF,
@@ -372,8 +371,9 @@ int main( int argi, char** argv ) {
             ConvDiffOpT,
             //ConvDiffSORT,
             ConvDiffJT,
-            MOP
-            > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
+            ConvDiffSORT
+            //MOP
+              > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
           if( 0==space->rankST() )
             mgConvDiff->print();
@@ -451,22 +451,15 @@ int main( int argi, char** argv ) {
         if( "none" != divGradPrecString ) { // init multigrid divgrad
 
           auto mgDivGrad = Pimpact::createMultiGrid<
-                           Pimpact::ScalarField,
-                           Pimpact::TransferOp,
-                           Pimpact::RestrictionSFOp,
-                           Pimpact::InterpolationOp,
-                           Pimpact::DivGradOp,
-                           Pimpact::DivGradO2Op,
-                           Pimpact::DivGradO2JSmoother,
-                           //Pimpact::Chebyshev,
-                           //Pimpact::DivGradO2SORSmoother,
-                           //MOP
-                           //Pimpact::Chebyshev
-                           //Pimpact::DivGradO2Inv
-                           //Pimpact::DivGradO2SORSmoother
-                           Pimpact::DivGradO2JSmoother
-                           //Pimpact::DivGradO2Inv
-                           >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
+              Pimpact::ScalarField,
+              Pimpact::TransferOp,
+              Pimpact::RestrictionSFOp,
+              Pimpact::InterpolationOp,
+              Pimpact::DivGradOp,
+              Pimpact::DivGradO2Op,
+              Pimpact::DivGradO2JSmoother,
+              Pimpact::DivGradO2JSmoother
+                >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
 
           if( 0==space->rankST() )
             mgDivGrad->print();

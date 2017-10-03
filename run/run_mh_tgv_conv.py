@@ -43,9 +43,9 @@ for st in STS:
     pp.chdir(CASE_PATH, 1)
     #
     ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*RE)
-    # ma.set_parameter( ROOT, 'nx', 64*+1 )
-    # ma.set_parameter( ROOT, 'ny', 64*+1 )
-    # ma.set_parameter( ROOT, 'nz', 5 )
+    ma.set_parameter( ROOT, 'nx', 129 )
+    ma.set_parameter( ROOT, 'ny', 129 )
+    ma.set_parameter( ROOT, 'nz', 5 )
     # ma.set_parameter( ROOT, 'nf', nf )
     ma.set_parameter(ROOT, 'npx', 1)
     ma.set_parameter(ROOT, 'npy', 1)
