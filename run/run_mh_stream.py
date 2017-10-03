@@ -28,9 +28,12 @@ ma.set_parameter(ROOT, 'npy', 2)
 
 
 NXS = [17, 33, 65, 129]
+NXS = [129]
 
-RES = range(20, 101, 20)
-STS = range(2, 11, 2)
+# RES = range(10, 101, 10)
+RES = [100]
+STS = range(1, 11, 1)
+STS = [1]
 
 # make executable ready
 EXE = 'peri_navier2D'

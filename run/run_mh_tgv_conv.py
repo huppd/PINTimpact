@@ -29,8 +29,6 @@ CASE_PATH = ['']*10
 RUNS = range(1)
 
 STS = [1., 10., 0.1]
-# STS  = [ 1. ]
-# STS  = [ 10., 0.1 ]
 
 
 CASE_PATH[0] = pp.DATA_PATH + '/MHTGV_conv'
@@ -43,9 +41,9 @@ for st in STS:
     pp.chdir(CASE_PATH, 1)
     #
     ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*RE)
-    ma.set_parameter( ROOT, 'nx', 129 )
-    ma.set_parameter( ROOT, 'ny', 129 )
-    ma.set_parameter( ROOT, 'nz', 5 )
+    ma.set_parameter(ROOT, 'nx', 129)
+    ma.set_parameter(ROOT, 'ny', 129)
+    ma.set_parameter(ROOT, 'nz', 5)
     # ma.set_parameter( ROOT, 'nf', nf )
     ma.set_parameter(ROOT, 'npx', 1)
     ma.set_parameter(ROOT, 'npy', 1)
