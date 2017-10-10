@@ -31,16 +31,16 @@ NF = 2
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/all7'
+CASE_PATH[0] = pp.DATA_PATH + '/sh_pocket7'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
 
 #
 NPX = 1
-NPY = 2
-NPZ = 2
-NPF = 1
+NPY = 1
+NPZ = 1
+NPF = 2
 #
 LXO = 22.5
 LYO = 600.
@@ -93,7 +93,7 @@ nptot = NPX*NPY*NPZ*NPF
 memtot = int(1024.*max(30/nptot, 2))
 print()
 print(CASE_PATH)
-EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
+EXE_STRING = pp.exe_pre(nptot, ' -N -W 0:40 ' +
                         '-R "rusage[mem=' + str(memtot) +
                         ']" ') + pp.EXE_PATH + '/'+EXE
 print(EXE_STRING)

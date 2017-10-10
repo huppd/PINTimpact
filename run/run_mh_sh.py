@@ -26,19 +26,19 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 1
+NF = 2
 
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/all6'
+CASE_PATH[0] = pp.DATA_PATH + '/all9'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
 
 #
 NPX = 1
-NPY = 8
+NPY = 12
 NPZ = 8
 NPF = 1
 #
