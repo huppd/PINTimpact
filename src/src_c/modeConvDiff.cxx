@@ -18,7 +18,7 @@
 using ST = double;
 using OT = int;
 
-const int sd = 3;
+const int sd = 2;
 const int dNC = 4;
 //const int dNC = 3;
 //const int dNC = 2;
@@ -129,8 +129,8 @@ int main( int argi, char** argv ) {
       InterVF,
       ConvDiffOpT,
       ConvDiffOpT,
-      //ConvDiffJT,
-      ConvDiffSORT,
+      ConvDiffJT,
+      //ConvDiffSORT,
       ConvDiffSORT
       > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 

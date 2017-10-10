@@ -26,7 +26,7 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 2
+NF = 1
 
 
 CASE_PATH = ['']*3
@@ -57,7 +57,7 @@ NZ = 129
 # LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
 # LZ = round(1.5*LZO/(NZO-1)*(NZ-1), 1)
 LX = LXO*10./12.
-LY = LYO/2.
+LY = LYO/3.
 LZ = LZO
 #
 # print('LX', LX)
