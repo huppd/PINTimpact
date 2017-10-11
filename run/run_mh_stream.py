@@ -28,10 +28,10 @@ ma.set_parameter(ROOT, 'npy', 2)
 
 
 NXS = [33, 65]
-# NXS = [65]
+NXS = [129]
 # NXS = [17]
 
-RES = 10**np.linspace(0, 2, 9)
+RES = 10**np.linspace(0, 2, 9)[-1:]
 STS = 10**np.linspace(-2, 0, 9)
 # STS = STS[::-1]
 # STS = [1.]
@@ -68,10 +68,10 @@ for tol in [2]:
                 print(CASE_PATH)
                 TREE.write('parameter3D.xml')
                 nptot = 4
-                memtot = int(1024.*max(16/nptot, 2))
+                memtot = int(1024.*max(60/nptot, 2))
                 print()
                 print(CASE_PATH)
-                EXE_STRING = pp.exe_pre(nptot, ' -N -W 8:00 ' +
+                EXE_STRING = pp.exe_pre(nptot, ' -N -W 12:00 ' +
                                         '-R "rusage[mem=' + str(memtot) +
                                         ']" ') + pp.EXE_PATH + '/'+EXE
                 print(EXE_STRING)

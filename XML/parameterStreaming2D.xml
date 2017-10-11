@@ -255,7 +255,7 @@
     <Parameter docString="" id="160" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
     <Parameter docString="" id="161" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
     <ParameterList id="220" name="Solver">
-      <Parameter docString="" id="162" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="180" />
+      <Parameter docString="" id="162" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="100" />
       <Parameter docString="" id="163" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1000" />
       <Parameter docString="" id="164" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-2" />
       <Parameter docString="" id="165" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
