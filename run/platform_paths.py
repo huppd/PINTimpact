@@ -23,7 +23,7 @@ def exe_pre(npro, ops='', run=0):
     if HPC:
         return "mpirun -n "+str(npro)+' '  # hpc
     else:
-        time.sleep(600)
+        time.sleep(60)
         return "bsub -n " + str(npro) + ' ' + ops + ' ' + ' -oo output' + \
             str(run) + ' mpirun '
 

@@ -62,7 +62,7 @@
     </ParameterList>
   </ParameterList>
   <ParameterList id="185" name="NOX write">
-    <Parameter docString="" id="38" isDefault="true" isUsed="true" name="solution" type="int" value="0" />
+    <Parameter docString="" id="38" isDefault="true" isUsed="true" name="solution" type="int" value="-1" />
     <Parameter docString="" id="39" isDefault="true" isUsed="true" name="residual" type="int" value="-1" />
     <Parameter docString="" id="40" isDefault="true" isUsed="true" name="update" type="int" value="-1" />
     <ParameterList id="186" name="iteration">
@@ -71,7 +71,7 @@
     </ParameterList>
     <ParameterList id="187" name="solve">
       <Parameter docString="" id="43" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
-      <Parameter docString="" id="44" isDefault="true" isUsed="true" name="post" type="bool" value="true" />
+      <Parameter docString="" id="44" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
     </ParameterList>
   </ParameterList>
   <ParameterList id="188" name="Multi Grid">
