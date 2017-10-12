@@ -23,17 +23,15 @@ ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
 ma.set_parameter(ROOT, 'nf', 12)
 
-NP = 1
+NP = 2
 
 ma.set_parameter(ROOT, 'npx', NP)
 ma.set_parameter(ROOT, 'npy', NP)
 
 
-NXS = [33, 65]
 NXS = [129]
-# NXS = [17]
 
-RES = 10**np.linspace(0, 2, 9)[-1:]
+RES = 10**np.linspace(0, 2, 9)
 STS = 10**np.linspace(-2, 0, 9)
 STS = STS[::-1]
 # STS = [1.]

@@ -18,7 +18,7 @@ ma.set_parameter(ROOT, 'refinement step', 2)
 ma.set_parameter(ROOT, 'max refinement', 1)
 ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
-NP = 4
+NP = 2
 
 ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
@@ -28,15 +28,12 @@ ma.set_parameter(ROOT, 'npx', NP)
 ma.set_parameter(ROOT, 'npy', NP)
 
 
-NXS = [33, 65]
+# NXS = [17, 33, 65]
 NXS = [257]
-# NXS = [17]
 
-RES = 10**np.linspace(0, 2, 3)[:1]
-STS = 10**np.linspace(-2, 0, 3)[:1]
-# STS = STS[::-1]
-# STS = [1.]
-# RES = [10.]
+RES = 10**np.linspace(0, 2, 3)
+STS = 10**np.linspace(-2, 0, 3)
+
 
 # make executable ready
 EXE = 'peri_navier2D'
