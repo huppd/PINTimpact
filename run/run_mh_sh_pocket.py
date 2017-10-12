@@ -7,8 +7,10 @@ import platform_paths as pp
 
 
 # load parameter file
-ma.set_ids('../XML/parameterSHLabs.xml')
-TREE = ET.parse('../XML/parameterSHLabs.xml')
+ma.set_ids('../XML/parameterSHL.xml')
+TREE = ET.parse('../XML/parameterSHL.xml')
+# ma.set_ids('../XML/parameterSHLabs.xml')
+# TREE = ET.parse('../XML/parameterSHLabs.xml')
 ROOT = TREE.getroot()
 
 # make executable ready
@@ -50,8 +52,8 @@ NYO = 1537
 NZO = 513
 #
 NX = 65
-NY = 129
-NZ = 129
+NY = 65
+NZ = 65
 #
 # LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
 # LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
