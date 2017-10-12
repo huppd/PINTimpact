@@ -18,24 +18,23 @@ ma.set_parameter(ROOT, 'refinement step', 2)
 ma.set_parameter(ROOT, 'max refinement', 1)
 ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
+NP = 4
 
 ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
 ma.set_parameter(ROOT, 'nf', 12)
-
-NP = 1
 
 ma.set_parameter(ROOT, 'npx', NP)
 ma.set_parameter(ROOT, 'npy', NP)
 
 
 NXS = [33, 65]
-NXS = [129]
+NXS = [257]
 # NXS = [17]
 
-RES = 10**np.linspace(0, 2, 9)[-1:]
-STS = 10**np.linspace(-2, 0, 9)
-STS = STS[::-1]
+RES = 10**np.linspace(0, 2, 3)[:1]
+STS = 10**np.linspace(-2, 0, 3)[:1]
+# STS = STS[::-1]
 # STS = [1.]
 # RES = [10.]
 
@@ -55,26 +54,26 @@ for tol in [2]:
     for nx in NXS:
         CASE_PATH[1] = '/nx_'+str(nx)
         pp.mkdir(CASE_PATH, 1)
-        for st in STS:
+        for i, st in enumerate(STS):
+            re = RES[i]
             CASE_PATH[2] = '/alpha2_'+str(st)
             pp.mkdir(CASE_PATH, 2)
-            for re in RES:
-                CASE_PATH[3] = '/re_'+str(re)
-                pp.mkdir(CASE_PATH, 3)
-                pp.chdir(CASE_PATH, 3)
-                #
-                ma.set_parameter(ROOT, 'nx', nx)
-                ma.set_parameter(ROOT, 'ny', nx)
-                ma.set_parameter(ROOT, 'Re', re)
-                ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
-                print(CASE_PATH)
-                TREE.write('parameter3D.xml')
-                nptot = NP**2
-                memtot = int(1024.*max(60/nptot, 2))
-                print()
-                print(CASE_PATH)
-                EXE_STRING = pp.exe_pre(nptot, ' -N -W 6:00 ' +
-                                        '-R "rusage[mem=' + str(memtot) +
-                                        ']" ') + pp.EXE_PATH + '/'+EXE
-                print(EXE_STRING)
-                os.system(EXE_STRING)
+            CASE_PATH[3] = '/re_'+str(re)
+            pp.mkdir(CASE_PATH, 3)
+            pp.chdir(CASE_PATH, 3)
+            #
+            ma.set_parameter(ROOT, 'nx', nx)
+            ma.set_parameter(ROOT, 'ny', nx)
+            ma.set_parameter(ROOT, 'Re', re)
+            ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
+            print(CASE_PATH)
+            TREE.write('parameter3D.xml')
+            nptot = NP**2
+            memtot = int(1024.*max(160/nptot, 2))
+            print()
+            print(CASE_PATH)
+            EXE_STRING = pp.exe_pre(nptot, ' -N -W 12:00 ' +
+                                    '-R "rusage[mem=' + str(memtot) +
+                                    ']" ') + pp.EXE_PATH + '/'+EXE
+            print(EXE_STRING)
+            os.system(EXE_STRING)
