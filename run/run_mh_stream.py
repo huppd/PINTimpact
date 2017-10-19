@@ -31,7 +31,7 @@ ma.set_parameter(ROOT, 'npy', NP)
 
 NXS = [129]
 
-RES = 10**np.linspace(0, 2, 9)
+RES = 10**np.linspace(0, 2, 9)[-2:-1]
 STS = 10**np.linspace(-2, 0, 9)
 STS = STS[::-1]
 # STS = [1.]
