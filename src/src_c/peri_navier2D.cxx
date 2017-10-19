@@ -592,6 +592,20 @@ int main( int argi, char** argv ) {
           rank_1 = 1;
         int rank_nf = space->getProcGrid()->getNP(3)-1;
 
+        // nonnice blocking version
+        //MPI_bcast(
+            //&u_1,                                // buffer	starting address of buffer (choice)
+            //1,                                   // number of entries in buffer (non-negative integer)
+            //MPI_DOUBLE,                          // data type of buffer (handle)
+            //rank_1,                              // rank of broadcast root (integer)
+            //space->getProcGrid()->getCommBar(3));// communicator (handle)
+        //MPI_bcast(
+            //&u_nf,                               // buffer	starting address of buffer (choice)
+            //1,                                   // number of entries in buffer (non-negative integer)
+            //MPI_DOUBLE,                          // data type of buffer (handle)
+            //rank_nf,                             // rank of broadcast root (integer)
+            //space->getProcGrid()->getCommBar(3));// ccommunicator (handle) ommunicator (handle)
+
         // nice nonblocking version
         MPI_Request req_1, req_nf;  
 

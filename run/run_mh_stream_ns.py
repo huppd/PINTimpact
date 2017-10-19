@@ -26,13 +26,15 @@ ma.set_parameter(ROOT, 'nf', 12)
 
 ma.set_parameter(ROOT, 'npx', NP)
 ma.set_parameter(ROOT, 'npy', NP)
+# ma.set_parameter(ROOT, 'npf', 3)
 
 
 # NXS = [17, 33, 65]
+# NXS = [129]
 NXS = [257]
 
-RES = 10**np.linspace(0, 2, 3)
-STS = 10**np.linspace(-2, 0, 3)
+RES = 10**np.linspace(0, 2, 3)[1:]
+STS = 10**np.linspace(-2, 0, 3)[1:]
 
 
 # make executable ready
@@ -61,16 +63,18 @@ for tol in [2]:
             #
             ma.set_parameter(ROOT, 'nx', nx)
             ma.set_parameter(ROOT, 'ny', nx)
+            ma.set_parameter(ROOT, 'nz', 3)
             ma.set_parameter(ROOT, 'Re', re)
             ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
             print(CASE_PATH)
             TREE.write('parameter3D.xml')
             nptot = NP**2
-            memtot = int(1024.*max(160/nptot, 2))
+            memtot = int(1024.*max(60./nptot, 2))
             print()
             print(CASE_PATH)
-            EXE_STRING = pp.exe_pre(nptot, ' -N -W 12:00 ' +
-                                    '-R "rusage[mem=' + str(memtot) +
-                                    ']" ') + pp.EXE_PATH + '/'+EXE
+            EXE_STRING = pp.exe_pre(nptot, ' -N -W 4:00 ' +
+                                    '-R "rusage[mem=' + str(memtot) + ']" '
+                                    # ' -R "select[model=XeonE5_2680v3]" ' +
+                                    ) + pp.EXE_PATH + '/'+EXE
             print(EXE_STRING)
             os.system(EXE_STRING)
