@@ -337,6 +337,7 @@ int main( int argi, char** argv ) {
 
         std::string mhConvDiffPrecString = pl->sublist("MH_ConvDiff").get<std::string>( "preconditioner", "right" );
 
+        Teuchos::RCP<Pimpact::OperatorBase<MVF> > opV2Vprec;
         if( "none" != mhConvDiffPrecString ) {
           // creat H0-inv prec
           auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
@@ -405,8 +406,7 @@ int main( int argi, char** argv ) {
             modeInv->setLeftPrec(modePrec);
 
           // create Hinv prec
-          Teuchos::RCP<Pimpact::OperatorBase<MVF> > opV2Vprec =
-            Pimpact::createMultiOperatorBase(
+          opV2Vprec = Pimpact::createMultiOperatorBase(
               Pimpact::createMultiHarmonicDiagOp(
                 zeroInv, modeInv ) );
 
@@ -503,7 +503,8 @@ int main( int argi, char** argv ) {
 
         auto invTriangOp =
           Pimpact::createInverseTriangularOp(
-            opV2Vinv,
+            //opV2Vinv,
+            Pimpact::createMultiOpUnWrap(opV2Vprec),
             opS2V,
             //opV2S,
             opS2Sinv );

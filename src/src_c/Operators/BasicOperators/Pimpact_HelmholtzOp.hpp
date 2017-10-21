@@ -47,7 +47,6 @@ protected:
   ST mulI_;
   ST mulL_;
 
-
   TO cS_;
   TO cV_;
 
