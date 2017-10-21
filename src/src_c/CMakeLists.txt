@@ -55,6 +55,9 @@ TARGET_LINK_LIBRARIES( peri_navier2D ${Pimpact_TPL_LIBRARIES} )
 add_executable( peri_navier3D peri_navier3D.cxx )
 TARGET_LINK_LIBRARIES( peri_navier3D ${Pimpact_TPL_LIBRARIES} ) 
 
+add_executable( analyzer3D analyzer3D.cxx )
+TARGET_LINK_LIBRARIES( analyzer3D ${Pimpact_TPL_LIBRARIES} ) 
+
 add_executable( peri_navier3DTime peri_navier3DTime.cxx )
 TARGET_LINK_LIBRARIES( peri_navier3DTime ${Pimpact_TPL_LIBRARIES} ) 
 

@@ -54,34 +54,42 @@
     <Parameter docString="" id="35" isDefault="false" isUsed="true" name="dir" type="int" value="1" />
     <Parameter docString="" id="36" isDefault="false" isUsed="true" name="gamma" type="double" value="10.0" />
     <ParameterList id="226" name="iter">
-      <Parameter docString="" id="37" isDefault="true" isUsed="true" name="pre" type="bool" value="true" />
+      <Parameter docString="" id="37" isDefault="true" isUsed="true" name="pre"
+        type="bool" value="false" />
       <Parameter docString="" id="38" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
     </ParameterList>
     <ParameterList id="227" name="solv">
       <Parameter docString="" id="39" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
-      <Parameter docString="" id="40" isDefault="true" isUsed="true" name="post" type="bool" value="true" />
+      <Parameter docString="" id="40" isDefault="true" isUsed="true" name="post"
+        type="bool" value="false" />
     </ParameterList>
   </ParameterList>
   <ParameterList id="228" name="NOX spectrum">
-    <Parameter docString="" id="41" isDefault="true" isUsed="true" name="solution" type="bool" value="true" />
+    <Parameter docString="" id="41" isDefault="true" isUsed="true" name="solution"
+      type="bool" value="false" />
     <Parameter docString="" id="42" isDefault="true" isUsed="true" name="residual" type="bool" value="true" />
     <Parameter docString="" id="43" isDefault="true" isUsed="true" name="update" type="bool" value="true" />
     <ParameterList id="229" name="iteration">
-      <Parameter docString="" id="44" isDefault="true" isUsed="true" name="pre" type="bool" value="true" />
-      <Parameter docString="" id="45" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
+      <Parameter docString="" id="44" isDefault="true" isUsed="true" name="pre"
+        type="bool" value="false" />
+      <Parameter docString="" id="45" isDefault="true" isUsed="true" name="post"
+        type="bool" value="true" />
     </ParameterList>
     <ParameterList id="230" name="solve">
       <Parameter docString="" id="46" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
-      <Parameter docString="" id="47" isDefault="true" isUsed="true" name="post" type="bool" value="true" />
+      <Parameter docString="" id="47" isDefault="true" isUsed="true" name="post"
+        type="bool" value="false" />
     </ParameterList>
   </ParameterList>
   <ParameterList id="231" name="NOX write">
-    <Parameter docString="" id="48" isDefault="true" isUsed="true" name="solution" type="int" value="0" />
+    <Parameter docString="" id="48" isDefault="true" isUsed="true" name="solution"
+      type="int" value="-1" />
     <Parameter docString="" id="49" isDefault="true" isUsed="true" name="residual" type="int" value="-1" />
     <Parameter docString="" id="50" isDefault="true" isUsed="true" name="update" type="int" value="-1" />
     <ParameterList id="232" name="iteration">
       <Parameter docString="" id="51" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
-      <Parameter docString="" id="52" isDefault="true" isUsed="true" name="post" type="bool" value="true" />
+      <Parameter docString="" id="52" isDefault="true" isUsed="true" name="post"
+        type="bool" value="false" />
     </ParameterList>
     <ParameterList id="233" name="solve">
       <Parameter docString="" id="53" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />

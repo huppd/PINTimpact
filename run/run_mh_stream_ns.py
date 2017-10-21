@@ -18,7 +18,7 @@ ma.set_parameter(ROOT, 'refinement step', 2)
 ma.set_parameter(ROOT, 'max refinement', 1)
 ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
-NP = 2
+NP = 4
 
 ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
@@ -29,7 +29,7 @@ ma.set_parameter(ROOT, 'npy', NP)
 # ma.set_parameter(ROOT, 'npf', 3)
 
 
-# NXS = [17, 33, 65]
+# NXS = [33, 65, 129]
 # NXS = [129]
 NXS = [257]
 
@@ -72,7 +72,7 @@ for tol in [2]:
             memtot = int(1024.*max(60./nptot, 2))
             print()
             print(CASE_PATH)
-            EXE_STRING = pp.exe_pre(nptot, ' -N -W 4:00 ' +
+            EXE_STRING = pp.exe_pre(nptot, ' -N -W 42:00 ' +
                                     '-R "rusage[mem=' + str(memtot) + ']" '
                                     # ' -R "select[model=XeonE5_2680v3]" ' +
                                     ) + pp.EXE_PATH + '/'+EXE
