@@ -31,8 +31,8 @@ ma.set_parameter(ROOT, 'npy', NP)
 
 NXS = [65]
 
-RES = 10**np.linspace(0, 2, 9)
-STS = 10**np.linspace(-2, 0, 9)
+RES = 10**np.linspace(0, 2, 9)[7:8]
+STS = 10**np.linspace(-2, 0, 9)[:5]
 STS = STS[::-1]
 # STS = [1.]
 # RES = [10.]
@@ -73,7 +73,7 @@ for tol in [2]:
                 print()
                 print(CASE_PATH)
                 EXE_STRING = pp.exe_pre(
-                        nptot, ' -N -W 5:00 ' +
+                        nptot, ' -N -W 42:00 ' +
                         '-R "rusage[mem=' + str(memtot) +
                         ']" ') + pp.EXE_PATH + '/'+EXE
                 # EXE_STRING = pp.exe_pre(
