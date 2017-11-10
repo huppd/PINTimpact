@@ -168,7 +168,7 @@ public:
 
         // residual temp = \hat(L) y
         mgOps_->get(0)->apply( x.get(0), temp.get(0) );
-        // b = x - L y +\hat{L} y
+        // b = x - L y + \hat{L} y
         b.get(0).add( 1., b.get(0), 1, temp.get(0) );
 
       }

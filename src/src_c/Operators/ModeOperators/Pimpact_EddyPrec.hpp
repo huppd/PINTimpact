@@ -150,10 +150,8 @@ public:
 
     y = temp;
 
-    y.getCField().add( 1.0, temp.getCField(),  1.0, temp.getSField(), B::N );
-    y.getSField().add( 1.0, temp.getCField(), -1.0, temp.getSField(), B::N );
-
-    y.scale( 0.5, B::N );
+    y.getCField().add( 0.5, temp.getCField(),  0.5, temp.getSField(), B::N );
+    y.getSField().add( 0.5, temp.getCField(), -0.5, temp.getSField(), B::N );
   }
 
 

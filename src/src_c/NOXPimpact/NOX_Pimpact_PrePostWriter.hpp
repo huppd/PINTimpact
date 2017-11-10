@@ -80,9 +80,9 @@ public:
     writeSolvePre_(  pl->sublist("solve").get<bool>("pre", false) ),
     writeSolvePost_(  pl->sublist("solve").get<bool>("post", false) ) {
 
-      if( (sol_<0 or res_<0 or cor_<0) and ( !writeIterPre_ and !writeIterPost_ and
-            !writeSolvePre_ and !writeSolvePost_ ) ) 
-        std::cout << "Warning!!! no write happening!\n";
+      //if( (sol_<0 or res_<0 or cor_<0) and ( !writeIterPre_ and !writeIterPost_ and
+            //!writeSolvePre_ and !writeSolvePost_ ) ) 
+        //std::cout << "Warning!!! no write happening!\n";
     };
 
 

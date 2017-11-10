@@ -362,8 +362,7 @@ int main( int argi, char** argv ) {
           auto modeInv = Pimpact::createInverseOp(
                   modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
-          auto mgConvDiff =
-            Pimpact::createMultiGrid<
+          auto mgConvDiff = Pimpact::createMultiGrid<
             Pimpact::VectorField,
             TransVF,
             RestrVF,
@@ -372,8 +371,9 @@ int main( int argi, char** argv ) {
             ConvDiffOpT,
             //ConvDiffSORT,
             ConvDiffJT,
-            MOP
-            > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
+            ConvDiffSORT
+            //MOP
+              > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
           if( 0==space->rankST() )
             mgConvDiff->print();
@@ -391,7 +391,8 @@ int main( int argi, char** argv ) {
           auto modePrec =
             Pimpact::createMultiOperatorBase(
                 Pimpact::create<Pimpact::EddyPrec>(
-                  mgConvDiff,
+                  //mgConvDiff,
+                  zeroInv,
                   Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
 
           if("right" == modeConvDiffPrecString)
@@ -451,22 +452,15 @@ int main( int argi, char** argv ) {
         if( "none" != divGradPrecString ) { // init multigrid divgrad
 
           auto mgDivGrad = Pimpact::createMultiGrid<
-                           Pimpact::ScalarField,
-                           Pimpact::TransferOp,
-                           Pimpact::RestrictionSFOp,
-                           Pimpact::InterpolationOp,
-                           Pimpact::DivGradOp,
-                           Pimpact::DivGradO2Op,
-                           Pimpact::DivGradO2JSmoother,
-                           //Pimpact::Chebyshev,
-                           //Pimpact::DivGradO2SORSmoother,
-                           //MOP
-                           //Pimpact::Chebyshev
-                           //Pimpact::DivGradO2Inv
-                           //Pimpact::DivGradO2SORSmoother
-                           Pimpact::DivGradO2JSmoother
-                           //Pimpact::DivGradO2Inv
-                           >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
+              Pimpact::ScalarField,
+              Pimpact::TransferOp,
+              Pimpact::RestrictionSFOp,
+              Pimpact::InterpolationOp,
+              Pimpact::DivGradOp,
+              Pimpact::DivGradO2Op,
+              Pimpact::DivGradO2JSmoother,
+              Pimpact::DivGradO2JSmoother
+                >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
 
           if( 0==space->rankST() )
             mgDivGrad->print();
@@ -598,6 +592,20 @@ int main( int argi, char** argv ) {
         else if( 0==(space->nGlo(3)+1)%space->getProcGrid()->getNP(3) )
           rank_1 = 1;
         int rank_nf = space->getProcGrid()->getNP(3)-1;
+
+        // nonnice blocking version
+        //MPI_bcast(
+            //&u_1,                                // buffer	starting address of buffer (choice)
+            //1,                                   // number of entries in buffer (non-negative integer)
+            //MPI_DOUBLE,                          // data type of buffer (handle)
+            //rank_1,                              // rank of broadcast root (integer)
+            //space->getProcGrid()->getCommBar(3));// communicator (handle)
+        //MPI_bcast(
+            //&u_nf,                               // buffer	starting address of buffer (choice)
+            //1,                                   // number of entries in buffer (non-negative integer)
+            //MPI_DOUBLE,                          // data type of buffer (handle)
+            //rank_nf,                             // rank of broadcast root (integer)
+            //space->getProcGrid()->getCommBar(3));// ccommunicator (handle) ommunicator (handle)
 
         // nice nonblocking version
         MPI_Request req_1, req_nf;  

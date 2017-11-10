@@ -29,16 +29,10 @@ st = 1./30.
 NF = 2
 
 
-CASE_PATH = ['']*3
-
-CASE_PATH[0] = pp.DATA_PATH + '/all9'
-pp.mkdir(CASE_PATH, 0)
-pp.chdir(CASE_PATH, 0)
-
 
 #
-NPX = 1
-NPY = 12
+NPX = 3
+NPY = 6
 NPZ = 8
 NPF = 1
 #
@@ -49,16 +43,16 @@ NXO = 97
 NYO = 1537
 NZO = 513
 #
-NX = 65
-NY = 385
-NZ = 257
+NX = 97
+NY = 769 
+NZ = 257 
 #
-LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
-LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
-LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
-LX = LXO*10./12.
+# LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
+# LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
+# LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
+LX = LXO
 LY = LYO/2.
-LZ = LZO
+LZ = LZO/2.
 #
 # print('LX', LX)
 # print('LY', LY)
@@ -92,12 +86,19 @@ ma.set_insublist(ROOT, 'Line Search', 'Method', 'Full Step')
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', 4)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
         # True)
+
+CASE_PATH = ['']*3
+
+CASE_PATH[0] = pp.DATA_PATH + '/shbl_' + str(LY)
+pp.mkdir(CASE_PATH, 0)
+pp.chdir(CASE_PATH, 0)
+
 TREE.write('parameter3D.xml')
 nptot = NPX*NPY*NPZ*NPF
 memtot = int(1024.*max(30/nptot, 2))
 print()
 print(CASE_PATH)
-EXE_STRING = pp.exe_pre(nptot, ' -N -W 12:00 ' +
+EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
                         '-R "rusage[mem=' + str(memtot) +
                         ']" ') + pp.EXE_PATH + '/'+EXE
 print(EXE_STRING)

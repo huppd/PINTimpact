@@ -6,8 +6,7 @@ HPC = True
 HPC = False
 
 # exection path
-EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")  # hpc
-# EXE_PATH = os.path.expanduser("~/PImpact/debug/src_c")  # hpc
+EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")
 
 # data patch
 if HPC:
