@@ -20,9 +20,9 @@ os.system('make ' + EXE + ' -j4')
 
 st = 1./30.
 #
-NPX = 3
-NPY = 6
-NPZ = 8
+NPX = 1
+NPY = 1
+NPZ = 1
 NPF = 1
 #
 LXO = 22.5
@@ -32,9 +32,9 @@ NXO = 97
 NYO = 1537
 NZO = 513
 #
-NX = 97
-NY = 769 
-NZ = 257 
+NX = 65 
+NY = 65 
+NZ = 65 
 #
 # LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
 # LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
@@ -83,8 +83,8 @@ MAXGRIDS = [3]
 CASE_PATH = ['']*6
 
 
-for side in ['left', 'right']:
-# for side in ['left']:
+# for side in ['left', 'right']:
+for side in ['right']:
     CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
     pp.mkdir(CASE_PATH, 0)
     for y in NYS:
@@ -123,7 +123,7 @@ for side in ['left', 'right']:
                         exe_str = \
                             pp.exe_pre(nptot,
                                        ' -N -W 1:00 -R "rusage[mem=' +
-                                       str(max(1024*4, 1024)) + ']" ') + \
+                                       str(1024*2) + ']" ') + \
                             pp.EXE_PATH+'/'+EXE+' --realCase=1 '
                         print(exe_str)
                         os.system(exe_str)
