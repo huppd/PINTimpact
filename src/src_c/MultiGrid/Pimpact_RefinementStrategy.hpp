@@ -94,20 +94,19 @@ public:
         boundaryConditionsLocal,
         coordLocal );
 
-    return(
-            Teuchos::rcp(
-              new SpaceT(
-                stencilWidths,
-                indexSpace,
-                gridSizeGlobal,
-                gridSizeLocal,
-                procGrid,
-                coordGlobal,
-                coordLocal,
-                domainSize,
-                boundaryConditionsGlobal,
-                boundaryConditionsLocal,
-                interV2S ) ) );
+    return Teuchos::rcp(
+        new SpaceT(
+          stencilWidths,
+          indexSpace,
+          gridSizeGlobal,
+          gridSizeLocal,
+          procGrid,
+          coordGlobal,
+          coordLocal,
+          domainSize,
+          boundaryConditionsGlobal,
+          boundaryConditionsLocal,
+          interV2S ) );
   }
 
 

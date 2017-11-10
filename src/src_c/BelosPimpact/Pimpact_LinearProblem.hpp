@@ -53,7 +53,7 @@ public:
 
   Belos::ReturnType solve( const Teuchos::RCP<MF>& x, const Teuchos::RCP<const MF>& rhs) {
     problem_->setProblem( x, rhs );
-    return( solver_->solve() );
+    return solver_->solve();
   }
 
   //@}
@@ -61,18 +61,18 @@ public:
   //@{
 
   constexpr const Teuchos::RCP<const Belos::SolverManager<Scalar, MF, Op> > getSolver() {
-    return( solver_ );
+    return solver_;
   }
   constexpr Teuchos::RCP<const Belos::LinearProblem<Scalar, MF, Op> > getProblem() {
-    return( problem_ );
+    return problem_;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return( problem_->getOperator()->space() );
+    return problem_->getOperator()->space();
   };
 
   constexpr Teuchos::RCP<const Op> getOperatorPtr() {
-    return( getProblem()->getOperator() );
+    return getProblem()->getOperator();
   };
 
   //@}
@@ -130,7 +130,7 @@ Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
 
   solver->setProblem(problem);
 
-  return( Teuchos::rcp( new LinearProblem<MF>(solver,problem) ) );
+  return Teuchos::rcp( new LinearProblem<MF>(solver,problem) );
 }
 
 } // end of namespace Pimpact

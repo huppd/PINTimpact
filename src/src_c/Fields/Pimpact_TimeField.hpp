@@ -136,13 +136,13 @@ public:
   /// \brief Create a new \c TimeField with
   Teuchos::RCP< FieldT > clone( const ECopy ctype = ECopy::Deep ) const {
     Teuchos::RCP< FieldT > mv_ = Teuchos::rcp( new FieldT(*this,ctype) );
-    return( mv_ );
+    return mv_;
   }
 
 
   /// \brief returns the length of Field.
   constexpr Ordinal getLength() {
-    return( space()->nGlo(3)*at(0).getLength() );
+    return space()->nGlo(3)*at(0).getLength();
   }
 
 public:
@@ -222,13 +222,13 @@ public:
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
       b+= at(i).dotLoc( A(i) );
 
-    return( b );
+    return b;
   }
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
   constexpr Scalar dot( const FieldT& y ) const {
 
-    return( this->reduce( comm(), dotLoc( y ) ) );
+    return this->reduce( comm(), dotLoc( y ) );
   }
 
 
@@ -243,7 +243,7 @@ public:
           std::max( at(i).normLoc(type, bcYes), normvec ) :
           (normvec + at(i).normLoc(type, bcYes) ) );
 
-    return( normvec );
+    return normvec;
   }
 
 /// \brief compute the norm
@@ -257,7 +257,7 @@ public:
                 std::sqrt(normvec) :
                 normvec );
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -273,7 +273,7 @@ public:
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
       nor+= at(i).norm( weights(i) );
 
-    return( nor );
+    return nor;
   }
 
   /// \brief Weighted 2-Norm.
@@ -283,7 +283,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr Scalar norm( const FieldT& weights ) const {
-    return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+    return std::sqrt( this->reduce( comm(), normLoc( weights ) ) );
   }
 
 
@@ -351,11 +351,11 @@ public:
   }
 
   constexpr const MPI_Comm& comm() const {
-    return( space()->getProcGrid()->getCommWorld() );
+    return space()->getProcGrid()->getCommWorld();
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( AF::space_ );
+    return AF::space_;
   }
 
 public:
@@ -424,27 +424,27 @@ public:
 
 protected:
   Field& at( const int i ) {
-    return( *mfs_[i] );
+    return *mfs_[i];
   }
   constexpr const Field& at( const int i ) {
-    return( *mfs_[i] );
+    return *mfs_[i];
   }
 
 public:
 
   Field& operator()( const int i ) {
-    return( at(i) );
+    return at(i);
   }
   constexpr const Field& operator()( const int i ) {
-    return( at(i) );
+    return at(i);
   }
 
   constexpr ScalarArray getRawPtr() {
-    return( array_ );
+    return array_;
   }
 
   constexpr const Scalar* getConstRawPtr() const {
-    return( array_ );
+    return array_;
   }
 
 }; // end of class TimeField
@@ -458,7 +458,7 @@ template<class FieldT, class SpaceT>
 Teuchos::RCP< TimeField<FieldT> >
 createTimeField( const Teuchos::RCP<const SpaceT>& space ) {
 
-  return( Teuchos::rcp( new TimeField<FieldT>( space ) ) );
+  return Teuchos::rcp( new TimeField<FieldT>( space ) );
 }
 
 

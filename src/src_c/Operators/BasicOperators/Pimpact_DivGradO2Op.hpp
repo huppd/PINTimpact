@@ -272,12 +272,11 @@ public:
     const ST epsY = ( (bcX||bcZ)?eps:1. );
     const ST epsZ = ( (bcX||bcY)?eps:1. );
 
-    return(
-            epsX*getC(X,i,-1)*x(i-1,j  ,k  ) + epsX*getC(X,i,1)*x(i+1,j  ,k  ) +
-            epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x(i  ,j+1,k  ) +
-            epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) + epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) +
-            ( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) )*x(i,j,k)
-          );
+    return
+      epsX*getC(X,i,-1)*x(i-1,j  ,k  ) + epsX*getC(X,i,1)*x(i+1,j  ,k  ) +
+      epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x(i  ,j+1,k  ) +
+      epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) + epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) +
+      ( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) )*x(i,j,k);
   }
 
   constexpr ST innerStenc2D( const DomainFieldT& x, const OT i, const OT j, const OT k ) {
@@ -292,11 +291,10 @@ public:
     const ST epsX = (bcY)?eps:1.;
     const ST epsY = (bcX)?eps:1.;
 
-    return(
-            epsX*getC(X,i,-1)*x(i-1,j  ,k  ) + epsX*getC(X,i,1)*x(i+1,j  ,k  ) +
-            epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x(i  ,j+1,k  ) +
-            ( epsX*getC(X,i,0) + epsY*getC(Y,j,0) )*x(i,j,k)
-          );
+    return
+      epsX*getC(X,i,-1)*x(i-1,j  ,k  ) + epsX*getC(X,i,1)*x(i+1,j  ,k  ) +
+      epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x(i  ,j+1,k  ) +
+      ( epsX*getC(X,i,0) + epsY*getC(Y,j,0) )*x(i,j,k);
   }
 
   constexpr ST innerDiag3D( const OT i, const OT j, const OT k ) {
@@ -314,7 +312,7 @@ public:
     const ST epsY = ( (bcX||bcZ)?eps:1. );
     const ST epsZ = ( (bcX||bcY)?eps:1. );
 
-    return( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
+    return epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0);
   }
 
   constexpr ST innerDiag2D( const OT i, const OT j, const OT k ) {
@@ -329,38 +327,38 @@ public:
     const ST epsX = ( bcY?eps:1. );
     const ST epsY = ( bcX?eps:1. );
 
-    return( epsX*getC(X,i,0) + epsY*getC(Y,j,0) );
+    return epsX*getC(X,i,0) + epsY*getC(Y,j,0);
   }
 
   /// \name getters
   /// @{
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(space_);
+    return space_;
   };
 
   constexpr const ST* getC( const ECoord dir) const  {
-    return( getC( static_cast<const int>(dir) ) );
+    return getC( static_cast<const int>(dir) );
   }
 
   constexpr const ST* getC( const int dir) const  {
-    return( c_[dir].get() );
+    return c_[dir].get();
   }
 
   constexpr ST getC( const ECoord dir, OT i, OT off ) const  {
-    return( getC( static_cast<const int>(dir), i, off ) );
+    return getC( static_cast<const int>(dir), i, off );
   }
 
   constexpr ST getC( const int dir, OT i, OT off ) const  {
-    return( c_[dir](i,off) );
+    return c_[dir](i,off);
   }
 
   const std::string getLabel() const {
-    return( "DivGradO2" );
+    return "DivGradO2";
   };
 
   ///  @}

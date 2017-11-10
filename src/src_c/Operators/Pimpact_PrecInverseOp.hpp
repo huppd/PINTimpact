@@ -110,11 +110,11 @@ public:
 
 
   Teuchos::RCP<const SpaceT> space() const {
-    return(linprob_->space());
+    return linprob_->space();
   };
 
   Teuchos::RCP< LinearProblem<MF> > getLinearProblem() {
-    return(linprob_);
+    return linprob_;
   }
 
 
@@ -150,11 +150,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( linprob_->getProblem()->getOperator()->getLabel() + std::string("^-1(prec) ")  );
+    return linprob_->getProblem()->getOperator()->getLabel() + std::string("^-1(prec) ");
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -163,7 +163,6 @@ public:
   }
 
 }; // end of class PrecInverseOp
-
 
 
 } // end of namespace Pimpact

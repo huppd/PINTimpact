@@ -66,7 +66,7 @@ public:
   void assignField( const RangeFieldT& field ) { };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op1_->space());
+    return op1_->space();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -76,11 +76,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() && op3_->hasApplyTranspose() );
+    return op1_->hasApplyTranspose() && op2_->hasApplyTranspose() && op3_->hasApplyTranspose();
   }
 
   const std::string getLabel() const {
-    return( std::string("( ") + op1_->getLabel() + std::string(" * ") + op2_->getLabel() + std::string(" * ") + op3_->getLabel() + std::string(" )")   );
+    return std::string("( ") + op1_->getLabel() + std::string(" * ") + op2_->getLabel() + std::string(" * ") + op3_->getLabel() + std::string(" )");
   };
 
 
@@ -102,7 +102,7 @@ Teuchos::RCP< TripleCompositionOp<OP1, OP2, OP3> > createTripleCompositionOp(
   const Teuchos::RCP<OP2>& op2,
   const Teuchos::RCP<OP3>& op3 ) {
 
-  return( Teuchos::rcp(	new TripleCompositionOp<OP1,OP2,OP3>( op1, op2, op3 ) ) );
+  return Teuchos::rcp(	new TripleCompositionOp<OP1,OP2,OP3>( op1, op2, op3 ) );
 }
 
 

@@ -122,7 +122,7 @@ public:
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(helmOp_->space());
+    return helmOp_->space();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -135,10 +135,10 @@ public:
   }
 
   constexpr const Teuchos::RCP<const ConvectionSOp<SpaceT> >& getConvSOp() const {
-    return( convSOp_ );
+    return convSOp_;
   }
   constexpr const Teuchos::RCP<const HelmholtzOp<SpaceT> >& getHelmOp() const {
-    return( helmOp_ );
+    return helmOp_;
   }
 
   void print( std::ostream& out=std::cout ) const {
@@ -151,21 +151,21 @@ public:
   }
 
   constexpr const Scalar getMulI() const {
-    return( mulI_);
+    return mulI_;
   }
   constexpr const Scalar getMulC() const {
-    return( mulC_);
+    return mulC_;
   }
   constexpr const Scalar getMulL() const {
-    return( mulL_);
+    return mulL_;
   }
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const std::string getLabel() const {
-    return( "ConvectionDiffusion" );
+    return "ConvectionDiffusion";
   };
 
 

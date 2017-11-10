@@ -196,19 +196,19 @@ int main( int argi, char** argv ) {
       if( withoutput ) rhs.write( 100 );
     }
     else{
-      auto initFunC = []( ST x, ST y ) ->ST { return( std::pow((y-0.5),2) ); };
-      auto initFunS = []( ST x, ST y ) ->ST { return( std::pow((x-0.5),1) ); };
-      auto deriFunC = [=]( ST y ) ->ST { return( 2.*(y-0.5)/ly - iRe*2./ly/ly ); };
-      auto deriFunS = [=]( ST x ) ->ST { return( 1./lx ); };
+      auto initFunC = []( ST x, ST y ) ->ST { return std::pow((y-0.5),2); };
+      auto initFunS = []( ST x, ST y ) ->ST { return std::pow((x-0.5),1); };
+      auto deriFunC = [=]( ST y ) ->ST { return 2.*(y-0.5)/ly - iRe*2./ly/ly; };
+      auto deriFunS = [=]( ST x ) ->ST { return 1./lx; };
 
       x.getCField()(Pimpact::F::U).initFromFunction(
-          [=]( ST x, ST y, ST z ) ->ST { return( initFunC(x,y) ); } );
+          [=]( ST x, ST y, ST z ) ->ST { return initFunC(x,y); } );
       x.getCField()(Pimpact::F::V).initFromFunction(
-          [=]( ST x, ST y, ST z ) ->ST { return( initFunC(x,y) ); } );
+          [=]( ST x, ST y, ST z ) ->ST { return initFunC(x,y); } );
       x.getSField()(Pimpact::F::U).initFromFunction(
-          [=]( ST x, ST y, ST z ) ->ST { return( initFunS(x,y) ); } );
+          [=]( ST x, ST y, ST z ) ->ST { return initFunS(x,y); } );
       x.getSField()(Pimpact::F::V).initFromFunction(
-          [=]( ST x, ST y, ST z ) ->ST { return( initFunS(x,y) ); } );
+          [=]( ST x, ST y, ST z ) ->ST { return initFunS(x,y); } );
 
       sol = x;
       if( withoutput ) x.write( 10 );
@@ -222,9 +222,9 @@ int main( int argi, char** argv ) {
             (  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
             (  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
             (  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-          return( initFunC( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
+            return initFunC( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.));
           else
-          return( a2*initFunS(x,y) + deriFunC(y) ); } );
+            return a2*initFunS(x,y) + deriFunC(y); } );
 
       rhs.getCField()(Pimpact::F::V).initFromFunction(
           [=]( ST x, ST y, ST z ) ->ST {
@@ -234,9 +234,9 @@ int main( int argi, char** argv ) {
             (  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
             (  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
             (  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-          return( initFunC( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
+            return initFunC( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.));
           else
-          return( a2*initFunS(x,y) + deriFunC(y) ); } );
+            return a2*initFunS(x,y) + deriFunC(y); } );
 
       rhs.getSField()(Pimpact::F::U).initFromFunction(
           [=]( ST x, ST y, ST z ) ->ST {
@@ -246,9 +246,9 @@ int main( int argi, char** argv ) {
             (  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
             (  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
             (  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-          return( initFunS( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
+            return initFunS( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.));
           else
-          return( -a2*initFunC(x,y) +deriFunS(x) ); } );
+            return -a2*initFunC(x,y) +deriFunS(x); } );
 
       rhs.getSField()(Pimpact::F::V).initFromFunction(
           [=]( ST x, ST y, ST z ) ->ST {
@@ -258,9 +258,9 @@ int main( int argi, char** argv ) {
             (  ( y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
             (  ( z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
             (  ( z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-          return( initFunS( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.)) );
+            return initFunS( std::min(std::max(x,0.),1.),std::min(std::max(y,0.),1.));
           else
-          return( -a2*initFunC(x,y) + deriFunS(x) ); } );
+            return -a2*initFunC(x,y) + deriFunS(x); } );
 
       //if( withoutput ) rhs.write( 30 );
 
@@ -298,5 +298,5 @@ int main( int argi, char** argv ) {
     Teuchos::TimeMonitor::summarize();
   }
   MPI_Finalize();
-  return( 0 );
+  return 0;
 }

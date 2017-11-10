@@ -65,7 +65,7 @@ public:
     op_->apply( x, f );
     f.add( 1., f, -1., *fu_ );
 
-    return( NOX::Abstract::Group::Ok );
+    return NOX::Abstract::Group::Ok;
   }
 
 
@@ -73,12 +73,12 @@ public:
   NOX::Abstract::Group::ReturnType computeJacobian( const FieldT& x ) {
 
     jopInv_->assignField( x );
-    return( NOX::Abstract::Group::Ok );
+    return NOX::Abstract::Group::Ok;
   }
 
 
   NOX::Abstract::Group::ReturnType applyJacobian( const FieldT& x, FieldT& y, const Belos::ETrans type=Belos::NOTRANS ) {
-    return( NOX::Abstract::Group::NotDefined );
+    return NOX::Abstract::Group::NotDefined;
   }
 
 
@@ -95,12 +95,12 @@ public:
     }
 
     jopInv_->apply( x, y );
-    return( NOX::Abstract::Group::Ok );
+    return NOX::Abstract::Group::Ok;
   }
 
 
   NOX::Abstract::Group::ReturnType applyPreconditioner( const FieldT& x, FieldT& y ) {
-    return( NOX::Abstract::Group::NotDefined );
+    return NOX::Abstract::Group::NotDefined;
   }
 
 }; // end of class Interface
@@ -114,7 +114,7 @@ Teuchos::RCP< Interface<FT,OpT,IOpT> > createInterface(
   Teuchos::RCP<OpT>  op=Teuchos::null,
   Teuchos::RCP<IOpT> jop=Teuchos::null ) {
 
-  return( Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop) ) );
+  return Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop) );
 }
 
 

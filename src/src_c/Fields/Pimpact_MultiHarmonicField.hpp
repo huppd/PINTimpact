@@ -83,11 +83,10 @@ protected:
 public:
 
   constexpr OT getStorageSize() {
-    return(
-            ( global_ )?
-            ( ( 1 + 2*space()->nGlo(3)                                             )*field0_.getStorageSize() ):
-            ( ( 1 + 2*( space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1 )  )*field0_.getStorageSize() )
-          );
+    return ( global_ )?
+      ( ( 1 + 2*space()->nGlo(3))*field0_.getStorageSize() ):
+      ( ( 1 + 2*( space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) +
+                  1))*field0_.getStorageSize() );
   }
 
 
@@ -156,7 +155,7 @@ public:
 
   Teuchos::RCP<FieldT> clone( const ECopy ctype=ECopy::Deep ) const {
 
-    return( Teuchos::rcp( new FieldT(*this,ctype) ) );
+    return Teuchos::rcp( new FieldT(*this,ctype) );
   }
 
 
@@ -166,55 +165,52 @@ public:
 protected:
 
   constexpr OT index( const OT i ) {
-    return( i - 1 +
-            (( global_||0==space()->si(F::U,3) )?
-             0:
-             (-space()->si(F::U,3)+1) )
-          );
+    return i - 1 + (( global_||0==space()->si(F::U,3) )?
+             0: (-space()->si(F::U,3)+1) );
   };
 
 public:
 
   constexpr const bool& global() {
-    return( global_ );
+    return global_;
   }
 
   IFT& get0Field() {
-    return( field0_ );
+    return field0_;
   }
   constexpr const IFT& get0Field() {
-    return( field0_ );
+    return field0_;
   }
 
   ModeField<IFT>& getField( const OT i ) {
-    return( *fields_[index(i)] );
+    return *fields_[index(i)];
   }
   constexpr const ModeField<IFT>& getField( const OT i ) {
-    return( *fields_[index(i)] );
+    return *fields_[index(i)];
   }
 
   IFT& getCField( const OT i ) {
-    return( fields_[index(i)]->getCField() );
+    return fields_[index(i)]->getCField();
   }
   constexpr const IFT& getCField( const OT i ) {
-    return( fields_[index(i)]->getCField() );
+    return fields_[index(i)]->getCField();
   }
 
   IFT& getSField( const OT i ) {
-    return( fields_[index(i)]->getSField() );
+    return fields_[index(i)]->getSField();
   }
   constexpr const IFT& getSField( const OT i ) {
-    return( fields_[index(i)]->getSField() );
+    return fields_[index(i)]->getSField();
   }
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return( AF::space_ );
+    return AF::space_;
   }
 
 
   constexpr const MPI_Comm& comm() {
-    return( space()->getProcGrid()->getCommWorld() );
+    return space()->getProcGrid()->getCommWorld();
   }
 
 
@@ -229,7 +225,7 @@ public:
     //len += 2*space()->nGlo(3)*get0Field().getLength();
     len = 2*( 1 + space()->nGlo(3) )*get0Field().getLength();
 
-    return( len );
+    return len;
   }
 
 
@@ -334,13 +330,13 @@ public:
     for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
       b += getField(i).dotLoc( a.getField(i) );
 
-    return( b );
+    return b;
   }
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
   constexpr ST dot( const FieldT& y ) {
 
-    return( this->reduce( comm(), dotLoc( y ) ) );
+    return this->reduce( comm(), dotLoc( y ) );
   }
 
   /// \brief Compute the norm of Field.
@@ -361,7 +357,7 @@ public:
         std::max( getField(i).normLoc(type), normvec ):
         ( normvec+getField(i).normLoc(type) );
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -376,7 +372,7 @@ public:
       std::sqrt(normvec) :
       normvec;
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -395,7 +391,7 @@ public:
     for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
       normvec += getField(i).normLoc(weights.getField(i));
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -406,7 +402,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr ST norm( const FieldT& weights ) {
-    return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+    return std::sqrt( this->reduce( comm(), normLoc( weights ) ) );
   }
 
 
@@ -653,8 +649,7 @@ template<class FieldT>
 Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
   const Teuchos::RCP<const typename FieldT::SpaceT >& space ) {
 
-  return(
-          create< MultiHarmonicField<FieldT> >( space ) );
+  return create< MultiHarmonicField<FieldT> >( space );
 }
 
 
@@ -668,7 +663,7 @@ template<class FieldT>
 Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
   const Teuchos::RCP<const typename FieldT::SpaceT >& space, bool global ) {
 
-  return( Teuchos::rcp( new  MultiHarmonicField<FieldT>( space, global ) ) );
+  return Teuchos::rcp( new  MultiHarmonicField<FieldT>( space, global ) );
 }
 
 

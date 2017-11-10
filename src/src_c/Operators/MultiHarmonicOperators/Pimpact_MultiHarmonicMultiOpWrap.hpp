@@ -82,11 +82,11 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( op_->hasApplyTranspose() );
+    return op_->hasApplyTranspose();
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -94,11 +94,11 @@ public:
   }
 
   Teuchos::RCP<OpT> getOperatorPtr() {
-    return( op_ );
+    return op_;
   }
 
   const std::string getLabel() const {
-    return( "MH(M)_"+op_->getLabel() );
+    return "MH(M)_"+op_->getLabel();
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -113,7 +113,7 @@ public:
 template<class MOT>
 Teuchos::RCP< MultiHarmonicMultiOpWrap<MOT> >
 createMultiHarmonicMultiOpWrap( const Teuchos::RCP<MOT>& op) {
-  return( Teuchos::rcp( new MultiHarmonicMultiOpWrap<MOT>( op ) ) );
+  return Teuchos::rcp( new MultiHarmonicMultiOpWrap<MOT>( op ) );
 }
 
 

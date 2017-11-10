@@ -158,29 +158,29 @@ public:
   void assignField( const DomainFieldT& mv ) { };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( helm_->space() );
+    return helm_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
 
 
   Teuchos::RCP<const HelmholtzOp<ST> > getHelmholtzOp() const {
-    return( helm_ );
+    return helm_;
   }
   Teuchos::RCP<const GradOp<ST> > getGradOp() const {
-    return( grad_ );
+    return grad_;
   }
   Teuchos::RCP<const DivOp<ST> > getDivOp() const {
-    return( div_ );
+    return div_;
   }
 
   const std::string getLabel() const {
-    return( "TimeStokesOp " );
+    return "TimeStokesOp ";
   };
 
   void print( std::ostream& out=std::cout ) const {

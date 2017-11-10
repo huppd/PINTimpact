@@ -76,7 +76,7 @@ public:
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   void print( std::ostream& out=std::cout ) const {
@@ -84,7 +84,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "TransferOp" );
+    return "TransferOp";
   };
 
 }; // end of class TransferOp

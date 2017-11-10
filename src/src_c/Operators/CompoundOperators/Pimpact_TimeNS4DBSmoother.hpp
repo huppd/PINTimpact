@@ -200,17 +200,17 @@ public:
   void assignField( const DomainFieldT& mv ) { };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( op_->space() );
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "TimeNS4DBSmoother " );
+    return "TimeNS4DBSmoother ";
   };
 
 }; // end of class TimeNS4DBSmoother

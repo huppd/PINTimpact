@@ -205,11 +205,11 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
@@ -221,7 +221,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "DivGradO2LSmoother" );
+    return "DivGradO2LSmoother";
   };
 
 

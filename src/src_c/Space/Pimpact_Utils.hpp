@@ -41,20 +41,16 @@ enum ECoord {
 
 std::string toString( ECoord type ) {
   switch( type ) {
-  case ECoord::X :
-    return( "X" );
-  case ECoord::Y :
-    return( "Y" );
-  case ECoord::Z :
-    return( "Z" );
-  case ECoord::T :
-    return( "T" );
+    case ECoord::X : return "X" ;
+    case ECoord::Y : return "Y" ;
+    case ECoord::Z : return "Z" ;
+    case ECoord::T : return "T" ;
   }
-  return( "" ); // prevent compiler warning
+  return ""; // prevent compiler warning
 }
 
 std::ostream& operator<<( std::ostream& out, ECoord c ) {
-  return( out << toString(c) );
+  return out << toString(c);
 }
 
 // Special behavior for ++
@@ -72,67 +68,59 @@ enum class F : int {
 
 std::string toString( F type ) {
   switch( type ) {
-  case F::U   :
-    return( "U" );
-  case F::V   :
-    return( "V" );
-  case F::W   :
-    return( "W" );
-  case F::S   :
-    return( "S" );
+    case F::U : return "U";
+    case F::V : return "V";
+    case F::W : return "W";
+    case F::S : return "S";
   }
-  return( "" ); // prevent compiler warning
+  return ""; // prevent compiler warning
 }
 
 std::ostream& operator<<( std::ostream& out, F f ) {
-  return( out << toString(f) );
+  return out << toString(f);
 }
 
 F& operator++( F& c ) {
   switch( c ) {
-  case F::U :
-    return( c = F::V );
-  case F::V :
-    return( c = F::W );
-  case F::W :
-    return( c = F::S );
-  case F::S :
-    return( c = F::S );
+    case F::U : return c = F::V;
+    case F::V : return c = F::W;
+    case F::W : return c = F::S;
+    case F::S : return c = F::S;
   }
-  return( c );
+  return c;
 }
 
 bool operator<( const F& c, int i ) {
-  return( static_cast<int>(c)<i );
+  return static_cast<int>(c)<i;
 }
 
 bool operator==( const F& f, const int& c ) {
-  if( F::U==f &&  ECoord::X==c ) return( true );
-  else if( F::V==f &&  ECoord::Y==c ) return( true );
-  else if( F::W==f &&  ECoord::Z==c ) return( true );
-  else return( false );
+  if( F::U==f &&  ECoord::X==c ) return true;
+  else if( F::V==f &&  ECoord::Y==c ) return true;
+  else if( F::W==f &&  ECoord::Z==c ) return true;
+  else return false;
 }
 
 bool operator!=( const F& f, const int& c ) {
-  if( F::U==f &&  ECoord::X==c ) return( false );
-  else if( F::V==f &&  ECoord::Y==c ) return( false );
-  else if( F::W==f &&  ECoord::Z==c ) return( false );
-  else return( true );
+  if( F::U==f &&  ECoord::X==c ) return false;
+  else if( F::V==f &&  ECoord::Y==c ) return false;
+  else if( F::W==f &&  ECoord::Z==c ) return false;
+  else return true;
 }
 
 
 bool operator==( const int& c, const F& f ) {
-  if( F::U==f &&  ECoord::X==c ) return( true );
-  else if( F::V==f &&  ECoord::Y==c ) return( true );
-  else if( F::W==f &&  ECoord::Z==c ) return( true );
-  else return( false );
+  if( F::U==f &&  ECoord::X==c ) return true;
+  else if( F::V==f &&  ECoord::Y==c ) return true;
+  else if( F::W==f &&  ECoord::Z==c ) return true;
+  else return false;
 }
 
 bool operator!=( const int& c, const F& f ) {
-  if( F::U==f &&  ECoord::X==c ) return( false );
-  else if( F::V==f &&  ECoord::Y==c ) return( false );
-  else if( F::W==f &&  ECoord::Z==c ) return( false );
-  else return( true );
+  if( F::U==f &&  ECoord::X==c ) return false;
+  else if( F::V==f &&  ECoord::Y==c ) return false;
+  else if( F::W==f &&  ECoord::Z==c ) return false;
+  else return true;
 }
 
 /// \brief kind of boundary conditions
@@ -150,10 +138,10 @@ enum BC {
 
 
 bool operator<( const int& i, const BC& c ) {
-  return( i<static_cast<int>(c) );
+  return i<static_cast<int>(c);
 }
 //bool operator<( const BC& left, const BC& right ) {
-//return( static_cast<int>(left)<static_cast<int>(right) );
+//return static_cast<int>(left)<static_cast<int>(right);
 //}
 
 
@@ -231,28 +219,20 @@ int getDir2( const int& dir );
 
 std::string toString( EScalarField type ) {
   switch( type ) {
-  case EScalarField::ConstField :
-    return( "constant" );
-  case EScalarField::Grad2D_inX :
-    return( "grad in x" );
-  case EScalarField::Grad2D_inY :
-    return( "grad in y" );
-  case EScalarField::Grad2D_inZ :
-    return( "grad in z" );
-  case EScalarField::Poiseuille2D_inX :
-    return( "poiseuille in x" );
-  case EScalarField::Poiseuille2D_inY :
-    return( "poiseuille in y" );
-  case EScalarField::Poiseuille2D_inZ :
-    return( "poiseuille in z" );
-  case EScalarField::FPoint :
-    return( "poiseuille in z" );
+    case EScalarField::ConstField : return "constant";
+    case EScalarField::Grad2D_inX : return "grad in x";
+    case EScalarField::Grad2D_inY : return "grad in y";
+    case EScalarField::Grad2D_inZ : return "grad in z";
+    case EScalarField::Poiseuille2D_inX : return "poiseuille in x";
+    case EScalarField::Poiseuille2D_inY : return "poiseuille in y";
+    case EScalarField::Poiseuille2D_inZ : return "poiseuille in z";
+    case EScalarField::FPoint : return "poiseuille in z";
   }
-  return( "" ); // prevent compiler warning
+  return ""; // prevent compiler warning
 }
 
 std::ostream& operator<<( std::ostream& out, const EScalarField& c ) {
-  return( out << toString(c) );
+  return out << toString(c);
 }
 
 
@@ -266,12 +246,12 @@ Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank=0, 
 
   if( 0==rank ) {
     if( -1==restart )
-      return( Teuchos::rcp( new std::ofstream(fname) ) );
+      return Teuchos::rcp( new std::ofstream(fname) );
     else
-      return( Teuchos::rcp( new std::ofstream(fname, std::fstream::app) ) );
+      return Teuchos::rcp( new std::ofstream(fname, std::fstream::app) );
   }
   else
-    return( Teuchos::rcp( new Teuchos::oblackholestream ) );
+    return Teuchos::rcp( new Teuchos::oblackholestream );
 
 }
 

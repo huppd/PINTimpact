@@ -60,26 +60,26 @@ public:
 public:
 
   constexpr const FFieldT& get() {
-    return( fField_ );
+    return fField_;
   }
   FFieldT& get() {
-    return( fField_ );
+    return fField_;
   }
 
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
   constexpr const CFieldT& get( int i ) const {
     if( i<0 )
-      return( cFields_[mgSpaces_->getNGrids()+i] );
+      return cFields_[mgSpaces_->getNGrids()+i];
     else
-      return( cFields_[i] );
+      return cFields_[i];
   }
 
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
   CFieldT& get( int i )  {
     if( i<0 )
-      return( cFields_[mgSpaces_->getNGrids()+i] );
+      return cFields_[mgSpaces_->getNGrids()+i];
     else
-      return( cFields_[i] );
+      return cFields_[i];
   }
 
 
@@ -96,7 +96,7 @@ template< template<class> class FieldT, class MGSpacesT >
 Teuchos::RCP< MGFields<MGSpacesT,FieldT> >
 createMGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
 
-  return( Teuchos::rcp( new MGFields<MGSpacesT,FieldT>( mgSpaces ) ) );
+  return Teuchos::rcp( new MGFields<MGSpacesT,FieldT>( mgSpaces ) );
 }
 
 

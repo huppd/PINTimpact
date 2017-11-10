@@ -72,32 +72,32 @@ public:
 
 
   Teuchos::RCP<CompoundField> clone( const ECopy ctype=ECopy::Deep ) const {
-    return( Teuchos::rcp( new CompoundField( *this, ctype ) ) );
+    return Teuchos::rcp( new CompoundField( *this, ctype ) );
   }
 
   /// \name Attribute methods
   /// \{
 
   VField& getVField() {
-    return( *vfield_ );
+    return *vfield_;
   }
   SField& getSField() {
-    return( *sfield_ );
+    return *sfield_;
   }
 
   constexpr const VField& getVField() {
-    return( *vfield_ );
+    return *vfield_;
   }
   constexpr const SField& getSField() {
-    return( *sfield_ );
+    return *sfield_;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return( AF::space_ );
+    return AF::space_;
   }
 
   constexpr const MPI_Comm& comm() {
-    return(vfield_->comm());
+    return vfield_->comm();
   }
 
 
@@ -107,7 +107,7 @@ public:
   /// \return vector length
   /// \brief returns the length of Field.
   constexpr Ordinal getLength() {
-    return( vfield_->getLength() + sfield_->getLength() );
+    return vfield_->getLength() + sfield_->getLength();
   }
 
 
@@ -172,7 +172,7 @@ public:
 
     b = vfield_->dotLoc( *a.vfield_ ) + sfield_->dotLoc( *a.sfield_ );
 
-    return( b );
+    return b;
   }
 
 
@@ -180,7 +180,7 @@ public:
   /// i.e.\f$b = y^H this\f$.
   constexpr Scalar dot( const CompoundField& y ) {
 
-    return( this->reduce( comm(), dotLoc( y ) ) );
+    return this->reduce( comm(), dotLoc( y ) );
   }
 
 
@@ -191,9 +191,9 @@ public:
   /// \brief Compute the norm of the field.
   constexpr Scalar normLoc( const ENorm type=ENorm::Two ) {
 
-    return( (ENorm::Inf==type)?
-            std::max(vfield_->normLoc(type), sfield_->normLoc(type) ):
-            (vfield_->normLoc(type) + sfield_->normLoc(type)) );
+    return (ENorm::Inf==type)?
+      std::max(vfield_->normLoc(type), sfield_->normLoc(type) ):
+      (vfield_->normLoc(type) + sfield_->normLoc(type));
   }
 
   /// \brief compute the norm
@@ -207,7 +207,7 @@ public:
       std::sqrt(normvec) :
       normvec;
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -217,9 +217,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr Scalar normLoc( const CompoundField& weights ) {
-    return(
-            vfield_->normLoc( *weights.vfield_ ) +
-            sfield_->normLoc( *weights.sfield_ ) );
+    return vfield_->normLoc( *weights.vfield_ ) + sfield_->normLoc( *weights.sfield_ );
   }
 
   /// \brief Weighted 2-Norm.
@@ -229,7 +227,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr Scalar norm( const CompoundField& weights ) {
-    return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+    return std::sqrt( this->reduce( comm(), normLoc( weights ) ) );
   }
 
 
@@ -308,8 +306,8 @@ template<class VField, class SField>
 Teuchos::RCP< CompoundField<VField,SField> > createCompoundField(
   const Teuchos::RCP<VField>&  vfield, const Teuchos::RCP<SField>& sfield ) {
 
-  return( Teuchos::RCP<CompoundField<VField,SField> > (
-            new CompoundField<VField,SField>( vfield, sfield ) ) );
+  return Teuchos::RCP<CompoundField<VField,SField> > (
+            new CompoundField<VField,SField>( vfield, sfield ) );
 }
 
 

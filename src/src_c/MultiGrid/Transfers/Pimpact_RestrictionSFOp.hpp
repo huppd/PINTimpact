@@ -136,18 +136,18 @@ public:
 
 
   Teuchos::Tuple<Ordinal,dimension> getDD() const {
-    return( this->dd_ );
+    return this->dd_;
   };
 
   Teuchos::RCP<const SpaceT> spaceC() const {
-    return( this->spaceC_ );
+    return this->spaceC_;
   };
   Teuchos::RCP<const SpaceT> spaceF() const {
-    return( this->spaceF_ );
+    return this->spaceF_;
   };
 
   const std::string getLabel() const {
-    return( "Restriction SF" );
+    return "Restriction SF";
   };
 
 }; // end of class RestrictionSFOp

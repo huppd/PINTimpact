@@ -59,7 +59,7 @@ NOX::Pimpact::createStatusTest( int maxI, double tolF, double tolUpdate ) {
   Teuchos::RCP< NOX::StatusTest::Generic > status_tests =
     NOX::StatusTest::buildStatusTests( stl, NOX::Utils() );
 
-  return( status_tests );
+  return status_tests;
 
 } // end of createStatusTest
 
@@ -94,6 +94,6 @@ NOX::Pimpact::createNOXSolverParameter(
     sll.set( "Interpolation Type", "Quadratic3" );
     sll.set( "Recovery Step Type", "Last Computed Step" );
   }
-  return( solverParametersPtr );
+  return solverParametersPtr;
 
 } // end of createNOXSolverParameter

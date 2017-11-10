@@ -289,64 +289,64 @@ public:
   }
 
   constexpr const bool& participating() {
-    return( participating_ );
+    return participating_;
   }
 
   constexpr const OrdinalT& getNP( int i ) {
-    return( procGridSize_[i] );
+    return procGridSize_[i];
   }
   constexpr const TO&       getNP()        {
-    return( procGridSize_ );
+    return procGridSize_;
   }
 
   constexpr const MPI_Comm& getCommWorld() {
-    return( commWorld_ );
+    return commWorld_;
   }
   constexpr const MPI_Comm& getCommS()     {
-    return( commSub_ );
+    return commSub_;
   }
 
   constexpr const int getRank()  {
-    return( rankWorld_ );
+    return rankWorld_;
   }
 
   constexpr const int getRankS() {
-    return( rankSub_ );
+    return rankSub_;
   }
 
   constexpr const int* getRankL() {
-    return( rankL_.getRawPtr() );
+    return rankL_.getRawPtr();
   }
   constexpr const int* getRankU() {
-    return( rankU_.getRawPtr() );
+    return rankU_.getRawPtr();
   }
 
   constexpr const int getIB( const int i ) {
-    return( iB_[i] );
+    return iB_[i];
   }
   constexpr const TO & getIB() {
-    return( iB_ );
+    return iB_;
   }
 
   constexpr const int getRankL( const int i ) {
-    return( rankL_[i] );
+    return rankL_[i];
   }
   constexpr const int getRankU( const int i ) {
-    return( rankU_[i] );
+    return rankU_[i];
   }
 
   constexpr const MPI_Comm& getCommBar( const int i ) {
-    return( commBar_[i] );
+    return commBar_[i];
   }
   constexpr const int      getRankBar( const int i ) {
-    return( rankBar_[i] );
+    return rankBar_[i];
   }
 
   constexpr const MPI_Comm& getCommSlice( const int i ) {
-    return( commSlice_[i] );
+    return commSlice_[i];
   }
   constexpr const int      getRankSlice( const int i ) {
-    return( rankSlice_[i] );
+    return rankSlice_[i];
   }
 
 }; // end of class ProcGrid
@@ -356,18 +356,12 @@ public:
 /// \relates ProcGrid
 template<class O, int d>
 Teuchos::RCP<const ProcGrid<O,d> > createProcGrid(
-  const Teuchos::Tuple<O,d>& procGridSize,
-  const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcg,
-  bool participating=true	) {
+    const Teuchos::Tuple<O,d>& procGridSize,
+    const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcg,
+    bool participating=true	) {
 
-  return(
-          Teuchos::rcp(
-            new ProcGrid<O,d>(
-              procGridSize,
-              bcg,
-              participating ) ) );
+  return Teuchos::rcp( new ProcGrid<O,d>( procGridSize, bcg, participating ) );
 }
-
 
 
 } // end of namespace Pimpact

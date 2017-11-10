@@ -244,15 +244,15 @@ int main( int argi, char** argv ) {
           ST stime = (std::sin( timei )+std::sin( timeim ))/2.;
           fu->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
               [=]( ST x, ST y, ST z ) ->ST {
-                return(
-                  alpha2/re*A*        std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::cos(c*pi2*z)*ctime	  	        // \alpha^2 dt u
-                  +(a*a+b*b+c*c)*A/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime) ); } );// -\lap u
+                return
+                  alpha2/re*A*        std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::cos(c*pi2*z)*ctime	  	      // \alpha^2 dt u
+                  +(a*a+b*b+c*c)*A/re*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime); } );// -\lap u
 
           fu->getField(0).getVField()(i)(Pimpact::F::V).initFromFunction(
               [=]( ST x, ST y, ST z ) ->ST {
-                return(
+                return
                   alpha2/re*B*        std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*ctime			        // \alpha^2 dt v
-                  +(a*a+b*b+c*c)*B/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime) ); } );// -\lap u
+                  +(a*a+b*b+c*c)*B/re*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime); } );// -\lap u
         }
         // init sol
         {
@@ -261,10 +261,10 @@ int main( int argi, char** argv ) {
           ST stime = std::sin( time );
           sol->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
               [=]( ST x, ST y, ST z ) ->ST {
-                return( A*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime) ); } );
+                return A*std::sin(a*pi2*x)*std::cos(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime); } );
           sol->getField(0).getVField()(i)(Pimpact::F::V).initFromFunction(
               [=]( ST x, ST y, ST z ) ->ST {
-                return( B*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime) ); } );
+                return B*std::cos(a*pi2*x)*std::sin(b*pi2*y)*std::cos(c*pi2*z)*(1.+stime); } );
         }
       }
       sol->getField(0).getVField().changed();
@@ -306,7 +306,7 @@ int main( int argi, char** argv ) {
 
         x->getField(0).getSField()(i).initFromFunction(
         [=]( ST x, ST y, ST z ) ->ST {
-          return( -1./4.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) )*s2time );
+          return -1./4.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) )*s2time;
         } );
       }
     }
@@ -610,5 +610,5 @@ int main( int argi, char** argv ) {
 
   }
   MPI_Finalize();
-  return( 0 );
+  return 0;
 }

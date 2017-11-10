@@ -81,7 +81,7 @@ protected:
 public:
 
   constexpr const OrdinalT& get( const int i ) const {
-    return( (*this)[i] );
+    return (*this)[i];
   }
 
   void print( std::ostream& out=std::cout ) const {
@@ -97,12 +97,11 @@ public:
 /// \relates GridSizeLocal
 template< class O, int sd, int d, int dNC>
 Teuchos::RCP<const GridSizeLocal<O,sd,d> > createGridSizeLocal(
-  const Teuchos::RCP<const GridSizeGlobal<O,sd> >& gsg,
-  const Teuchos::RCP<const ProcGrid<O,d> >& pg,
-  const Teuchos::RCP<const StencilWidths<d,dNC> >& sW ) {
-  return(
-          Teuchos::rcp(
-            new GridSizeLocal<O,sd,d>( gsg, pg, sW ) ) );
+    const Teuchos::RCP<const GridSizeGlobal<O,sd> >& gsg,
+    const Teuchos::RCP<const ProcGrid<O,d> >& pg,
+    const Teuchos::RCP<const StencilWidths<d,dNC> >& sW ) {
+
+  return Teuchos::rcp( new GridSizeLocal<O,sd,d>( gsg, pg, sW ) );
 }
 
 

@@ -61,15 +61,15 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(space_);
+    return space_;
   };
 
   const std::string getLabel() const {
-    return( "DtTimeOp " );
+    return "DtTimeOp ";
   };
 
 }; // end of class DtTimeOp

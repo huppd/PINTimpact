@@ -55,7 +55,7 @@ public:
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( forcing_->space() );
+    return forcing_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
@@ -63,11 +63,11 @@ public:
   void assignField( const DomainFieldT& field ) {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "Forcing" );
+    return "Forcing";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -81,10 +81,9 @@ public:
 /// \relates ForcingOp
 template<class F>
 Teuchos::RCP<ForcingOp<F> > createForcingOp(
-  const Teuchos::RCP<F>& forcing, typename F::SpaceT::Scalar mul=1. ) {
-  return(
-          Teuchos::rcp( new ForcingOp<F>( forcing, mul ) )
-        );
+    const Teuchos::RCP<F>& forcing, typename F::SpaceT::Scalar mul=1. ) {
+
+  return Teuchos::rcp( new ForcingOp<F>( forcing, mul ) );
 }
 
 

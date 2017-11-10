@@ -78,18 +78,18 @@ public:
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(opV2V_->space());
+    return opV2V_->space();
   };
 
 
   constexpr const Teuchos::RCP<OpV2V>& getOpV2V() const {
-    return( opV2V_ );
+    return opV2V_;
   }
   constexpr const Teuchos::RCP<OpS2V>& getOpS2V() const {
-    return( opS2V_ );
+    return opS2V_;
   }
   constexpr const Teuchos::RCP<OpV2S>& getOpV2S() const {
-    return( opV2S_ );
+    return opV2S_;
   }
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
@@ -99,11 +99,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "Compound( "+opV2V_->getLabel()+", "+opS2V_->getLabel()+", "+opV2S_->getLabel() +" )" );
+    return "Compound( "+opV2V_->getLabel()+", "+opS2V_->getLabel()+", "+opV2S_->getLabel() +" )";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -120,12 +120,11 @@ public:
 /// \relates CompoundOpWrap
 template< class OpV2V, class OpS2V, class OpV2S >
 Teuchos::RCP<CompoundOpWrap<OpV2V,OpS2V,OpV2S> > createCompoundOpWrap(
-  const Teuchos::RCP<OpV2V>& opV2V,
-  const Teuchos::RCP<OpS2V>& opS2V,
-  const Teuchos::RCP<OpV2S>& opV2S ) {
+    const Teuchos::RCP<OpV2V>& opV2V,
+    const Teuchos::RCP<OpS2V>& opS2V,
+    const Teuchos::RCP<OpV2S>& opV2S ) {
 
-  return(
-          Teuchos::rcp( new CompoundOpWrap<OpV2V,OpS2V,OpV2S>(opV2V,opS2V,opV2S) ) );
+  return Teuchos::rcp( new CompoundOpWrap<OpV2V,OpS2V,OpV2S>(opV2V,opS2V,opV2S) );
 }
 
 

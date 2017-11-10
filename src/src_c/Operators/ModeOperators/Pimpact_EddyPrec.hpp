@@ -1,4 +1,4 @@
-//#pragma once
+#pragma once
 #ifndef PIMPACT_EDDYPREC_HPP
 #define PIMPACT_EDDYPREC_HPP
 
@@ -158,11 +158,11 @@ public:
   void assignField(const DomainFieldT& mv) {};
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   Teuchos::RCP<OpT> getOperator() const {
-    return(op_);
+    return op_;
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -175,11 +175,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "EddyPrec" );
+    return "EddyPrec";
   };
 
   void print( std::ostream& out=std::cout ) const {

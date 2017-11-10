@@ -65,14 +65,14 @@ public:
   }
 
   ScalarT getMaxEV() const {
-    return( lamMax_ );
+    return lamMax_;
   };
   ScalarT getMinEV() const {
-    return( Teuchos::ScalarTraits<ScalarT>::zero() );
+    return Teuchos::ScalarTraits<ScalarT>::zero();
   };
 
   bool computeMinEV() const {
-    return( false );
+    return false;
   };
 
 

@@ -116,7 +116,7 @@ public:
         break;
     }
 
-    return( vf );
+    return vf;
   }
 
   /// \name Attribute methods
@@ -135,7 +135,7 @@ public:
     for( F i=F::U; i<SpaceT::sdim; ++i )
       n += at(i).getLength();
 
-    return( n );
+    return n;
   }
 
 
@@ -211,14 +211,14 @@ public:
     for( F i=F::U; i<SpaceT::sdim; ++i )
       b += at(i).dotLoc( a(i), bcYes );
 
-    return( b );
+    return b;
   }
 
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
   constexpr ST dot( const VectorField& y, const B bcYes=B::Y ) const {
 
-    return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
+    return this->reduce( comm(), dotLoc( y, bcYes ) );
   }
 
 
@@ -236,7 +236,7 @@ public:
         std::max( at(i).normLoc(type,bcYes), normvec ):
         ( normvec+at(i).normLoc(type,bcYes) );
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -251,7 +251,7 @@ public:
       std::sqrt(normvec) :
       normvec;
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -266,7 +266,7 @@ public:
     for( F i=F::U; i<SpaceT::sdim; ++i )
       normvec += at(i).normLoc( weights(i), bcYes );
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -277,7 +277,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr ST norm( const VectorField& weights, const B bcYes=B::Y ) const {
-    return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
+    return std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) );
   }
 
 
@@ -359,41 +359,41 @@ private:
     std::string lcName = name;
     std::transform(lcName.begin(), lcName.end(), lcName.begin(), ::tolower);
 
-    if( "zero" == lcName ) return( ZeroFlow );
-    else if( "constant" == lcName) return( ConstFlow );
-    else if( "poiseuille" == lcName ) return( PoiseuilleFlow2D_inX );
-    else if( "poiseuille in x" == lcName ) return( PoiseuilleFlow2D_inX );
-    else if( "poiseuille in y" == lcName ) return( PoiseuilleFlow2D_inY );
-    else if( "poiseuille in z" == lcName ) return( PoiseuilleFlow2D_inZ );
-    else if( "pulsatile in x cos" == lcName ) return( Pulsatile2D_inXC );
-    else if( "pulsatile in x sin" == lcName ) return( Pulsatile2D_inXS );
-    else if( "pulsatile in y cos" == lcName ) return( Pulsatile2D_inYC );
-    else if( "pulsatile in y sin" == lcName ) return( Pulsatile2D_inYS );
-    else if( "streaming" == lcName ) return( Streaming2DS );
-    else if( "circle" == lcName ) return( Circle2D );
-    else if( "circle xy" == lcName ) return( Circle2D );
-    else if( "circle xz" == lcName ) return( Circle2D_inXZ );
-    else if( "rankine vortex" == lcName ) return( RankineVortex2D );
-    else if( "gaussian forcing 1d" == lcName ) return( GaussianForcing1D );
-    else if( "boundary filter 1d" == lcName ) return( BoundaryFilter1D );
-    else if( "gaussian forcing 2d" == lcName ) return( GaussianForcing2D );
-    else if( "boundary filter 2d" == lcName ) return( BoundaryFilter2D );
-    else if( "streaming 2d cos" == lcName ) return( Streaming2DC );
-    else if( "streaming 2d sin" == lcName ) return( Streaming2DS );
-    else if( "v point 2d" == lcName ) return( VPoint2D );
-    else if( "disc 2d" == lcName ) return( Disc2D );
-    else if( "rotation disc 2d" == lcName ) return( RotationDisc2D );
-    else if( "shbl" == lcName ) return( SweptHiemenzFlow );
-    else if( "swept hiemenz flow" == lcName ) return( SweptHiemenzFlow );
-    else if( "disturbance" == lcName ) return( Disturbance );
-    else if( "scalar" == lcName ) return( ScalarFields );
-    else if( "couette" == lcName ) return( Couette );
-    else if( "cavity" == lcName ) return( Cavity );
+    if( "zero" == lcName ) return ZeroFlow;
+    else if( "constant" == lcName) return ConstFlow;
+    else if( "poiseuille" == lcName ) return PoiseuilleFlow2D_inX;
+    else if( "poiseuille in x" == lcName ) return PoiseuilleFlow2D_inX;
+    else if( "poiseuille in y" == lcName ) return PoiseuilleFlow2D_inY;
+    else if( "poiseuille in z" == lcName ) return PoiseuilleFlow2D_inZ;
+    else if( "pulsatile in x cos" == lcName ) return Pulsatile2D_inXC;
+    else if( "pulsatile in x sin" == lcName ) return Pulsatile2D_inXS;
+    else if( "pulsatile in y cos" == lcName ) return Pulsatile2D_inYC;
+    else if( "pulsatile in y sin" == lcName ) return Pulsatile2D_inYS;
+    else if( "streaming" == lcName ) return Streaming2DS;
+    else if( "circle" == lcName ) return Circle2D;
+    else if( "circle xy" == lcName ) return Circle2D;
+    else if( "circle xz" == lcName ) return Circle2D_inXZ;
+    else if( "rankine vortex" == lcName ) return RankineVortex2D;
+    else if( "gaussian forcing 1d" == lcName ) return GaussianForcing1D;
+    else if( "boundary filter 1d" == lcName ) return BoundaryFilter1D;
+    else if( "gaussian forcing 2d" == lcName ) return GaussianForcing2D;
+    else if( "boundary filter 2d" == lcName ) return BoundaryFilter2D;
+    else if( "streaming 2d cos" == lcName ) return Streaming2DC;
+    else if( "streaming 2d sin" == lcName ) return Streaming2DS;
+    else if( "v point 2d" == lcName ) return VPoint2D;
+    else if( "disc 2d" == lcName ) return Disc2D;
+    else if( "rotation disc 2d" == lcName ) return RotationDisc2D;
+    else if( "shbl" == lcName ) return SweptHiemenzFlow;
+    else if( "swept hiemenz flow" == lcName ) return SweptHiemenzFlow;
+    else if( "disturbance" == lcName ) return Disturbance;
+    else if( "scalar" == lcName ) return ScalarFields;
+    else if( "couette" == lcName ) return Couette;
+    else if( "cavity" == lcName ) return Cavity;
     else {
       const bool& Flow_Type_not_known = true;
       TEUCHOS_TEST_FOR_EXCEPT( Flow_Type_not_known );
     }
-    return( ZeroFlow ); // just to please the compiler
+    return ZeroFlow; // just to please the compiler
   }
 
 public:
@@ -418,13 +418,13 @@ public:
         ST w = para.get<ST>( "W", 1.);
 
         at(F::U).initFromFunction( [&u]( ST x, ST y, ST z)->ST{
-            return( u ); },
+            return u; },
             add );
         at(F::V).initFromFunction( [&v]( ST x, ST y, ST z)->ST{
-            return( v ); },
+            return v; },
             add );
         at(F::W).initFromFunction( [&w]( ST x, ST y, ST z)->ST{
-            return( w ); },
+            return w; },
             add );
         break;
       }
@@ -432,7 +432,7 @@ public:
         for( F i=F::U; i<SpaceT::sdim; ++i )
           if( F::U==i )
             at(i).initFromFunction(
-                [] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); },
+                [] (ST x, ST y, ST z)->ST { return 4.*y*(1.-y); },
                 add );
           else if( Add::N==add ) at(i).init();
         break;
@@ -441,7 +441,7 @@ public:
         for( F i=F::U; i<SpaceT::sdim; ++i )
           if( F::V==i )
             at(i).initFromFunction(
-                [] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); },
+                [] (ST x, ST y, ST z)->ST { return 4.*x*(1.-x); },
                 add );
           else if( Add::N==add ) at(i).init();
         break;
@@ -450,7 +450,7 @@ public:
         for( F i=F::U; i<SpaceT::sdim; ++i )
           if(F::W==i )
             at(i).initFromFunction(
-                [] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); },
+                [] (ST x, ST y, ST z)->ST { return 4.*x*(1.-x); },
                 add );
           else if( Add::N==add ) at(i).init();
         break;
@@ -548,7 +548,7 @@ public:
         if( Add::N==add ) at(F::U).init();
         at(F::V).initFromFunction(
             [&amp,&om]( ST x, ST y, ST z ) -> ST {
-            return( amp*std::cos( om*x ) ); },
+            return amp*std::cos( om*x ); },
             add );
         if( Add::N==add ) at(F::W).init();
         break;
@@ -563,7 +563,7 @@ public:
         if( Add::N==add ) at(F::U).init();
         at(F::V).initFromFunction(
             [&amp,&om]( ST x, ST y, ST z ) -> ST {
-            return( amp*std::sin( om*x ) ); },
+            return amp*std::sin( om*x ); },
             add );
         if( Add::N==add ) at(F::W).init();
         break;
@@ -824,7 +824,7 @@ public:
                 w -= 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) );
               if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
                 w += 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z+zc)/b ) );
-              return( w ); },
+              return w; },
             add );
         at(F::U).initFromFunction(
             [=]( ST x_, ST y_, ST z_ ) -> ST {
@@ -838,7 +838,7 @@ public:
                 u += 0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
               if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
                 u -= 0.5*A*std::sin( pi*(z+zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
-              return( u ); },
+              return u; },
             add );
         if( Add::N==add ) at(F::W).init();
         //VF_init_Dist(
@@ -878,7 +878,7 @@ public:
       case Couette : {
         at(F::U).initFromFunction(
             []( ST x, ST y, ST z ) -> ST {
-            return( y ); },
+            return y; },
             add );
         if( Add::N==add ) at(F::V).init();
         if( Add::N==add ) at(F::W).init();
@@ -888,9 +888,9 @@ public:
         at(F::U).initFromFunction(
             []( ST x, ST y, ST z ) -> ST {
             if( std::fabs(x-1.)<0.5 )
-            return( 1. );
+            return 1.;
             else
-            return( 0. ); },
+            return 0.; },
             add );
         if( Add::N==add ) at(F::V).init();
         if( Add::N==add ) at(F::W).init();
@@ -1006,7 +1006,7 @@ public:
   /// @{
 
   constexpr OT getStorageSize() const {
-    return( sFields_[0].getStorageSize()*3 );
+    return sFields_[0].getStorageSize()*3;
   }
 
   void setStoragePtr( ST*  array ) {
@@ -1017,59 +1017,59 @@ public:
   }
 
   constexpr ST* getRawPtr() {
-    return( s_ );
+    return s_;
   }
 
   constexpr const ST* getConstRawPtr() const {
-    return( s_ );
+    return s_;
   }
 
   /// \deprecated
   ST* getRawPtr ( int i )       {
-    return( sFields_[i].getRawPtr() );
+    return sFields_[i].getRawPtr();
   }
 
   /// \deprecated
   constexpr const ST* getConstRawPtr ( int i )  const  {
-    return( sFields_[i].getConstRawPtr() );
+    return sFields_[i].getConstRawPtr();
   }
 
   ///  @}
 
 
   SF& operator()( F i ) {
-    return( at(i) );
+    return at(i);
   }
 
   constexpr const SF& operator()( F i ) const {
-    return( at(i) );
+    return at(i);
   }
 
 protected:
 
   SF& at( F i ) {
     assert( !(F::S==i) );
-    return( sFields_[ static_cast<int>(i) ] );
+    return sFields_[ static_cast<int>(i) ];
   }
 
   constexpr const SF& at( F i ) const {
     assert( !(F::S==i) );
-    return( sFields_[ static_cast<int>(i) ] );
+    return sFields_[ static_cast<int>(i) ];
   }
 
 public:
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return( AbstractField<SpaceT>::space_ );
+    return AbstractField<SpaceT>::space_;
   }
 
   constexpr const MPI_Comm& comm() {
-    return(space()->comm());
+    return space()->comm();
   }
 
 
   constexpr ST allReduce( ST local, const MPI_Op& op=MPI_SUM  ) {
-    return( this->reduce( comm(), local ) );
+    return this->reduce( comm(), local );
   }
 
   /// \name comunication methods.

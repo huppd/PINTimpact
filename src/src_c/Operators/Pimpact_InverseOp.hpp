@@ -176,12 +176,12 @@ public:
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return( problem_->getOperator()->space() );
+    return problem_->getOperator()->space();
   };
 
 
   constexpr Teuchos::RCP<const MOpT> getOperator() {
-    return( problem_->getOperator() );
+    return problem_->getOperator();
   };
 
 
@@ -215,11 +215,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( problem_->getOperator()->getLabel() + std::string("^-1 ")  );
+    return problem_->getOperator()->getLabel() + std::string("^-1 ");
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -239,7 +239,7 @@ createInverseOp(
   const Teuchos::RCP<OpT>& op,
   const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-  return( Teuchos::rcp( new InverseOp<OpT>( op, pl ) ) );
+  return Teuchos::rcp( new InverseOp<OpT>( op, pl ) );
 }
 
 
@@ -251,7 +251,7 @@ createInverseOp(
   const Teuchos::RCP<OpT>& op,
   const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-  return( Teuchos::rcp( new InverseOp<OpT,ProjectorT>( op, pl ) ) );
+  return Teuchos::rcp( new InverseOp<OpT,ProjectorT>( op, pl ) );
 }
 
 

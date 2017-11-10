@@ -126,7 +126,7 @@ public:
       *mv = *this;
       break;
     }
-    return( mv );
+    return mv;
   }
 
   /// \name Attribute methods
@@ -147,7 +147,7 @@ public:
               (fType_==dir)?1:0);
     }
 
-    return( vl );
+    return vl;
   }
 
 
@@ -291,13 +291,13 @@ public:
           b += /*volume**/at(i,j,k)*y.at(i,j,k);
         }
 
-    return( b );
+    return b;
   }
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y
   /// and \c this, i.e.\f$b = y^H this\f$.
   constexpr ST dot( const ScalarField& y, const B bcYes=B::Y ) {
-    return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
+    return this->reduce( comm(), dotLoc( y, bcYes ) );
   }
 
   constexpr ST normLoc1( const B bcYes=B::Y ) {
@@ -309,13 +309,13 @@ public:
         for( OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
           normvec += std::fabs( at(i,j,k) );
 
-    return( normvec );
+    return normvec;
   }
 
 
   constexpr ST normLoc2( const B bcYes=B::Y ) {
 
-    //return( normLocL2( bcYes ) );
+    //return normLocL2( bcYes );
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
     for( OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k )
@@ -323,7 +323,7 @@ public:
         for( OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
           normvec += std::pow( at(i,j,k), 2 );
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -336,7 +336,7 @@ public:
         for( OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
           normvec = std::fmax( std::fabs(at(i,j,k)), normvec );
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -353,20 +353,17 @@ public:
           normvec += volume*std::pow( at(i,j,k), 2 );
         }
 
-    return( normvec );
+    return normvec;
   }
 
 
   constexpr ST normLoc( const ENorm type=ENorm::Two, const B bcYes=B::Y ) {
 
-    return(
-        (ENorm::One==type)?
-          normLoc1(bcYes):
-          (ENorm::Two==type)?
-            normLoc2(bcYes):
-            (ENorm::Inf==type)?
-              normLocInf(bcYes):
-              normLocL2(bcYes) );
+    return (ENorm::One==type)?
+      normLoc1(bcYes):
+      (ENorm::Two==type)?
+        normLoc2(bcYes): (ENorm::Inf==type)?
+          normLocInf(bcYes): normLocL2(bcYes);
   }
 
 
@@ -381,7 +378,7 @@ public:
       std::sqrt(normvec) :
       normvec;
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -403,7 +400,7 @@ public:
         for( OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i )
           normvec += at(i,j,k)*at(i,j,k)*weights.at(i,j,k)*weights.at(i,j,k);
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -414,7 +411,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr ST norm( const ScalarField& weights, const B bcYes=B::Y ) {
-    return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
+    return std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) );
   }
 
 
@@ -497,22 +494,22 @@ protected:
     std::string lcName = name;
     std::transform(lcName.begin(), lcName.end(), lcName.begin(), ::tolower);
 
-    if( "constant" == lcName) return( ConstField );
-    else if( "grad in x" == lcName ) return( Grad2D_inX );
-    else if( "grad in y" == lcName ) return( Grad2D_inY );
-    else if( "grad in z" == lcName ) return( Grad2D_inZ );
-    else if( "poiseuille" == lcName ) return( Poiseuille2D_inX );
-    else if( "poiseuille in x" == lcName ) return( Poiseuille2D_inX );
-    else if( "poiseuille in y" == lcName ) return( Poiseuille2D_inY );
-    else if( "poiseuille in z" == lcName ) return( Poiseuille2D_inZ );
-    else if( "point" == lcName ) return( FPoint );
+    if( "constant" == lcName) return ConstField;
+    else if( "grad in x" == lcName ) return Grad2D_inX;
+    else if( "grad in y" == lcName ) return Grad2D_inY;
+    else if( "grad in z" == lcName ) return Grad2D_inZ;
+    else if( "poiseuille" == lcName ) return Poiseuille2D_inX;
+    else if( "poiseuille in x" == lcName ) return Poiseuille2D_inX;
+    else if( "poiseuille in y" == lcName ) return Poiseuille2D_inY;
+    else if( "poiseuille in z" == lcName ) return Poiseuille2D_inZ;
+    else if( "point" == lcName ) return FPoint;
     else {
 #ifndef NDEBUG
       const bool& Flow_Type_not_known = false;
       assert( Flow_Type_not_known );
 #endif
     }
-    return( ConstField ); // just to please the compiler
+    return ConstField; // just to please the compiler
   }
 
 public:
@@ -560,39 +557,39 @@ public:
       case Grad2D_inX : {
         ST a = para.get<ST>( "dx", Teuchos::ScalarTraits<ST>::one() );
         initFromFunction(
-            [&a] (ST x, ST y, ST z)->ST { return( a*(x-0.5) ); },
+            [&a] (ST x, ST y, ST z)->ST { return a*(x-0.5); },
             add );
         break;
       }
       case Grad2D_inY : {
         ST a = para.get<ST>( "dy", Teuchos::ScalarTraits<ST>::one() );
         initFromFunction(
-            [&a] (ST x, ST y, ST z)->ST { return( a*(y-0.5) ); },
+            [&a] (ST x, ST y, ST z)->ST { return a*(y-0.5); },
             add );
         break;
       }
       case Grad2D_inZ : {
         ST a = para.get<ST>( "dz", Teuchos::ScalarTraits<ST>::one() );
         initFromFunction(
-            [&a] (ST x, ST y, ST z)->ST { return( a*(z-0.5) ); },
+            [&a] (ST x, ST y, ST z)->ST { return a*(z-0.5); },
             add );
         break;
       }
       case Poiseuille2D_inX : {
         initFromFunction(
-            [] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); },
+            [] (ST x, ST y, ST z)->ST { return 4.*x*(1.-x); },
             add );
         break;
       }
       case Poiseuille2D_inY : {
         initFromFunction(
-            [] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); },
+            [] (ST x, ST y, ST z)->ST { return 4.*y*(1.-y); },
             add );
         break;
       }
       case Poiseuille2D_inZ : {
         initFromFunction(
-            [] (ST x, ST y, ST z)->ST { return( 4.*z*(1.-z) ); },
+            [] (ST x, ST y, ST z)->ST { return 4.*z*(1.-z); },
             add );
         break;
       }
@@ -617,10 +614,10 @@ public:
             ST x = x_*domain->getSize(X) + domain->getOrigin(X);
             ST y = y_*domain->getSize(Y) + domain->getOrigin(Y);
             ST z = z_*domain->getSize(Z) + domain->getOrigin(Z);
-            return( amp*std::exp(
-                -std::pow( (x-xc[0])/sig[0], 2 )
-                -std::pow( (y-xc[1])/sig[1], 2 )
-                -std::pow( (z-xc[2])/sig[2], 2 ) ) ); },
+            return amp*std::exp(
+              -std::pow( (x-xc[0])/sig[0], 2 )
+              -std::pow( (y-xc[1])/sig[1], 2 )
+              -std::pow( (z-xc[2])/sig[2], 2 ) ); },
             add );
         break;
       }
@@ -644,29 +641,29 @@ public:
       }
       case Grad2D_inX : {
         ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
-        initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(x-0.5) ); } );
+        initFromFunction( [&a] (ST x, ST y, ST z)->ST { return a*(x-0.5); } );
         break;
       }
       case Grad2D_inY : {
         ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
-        initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(y-0.5) ); } );
+        initFromFunction( [&a] (ST x, ST y, ST z)->ST { return a*(y-0.5); } );
         break;
       }
       case Grad2D_inZ : {
         ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
-        initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(z-0.5) ); } );
+        initFromFunction( [&a] (ST x, ST y, ST z)->ST { return a*(z-0.5); } );
         break;
       }
       case Poiseuille2D_inX : {
-        initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); } );
+        initFromFunction( [] (ST x, ST y, ST z)->ST { return 4.*x*(1.-x); } );
         break;
       }
       case Poiseuille2D_inY : {
-        initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); } );
+        initFromFunction( [] (ST x, ST y, ST z)->ST { return 4.*y*(1.-y); } );
         break;
       }
       case Poiseuille2D_inZ : {
-        initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*z*(1.-z) ); } );
+        initFromFunction( [] (ST x, ST y, ST z)->ST { return 4.*z*(1.-z); } );
         break;
       }
       case FPoint : {
@@ -674,10 +671,10 @@ public:
         ST amp = alpha;
         ST sig[3] = { 0.2, 0.2, 0.2 };
         initFromFunction( [&xc,&amp,&sig] (ST x, ST y, ST z)->ST {
-            return( amp*std::exp(
-                -std::pow( (x-xc[0])/sig[0], 2 )
-                -std::pow( (x-xc[1])/sig[1], 2 )
-                -std::pow( (x-xc[2])/sig[2], 2 ) ) ); }
+            return amp*std::exp(
+              -std::pow( (x-xc[0])/sig[0], 2 )
+              -std::pow( (x-xc[1])/sig[1], 2 )
+              -std::pow( (x-xc[2])/sig[2], 2 ) ); }
             );
         break;
       }
@@ -1200,7 +1197,7 @@ public:
 public:
 
   constexpr F getType() {
-    return( fType_ );
+    return fType_;
   }
 
   /// \name storage methods.
@@ -1214,7 +1211,7 @@ public:
     for(int i=0; i<3; ++i)
       n *= space()->nLoc(i)+SW::BU(i)-SW::BL(i)+1; // seems wrong: there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
 
-    return( n );
+    return n;
   }
 
   void setStoragePtr( ST*  array ) {
@@ -1222,22 +1219,22 @@ public:
   }
 
   constexpr ScalarArray getRawPtr() {
-    return( s_ );
+    return s_;
   }
 
   constexpr const ST* getConstRawPtr() {
-    return( s_ );
+    return s_;
   }
 
 
   /// @}
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return( AbstractField<SpaceT>::space_ );
+    return AbstractField<SpaceT>::space_;
   }
 
   constexpr const MPI_Comm& comm() {
-    return( space()->comm() );
+    return space()->comm();
   }
 
   /// \name comunication methods.
@@ -1255,13 +1252,13 @@ public:
 
 
   bool is_exchanged( const int dir ) const {
-    return( exchangedState_[dir] );
+    return exchangedState_[dir];
   }
   bool is_exchanged() const {
     bool all_exchanged = true;
     for( int dir=0; dir<SpaceT::sdim; ++dir )
       all_exchanged = all_exchanged && is_exchanged(dir);
-    return( all_exchanged );
+    return all_exchanged;
   }
 
   /// \brief updates ghost layers
@@ -1313,14 +1310,14 @@ protected:
 
   /// \brief stride in Y direction
   //constexpr OT stride1() {
-    //return( space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1 );
+    //return space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1;
   //}
 
   /// \brief stride in Z direction
   //constexpr OT stride2() {
-    //return(
+    //return
           //(space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1)*(
-            //space()->nLoc(1)+SW::BU(1)-SW::BL(1)+1 ) );
+            //space()->nLoc(1)+SW::BU(1)-SW::BL(1)+1 );
   //}
 
 
@@ -1331,9 +1328,9 @@ protected:
   /// \param j index in y-direction
   /// \param k index in z-direction
   constexpr OT index( const OT* const i ) {
-    return( (i[0]-SW::BL(0)) +
-            (i[1]-SW::BL(1))*stride1_ +
-            (i[2]-SW::BL(2))*stride2_ );
+    return (i[0]-SW::BL(0)) +
+      (i[1]-SW::BL(1))*stride1_ +
+      (i[2]-SW::BL(2))*stride2_;
   }
 
 
@@ -1343,9 +1340,9 @@ protected:
   /// \param j index in y-direction
   /// \param k index in z-direction
   constexpr OT index( const OT i, const OT j, const OT k ) {
-    return( (i-SW::BL(0)) +
-            (j-SW::BL(1))*stride1_ +
-            (k-SW::BL(2))*stride2_ );
+    return (i-SW::BL(0)) +
+      (j-SW::BL(1))*stride1_ +
+      (k-SW::BL(2))*stride2_;
   }
 
 
@@ -1357,7 +1354,7 @@ protected:
   ///
   /// \return const reference
   constexpr ST at( const OT i, const OT j, const OT k ) {
-    return( s_[ index(i,j,k) ] );
+    return s_[ index(i,j,k) ];
   }
 
   /// \brief field access
@@ -1368,33 +1365,34 @@ protected:
   ///
   /// \return reference
   ST& at( const OT i, const OT j, const OT k )  {
-    return( s_[ index(i,j,k) ] );
+    return s_[ index(i,j,k) ];
   }
 
   /// \brief field access
   ///
   /// \param i index coordinate
   constexpr ST at( const OT* const i ) {
-    return( s_[ index(i) ] );
+    return s_[ index(i) ];
   }
   /// \brief field access
   ///
   /// \param i index coordinate
   ST& at( const OT* const i ) {
-    return( s_[ index(i) ] );
+    return s_[ index(i) ];
   }
 
   /// \brief field access
   ///
   /// \param i index coordinate
   ST& at( const Teuchos::Tuple<const OT,3>& i ) {
-    return( s_[ index(i[0],i[1],i[2]) ] );
+    return s_[ index(i[0],i[1],i[2]) ];
   }
+
   /// \brief field access
   ///
   /// \param i index coordinate
   constexpr ST at( const Teuchos::Tuple<const OT,3>& i ) {
-    return( s_[ index(i[0],i[1],i[2]) ] );
+    return s_[ index(i[0],i[1],i[2]) ];
   }
 
 public:
@@ -1407,7 +1405,7 @@ public:
   ///
   /// \return const reference
   constexpr ST operator()( const OT i, const OT j, const OT k ) {
-    return( at(i,j,k) );
+    return at(i,j,k);
   }
 
   /// \brief field access
@@ -1418,33 +1416,33 @@ public:
   ///
   /// \return reference
   ST& operator()( const OT i, const OT j, const OT k )  {
-    return( at(i,j,k) );
+    return at(i,j,k);
   }
 
   /// \brief field access
   ///
   /// \param i index coordinate
   constexpr ST operator()( const OT* const i ) {
-    return( at(i) );
+    return at(i);
   }
   /// \brief field access
   ///
   /// \param i index coordinate
   ST& operator()( const OT* const i ) {
-    return( at(i) );
+    return at(i);
   }
 
   /// \brief field access
   ///
   /// \param i index coordinate
   ST& operator()( const Teuchos::Tuple<const OT,3>& i ) {
-    return( at(i) );
+    return at(i);
   }
   /// \brief field access
   ///
   /// \param i index coordinate
   constexpr ST operator()( const Teuchos::Tuple<const OT,3>& i ) {
-    return( at(i) );
+    return at(i);
   }
 
 }; // end of class ScalarField
@@ -1462,8 +1460,7 @@ template<class SpaceT>
 Teuchos::RCP< ScalarField<SpaceT> >
 createScalarField( const Teuchos::RCP<const SpaceT >& space, F fType=F::S ) {
 
-  return( Teuchos::rcp(
-        new ScalarField<SpaceT>( space, true, fType ) ) );
+  return Teuchos::rcp( new ScalarField<SpaceT>( space, true, fType ) );
 }
 
 ///  @}

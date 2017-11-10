@@ -59,11 +59,11 @@ private:
 public:
 
   constexpr Ordinal getStorageSize() {
-    return( fieldc_.getStorageSize()+fields_.getStorageSize() );
+    return fieldc_.getStorageSize()+fields_.getStorageSize();
   }
 
   constexpr ST* getRawPtr() {
-    return( s_ );
+    return s_;
   }
 
   void setStoragePtr( ST*  array ) {
@@ -128,37 +128,37 @@ public:
       break;
     }
 
-    return( mv );
+    return mv;
   }
 
   /// \name Attribute methods
   /// \{
 
   IFT& getCField() {
-    return( fieldc_ );
+    return fieldc_;
   }
   IFT& getSField() {
-    return( fields_ );
+    return fields_;
   }
 
   constexpr const IFT& getCField() {
-    return( fieldc_ );
+    return fieldc_;
   }
   constexpr const IFT& getSField() {
-    return( fields_ );
+    return fields_;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return( AF::space_ );
+    return AF::space_;
   }
 
   constexpr const MPI_Comm& comm() {
-    return( fieldc_.comm() );
+    return fieldc_.comm();
   }
 
   /// \brief returns the length of Field.
   constexpr Ordinal getLength() {
-    return( fieldc_.getLength() + fields_.getLength() );
+    return fieldc_.getLength() + fields_.getLength();
   }
 
 
@@ -222,14 +222,14 @@ public:
 
     b = fieldc_.dotLoc( a.fieldc_) + fields_.dotLoc( a.fields_ );
 
-    return( b );
+    return b;
   }
 
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
   constexpr ST dot( const ModeField& y ) {
 
-    return( this->reduce( comm(), dotLoc( y ) ) );
+    return this->reduce( comm(), dotLoc( y ) );
   }
 
   /// \}
@@ -243,7 +243,7 @@ public:
       std::fmax( fieldc_.normLoc(type), fields_.normLoc(type) ):
       ( fieldc_.normLoc(type) + fields_.normLoc(type) );
 
-    return( normvec );
+    return normvec;
   }
 
   /// \brief compute the norm
@@ -257,7 +257,7 @@ public:
       std::sqrt(normvec) :
       normvec;
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -267,10 +267,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr ST normLoc(const ModeField& weights ) {
-    return(
-            fieldc_.normLoc( weights.fieldc_ ) +
-            fields_.normLoc( weights.fields_ )
-          );
+    return fieldc_.normLoc( weights.fieldc_ ) + fields_.normLoc( weights.fields_ );
   }
 
   /// \brief Weighted 2-Norm.
@@ -280,7 +277,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr ST norm( const ModeField& weights ) {
-    return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+    return std::sqrt( this->reduce( comm(), normLoc( weights ) ) );
   }
 
 

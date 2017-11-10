@@ -7,7 +7,8 @@
 
 #include <BelosTypes.hpp>
 
-#include "Pimpact_MultiField.hpp"
+//#include "Pimpact_MultiField.hpp"
+#include "Pimpact_MultiHarmonicField.hpp"
 #include "Pimpact_Utils.hpp"
 
 
@@ -60,11 +61,11 @@ public:
   };
 
   bool hasApplyTranspose() const {
-    return( op_->hasApplyTranspose() );
+    return op_->hasApplyTranspose();
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -72,11 +73,11 @@ public:
   }
 
   Teuchos::RCP<OpT> getOperatorPtr() {
-    return( op_ );
+    return op_;
   }
 
   const std::string getLabel() const {
-    return( "MH_"+op_->getLabel() );
+    return "MH_"+op_->getLabel();
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -92,7 +93,7 @@ public:
 template<class OpT>
 Teuchos::RCP< MultiHarmonicOpWrap<OpT> >
 createMultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op) {
-  return( Teuchos::rcp( new MultiHarmonicOpWrap<OpT>( op ) ) );
+  return Teuchos::rcp( new MultiHarmonicOpWrap<OpT>( op ) );
 }
 
 

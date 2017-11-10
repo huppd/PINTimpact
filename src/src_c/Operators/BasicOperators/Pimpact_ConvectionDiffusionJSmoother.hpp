@@ -40,7 +40,7 @@ protected:
   const Teuchos::RCP<const OperatorT> op_;
 
   constexpr ST getHC( const ECoord dir, const F ftype, OT i, OT ii ) {
-    return( op_->getHelmOp()->getC(dir,ftype,i,ii) );
+    return op_->getHelmOp()->getC(dir,ftype,i,ii);
   }
 
 public:
@@ -366,7 +366,7 @@ public:
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
@@ -378,11 +378,11 @@ public:
 
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const std::string getLabel() const {
-    return( "ConvectionDiffusionJSmoother " );
+    return "ConvectionDiffusionJSmoother ";
   };
 
 }; // end of class ConvectionDiffusionJSmoother

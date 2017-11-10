@@ -56,21 +56,21 @@ public:
 
 
   bool hasApplyTranspose() const {
-    return( op_->hasApplyTranspose() );
+    return op_->hasApplyTranspose();
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   Teuchos::RCP<Operator> getOperatorPtr() {
-    return( op_ );
+    return op_;
   }
 
   const std::string getLabel() const {
-    return( "ModeOpWrap( "+op_->getLabel()+" ) " );
+    return "ModeOpWrap( "+op_->getLabel()+" ) ";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -86,7 +86,7 @@ public:
 /// \relates ModeOpWrap
 template<class Operator>
 Teuchos::RCP< ModeOpWrap<Operator> > createModeOpWrap( const Teuchos::RCP<Operator>& op ) {
-  return( Teuchos::rcp( new ModeOpWrap<Operator>( op ) ) );
+  return Teuchos::rcp( new ModeOpWrap<Operator>( op ) );
 }
 
 

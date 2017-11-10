@@ -65,19 +65,19 @@ public:
   }
 
   constexpr const Teuchos::RCP<const MGSpacesT>& getMGSpaces() const {
-    return( mgSpaces_ );
+    return mgSpaces_;
   }
 
   constexpr const Teuchos::RCP<FOperatorT>& get() const {
-    return( fOperator_ );
+    return fOperator_;
   }
 
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
   constexpr const Teuchos::RCP<COperatorT>& get( int i ) const {
     if( i<0 )
-      return( cOperator_[mgSpaces_->getNGrids()+i] );
+      return cOperator_[mgSpaces_->getNGrids()+i];
     else
-      return( cOperator_[i] );
+      return cOperator_[i];
   }
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) const {
@@ -108,10 +108,7 @@ Teuchos::RCP<const MGOperators<MGSpacesT,FOperatorT,COperatorT> >
 createMGOperators(
   const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
 
-  return(
-          Teuchos::rcp(
-            new MGOperators<MGSpacesT,FOperatorT,COperatorT>(
-              mgSpaces ) ) );
+  return Teuchos::rcp( new MGOperators<MGSpacesT,FOperatorT,COperatorT>( mgSpaces ) );
 }
 
 

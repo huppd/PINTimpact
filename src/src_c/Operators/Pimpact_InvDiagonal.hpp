@@ -48,7 +48,7 @@ public:
   };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -56,11 +56,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( true );
+    return true;
   }
 
   const std::string getLabel() const {
-    return( op_->getLabel() + std::string("^T")  );
+    return op_->getLabel() + std::string("^T");
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -74,8 +74,9 @@ public:
 /// \relates InvDiagonal
 template<class OP>
 Teuchos::RCP< InvDiagonal<OP> > createInvDiagonal(
-  const Teuchos::RCP<OP>& op ) {
-  return( Teuchos::rcp( new InvDiagonal<OP>(op) ) );
+    const Teuchos::RCP<OP>& op ) {
+
+  return Teuchos::rcp( new InvDiagonal<OP>(op) );
 }
 
 

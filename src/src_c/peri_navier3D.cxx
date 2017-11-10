@@ -217,36 +217,36 @@ int main( int argi, char** argv ) {
           // --- init RHS ---
           if( 0==space->si(Pimpact::F::U,3) ) { 
             fu->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/re ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return A*(a*a+b*b)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/re; } );
             fu->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/re ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return B*(a*a+b*b)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/re; } );
           }
 
           if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
             fu->getField(0).getVField().getCField(1)(Pimpact::F::U).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return( alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/re ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)/re; } );
             fu->getField(0).getVField().getCField(1)(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return( alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/re ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)/re; } );
 
             fu->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return( A*(a*a+b*b)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/re ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return A*(a*a+b*b)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/re; } );
             fu->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return( B*(a*a+b*b)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/re ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return B*(a*a+b*b)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/re; } );
           }
 
           // --- init solution ---
           if( 0==space->si(Pimpact::F::U,3) ) {
             sol->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction( 
-                [&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2) ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return A*std::cos(a*x*pi2)*std::sin(b*y*pi2); } );
             sol->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2) ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return B*std::sin(a*x*pi2)*std::cos(b*y*pi2); } );
           }
 
           if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
             sol->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction( 
-                [&]( ST x, ST y, ST z ) ->ST { return( A*std::cos(a*x*pi2)*std::sin(b*y*pi2) ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return A*std::cos(a*x*pi2)*std::sin(b*y*pi2); } );
             sol->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return( B*std::sin(a*x*pi2)*std::cos(b*y*pi2) ); } );
+                [&]( ST x, ST y, ST z ) ->ST { return B*std::sin(a*x*pi2)*std::cos(b*y*pi2); } );
           }
         }   
 
@@ -284,17 +284,17 @@ int main( int argi, char** argv ) {
             if( 0==space->si(Pimpact::F::U,3) ) {
               x->getField(0).getSField().get0Field().initFromFunction(
                   [&]( ST x, ST y, ST z ) ->ST {
-                  return( -3./8.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) ) ); } );
+                  return -3./8.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) ); } );
             }
             if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
               x->getField(0).getSField().getSField(1).initFromFunction(
                   [&]( ST x, ST y, ST z ) ->ST {
-                  return( -1./2.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) ) ); } );
+                  return -1./2.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) ); } );
             }
             if( 2>=space->si(Pimpact::F::U,3) && 2<=space->ei(Pimpact::F::U,3) ) {
               x->getField(0).getSField().getCField(2).initFromFunction(
                   [&]( ST x, ST y, ST z ) ->ST {
-                  return( +1./8.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) ) ); } );
+                  return +1./8.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) ); } );
             }
           }
           else
@@ -672,5 +672,5 @@ int main( int argi, char** argv ) {
     }
   }
   MPI_Finalize();
-  return( 0 );
+  return 0;
 }

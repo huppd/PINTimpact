@@ -70,14 +70,14 @@ public:
   }
 
   Teuchos::RCP<const SpaceT> spaceC() const {
-    return( op_->spaceC() );
+    return op_->spaceC();
   };
   Teuchos::RCP<const SpaceT> spaceF() const {
-    return( op_->spaceF() );
+    return op_->spaceF();
   };
 
   Teuchos::RCP<OperatorT> getOperatorPtr() {
-    return( op_ );
+    return op_;
   }
 
 
@@ -88,10 +88,10 @@ public:
 /// \relates
 template< class OpT >
 Teuchos::RCP< InterpolationTimeOp<OpT> > createInterpolationTimeOp(
-  const Teuchos::RCP<const typename OpT::CSpaceT>& spaceC, const Teuchos::RCP<const typename OpT::FSpaceT>& spaceF ) {
+  const Teuchos::RCP<const typename OpT::CSpaceT>& spaceC,
+  const Teuchos::RCP<const typename OpT::FSpaceT>& spaceF ) {
 
-  return( Teuchos::rcp( new InterpolationTimeOp<OpT>( spaceC,spaceF ) ) );
-
+  return Teuchos::rcp( new InterpolationTimeOp<OpT>( spaceC,spaceF ) );
 }
 
 

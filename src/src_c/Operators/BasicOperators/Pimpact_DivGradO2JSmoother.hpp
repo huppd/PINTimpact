@@ -159,11 +159,11 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
@@ -176,7 +176,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "DivGradO2JSmoother" );
+    return "DivGradO2JSmoother";
   };
 
 protected:
@@ -201,13 +201,12 @@ protected:
     ST diag = epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0);
 
     diag = (diag==0.)?1.:diag;
-    return(
-            (1.-omega_)*x(i,j,k) +
-            omega_/ diag *(
-              b(i,j,k) -
-              epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) -
-              epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) -
-              epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) - epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) ) );
+    return (1.-omega_)*x(i,j,k) +
+      omega_/ diag *(
+          b(i,j,k) -
+          epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) -
+          epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) -
+          epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) - epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) );
   }
 
   constexpr ST innerStenc2D( const DomainFieldT& b, const DomainFieldT& x, const OT i,
@@ -226,27 +225,26 @@ protected:
 
     ST diag = (epsX*getC(X,i,0) + epsY*getC(Y,j,0));
     diag = (diag!=0.)?diag:1.;
-    return(
-            (1.-omega_)*x(i,j,k) +
-            omega_/diag*( b(i,j,k) -
-                          epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) -
-                          epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) ) );
+    return (1.-omega_)*x(i,j,k) +
+      omega_/diag*( b(i,j,k) -
+          epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) -
+          epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) );
   }
 
   constexpr const ST* getC( const ECoord dir) const  {
-    return( op_->getC( dir ) );
+    return op_->getC( dir );
   }
 
   constexpr const ST* getC( const int dir) const  {
-    return( op_->getC( dir ) );
+    return op_->getC( dir );
   }
 
   constexpr const ST getC( const ECoord dir, OT i, OT off ) const  {
-    return( op_->getC( dir, i, off ) );
+    return op_->getC( dir, i, off );
   }
 
   constexpr const ST getC( const int dir, OT i, OT off ) const  {
-    return( op_->getC( dir, i, off ) );
+    return op_->getC( dir, i, off );
   }
 
 }; // end of class DivGradO2JSmoother
@@ -259,7 +257,7 @@ create(
   const Teuchos::RCP<OperatorT>& op,
   const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-  return( Teuchos::rcp( new SmootherT<OperatorT>( op, pl ) ) );
+  return Teuchos::rcp( new SmootherT<OperatorT>( op, pl ) );
 }
 
 
@@ -270,7 +268,7 @@ create(
   const Teuchos::RCP< OperatorT>& op,
   const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-  return( Teuchos::rcp( new SmootherT( op, pl ) ) );
+  return Teuchos::rcp( new SmootherT( op, pl ) );
 }
 
 

@@ -105,7 +105,7 @@ public:
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
@@ -113,11 +113,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "TimeDtConvectionDiffusionPrec" );
+    return "TimeDtConvectionDiffusionPrec";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -133,7 +133,7 @@ template<class OpT>
 Teuchos::RCP<TimeDtConvectionDiffusionPrec<OpT> >
 createTimeDtConvectionDiffusionPrec( const Teuchos::RCP<OpT>& zeroOp ) {
 
-  return( Teuchos::rcp( new TimeDtConvectionDiffusionPrec<OpT>( zeroOp ) ) );
+  return Teuchos::rcp( new TimeDtConvectionDiffusionPrec<OpT>( zeroOp ) );
 }
 
 

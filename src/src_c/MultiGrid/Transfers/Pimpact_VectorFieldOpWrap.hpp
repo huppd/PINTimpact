@@ -67,15 +67,15 @@ public:
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(sop_->space());
+    return sop_->space();
   };
   /// \note dirty
   Teuchos::RCP<const SpaceT> spaceC() const {
-    return(sop_->spaceC());
+    return sop_->spaceC();
   };
   /// \note dirty
   Teuchos::RCP<const SpaceT> spaceF() const {
-    return(sop_->spaceF());
+    return sop_->spaceF();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -87,7 +87,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "VectorFieldOpWrap( "+sop_->getLabel()+" ) " );
+    return "VectorFieldOpWrap( "+sop_->getLabel()+" ) ";
   };
 
 }; // end of class VectorFieldOpWrap

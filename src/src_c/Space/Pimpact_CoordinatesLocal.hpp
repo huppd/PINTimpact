@@ -161,41 +161,38 @@ public:
   /// @{
 
   constexpr const ScalarT* operator()( const F ftype, const int dir ) {
-    return( getX( ftype, dir ) );
+    return getX( ftype, dir );
   }
 
   constexpr const ScalarT& operator()( const F ftype, const int dir, const OrdinalT& i) {
-    return( getX( ftype, dir, i ) );
+    return getX( ftype, dir, i );
   }
 
   /// \deprecated
   constexpr const ScalarT* getX( const F ftype, const int dir ) {
-    return(
-            ( F::S==ftype || dir!=ftype ) ?
-            xS_[dir].get() :
-            xV_[dir].get()
-          );
+    return ( F::S==ftype || dir!=ftype ) ?
+      xS_[dir].get() : xV_[dir].get();
   }
 
   /// \deprecated
   constexpr const ScalarT& getX( const F ftype, const int dir, const OrdinalT& i) {
-    return( ( F::S==ftype || dir!=ftype )?
-            xS_[dir][i]: xV_[dir][i] );
+    return ( F::S==ftype || dir!=ftype )?
+      xS_[dir][i] : xV_[dir][i];
   }
 
   constexpr const ScalarT& dx( const F ftype, const int dir, const OrdinalT& i) {
-    return( ( F::S==ftype || dir!=ftype )?
-            dxS_[dir][i]: dxV_[dir][i] );
+    return ( F::S==ftype || dir!=ftype )?
+      dxS_[dir][i] : dxV_[dir][i];
   }
 
   /// \deprecated
   constexpr const AS& getS( const int dir ) {
-    return( xS_[dir] );
+    return xS_[dir];
   }
 
   /// \deprecated
   constexpr const AV& getV( const int dir ) {
-    return( xV_[dir] );
+    return xV_[dir];
   }
 
   ///  @}
@@ -231,17 +228,16 @@ createCoordinatesLocal(
   const Teuchos::RCP<const ProcGrid<OT,d> >& procGrid,
   const Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >& coordGlobal ) {
 
-  return(
-          Teuchos::rcp(
-            new CoordinatesLocal<ST,OT,d,dNC>(
-              stencilWidths,
-              domainSize,
-              gridSizeGlobal,
-              gridSizeLocal,
-              bcGlobal,
-              bcLocal,
-              procGrid,
-              coordGlobal ) ) );
+  return Teuchos::rcp(
+      new CoordinatesLocal<ST,OT,d,dNC>(
+        stencilWidths,
+        domainSize,
+        gridSizeGlobal,
+        gridSizeLocal,
+        bcGlobal,
+        bcLocal,
+        procGrid,
+        coordGlobal ) );
 }
 
 

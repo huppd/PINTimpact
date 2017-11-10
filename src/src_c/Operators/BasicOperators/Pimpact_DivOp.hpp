@@ -253,23 +253,23 @@ public:
   void assignField( const DomainFieldT& mv ) const {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(space_);
+    return space_;
   };
 
   constexpr const Scalar* getC( const ECoord dir ) const {
-    return( c_[dir].get() );
+    return c_[dir].get();
   }
 
   constexpr const Scalar getC( const ECoord dir, Ordinal i, Ordinal off ) const {
-    return( c_[dir]( i, off ) );
+    return c_[dir]( i, off );
   }
 
   constexpr const Scalar getCTrans( const ECoord dir, Ordinal i, Ordinal off ) const {
-    return( cT_[dir]( i, off ) );
+    return cT_[dir]( i, off );
   }
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
@@ -291,7 +291,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "Div" );
+    return "Div";
   };
 
 protected:
@@ -310,7 +310,7 @@ protected:
     for( int kk=space_->dl(Z); kk<=space_->du(Z); ++kk )
       div += getC(Z,k,kk)*x(F::W)(i,j,k+kk);
 
-    return( div );
+    return div;
   }
 
   constexpr Scalar innerStenc2D( const DomainFieldT& x,
@@ -324,7 +324,7 @@ protected:
     for( int jj=space_->dl(Y); jj<=space_->du(Y); ++jj )
       div += getC(Y,j,jj)*x(F::V)(i,j+jj,k);
 
-    return( div );
+    return div;
   }
 
   constexpr Scalar innerStencU( const RangeFieldT& x,
@@ -335,7 +335,7 @@ protected:
     for( int ii=space_->gl(X); ii<=space_->gu(X); ++ii )
       divT += getCTrans(X,i,ii)*x(i+ii,j,k);
 
-    return( divT );
+    return divT;
   }
 
   constexpr Scalar innerStencV( const RangeFieldT& x,
@@ -346,7 +346,7 @@ protected:
     for( int jj=space_->gl(Y); jj<=space_->gu(Y); ++jj )
       divT += getCTrans(Y,j,jj)*x(i,j+jj,k);
 
-    return( divT );
+    return divT;
   }
 
   constexpr Scalar innerStencW( const RangeFieldT& x,
@@ -357,7 +357,7 @@ protected:
     for( int kk=space_->gl(Z); kk<=space_->gu(Z); ++kk )
       divT += getCTrans(Z,k,kk)*x(i,j,k+kk);
 
-    return( divT );
+    return divT;
   }
 
 }; // end of class DivOp

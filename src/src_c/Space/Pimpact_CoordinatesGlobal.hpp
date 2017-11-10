@@ -215,17 +215,17 @@ protected:
   int string2int( const std::string& name ) {
     std::string lcName = name;
     std::transform(lcName.begin(), lcName.end(), lcName.begin(), ::tolower);
-    if( "none" == lcName ) return( 0 );
-    else if( "parabola" == lcName ) return( 1 );
-    else if( "parab" == lcName ) return( 1 );
-    else if( "para" == lcName ) return( 1 );
-    else if( "para end" == lcName ) return( 3 );
-    else if( "cos" == lcName ) return( 2 );
+    if( "none" == lcName ) return 0;
+    else if( "parabola" == lcName ) return 1;
+    else if( "parab" == lcName ) return 1;
+    else if( "para" == lcName ) return 1;
+    else if( "para end" == lcName ) return 3;
+    else if( "cos" == lcName ) return 2;
     else {
       const bool& Stertch_Type_not_known = true;
       TEUCHOS_TEST_FOR_EXCEPT( Stertch_Type_not_known );
     }
-    return( 0 );
+    return 0;
   }
 
 
@@ -430,28 +430,22 @@ public:
   /// @{
 
   constexpr const ScalarT* getX( const F ftype, const int dir ) {
-    return(
-            ( F::S==ftype || dir!=ftype )?
-            xS_[dir].get():xV_[dir].get()
-          );
+    return ( F::S==ftype || dir!=ftype )?
+      xS_[dir].get() : xV_[dir].get();
   }
 
   constexpr const ScalarT operator()( const F ftype, const int dir, const OrdinalT i) {
-    return(
-            ( F::S==ftype || dir!=ftype )?
-            xS_[dir][i]:xV_[dir][i]
-          );
+    return ( F::S==ftype || dir!=ftype )?
+      xS_[dir][i] : xV_[dir][i];
   }
 
   constexpr const ScalarT getX( const F ftype, const int dir, const OrdinalT i) {
-    return(
-            ( F::S==ftype || dir!=ftype )?
-            xS_[dir][i]:xV_[dir][i]
-          );
+    return ( F::S==ftype || dir!=ftype )?
+      xS_[dir][i] : xV_[dir][i];
   }
 
   constexpr const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& getStretchParameter() const {
-    return( stretchPara_ );
+    return stretchPara_;
   }
 
   ///  @}
@@ -492,12 +486,11 @@ createCoordinatesGlobal(
   const Teuchos::RCP<const DomainSize<ST,sd> >& domainSize,
   const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& gridStretching ) {
 
-  return(
-          Teuchos::rcp(
-            new CoordinatesGlobal<ST,OT,d>(
-              gridSize,
-              domainSize,
-              gridStretching ) ) );
+  return Teuchos::rcp(
+      new CoordinatesGlobal<ST,OT,d>(
+        gridSize,
+        domainSize,
+        gridStretching ) );
 }
 
 
@@ -514,16 +507,10 @@ createCoordinatesGlobal(
 template<class ST, class OT, int sd, int d>
 Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >
 createCoordinatesGlobal(
-  const Teuchos::RCP<const GridSizeGlobal<OT,sd> >& gridSize,
-  const Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >& coordinates ) {
+    const Teuchos::RCP<const GridSizeGlobal<OT,sd> >& gridSize,
+    const Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >& coordinates ) {
 
-  return(
-          Teuchos::rcp(
-            new CoordinatesGlobal<ST,OT,d>(
-              gridSize,
-              coordinates )
-          )
-        );
+  return Teuchos::rcp( new CoordinatesGlobal<ST,OT,d>( gridSize, coordinates ));
 }
 
 

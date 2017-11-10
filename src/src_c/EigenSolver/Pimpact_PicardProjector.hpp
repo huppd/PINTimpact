@@ -144,11 +144,11 @@ public:
           nullspace_.getSField(), true );
 
       nullspace_.getVField()(Pimpact::F::U).initFromFunction(
-          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::X)&&x<=0.)?-1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::X)&&1.<=x)?1.:0.) ); } );
+          [&space]( ST x, ST y, ST z ) -> ST { return ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::X)&&x<=0.)?-1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::X)&&1.<=x)?1.:0.); } );
       nullspace_.getVField()(Pimpact::F::V).initFromFunction(                                                     
-          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y)&&y<=0.)?-1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y)&&1.<=y)?1.:0.) ); } );
+          [&space]( ST x, ST y, ST z ) -> ST { return ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y)&&y<=0.)?-1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y)&&1.<=y)?1.:0.); } );
       nullspace_.getVField()(Pimpact::F::W).initFromFunction(                                                     
-          [&space]( ST x, ST y, ST z ) -> ST { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z)&&z<=0.)?-1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z)&&1.<=z)?1.:0.) ); } );
+          [&space]( ST x, ST y, ST z ) -> ST { return ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z)&&z<=0.)?-1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z)&&1.<=z)?1.:0.); } );
 
       ST blup =  1./nullspace_.norm();
       nullspace_.write( 777 );

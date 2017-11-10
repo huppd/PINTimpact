@@ -49,11 +49,11 @@ public:
   ///
   /// \return  number of grids
   constexpr int getNGrids() const {
-    return( spaces_.size() );
+    return spaces_.size();
   }
 
   constexpr const Teuchos::RCP<const FSpaceT>&  get()        const {
-    return( space_ );
+    return space_;
   }
 
   /// \brief gets ith space, similar to python i=-1 is gets you the coarses space
@@ -63,14 +63,14 @@ public:
   /// \return ith space
   constexpr const Teuchos::RCP<const CSpaceT>&  get( int i ) const {
     if( i<0 )
-      return( spaces_[ getNGrids()+i ] );
+      return spaces_[ getNGrids()+i ];
     else
-      return( spaces_[i] );
+      return spaces_[i];
   }
 
 
   constexpr bool participating( int i ) const {
-    return( get(i)->getProcGrid()->participating() );
+    return get(i)->getProcGrid()->participating();
   }
 
   void print(  std::ostream& out=std::cout ) const {
@@ -97,10 +97,8 @@ createMGSpaces(
   std::vector<Teuchos::RCP<const typename CoarsenStrategy::CSpaceT> > spaces =
     CoarsenStrategy::getMultiSpace( space, maxGrids );
 
-  return(
-          Teuchos::rcp(
-            new MGSpaces<typename CoarsenStrategy::SpaceT, typename CoarsenStrategy::CSpaceT>(
-              space, spaces ) ) );
+  return Teuchos::rcp( new MGSpaces<typename CoarsenStrategy::SpaceT, typename
+      CoarsenStrategy::CSpaceT>( space, spaces ) );
 }
 
 

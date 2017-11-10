@@ -63,7 +63,7 @@ public:
   };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -71,11 +71,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( op_->hasApplyTranspose() );
+    return op_->hasApplyTranspose();
   }
 
   const std::string getLabel() const {
-    return( op_->getLabel() + std::string("^T")  );
+    return op_->getLabel() + std::string("^T");
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -89,8 +89,9 @@ public:
 /// \relates Transpose
 template<class OP>
 Teuchos::RCP< Transpose<OP> > createTranspose(
-  const Teuchos::RCP<OP>& op ) {
-  return( Teuchos::rcp( new Transpose<OP>(op) ) );
+    const Teuchos::RCP<OP>& op ) {
+
+  return Teuchos::rcp( new Transpose<OP>(op) );
 }
 
 

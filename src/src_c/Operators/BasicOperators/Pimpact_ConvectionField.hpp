@@ -95,10 +95,10 @@ public:
 
 
   constexpr const FieldTensor& get() const {
-    return( u_ );
+    return u_;
   }
 
-  //FieldTensor& get() { return( u_ ); }
+  //FieldTensor& get() { return u_; }
 
 
 }; // end of class ConvectionField

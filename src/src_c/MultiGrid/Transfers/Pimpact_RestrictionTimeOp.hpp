@@ -67,22 +67,23 @@ public:
   }
 
   Teuchos::RCP<const SpaceT> spaceC() const {
-    return( op_->spaceC() );
+    return op_->spaceC();
   };
   Teuchos::RCP<const SpaceT> spaceF() const {
-    return( op_->spaceF() );
+    return op_->spaceF();
   };
 
   Teuchos::RCP<OperatorT> getOperatorPtr() {
-    return( op_ );
+    return op_;
   }
 
 };
 
 template< class OpT >
 Teuchos::RCP< RestrictionTimeOp<OpT> > createRestrictionTimeOp(
-  const Teuchos::RCP<const typename OpT::FSpaceT>& spaceF, const Teuchos::RCP<const typename OpT::CSpaceT>& spaceC ) {
-  return( Teuchos::rcp( new RestrictionTimeOp<OpT>( spaceF,spaceC ) ) );
+    const Teuchos::RCP<const typename OpT::FSpaceT>& spaceF, const Teuchos::RCP<const typename OpT::CSpaceT>& spaceC ) {
+
+  return Teuchos::rcp( new RestrictionTimeOp<OpT>( spaceF,spaceC ) );
 }
 
 } // end of namespace Pimpact

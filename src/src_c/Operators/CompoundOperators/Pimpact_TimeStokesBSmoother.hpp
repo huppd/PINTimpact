@@ -3,8 +3,13 @@
 #define PIMPACT_TIMESTOKESBSMOOTHER_HPP
 
 
+#include "Teuchos_ParameterList.hpp"
 #include "Teuchos_RCP.hpp"
 
+#include "Pimpact_CompoundField.hpp"
+#include "Pimpact_TimeField.hpp"
+#include "Pimpact_Utils.hpp"
+#include "Pimpact_VectorField.hpp"
 
 
 
@@ -164,17 +169,17 @@ public:
   void assignField( const DomainFieldT& mv ) { };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( op_->space() );
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "TimeStokesBSmoother " );
+    return "TimeStokesBSmoother ";
   };
 
 }; // end of class TimeStokesBSmoother

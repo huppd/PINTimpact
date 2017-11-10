@@ -249,128 +249,128 @@ public:
 
   static constexpr
   int BL( const int i ) {
-    return( (3==i)?-1:-dimNC+1 );
+    return (3==i) ? -1 : -dimNC+1;
   }
   static constexpr
   int BU( const int i ) {
-    return( (3==i)?1:dimNC-1 );
+    return (3==i) ? 1 : dimNC-1;
   }
   static constexpr
   int DL( const int i ) {
-    return( (3==i)?-1:-dimNC+1 );
+    return (3==i) ? -1 : -dimNC+1;
   }
   static constexpr
   int DU( const int i ) {
-    return( (3==i)?1:dimNC-2 );
+    return (3==i) ? 1 : dimNC-2;
   }
   static constexpr
   int GL( const int i ) {
-    return( (3==i)?-1:-dimNC+2 );
+    return (3==i) ? -1 : -dimNC+2;
   }
   static constexpr
   int GU( const int i ) {
-    return( (3==i)?1:dimNC-1 );
+    return (3==i) ? 1 : dimNC-1;
   }
   static constexpr
   int NL( const int i ) {
-    return( (3==i)?-1:-dimNC+1 );
+    return (3==i) ? -1 : -dimNC+1;
   }
   static constexpr
   int NU( const int i ) {
-    return( (3==i)?1:dimNC-1 );
+    return (3==i) ? 1 : dimNC-1;
   }
 
   constexpr const bool& spectralT() const {
-    return( spectralT_ );
+    return spectralT_;
   }
 
   constexpr int getDimNcbC( const int i ) const {
-    return( ncbC_[i].size() );
+    return ncbC_[i].size();
   }
   constexpr int getDimNcbD( const int i ) const {
-    return( ncbD_[i].size() );
+    return ncbD_[i].size();
   }
   constexpr int getDimNcbG( const int i ) const {
-    return( ncbG_[i].size() );
+    return ncbG_[i].size();
   }
 
   constexpr const int* getNcbC( const int i ) const {
-    return( ncbC_[i].getRawPtr() );
+    return ncbC_[i].getRawPtr();
   }
   constexpr const int* getNcbD( const int i ) const {
-    return( ncbD_[i].getRawPtr() );
+    return ncbD_[i].getRawPtr();
   }
   constexpr const int* getNcbG( const int i ) const {
-    return( ncbG_[i].getRawPtr() );
+    return ncbG_[i].getRawPtr();
   }
 
   constexpr const int* getBL()               const {
-    return( bl_.getRawPtr() );
+    return bl_.getRawPtr();
   }
   constexpr const int getBL( const int i ) const {
-    return( bl_[i] );
+    return bl_[i];
   }
 
   constexpr const int* getBU()               const {
-    return( bu_.getRawPtr() );
+    return bu_.getRawPtr();
   }
   constexpr const int getBU( const int i ) const {
-    return( bu_[i] );
+    return bu_[i];
   }
 
   constexpr const int* getDL()               const {
-    return( dl_.getRawPtr() );
+    return dl_.getRawPtr();
   }
   constexpr const int getDL( const int i ) const {
-    return( dl_[i] );
+    return dl_[i];
   }
   constexpr const TO&  getDLTuple()          const {
-    return( dl_ );
+    return dl_;
   }
 
   constexpr const int* getDU()               const {
-    return( du_.getRawPtr() );
+    return du_.getRawPtr();
   }
   constexpr const int getDU( const int i ) const {
-    return( du_[i] );
+    return du_[i];
   }
   constexpr const TO&  getDUTuple()          const {
-    return( du_ );
+    return du_;
   }
 
   constexpr const int* getGL()               const {
-    return( gl_.getRawPtr() );
+    return gl_.getRawPtr();
   }
   constexpr const int getGL( const int i ) const {
-    return( gl_[i] );
+    return gl_[i];
   }
 
   constexpr const int* getGU()               const {
-    return( gu_.getRawPtr() );
+    return gu_.getRawPtr();
   }
   constexpr const int getGU( const int i ) const {
-    return( gu_[i] );
+    return gu_[i];
   }
 
   constexpr const int* getNL()               const {
-    return( nl_.getRawPtr() );
+    return nl_.getRawPtr();
   }
   constexpr const int getNL( const int i ) const {
-    return( nl_[i] );
+    return nl_[i];
   }
 
   constexpr const int* getNU()               const {
-    return( nu_.getRawPtr() );
+    return nu_.getRawPtr();
   }
   constexpr const int getNU( const int i ) const {
-    return( nu_[i] );
+    return nu_[i];
   }
 
   constexpr const int* getLS()               const {
-    return( ls_.getRawPtr() );
+    return ls_.getRawPtr();
   }
   constexpr const int getLS( const int i ) const {
-    return( ls_[i] );
+    return ls_[i];
   }
 
 }; // end of class StencilWidths
@@ -384,8 +384,8 @@ public:
 template< int d, int dnc  >
 const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths( const bool& spectralT ) {
 
-  return( Teuchos::RCP<const StencilWidths<d,dnc> > (
-            new StencilWidths<d,dnc>( spectralT ) ) );
+  return Teuchos::RCP<const StencilWidths<d,dnc> > ( new StencilWidths<d,dnc>(
+        spectralT));
 }
 
 

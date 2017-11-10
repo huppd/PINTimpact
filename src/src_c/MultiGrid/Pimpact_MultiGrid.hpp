@@ -316,7 +316,7 @@ public:
   };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(mgSpaces_->get());
+    return mgSpaces_->get();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -324,11 +324,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "MultiGrid( "+mgOps_->get()->getLabel()+" ) " );
+    return "MultiGrid( "+mgOps_->get()->getLabel()+" ) ";
   };
 
 
@@ -365,12 +365,9 @@ createMultiGrid(
   const Teuchos::RCP<const MGSpacesT>& mgSpaces,
   const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ) {
 
-  return(
-          Teuchos::rcp(
-            new MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT>(
-              mgSpaces, pl )
-          )
-        );
+  return Teuchos::rcp( new
+      MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT>(
+        mgSpaces, pl ));
 }
 
 

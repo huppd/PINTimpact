@@ -46,19 +46,19 @@ public:
   /// \brief Create a new multivector with \c numvecs columns.
   static Teuchos::RCP<Pimpact::MultiField<Field> > Clone(
     const Pimpact::MultiField<Field>& mv, const int numvecs) {
-    return( mv.clone(numvecs) );
+    return mv.clone(numvecs);
   }
 
 
   /// \brief Create a new deep copy of multivector.
   static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy( const Pimpact::MultiField<Field>& mv ) {
-    return( mv.CloneCopy() );
+    return mv.CloneCopy();
   }
 
 
   /// \brief Create a new deep copy of multivector, considering only the \c Field's of \c index.
   static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy( const Pimpact::MultiField<Field>& mv, const std::vector<int>& index ) {
-    return( mv.CloneCopy(index) );
+    return mv.CloneCopy(index);
   }
 
 
@@ -67,7 +67,7 @@ public:
   CloneCopy(
     const Pimpact::MultiField<Field>& mv,
     const Teuchos::Range1D& index) {
-    return( mv.CloneCopy(index) );
+    return mv.CloneCopy(index);
   }
 
 
@@ -76,7 +76,7 @@ public:
   CloneViewNonConst(
     Pimpact::MultiField<Field>& mv,
     const std::vector<int>& index) {
-    return( mv.CloneViewNonConst(index) );
+    return mv.CloneViewNonConst(index);
   }
 
 
@@ -85,7 +85,7 @@ public:
   CloneViewNonConst(
     Pimpact::MultiField<Field>& mv,
     const Teuchos::Range1D& index) {
-    return( mv.CloneViewNonConst(index) );
+    return mv.CloneViewNonConst(index);
   }
 
 
@@ -94,7 +94,7 @@ public:
   CloneView(
     const Pimpact::MultiField<Field>& mv,
     const std::vector<int>& index) {
-    return( mv.CloneView(index) );
+    return mv.CloneView(index);
   }
 
 
@@ -103,7 +103,7 @@ public:
   CloneView(
     const Pimpact::MultiField<Field>& mv,
     const Teuchos::Range1D& index ) {
-    return( mv.CloneView(index) );
+    return mv.CloneView(index);
   }
 
 
@@ -115,12 +115,12 @@ public:
 
   /// \brief return the number of the Vector/Field's.
   static int GetNumberVecs( const Pimpact::MultiField<Field>& mv ) {
-    return( mv.getNumberVecs() );
+    return mv.getNumberVecs();
   }
 
 
   static bool HasConstantStride( const Pimpact::MultiField<Field>& mv ) {
-    return( true );
+    return true;
   }
 
 
@@ -280,7 +280,7 @@ public:
   /// \param Op
   /// \return \c true if Op has a transpose implemented
   static bool HasApplyTranspose( const Pimpact::OperatorBase<Pimpact::MultiField<Field> > & Op ) {
-    return( Op.hasApplyTranspose() );
+    return Op.hasApplyTranspose();
   }
 
 }; // end of class OperatorTraits

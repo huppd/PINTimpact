@@ -456,7 +456,7 @@ Teuchos::RCP<const OpT<SpaceT> > create(
   const Teuchos::RCP<const SpaceT>& spaceF,
   const Teuchos::RCP<const SpaceT>& spaceC ) {
 
-  return( Teuchos::rcp( new OpT<SpaceT>(spaceF,spaceC) ) );
+  return Teuchos::rcp( new OpT<SpaceT>(spaceF,spaceC) );
 }
 
 

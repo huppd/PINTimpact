@@ -56,7 +56,7 @@ protected:
       i = std::max( 0, i );
     if( 0<spaceF()->getBCLocal()->getBCU(dir) )
       i = std::min( spaceF()->ei(F::S,dir)-1, i );
-    return( i );
+    return i;
   }
 
   /// \todo mv MG_getCRVS to Base class deal with BC here
@@ -297,18 +297,18 @@ public:
 
 
   Teuchos::Tuple<Ordinal,dimension> getDD() const {
-    return( this->dd_ );
+    return this->dd_;
   };
 
   Teuchos::RCP<const SpaceT> spaceC() const {
-    return( this->spaceC_ );
+    return this->spaceC_;
   };
   Teuchos::RCP<const SpaceT> spaceF() const {
-    return( this->spaceF_ );
+    return this->spaceF_;
   };
 
   const std::string getLabel() const {
-    return( "Restriction VF" );
+    return "Restriction VF";
   };
 
 

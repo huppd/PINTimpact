@@ -81,17 +81,17 @@ public:
   void assignField( const DomainFieldT& mv ) { };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(opS2V_->space());
+    return opS2V_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const std::string getLabel() const {
-    return( "CompoundSmoother" );
+    return "CompoundSmoother";
   };
 
   void print( std::ostream& out=std::cout ) const {

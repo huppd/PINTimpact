@@ -162,6 +162,6 @@ int main( int argi, char** argv ) {
   }
 
   MPI_Finalize();
-  return( 0 );
+  return 0;
 
 }

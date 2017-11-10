@@ -115,7 +115,7 @@ public:
           //}
           //// not working on brutus
           ////multiSpace.shrink_to_fit();
-          //return( multiSpace );
+          //return multiSpace;
           //}
 
 //protected:
@@ -193,7 +193,7 @@ public:
     // not working on brutus
     //multiSpace.shrink_to_fit();
 
-    return( multiSpace );
+    return multiSpace;
 
   }
 

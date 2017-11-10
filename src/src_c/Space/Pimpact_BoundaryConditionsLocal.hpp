@@ -77,17 +77,17 @@ public:
   /// @{
 
   constexpr const int getBCL( const int dir ) const {
-    return( BCL_int_[dir] );
+    return BCL_int_[dir];
   }
   constexpr const int getBCU( const int dir ) const {
-    return( BCU_int_[dir] );
+    return BCU_int_[dir];
   }
 
   constexpr const int* getBCL() const {
-    return( BCL_int_.getRawPtr() );
+    return BCL_int_.getRawPtr();
   }
   constexpr const int* getBCU() const {
-    return( BCU_int_.getRawPtr() );
+    return BCU_int_.getRawPtr();
   }
 
   ///  @}
@@ -141,9 +141,7 @@ Teuchos::RCP< const BoundaryConditionsLocal<d> >  createBoudaryConditionsLocal(
       BCU[i] = static_cast<BC>( bcg->getBCU(i) );
   }
 
-  return(
-          Teuchos::rcp(
-            new BoundaryConditionsLocal<d>( BCL, BCU ) ) );
+  return Teuchos::rcp( new BoundaryConditionsLocal<d>( BCL, BCU ) );
 }
 
 

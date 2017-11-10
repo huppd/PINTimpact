@@ -37,11 +37,11 @@ public:
   virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
 
   virtual bool hasApplyTranspose() const {
-    return( false );
+    return false;
   };
 
   virtual const std::string getLabel() const {
-    return( std::string("PImpact: ") );
+    return std::string("PImpact: ");
   };
 
   virtual void print( std::ostream& out=std::cout ) const {  };
@@ -83,11 +83,11 @@ public:
   };
 
   virtual bool hasApplyTranspose() const {
-    return( opm_->hasApplyTranspose() );
+    return opm_->hasApplyTranspose();
   };
 
   virtual const Teuchos::RCP<const SpaceT>& space() const {
-    return(opm_->space());
+    return opm_->space();
   };
 
   virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -95,11 +95,11 @@ public:
   }
 
   virtual Teuchos::RCP<Op> getOperatorPtr() {
-    return( opm_ );
+    return opm_;
   }
 
   virtual const std::string getLabel() const {
-    return( opm_->getLabel() );
+    return opm_->getLabel();
   };
 
   virtual void print( std::ostream& out=std::cout ) const {
@@ -116,9 +116,8 @@ template<class Op>
 Teuchos::RCP< OperatorBase<typename Op::DomainFieldT, typename Op::RangeFieldT> >
 createOperatorBase( const Teuchos::RCP<Op>& op ) {
 
-  return(
-          Teuchos::rcp_dynamic_cast< OperatorBase<typename Op::DomainFieldT, typename Op::RangeFieldT>  >(
-            Teuchos::rcp( new OperatorPimpl<Op>(op) ) ) );
+  return Teuchos::rcp_dynamic_cast< OperatorBase<typename Op::DomainFieldT, typename
+    Op::RangeFieldT> >( Teuchos::rcp( new OperatorPimpl<Op>(op) ) );
 }
 
 

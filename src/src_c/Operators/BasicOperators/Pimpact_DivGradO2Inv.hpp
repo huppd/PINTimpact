@@ -63,11 +63,11 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( solver_.getOperator()->space() );
+    return solver_.getOperator()->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
@@ -79,7 +79,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "DivGradO2Inv" );
+    return "DivGradO2Inv";
   };
 
 }; // end of class DivGradO2Inv

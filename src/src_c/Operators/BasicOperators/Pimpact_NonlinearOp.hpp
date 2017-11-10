@@ -63,17 +63,17 @@ public:
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( convVWrap_->space() );
+    return convVWrap_->space();
   }
 
   Teuchos::RCP< ConvectionField<SpaceT> >
   getConvField() const {
-    return( convField_ );
+    return convField_;
   }
 
   Teuchos::RCP<const ConvSOpT>
   getSOp() const {
-    return( convVWrap_->getSOp() );
+    return convVWrap_->getSOp();
   }
 
 
@@ -83,7 +83,7 @@ public:
 
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   void print( std::ostream& out=std::cout ) const {
@@ -91,7 +91,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( convVWrap_->getSOp()->getLabel() + "VOp" );
+    return convVWrap_->getSOp()->getLabel() + "VOp";
   };
 
 }; // end of class NonlinearOp
@@ -102,12 +102,12 @@ public:
 template<class SpaceT>
 Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > >
 createNonlinearOp(
-  const Teuchos::RCP<const SpaceT>& space ) {
+    const Teuchos::RCP<const SpaceT>& space ) {
 
   Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > > sop =
     Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
 
-  return( Teuchos::rcp( new NonlinearOp< ConvectionSOp<SpaceT> >( sop ) ) );
+  return Teuchos::rcp( new NonlinearOp< ConvectionSOp<SpaceT> >( sop ) );
 }
 
 

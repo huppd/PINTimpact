@@ -100,26 +100,26 @@ public:
   }
 
   Teuchos::RCP<const DivOp<SpaceT> > getDivOp() const {
-    return( div_ );
+    return div_;
   }
   Teuchos::RCP<const GradOp<SpaceT> > getGradOp() const {
-    return( grad_ );
+    return grad_;
   }
 
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( true );
+    return true;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( div_->space() );
+    return div_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   constexpr const std::string getLabel() const {
-    return( "DivGrad" );
+    return "DivGrad";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -195,7 +195,7 @@ public:
         diag += div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, k+kk, -kk );
     }
 
-    return( diag );
+    return diag;
   }
 
   ST innerDiag2D( const OT i, const OT j, const OT k ) const {
@@ -244,7 +244,7 @@ public:
         diag += div_->getC( Y, j, jj )*epsY*grad_->getC( Y, j+jj, -jj );
     }
 
-    return( diag );
+    return diag;
   }
 
 }; // end of DivGradOp
@@ -254,12 +254,10 @@ public:
 /// \relates DivGradOp
 template<class SpaceT>
 Teuchos::RCP< DivGradOp<SpaceT> > createDivGradOp(
-  const Teuchos::RCP< DivOp<SpaceT> >& div,
-  const Teuchos::RCP< GradOp<SpaceT> >& grad ) {
+    const Teuchos::RCP< DivOp<SpaceT> >& div,
+    const Teuchos::RCP< GradOp<SpaceT> >& grad ) {
 
-  return(
-          Teuchos::rcp( new DivGradOp<SpaceT>( div, grad ) )
-        );
+  return Teuchos::rcp( new DivGradOp<SpaceT>( div, grad ) );
 }
 
 

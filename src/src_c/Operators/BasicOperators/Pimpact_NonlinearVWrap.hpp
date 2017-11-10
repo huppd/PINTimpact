@@ -55,7 +55,7 @@ public:
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( convectionSOp_->space() );
+    return convectionSOp_->space();
   }
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -63,7 +63,7 @@ public:
   }
 
   constexpr const Teuchos::RCP<const SOpT> getSOp() const {
-    return( convectionSOp_ );
+    return convectionSOp_;
   }
 
   void print( std::ostream& out=std::cout ) const {
@@ -72,7 +72,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( convectionSOp_->getLabel() );
+    return convectionSOp_->getLabel();
   };
 
 }; // end of class NonlinearWrap

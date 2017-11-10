@@ -501,7 +501,7 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   void print( std::ostream& out=std::cout ) const {
@@ -527,18 +527,16 @@ public:
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return( space_ );
+    return space_;
   };
 
   constexpr const ST* getC( const int dir, const F ftype ) {
-    return( (dir==ftype)?cV_[dir].get():cS_[dir].get() );
+    return (dir==ftype)?cV_[dir].get():cS_[dir].get();
   }
 
   constexpr ST getC( const ECoord dir, const F ftype, OT i, OT ii ) {
-    return(
-            (static_cast<int>(dir)==static_cast<int>(ftype))?
-            cV_[dir](i,ii):
-            cS_[dir](i,ii) );
+    return (static_cast<int>(dir)==static_cast<int>(ftype))?
+      cV_[dir](i,ii) : cS_[dir](i,ii);
   }
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -549,7 +547,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "Helmholtz" );
+    return "Helmholtz";
   };
 
 
@@ -567,7 +565,7 @@ public:
     for( int kk=SW::BL(Z); kk<=SW::BU(Z); ++kk )
       lap += getC(Z,fType,k,kk)*x(i,j,k+kk);
 
-    return( lap );
+    return lap;
   }
 
   constexpr ST innerStenc2D( const ScalarField<SpaceT>& x, const F fType, const OT i,
@@ -581,19 +579,19 @@ public:
     for( int jj=SW::BL(Y); jj<=SW::BU(Y); ++jj )
       lap += getC(Y,fType,j,jj)*x(i,j+jj,k);
 
-    return( lap );
+    return lap;
   }
 
   constexpr ST innerDiag3D( const F fType,
                             const OT i, const OT j, const OT k ) const {
 
-    return( getC(X,fType,i,0) + getC(Y,fType,j,0) + getC(Z,fType,k,0) );
+    return getC(X,fType,i,0) + getC(Y,fType,j,0) + getC(Z,fType,k,0);
 
   }
 
   constexpr ST innerDiag2D( const F fType, const OT i, const OT j, const OT k ) {
 
-    return( getC(X,fType,i,0) + getC(Y,fType,j,0) );
+    return getC(X,fType,i,0) + getC(Y,fType,j,0);
 
   }
 

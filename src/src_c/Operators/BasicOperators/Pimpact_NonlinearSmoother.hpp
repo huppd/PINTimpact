@@ -59,16 +59,16 @@ public:
 
 
   Teuchos::RCP< ConvectionField<SpaceT> > getConvField() const {
-    return( convField_ );
+    return convField_;
   }
 
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(convVWrap_->space());
+    return convVWrap_->space();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -81,7 +81,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( convVWrap_->getLabel() );
+    return convVWrap_->getLabel();
   };
 
 }; // end of class NonlinearSmoother

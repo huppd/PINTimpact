@@ -341,7 +341,7 @@ public:
   };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -349,11 +349,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( op_->hasApplyTranspose() );
+    return op_->hasApplyTranspose();
   }
 
   const std::string getLabel() const {
-    return( "Chebyshev" );
+    return "Chebyshev";
   };
 
   void print( std::ostream& out=std::cout ) const {

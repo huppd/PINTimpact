@@ -264,31 +264,28 @@ public:
 
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>&  space() const {
-    return( space_ );
+    return space_;
   }
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
 
   constexpr const Scalar* getCU( const ECoord dir, const F ftype ) {
-    return( ( ((int)dir)==((int)ftype) )?cVU_[dir].get():cSU_[dir].get() );
+    return ( ((int)dir)==((int)ftype) )?cVU_[dir].get():cSU_[dir].get();
   }
 
   constexpr const Scalar* getCD( const ECoord dir, const F ftype ) {
-    return( ( ((int)dir)==((int)ftype) )?cVD_[dir].get():cSD_[dir].get() );
+    return ( ((int)dir)==((int)ftype) )?cVD_[dir].get():cSD_[dir].get();
   }
 
   constexpr Scalar getC( const Scalar wind, const ECoord dir, const F ftype, const int i, const int ii ) {
-    return(
-            ( static_cast<int>(dir)==static_cast<int>(ftype) )?
-            (wind>=0? cVU_[dir](i,ii):cVD_[dir](i,ii))
-            :
-            (wind>=0? cSU_[dir](i,ii):cSD_[dir](i,ii))
-          );
+    return ( static_cast<int>(dir)==static_cast<int>(ftype) )?
+      (wind>=0? cVU_[dir](i,ii):cVD_[dir](i,ii)) :
+      (wind>=0? cSU_[dir](i,ii):cSD_[dir](i,ii));
   }
 
 
@@ -304,7 +301,7 @@ public:
     for( int jj=SW::NL(Y); jj<=SW::NU(Y); ++jj )
       dy += getC( v,Y, x.getType(),j,jj)*x(i,j+jj,k);
 
-    return( u*dx+v*dy );
+    return u*dx+v*dy;
   }
 
   constexpr Scalar innerStenc3D( const Scalar u, const Scalar v, const Scalar w, const
@@ -322,23 +319,23 @@ public:
     for( int kk=SW::NL(Z); kk<=SW::NU(Z); ++kk )
       dz += getC( w,Z, x.getType(),k,kk)*x(i,j,k+kk);
 
-    return( u*dx+v*dy+w*dz );
+    return u*dx+v*dy+w*dz;
   }
 
   constexpr Scalar innerDiag3D( const Scalar u, const Scalar v, const Scalar w, const F
       fType, const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
-    return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) + w*getC( w,Z, fType,k,0) );
+    return u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) + w*getC( w,Z, fType,k,0);
   }
 
   constexpr Scalar innerDiag2D( const Scalar u, const Scalar v, const F fType, const
       Ordinal i, const Ordinal j, const Ordinal k ) const {
 
-    return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) );
+    return u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0);
   }
 
   constexpr const std::string getLabel() const {
-    return( "Convection" );
+    return "Convection";
   };
 
 

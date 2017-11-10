@@ -81,7 +81,7 @@ public:
   };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(opV2V_->space());
+    return opV2V_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
@@ -90,11 +90,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "InverseTriangularOp " );
+    return "InverseTriangularOp ";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -112,14 +112,12 @@ public:
 template< class OpV2V, class OpS2V, class OpS2S >
 Teuchos::RCP< InverseTriangularOp<OpV2V,OpS2V,OpS2S> >
 createInverseTriangularOp(
-  const Teuchos::RCP<OpV2V>& opV2V,
-  const Teuchos::RCP<OpS2V>& opS2V,
-  const Teuchos::RCP<OpS2S>& opS2S ) {
+    const Teuchos::RCP<OpV2V>& opV2V,
+    const Teuchos::RCP<OpS2V>& opS2V,
+    const Teuchos::RCP<OpS2S>& opS2S ) {
 
   //  return Teuchos::null;
-  return(
-          Teuchos::rcp( new InverseTriangularOp<OpV2V,OpS2V,OpS2S>(opV2V,opS2V,opS2S) )
-        );
+  return Teuchos::rcp( new InverseTriangularOp<OpV2V,OpS2V,OpS2S>(opV2V,opS2V,opS2S) );
 }
 
 

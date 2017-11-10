@@ -60,27 +60,27 @@ public:
   /// @{
 
   constexpr const ScalarT* getSize() const {
-    return( domainSize_.getRawPtr() );
+    return domainSize_.getRawPtr();
   }
 
   constexpr const ScalarT& getSize( const int i) const {
-    return( domainSize_[i] );
+    return domainSize_[i];
   }
 
   constexpr const ScalarT* getOrigin() const {
-    return( origin_.getRawPtr() );
+    return origin_.getRawPtr();
   }
 
   constexpr const ScalarT& getOrigin( const int i) const {
-    return( origin_[i] );
+    return origin_[i];
   }
 
   constexpr const ScalarT& getRe() const {
-    return( re_ );
+    return re_;
   }
 
   constexpr const ScalarT& getAlpha2() const {
-    return( alpha2_ );
+    return alpha2_;
   }
 
   ///  @}
@@ -110,8 +110,7 @@ createDomainSize(
   ScalarT L1, ScalarT L2, ScalarT L3,
   ScalarT x1, ScalarT x2, ScalarT x3 ) {
 
-  return( Teuchos::rcp(
-            new DomainSize<ScalarT,sd>( re, alpha2, L1, L2, L3, x1, x2, x3 ) ) );
+  return Teuchos::rcp( new DomainSize<ScalarT,sd>( re, alpha2, L1, L2, L3, x1, x2, x3 ) );
 }
 
 

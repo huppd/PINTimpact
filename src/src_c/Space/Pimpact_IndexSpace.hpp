@@ -293,62 +293,46 @@ protected:
 public:
 
   constexpr const OrdinalT* sInd( const F ft ) const {
-    return(
-            ( F::S==ft )?
-            sIndS_.getRawPtr():
-            sIndU_[static_cast<int>(ft)].getRawPtr() );
+    return ( F::S==ft )?
+      sIndS_.getRawPtr() : sIndU_[static_cast<int>(ft)].getRawPtr();
   }
   constexpr const OrdinalT* eInd( const F ft ) const {
-    return(
-            ( F::S==ft )?
-            eIndS_.getRawPtr():
-            eIndU_[static_cast<int>(ft)].getRawPtr() );
+    return ( F::S==ft )?
+      eIndS_.getRawPtr() : eIndU_[static_cast<int>(ft)].getRawPtr();
   }
 
   constexpr const OrdinalT* sIndB( const F ft ) const {
-    return(
-            ( F::S==ft )?
-            sIndS_.getRawPtr():
-            sIndUB_[static_cast<int>(ft)].getRawPtr() );
+    return ( F::S==ft )?
+      sIndS_.getRawPtr() : sIndUB_[static_cast<int>(ft)].getRawPtr();
   }
   constexpr const OrdinalT* eIndB( const F ft ) const {
-    return(
-            ( F::S== ft )?
-            eIndS_.getRawPtr():
-            eIndUB_[static_cast<int>(ft)].getRawPtr() );
+    return ( F::S== ft )?
+      eIndS_.getRawPtr() : eIndUB_[static_cast<int>(ft)].getRawPtr();
   }
 
   constexpr const OrdinalT& sInd( const F ft, const int dir ) const {
-    return(
-            ( F::S==ft )?
-            sIndS_[dir]:
-            sIndU_[static_cast<int>(ft)][dir] );
+    return ( F::S==ft )?
+      sIndS_[dir] : sIndU_[static_cast<int>(ft)][dir];
   }
   constexpr const OrdinalT& eInd(  const F ft, const int dir ) const {
-    return(
-            ( F::S==ft )?
-            eIndS_[dir]:
-            eIndU_[static_cast<int>(ft)][dir] );
+    return ( F::S==ft )?
+      eIndS_[dir] : eIndU_[static_cast<int>(ft)][dir];
   }
 
   constexpr const OrdinalT& sIndB( const F ft, const int dir ) const {
-    return(
-            ( F::S==ft )?
-            sIndS_[dir]:
-            sIndUB_[static_cast<int>(ft)][dir] );
+    return ( F::S==ft )?
+      sIndS_[dir] : sIndUB_[static_cast<int>(ft)][dir];
   }
   constexpr const OrdinalT& eIndB( const F ft, const int dir ) const {
-    return(
-            ( F::S==ft )?
-            eIndS_[dir]:
-            eIndUB_[static_cast<int>(ft)][dir] );
+    return ( F::S==ft )?
+      eIndS_[dir] : eIndUB_[static_cast<int>(ft)][dir];
   }
 
   constexpr const int getShift( const int i ) const {
-    return( shift_[i] );
+    return shift_[i];
   }
   constexpr const int* getShift() const {
-    return( shift_.getRawPtr() );
+    return shift_.getRawPtr();
   }
 
   void print( std::ostream& out=std::cout ) const {
@@ -376,15 +360,12 @@ public:
 template<class OT, int sd, int d, int dimNC>
 Teuchos::RCP<const IndexSpace<OT,d> >
 createIndexSpace(
-  const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
-  const Teuchos::RCP<const GridSizeLocal<OT,sd,d> >& gSL,
-  const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
-  const Teuchos::RCP<const ProcGrid<OT,d> >& pG ) {
-  return(
-          Teuchos::rcp(
-            new IndexSpace<OT,d>( sW, gSL, bc,pG )
-          )
-        );
+    const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
+    const Teuchos::RCP<const GridSizeLocal<OT,sd,d> >& gSL,
+    const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
+    const Teuchos::RCP<const ProcGrid<OT,d> >& pG ) {
+
+  return Teuchos::rcp( new IndexSpace<OT,d>( sW, gSL, bc,pG ));
 
 }
 

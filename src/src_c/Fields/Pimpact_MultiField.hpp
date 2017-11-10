@@ -100,7 +100,7 @@ public:
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
   Teuchos::RCP< FieldT > clone( const int numvecs ) const {
-    return( Teuchos::rcp( new FieldT( *mfs_[0], numvecs ) ) );
+    return Teuchos::rcp( new FieldT( *mfs_[0], numvecs ) );
   }
 
 
@@ -110,13 +110,13 @@ public:
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
   Teuchos::RCP< FieldT > clone( const ECopy ctype = ECopy::Deep ) const {
-    return( Teuchos::rcp( new FieldT(*this,ctype) ) );
+    return Teuchos::rcp( new FieldT(*this,ctype) );
   }
 
 
   /// \return deep copy of \c MultiField
   Teuchos::RCP<FieldT> CloneCopy() const {
-    return( clone() );
+    return clone();
   }
 
 
@@ -129,7 +129,7 @@ public:
     for( unsigned int i=0; i<index.size(); ++i ) {
       mv_->mfs_[i] = mfs_[ index[i] ]->clone( ECopy::Deep );
     }
-    return( mv_ );
+    return mv_;
   }
 
 
@@ -143,7 +143,7 @@ public:
       mv_->mfs_[j] = mfs_[i]->clone( ECopy::Deep );
       ++j;
     }
-    return( mv_ );
+    return mv_;
   }
 
 
@@ -154,7 +154,7 @@ public:
     for( unsigned int i=0; i<index.size(); ++i ) {
       mv_->mfs_[i] =  mfs_[ index[i] ];
     }
-    return( mv_ );
+    return mv_;
   }
 
 
@@ -164,7 +164,7 @@ public:
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
       mv_->mfs_[j++] =  mfs_[i];
     }
-    return( mv_ );
+    return mv_;
   }
 
 
@@ -173,7 +173,7 @@ public:
     for( unsigned int i=0; i<index.size(); ++i ) {
       mv_->mfs_[i] =  mfs_[ index[i] ];
     }
-    return( mv_ );
+    return mv_;
   }
 
 
@@ -183,25 +183,25 @@ public:
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
       mv_->mfs_[j++] =  mfs_[i];
     }
-    return( mv_ );
+    return mv_;
   }
 
 
   /// \brief returns the length of MultiField.
   constexpr OT getLength() {
-    return( mfs_[0]->getLength() );
+    return mfs_[0]->getLength();
   }
 
 
   /// \brief get number of stored Field's
   constexpr int getNumberVecs() {
-    return( mfs_.size() );
+    return mfs_.size();
   }
 
 
   /// \brief is true
   constexpr bool HasConstantStride() {
-    return( true );
+    return true;
   }
 
 
@@ -353,12 +353,12 @@ public:
     for( int i=0; i<n; ++i )
       b+= mfs_[i]->dotLoc( *A.mfs_[i] );
 
-    return( b );
+    return b;
   }
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
   constexpr ST dot( const FieldT& y ) {
-    return( this->reduce( comm(), dotLoc( y ) ) );
+    return this->reduce( comm(), dotLoc( y ) );
   }
 
   /// \brief Compute the norm of each individual vector.
@@ -409,7 +409,7 @@ public:
         (std::max( mfs_[i]->normLoc(type), normvec )):
         (normvec+mfs_[i]->normLoc(type));
 
-    return( normvec );
+    return normvec;
   }
 
 /// \brief compute the norm
@@ -426,7 +426,7 @@ public:
       std::sqrt(normvec) :
       normvec;
 
-    return( normvec );
+    return normvec;
   }
 
 
@@ -442,7 +442,7 @@ public:
     for( int i=0; i<getNumberVecs(); ++i )
       nor += mfs_[i]->normLoc( *weights.mfs_[i] );
 
-    return( nor );
+    return nor;
   }
 
 
@@ -453,7 +453,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   constexpr ST norm( const FieldT& weights ) {
-    return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+    return std::sqrt( this->reduce( comm(), normLoc( weights ) ) );
   }
 
 
@@ -537,18 +537,18 @@ public:
   /// @{
 
   InnerFieldT& getField( const int i ) {
-    return( *mfs_[i] );
+    return *mfs_[i];
   }
   constexpr const InnerFieldT& getField( const int i ) {
-    return( *mfs_[i] );
+    return *mfs_[i];
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return( AF::space_ );
+    return AF::space_;
   }
 
   constexpr const MPI_Comm& comm() {
-    return(mfs_[0]->comm());
+    return mfs_[0]->comm();
   }
 
   ///  @}
@@ -566,7 +566,7 @@ public:
 template<class FieldT>
 Teuchos::RCP< MultiField<FieldT> > wrapMultiField( const Teuchos::RCP<FieldT>& field ) {
 
-  return( Teuchos::rcp( new MultiField<FieldT>( field ) ) );
+  return Teuchos::rcp( new MultiField<FieldT>( field ) );
 }
 
 

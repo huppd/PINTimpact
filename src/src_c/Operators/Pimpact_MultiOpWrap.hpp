@@ -62,15 +62,15 @@ public:
 
 
   bool hasApplyTranspose() const {
-    return( op_->hasApplyTranspose() );
+    return op_->hasApplyTranspose();
   }
 
   Teuchos::RCP<OperatorT> getOperatorPtr() {
-    return( op_ );
+    return op_;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( op_->space() );
+    return op_->space();
   };
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
@@ -78,7 +78,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( op_->getLabel()  );
+    return op_->getLabel();
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -94,7 +94,7 @@ public:
 template<class OperatorT>
 Teuchos::RCP< MultiOpWrap<OperatorT> > createMultiOpWrap( const Teuchos::RCP<OperatorT>& op ) {
 
-  return( Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) ) );
+  return Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) );
 }
 
 

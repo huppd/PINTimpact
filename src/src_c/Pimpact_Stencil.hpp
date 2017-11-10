@@ -29,7 +29,7 @@ protected:
   Ordinal nn_;
 
   constexpr Ordinal size() {
-    return( nn_-ss+1 );
+    return nn_-ss+1;
   }
 
 public:
@@ -70,23 +70,23 @@ public:
   }
 
   constexpr ScalarArray get() const {
-    return( c_ );
+    return c_;
   }
 
   constexpr const Ordinal NN() {
-    return( nn_ );
+    return nn_;
   }
 
   Scalar& operator[]( const Ordinal index ) {
     assert( index>=ss );
     assert( index<=nn_ );
-    return( c_[ index-ss ] );
+    return c_[ index-ss ];
   };
 
   constexpr Scalar operator[]( const Ordinal index ) {
     assert( index>=ss );
     assert( index<=nn_ );
-    return( c_[ index-ss ] );
+    return c_[ index-ss ];
   };
 
 
@@ -123,7 +123,7 @@ protected:
   static const int w_ = ub-lb+1;
 
   constexpr Ordinal size() {
-    return( ( nn_ - ss + 1 )*w_ );
+    return ( nn_ - ss + 1 )*w_;
   }
 
 public:
@@ -165,7 +165,7 @@ public:
   }
 
   constexpr ScalarArray get() const {
-    return( c_ );
+    return c_;
   }
 
   Scalar& operator()( const Ordinal index, const int offset ) {
@@ -175,7 +175,7 @@ public:
     assert( index>=ss );
     assert( index<=nn_ );
 
-    return( c_[ offset-lb + (index-ss)*w_ ] );
+    return c_[ offset-lb + (index-ss)*w_ ];
   };
 
   constexpr Scalar operator()( const Ordinal index, const int offset ) {
@@ -185,20 +185,20 @@ public:
     assert( index>=ss );
     assert( index<=nn_ );
 
-    return( c_[ offset-lb + (index-ss)*w_ ] );
+    return c_[ offset-lb + (index-ss)*w_ ];
   };
 
 
   static constexpr int bl() {
-    return( lb );
+    return lb;
   }
 
   static constexpr int bu() {
-    return( ub );
+    return ub;
   }
 
   constexpr const Ordinal NN() {
-    return( nn_ );
+    return nn_;
   }
 
   void print( std::ostream& out=std::cout ) const {

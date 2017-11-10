@@ -275,23 +275,23 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(space_);
+    return space_;
   };
 
   constexpr const ST* getC( const ECoord dir ) const {
-    return( c_[dir].get() );
+    return c_[dir].get();
   }
 
   constexpr ST getC( const ECoord dir, OT i, OT off ) const {
-    return( c_[dir](i,off) );
+    return c_[dir](i,off);
   }
 
   constexpr ST getCTrans( const ECoord dir, OT i, OT off ) const {
-    return( cT_[dir](i,off) );
+    return cT_[dir](i,off);
   }
 
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
@@ -315,7 +315,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "Grad" );
+    return "Grad";
   };
 
 protected:
@@ -327,7 +327,7 @@ protected:
     for( int ii=SW::GL(X); ii<=SW::GU(X); ++ii )
       grad += getC(X,i,ii)*x(i+ii,j,k);
 
-    return( grad );
+    return grad;
   }
 
   constexpr ST innerStencV( const DomainFieldT& x, const OT i, const OT j, const OT k ) {
@@ -337,7 +337,7 @@ protected:
     for( int jj=SW::GL(Y); jj<=SW::GU(Y); ++jj )
       grad += getC(Y,j,jj)*x(i,j+jj,k);
 
-    return( grad );
+    return grad;
   }
 
   constexpr ST innerStencW( const DomainFieldT& x, const OT i, const OT j, const OT k ) {
@@ -347,7 +347,7 @@ protected:
     for( int kk=SW::GL(Z); kk<=SW::GU(Z); ++kk )
       grad += getC(Z,k,kk)*x(i,j,k+kk);
 
-    return( grad );
+    return grad;
   }
 
   constexpr ST innerStenc3D( const RangeFieldT& x, const OT i, const OT j, const OT k ) {
@@ -363,7 +363,7 @@ protected:
     for( int kk=SW::DL(Z); kk<=SW::DU(Z); ++kk )
       gradT += getCTrans(Z,k,kk)*x(F::W)(i,j,k+kk);
 
-    return( gradT );
+    return gradT;
   }
 
   constexpr ST innerStenc2D( const RangeFieldT& x, const OT i, const OT j, const OT k ) {
@@ -376,7 +376,7 @@ protected:
     for( int jj=SW::DL(Y); jj<=SW::DU(Y); ++jj )
       gradT += getCTrans(Y,j,jj)*x(F::V)(i,j+jj,k);
 
-    return( gradT );
+    return gradT;
   }
 
 

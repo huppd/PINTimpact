@@ -229,36 +229,36 @@ public:
   };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( conv_->space() );
+    return conv_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   Teuchos::RCP<const HelmholtzOp<ST> > getHelmholtzOp() const {
-    return( helm_ );
+    return helm_;
   }
   Teuchos::RCP<const GradOp<ST> > getGradOp() const {
-    return( grad_ );
+    return grad_;
   }
   Teuchos::RCP<const DivOp<ST> > getDivOp() const {
-    return( div_ );
+    return div_;
   }
   Teuchos::RCP<const ConvectionSOp<ST> > getConvOp() const {
-    return( conv_ );
+    return conv_;
   }
 
   Teuchos::RCP< TimeField<VectorField<ST> > > getWindU_() const {
-    return( windU_ );
+    return windU_;
   }
   Teuchos::RCP< TimeField<VectorField<ST> > > getWindV_() const {
-    return( windV_ );
+    return windV_;
   }
   Teuchos::RCP< TimeField<VectorField<ST> > > getWindW_() const {
-    return( windW_ );
+    return windW_;
   }
 
 
@@ -268,7 +268,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "TimeNSOp" );
+    return "TimeNSOp";
   };
 
 }; // end of class TimeNSOp

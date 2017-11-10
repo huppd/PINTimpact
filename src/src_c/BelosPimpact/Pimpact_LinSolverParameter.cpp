@@ -83,7 +83,7 @@ Teuchos::RCP< Teuchos::ParameterList > Pimpact::createLinSolverParameter(
   parameter_->set( "Output Stream",         outStream   );
   parameter_->set( "Output Style",		      style	      );
 
-  return( parameter_ );
+  return parameter_;
 
 
 

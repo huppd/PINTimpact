@@ -70,15 +70,15 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( op_->hasApplyTranspose() );
+    return op_->hasApplyTranspose();
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   Teuchos::RCP<OperatorT> getOperatorPtr() {
-    return( op_ );
+    return op_;
   }
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
     op_->setParameter( para );
@@ -89,7 +89,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "TimeOpWrap (" );
+    return "TimeOpWrap (";
   };
 
 }; // end of class TimeOpWrap
@@ -101,7 +101,7 @@ template< class OpT, bool CNY=false >
 Teuchos::RCP< TimeOpWrap<OpT,CNY> > createTimeOpWrap(
   const Teuchos::RCP<OpT>& op ) {
 
-  return( Teuchos::rcp( new TimeOpWrap<OpT,CNY>( op ) ) );
+  return Teuchos::rcp( new TimeOpWrap<OpT,CNY>( op ) );
 }
 
 

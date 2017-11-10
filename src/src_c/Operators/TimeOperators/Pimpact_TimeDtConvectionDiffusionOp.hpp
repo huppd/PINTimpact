@@ -3,6 +3,7 @@
 #define PIMPACT_TIMEDTCONVECTIONDIFFUSIONOP_HPP
 
 
+#include "Pimpact_ConvectionField.hpp"
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
 #include "Pimpact_NonlinearVWrap.hpp"
 #include "Pimpact_TimeField.hpp"
@@ -109,17 +110,17 @@ public:
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "TimeDtConvectionDiffusionOp" );
+    return "TimeDtConvectionDiffusionOp";
   };
 
   void print( std::ostream& out=std::cout ) const {

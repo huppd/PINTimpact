@@ -62,7 +62,7 @@ protected:
 public:
 
   InterpolateV2S(
-    const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >&  indexSpace,
+    const Teuchos::RCP<const IndexSpace<Ordinal, dimension>>& indexSpace,
     const Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dimension> >& gridSizeLocal,
     const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
     const Teuchos::RCP<const DomainSize<Scalar,sdim> >& domainSize,
@@ -150,7 +150,7 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
@@ -164,20 +164,20 @@ public:
   }
 
   constexpr const Scalar* getC( const int dir ) const  {
-    return( c_[dir].get() );
+    return c_[dir].get();
   }
   //constexpr const Scalar* getCM( const int dir ) const  {
-  //return( cm_[dir].get() );
+  //return cm_[dir].get();
   //}
   constexpr const Scalar getC( const int dir, Ordinal i, Ordinal off ) const {
-    return( c_[dir]( i, off ) );
+    return c_[dir]( i, off );
   }
   //constexpr const Scalar getCM( const int dir, Ordinal i, Ordinal off ) const {
-  //return( cm_[dir]( i, off ) );
+  //return cm_[dir]( i, off );
   //}
 
   const std::string getLabel() const {
-    return( "InterpolateV2S" );
+    return "InterpolateV2S";
   };
 
 };
@@ -187,22 +187,21 @@ public:
 /// \relates InterpolateV2S
 template< class S, class O, int sd,int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
-  const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
-  const Teuchos::RCP<const GridSizeLocal<O,sd,d> >& gridSizeLocal,
-  const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
-  const Teuchos::RCP<const DomainSize<S,sd> >& domainSize,
-  const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
-  const Teuchos::RCP<const CoordinatesLocal<S,O,d,dimNC> >& coordinatesLocal ) {
+    const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
+    const Teuchos::RCP<const GridSizeLocal<O,sd,d> >& gridSizeLocal,
+    const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
+    const Teuchos::RCP<const DomainSize<S,sd> >& domainSize,
+    const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
+    const Teuchos::RCP<const CoordinatesLocal<S,O,d,dimNC> >& coordinatesLocal ) {
 
-  return(
-          Teuchos::rcp(
-            new InterpolateV2S<S,O,sd,d,dimNC>(
-              iS,
-              gridSizeLocal,
-              stencilWidths,
-              domainSize,
-              boundaryConditionsLocal,
-              coordinatesLocal ) ) );
+  return Teuchos::rcp(
+      new InterpolateV2S<S,O,sd,d,dimNC>(
+        iS,
+        gridSizeLocal,
+        stencilWidths,
+        domainSize,
+        boundaryConditionsLocal,
+        coordinatesLocal ) );
 }
 
 
@@ -210,9 +209,9 @@ Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
 /// \relates InterpolateV2S
 template< class S, class O, int sd, int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
-  const Teuchos::RCP<const Space<S,O,sd,d,dimNC> >& space ) {
+    const Teuchos::RCP<const Space<S,O,sd,d,dimNC> >& space ) {
 
-  return( space->getInterpolateV2S() );
+  return space->getInterpolateV2S();
 }
 
 

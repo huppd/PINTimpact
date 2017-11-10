@@ -55,17 +55,15 @@ protected:
   Teuchos::Tuple<OT,SpaceT::sdim-1> cw_;
 
   constexpr OT getI( const OT i, const OT j, const OT k ) {
-    return(
-            (SpaceT::sdim==2)?
-            (i-SS_[X]) + (j-SS_[Y])*cw_[0] :
-            (i-SS_[X]) + (j-SS_[Y])*cw_[0] + (k-SS_[Z])*cw_[1]
-          );
+    return (SpaceT::sdim==2)?
+      (i-SS_[X]) + (j-SS_[Y])*cw_[0] :
+      (i-SS_[X]) + (j-SS_[Y])*cw_[0] + (k-SS_[Z])*cw_[1];
   }
 
 public:
 
   constexpr const OT getN() {
-    return( N_ );
+    return N_;
   }
 
   TeuchosTransfer(
@@ -331,7 +329,7 @@ public:
   }
 
   constexpr const std::string getLabel() const {
-    return( "TeuchosTransfer" );
+    return "TeuchosTransfer";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -450,16 +448,16 @@ public:
 protected:
 
   constexpr const OT getN() const {
-    return( trans_->getN() );
+    return trans_->getN();
   }
 
 public:
 
   constexpr const Teuchos::RCP< const OperatorT >& getOperator() const {
-    return( op_ );
+    return op_;
   }
   constexpr const Teuchos::RCP< TeuchosTransfer<SpaceT> >& getTeuchosTransfer() const {
-    return( trans_ );
+    return trans_;
   }
 
   ///  @}
@@ -498,16 +496,16 @@ public:
 protected:
 
   const OT getN() const {
-    return( trans_->getN() );
+    return trans_->getN();
   }
 
 public:
 
   Teuchos::RCP< const OperatorT > getOperator() const {
-    return( op_ );
+    return op_;
   }
   Teuchos::RCP< TeuchosTransfer<SpaceT> > getTeuchosTransfer() const {
-    return( trans_ );
+    return trans_;
   }
 
   ///  @}

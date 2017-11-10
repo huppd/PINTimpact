@@ -78,7 +78,7 @@ public:
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
 
@@ -92,17 +92,17 @@ public:
 
 
   Teuchos::RCP< OpT > getInnerOpPtr() {
-    return( op_ );
+    return op_;
   }
 
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
 
   const std::string getLabel() const {
-    return( "ModeNonlinearOp_"+op_->getLabel() );
+    return "ModeNonlinearOp_"+op_->getLabel();
   };
 
 
@@ -122,8 +122,7 @@ template< class OpT >
 Teuchos::RCP< ModeNonlinearOp<OpT> >
 createModeNonlinearOp( const Teuchos::RCP<OpT>& op ) {
 
-  return( Teuchos::rcp( new ModeNonlinearOp<OpT>( op ) ) );
-
+  return Teuchos::rcp( new ModeNonlinearOp<OpT>( op ) );
 }
 
 

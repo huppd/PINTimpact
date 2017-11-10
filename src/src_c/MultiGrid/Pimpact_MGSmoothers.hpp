@@ -57,9 +57,9 @@ public:
   const Teuchos::RCP<SmootherT>& get( int i ) const {
     assert( -1!=i );
     if( i<0 )
-      return( smoothers_[mgSpaces_->getNGrids()+i] );
+      return smoothers_[mgSpaces_->getNGrids()+i];
     else
-      return( smoothers_[i] );
+      return smoothers_[i];
   }
 
   //  void print(  std::ostream& out=std::cout ) const { }
@@ -75,11 +75,7 @@ createMGSmoothers(
   const Teuchos::RCP<const MGOperatorsT>& mgOperators,
   Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) {
 
-  return(
-          Teuchos::rcp(
-            new MGSmoothers<MGOperatorsT,SmootherT>(
-              mgOperators,
-              pl ) ) );
+  return Teuchos::rcp( new MGSmoothers<MGOperatorsT,SmootherT>( mgOperators, pl ) );
 }
 
 

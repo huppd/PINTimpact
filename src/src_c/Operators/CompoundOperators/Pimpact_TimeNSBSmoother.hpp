@@ -5,6 +5,12 @@
 
 #include "Teuchos_RCP.hpp"
 
+#include "Pimpact_CompoundField.hpp"
+#include "Pimpact_TimeField.hpp"
+#include "Pimpact_Utils.hpp"
+#include "Pimpact_VectorField.hpp"
+
+
 
 namespace Pimpact {
 
@@ -194,17 +200,17 @@ public:
   void assignField( const DomainFieldT& mv ) { };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return( op_->space() );
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "TimeNSBSmoother " );
+    return "TimeNSBSmoother ";
   };
 
 }; // end of class TimeNSBSmoother

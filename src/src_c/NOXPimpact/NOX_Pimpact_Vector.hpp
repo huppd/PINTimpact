@@ -65,7 +65,7 @@ public:
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& init( double gamma=0 ) {
     field_->init( gamma );
-    return( *this );
+    return *this;
   }
 
 
@@ -79,7 +79,7 @@ public:
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& random(bool useSeed = false, int seed = 1) {
     field_->random( useSeed, seed );
-    return( *this );
+    return *this;
   }
 
 
@@ -91,10 +91,10 @@ public:
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& abs(const Vector<Field>& y) {
     field_->abs( *y.field_ );
-    return( *this );
+    return *this;
   }
   virtual NOX::Abstract::Vector& abs(const NOX::Abstract::Vector& y) {
-    return( abs( dynamic_cast<const Vector<Field>& >(y) ) );
+    return abs( dynamic_cast<const Vector<Field>& >(y) );
   }
 
 
@@ -105,10 +105,10 @@ public:
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& operator=(const Vector<Field>& y) {
     *field_ = *y.field_;
-    return( *this );
+    return *this;
   }
   virtual NOX::Abstract::Vector& operator=(const NOX::Abstract::Vector& y) {
-    return( operator=( dynamic_cast<const Vector<Field>& >(y) ) );
+    return operator=( dynamic_cast<const Vector<Field>& >(y) );
   }
 
 
@@ -119,10 +119,10 @@ public:
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& reciprocal(const Vector<Field>& y) {
     field_->reciprocal( *y.field_ );
-    return( *this );
+    return *this;
   }
   virtual NOX::Abstract::Vector& reciprocal(const NOX::Abstract::Vector& y) {
-    return( reciprocal( dynamic_cast<const Vector<Field>& >(y) ) );
+    return reciprocal( dynamic_cast<const Vector<Field>& >(y) );
   }
 
 
@@ -136,7 +136,7 @@ public:
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& scale(double gamma) {
     field_->scale( gamma );
-    return( *this );
+    return *this;
   }
 
 
@@ -147,10 +147,10 @@ public:
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& scale(const Vector<Field>& a) {
     field_->scale( *a.field_ );
-    return( *this );
+    return *this;
   }
   virtual NOX::Abstract::Vector& scale(const NOX::Abstract::Vector& a) {
-    return( scale( dynamic_cast<const Vector<Field>& >(a) ) );
+    return scale( dynamic_cast<const Vector<Field>& >(a) );
   }
 
 
@@ -162,10 +162,10 @@ public:
   /// \test test me good
   virtual NOX::Abstract::Vector& update(double alpha, const Vector<Field>& a, double gamma = 0.0) {
     field_->add( alpha, *a.field_, gamma, *field_);
-    return( *this );
+    return *this;
   }
   virtual NOX::Abstract::Vector& update(double alpha, const NOX::Abstract::Vector& a, double gamma = 0.0) {
-    return( update( alpha, dynamic_cast<const Vector<Field>& >(a), gamma ) );
+    return update( alpha, dynamic_cast<const Vector<Field>& >(a), gamma );
   }
 
 
@@ -181,17 +181,18 @@ public:
     double gamma = 0.0) {
     field_->add( alpha, *a.field_, gamma,* field_);
     field_->add( beta,  *b.field_, 1.,* field_);
-    return( *this);
+    return *this;
   }
+
   virtual NOX::Abstract::Vector& update(
-    double alpha, const NOX::Abstract::Vector& a,
-    double beta, const NOX::Abstract::Vector& b,
-    double gamma = 0.0) {
-    return(
-            update(
-              alpha, dynamic_cast<const Vector<Field>& >(a),
-              beta,  dynamic_cast<const Vector<Field>& >(b),
-              gamma ) );
+      double alpha, const NOX::Abstract::Vector& a,
+      double beta, const NOX::Abstract::Vector& b,
+      double gamma = 0.0) {
+
+    return update(
+        alpha, dynamic_cast<const Vector<Field>& >(a),
+        beta,  dynamic_cast<const Vector<Field>& >(b),
+        gamma );
   }
 
 
@@ -210,12 +211,12 @@ public:
   virtual Teuchos::RCP<NOX::Abstract::Vector>
   clone(NOX::CopyType type = NOX::DeepCopy) const {
     switch(type) {
-    case NOX::DeepCopy:
-      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Deep) ) ) );
-    case NOX::ShapeCopy:
-      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Shallow) ) ) );
-    default: // just to make the compliler happy
-      return( Teuchos::null );
+      case NOX::DeepCopy:
+        return Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Deep) ) );
+      case NOX::ShapeCopy:
+        return Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Shallow) ) );
+      default: // just to make the compliler happy
+        return Teuchos::null;
     }
   }
 
@@ -254,15 +255,15 @@ public:
   /// \return \f$\|x\|\f$
   virtual double norm( NOX::Abstract::Vector::NormType type=NOX::Abstract::Vector::TwoNorm) const {
     switch( type ) {
-    case OneNorm:
-      return( field_->norm( ::Pimpact::ENorm::One ) );
-    case TwoNorm:
-      return( field_->norm( ::Pimpact::ENorm::L2 ) );
-    case MaxNorm:
-      return( field_->norm( ::Pimpact::ENorm::Inf ) );
-    default:
-      std::cout << "!!! Warning unknown NOX::Pimpact::Vector::NormType:\t" << type << "\n";
-      return(0.); // unnecssary but surpresses compiler warning
+      case OneNorm:
+        return field_->norm( ::Pimpact::ENorm::One );
+      case TwoNorm:
+        return field_->norm( ::Pimpact::ENorm::L2 );
+      case MaxNorm:
+        return field_->norm( ::Pimpact::ENorm::Inf );
+      default:
+        std::cout << "!!! Warning unknown NOX::Pimpact::Vector::NormType:\t" << type << "\n";
+        return 0.; // unnecssary but surpresses compiler warning
     }
   }
 
@@ -273,10 +274,10 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   virtual double norm(const Vector<Field>& weights) const {
-    return( field_->norm( *weights.field_) );
+    return field_->norm( *weights.field_);
   }
   virtual double norm(const NOX::Abstract::Vector& weights) const {
-    return( norm( dynamic_cast<const Vector<Field>& >(weights) ) );
+    return norm( dynamic_cast<const Vector<Field>& >(weights) );
   }
 
 
@@ -290,10 +291,10 @@ public:
   /// \f[ \langle x,y \rangle = \sum_{i=1}^n x_i y_i \f]
   /// \return \f$\langle x,y \rangle\f$
   virtual double innerProduct( const Vector<Field>& y ) const {
-    return( field_->dot( *y.field_ ) );
+    return field_->dot( *y.field_ );
   }
   virtual double innerProduct( const NOX::Abstract::Vector& y ) const {
-    return( innerProduct( dynamic_cast<const Vector<Field>& >(y) ) );
+    return innerProduct( dynamic_cast<const Vector<Field>& >(y) );
   }
 
 
@@ -305,7 +306,7 @@ public:
   /// \note Even if the vector is distributed across processors, this
   /// should return the <em> global length </em> of the vector.
   virtual NOX::size_type length() const {
-    return( field_->getLength() );
+    return field_->getLength();
   }
 
 
@@ -316,16 +317,16 @@ public:
 
 
   Teuchos::RCP<Field> getFieldPtr() {
-    return( field_ );
+    return field_;
   };
   Teuchos::RCP<const Field> getConstFieldPtr() const {
-    return( field_ );
+    return field_;
   };
   Field& getField() {
-    return( *field_ );
+    return *field_;
   };
   const Field& getConstField() const {
-    return( *field_ );
+    return *field_;
   };
 
   void level() const {
@@ -342,7 +343,7 @@ protected:
 /// \relates Vector
 template<class Field>
 Teuchos::RCP< Vector<Field> > createVector( const Teuchos::RCP<Field>& field ) {
-  return( Teuchos::rcp( new Vector<Field>(field) ) );
+  return Teuchos::rcp( new Vector<Field>(field) );
 }
 
 

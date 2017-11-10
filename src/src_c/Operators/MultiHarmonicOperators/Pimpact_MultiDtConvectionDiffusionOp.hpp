@@ -186,17 +186,17 @@ public:
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(op_->space());
+    return op_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "MHDtConvectionDiffusion" );
+    return "MHDtConvectionDiffusion";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -207,14 +207,14 @@ public:
 protected:
 
   constexpr const FieldTensorT& get0Wind() const {
-    return( wind0_->get() );
+    return wind0_->get();
   }
 
   constexpr const FieldTensorT& getCWind( const Ordinal i) const {
-    return( windc_[i-1]->get() );
+    return windc_[i-1]->get();
   }
   constexpr const FieldTensorT& getSWind( const Ordinal i) const {
-    return( winds_[i-1]->get() );
+    return winds_[i-1]->get();
   }
 
 }; // end of class MultiDtConvectionDiffusionOp
@@ -226,7 +226,7 @@ template<class SpaceT>
 Teuchos::RCP<MultiDtConvectionDiffusionOp<SpaceT> >
 createMultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ) {
 
-  return( Teuchos::rcp( new MultiDtConvectionDiffusionOp<SpaceT>( space ) ) );
+  return Teuchos::rcp( new MultiDtConvectionDiffusionOp<SpaceT>( space ) );
 }
 
 

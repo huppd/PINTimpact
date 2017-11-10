@@ -77,17 +77,17 @@ public:
   /// @{
 
   constexpr const int getBCL( const int dir ) const {
-    return( BCL_int_[dir] );
+    return BCL_int_[dir];
   }
   constexpr const int getBCU( const int dir ) const {
-    return( BCU_int_[dir] );
+    return BCU_int_[dir];
   }
 
   constexpr const int* getBCL() const {
-    return( BCL_int_.getRawPtr() );
+    return BCL_int_.getRawPtr();
   }
   constexpr const int* getBCU() const {
-    return( BCU_int_.getRawPtr() );
+    return BCU_int_.getRawPtr();
   }
 
   constexpr const Teuchos::Tuple<int,dim> periodic() const {
@@ -100,7 +100,7 @@ public:
         periodic[i] = 0;
     }
     if( 4==dim ) periodic[3] = 1;
-    return( periodic );
+    return periodic;
   }
 
   ///  @}
@@ -123,13 +123,13 @@ template<int dim=3>
 Teuchos::RCP<const BoundaryConditionsGlobal<dim> >
 createBoudaryConditionsGlobal( const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-  return( Teuchos::rcp( new BoundaryConditionsGlobal<dim>(
-                          pl->get<int>( "lower X", 1 ),
-                          pl->get<int>( "upper X", 1 ),
-                          pl->get<int>( "lower Y", 1 ),
-                          pl->get<int>( "upper Y", 1 ),
-                          pl->get<int>( "lower Z", 1 ),
-                          pl->get<int>( "upper Z", 1 ) ) ) );
+  return Teuchos::rcp( new BoundaryConditionsGlobal<dim>(
+        pl->get<int>( "lower X", 1 ),
+        pl->get<int>( "upper X", 1 ),
+        pl->get<int>( "lower Y", 1 ),
+        pl->get<int>( "upper Y", 1 ),
+        pl->get<int>( "lower Z", 1 ),
+        pl->get<int>( "upper Z", 1 ) ) );
 }
 
 

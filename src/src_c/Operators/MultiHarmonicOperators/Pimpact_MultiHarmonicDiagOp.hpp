@@ -96,7 +96,7 @@ public:
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(zeroOp_->space());
+    return zeroOp_->space();
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
@@ -105,11 +105,11 @@ public:
   }
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   const std::string getLabel() const {
-    return( "MultiHarmonicDiagOp " );
+    return "MultiHarmonicDiagOp ";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -129,7 +129,7 @@ createMultiHarmonicDiagOp(
   const Teuchos::RCP<ZeroOpT>& zeroOp,
   const Teuchos::RCP<ModeOpT>& modeOp ) {
 
-  return( Teuchos::rcp( new MultiHarmonicDiagOp<ZeroOpT,ModeOpT>( zeroOp, modeOp ) ) );
+  return Teuchos::rcp( new MultiHarmonicDiagOp<ZeroOpT,ModeOpT>( zeroOp, modeOp ) );
 }
 
 

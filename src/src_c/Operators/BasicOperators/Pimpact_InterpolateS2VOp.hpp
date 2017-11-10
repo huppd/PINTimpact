@@ -114,11 +114,11 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
   bool hasApplyTranspose() const {
-    return( false );
+    return false;
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return(space_);
+    return space_;
   };
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
@@ -135,11 +135,11 @@ public:
   }
 
   const std::string getLabel() const {
-    return( "InterpolateS2V" );
+    return "InterpolateS2V";
   };
 
   constexpr const Scalar getC( const ECoord dir, Ordinal i, Ordinal off ) const {
-    return( c_[dir]( i, off ) );
+    return c_[dir]( i, off );
   }
 
 
