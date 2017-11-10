@@ -50,7 +50,7 @@ protected:
 
 public:
 
-  static constexpr int epsI = 1e2;
+  static constexpr int epsI = 1e3;
 
   using DomainFieldT =  ScalarField<SpaceT>;
   using RangeFieldT =  VectorField<SpaceT>;

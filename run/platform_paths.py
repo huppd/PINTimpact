@@ -3,11 +3,10 @@ import os
 import time
 
 HPC = True
-# HPC = False
+HPC = False
 
 # exection path
-EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")  # hpc
-# EXE_PATH = os.path.expanduser("~/PImpact/debug/src_c")  # hpc
+EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")
 
 # data patch
 if HPC:
@@ -23,7 +22,7 @@ def exe_pre(npro, ops='', run=0):
     if HPC:
         return "mpirun -n "+str(npro)+' '  # hpc
     else:
-        time.sleep(200)
+        # time.sleep(600)
         return "bsub -n " + str(npro) + ' ' + ops + ' ' + ' -oo output' + \
             str(run) + ' mpirun '
 

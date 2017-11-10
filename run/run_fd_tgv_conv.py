@@ -7,7 +7,8 @@ import manipulator as ma
 
 
 # load parameter file
-TREE = ET.parse('../XML/parameter3DTime.xml')
+ma.set_ids('../XML/parameterTGVTime.xml')
+TREE = ET.parse('../XML/parameterTGVTime.xml')
 ROOT = TREE.getroot()
 
 ma.set_parameter(ROOT, 'withoutput', 1)
@@ -33,7 +34,7 @@ ma.set_parameter(ROOT, 'nx', 65)
 ma.set_parameter(ROOT, 'ny', 65)
 ma.set_parameter(ROOT, 'nz', 5)
 
-CASE_PATH[0] = '/FDTGV_conv2'
+CASE_PATH[0] = pp.DATA_PATH + '/FDTGV_conv2'
 pp.mkdir(CASE_PATH, 0)
 
 for re in RES:

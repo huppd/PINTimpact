@@ -9,6 +9,8 @@ import platform_paths as pp
 # load parameter file
 ma.set_ids('../XML/parameterSHLabs.xml')
 TREE = ET.parse('../XML/parameterSHLabs.xml')
+# ma.set_ids('../XML/parameterSHLabs.xml')
+# TREE = ET.parse('../XML/parameterSHLabs.xml')
 ROOT = TREE.getroot()
 
 # make executable ready
@@ -18,7 +20,7 @@ os.system('make '+EXE+' -j4')
 
 
 ma.set_parameter(ROOT, 'withoutput', 1)
-ma.set_parameter(ROOT, 'refinement step', 2)
+ma.set_parameter(ROOT, 'refinement step', 1)
 ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
 
@@ -26,12 +28,12 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 2
+NF = 1
 
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/all7'
+CASE_PATH[0] = pp.DATA_PATH + '/all1'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
@@ -49,16 +51,16 @@ NXO = 97
 NYO = 1537
 NZO = 513
 #
-NX = 65
+NX = 97
 NY = 129
 NZ = 129
 #
 # LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
 # LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
 # LZ = round(1.5*LZO/(NZO-1)*(NZ-1), 1)
-LX = LXO*10./12.
-LY = LYO/2.
-LZ = LZO
+LX = LXO # *10./12.
+LY = LYO/3./4.
+LZ = LZO/4.
 #
 # print('LX', LX)
 # print('LY', LY)

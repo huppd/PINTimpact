@@ -72,24 +72,26 @@ void computeEnergyDir( const VectorField<SpaceT>& vel, std::ostream& out=std::co
     for( OT k=space->si(F::S,Z); k<=space->ei(F::S,Z); ++k )
       for( OT j=space->si(F::S,Y); j<=space->ei(F::S,Y); ++j )
         for( OT i=space->si(F::S,X); i<=space->ei(F::S,X); ++i ) {
-          ST vel_2 = std::pow( temp(i,j,k), 2 );
+          ST vel = temp(i,j,k);
           switch( dir ) {
             case X: {
               ST volume = coord->dx(F::S,Y,j) * coord->dx(F::S,Z,k);
               energy[i-space->si(F::S,X)] +=
-                volume * vel_2 * ((0.==gamma)?1.:std::exp(-0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2)));
+                std::pow(volume * vel * ((0.==gamma)?1.:std::exp(-0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2))), 2);
               break;
             }
             case Y: {
-              ST volume = coord->dx(F::S,X,i) * coord->dx(F::S,Z,k);
+              ST z = coord->getX(F::S, Z, k);
+              ST dz = coord->dx(F::S, Z, k);
+              ST dx = coord->dx(F::S,X,i);
               energy[j-space->si(F::S,Y)] +=
-                volume * vel_2 * ((0.==gamma)?1.:std::exp(-0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2)));
+                dx * std::pow( dz * vel * std::exp(-0.5*std::pow(z/gamma, 2)), 2);
               break;
             }
             case Z: {
               ST volume = coord->dx(F::S,X,i) * coord->dx(F::S,Y,j);
               energy[k-space->si(F::S,Z)] +=
-                volume * vel_2 * ((0.==gamma)?1.:std::exp(-0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2)));
+                std::pow( volume * vel * ((0.==gamma)?1.:std::exp(-0.5*std::pow( coord->getX(F::S,Z,k)/gamma, 2))), 2);
               break;
             }
             case T: {
