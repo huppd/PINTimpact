@@ -28,8 +28,8 @@ using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 using FSpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 using CSpaceT = Pimpact::Space<ST,OT,sd,4,2>;
 
-//using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
-using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>; // dirty fix: till gather isn't fixed
+using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
+//using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>; // dirty fix: till gather isn't fixed
 
 //using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 //using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
@@ -129,8 +129,8 @@ int main( int argi, char** argv ) {
       InterVF,
       ConvDiffOpT,
       ConvDiffOpT,
-      ConvDiffJT,
-      //ConvDiffSORT,
+      //ConvDiffJT,
+      ConvDiffSORT,
       ConvDiffSORT
       > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 

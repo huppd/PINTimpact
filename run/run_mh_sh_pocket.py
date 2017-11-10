@@ -33,7 +33,7 @@ NF = 1
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/all14'
+CASE_PATH[0] = pp.DATA_PATH + '/all1'
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 

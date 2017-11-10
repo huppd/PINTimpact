@@ -10,7 +10,7 @@ import manipulator as ma
 TREE = ET.parse('../XML/parameterSHLabs.xml')
 ROOT = TREE.getroot()
 
-ma.set_parameter(ROOT, 'withoutput', 0)
+ma.set_parameter(ROOT, 'withoutput', 1)
 
 # make executable ready
 EXE = 'modeConvDiff'
@@ -20,9 +20,9 @@ os.system('make ' + EXE + ' -j4')
 
 st = 1./30.
 #
-NPX = 1
-NPY = 2
-NPZ = 2
+NPX = 3
+NPY = 6
+NPZ = 8
 NPF = 1
 #
 LXO = 22.5
@@ -32,15 +32,18 @@ NXO = 97
 NYO = 1537
 NZO = 513
 #
-NX = 65
-# NY = 193
-NZ = 129
+NX = 97
+NY = 769 
+NZ = 257 
 #
-LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
-LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
+# LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
+# LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
+LX = LXO
+LY = LYO/2.
+LZ = LZO/2.
 #
 print('LX', LX)
-# print('LY', LY)
+print('LY', LY)
 print('LZ', LZ)
 #
 ma.set_parameter(ROOT, 'Re', 300.)
@@ -49,7 +52,7 @@ ma.set_parameter(ROOT, 'lx', LX)
 ma.set_parameter(ROOT, 'lz', LZ)
 ma.set_parameter(ROOT, 'origin z', LZ/2.)
 ma.set_parameter(ROOT, 'nx', NX)
-# ma.set_parameter(ROOT, 'ny', NY)
+ma.set_parameter(ROOT, 'ny', NY)
 ma.set_parameter(ROOT, 'nz', NZ)
 ma.set_parameter(ROOT, 'nf', 1)
 ma.set_parameter(ROOT, 'npx', NPX)
@@ -66,20 +69,23 @@ PRECS = [4]
 
 CYCLES = [1, 2, 4, 8, 16]
 CYCLES = [2, 3, 4, 6, 8]
-CYCLES = [1, 2, 4]
+CYCLES = [1, 2]
+CYCLES = [1]
 
 SWEEPS = [1, 2, 4, 8, 16]
-SWEEPS = [1, 2, 4]
+SWEEPS = [1, 2]
+SWEEPS = [1]
 
-MAXGRIDS = [1, 3, 5]
+MAXGRIDS = [1, 3, 5, 7]
 # MAXGRIDS = [1, 2, 3]
+MAXGRIDS = [3]
 
 CASE_PATH = ['']*6
 
 
-# for side in ['left', 'right']:
-for side in ['left']:
-    CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec3_' + side
+for side in ['left', 'right']:
+# for side in ['left']:
+    CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
     pp.mkdir(CASE_PATH, 0)
     for y in NYS:
         CASE_PATH[1] = '/ny_'+str(y)
@@ -102,10 +108,10 @@ for side in ['left']:
                         pp.mkdir(CASE_PATH, 5)
                         pp.chdir(CASE_PATH, 5)
                         #
-                        NY = y*64 + 1
-                        LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
-                        ma.set_parameter(ROOT, 'ly', LY)
-                        ma.set_parameter(ROOT, 'maxGrids', max_grids)
+                        # NY = y*64 + 1
+                        # LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
+                        # ma.set_parameter(ROOT, 'ly', LY)
+                        ma.set_parameter(ROOT, 'numGrids', max_grids)
                         ma.set_parameter(ROOT, 'type', prec)
                         ma.set_parameter(ROOT, 'preconditioner', side)
                         ma.set_parameter(ROOT, 'numCycles', cycle)
