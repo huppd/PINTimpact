@@ -128,8 +128,6 @@ int main( int argi, char** argv ) {
       pl = Teuchos::getParametersFromXmlFile( xmlFilename );
     else
       pl = Teuchos::getParametersFromXmlFile( "parameterOut.xml" );
-    //pl->print();
-
     ////////////////////////////////////////// end of set up parameters /////////////////////////
 
 
@@ -155,12 +153,13 @@ int main( int argi, char** argv ) {
             Teuchos::rcp( new VF(space,true) ),
             Teuchos::rcp( new SF(space) ) ) ) ;
 
-    // init Fields
-    x->getField(0).getVField().initField( pl->sublist("Base flow") );
 
-    auto base = x->getField(0).getVField().get0Field().clone(Pimpact::ECopy::Deep);
+    //auto base = x->getField(0).getVField().get0Field().clone(Pimpact::ECopy::Deep);
     if( restart!=-1 )
       x->getField(0).read( restart );
+    //else
+      //// init Fields
+      //x->getField(0).getVField().initField( pl->sublist("Base flow") );
     /*********************************************************************************/
     for( int refine=0; refine<maxRefinement; ++refine ) {
 
@@ -298,6 +297,8 @@ int main( int argi, char** argv ) {
                   return( +1./8.*( A*A*std::cos(2.*a*pi2*x) + B*B*std::cos(2.*b*pi2*y) ) ); } );
             }
           }
+          else
+            x->getField(0).getVField().initField( pl->sublist("Base flow") );
           x->getField(0).getVField().changed();
           x->getField(0).getSField().changed();
         }
@@ -521,10 +522,10 @@ int main( int argi, char** argv ) {
           Teuchos::rcp(
             new NOX::Pimpact::PrePostErrorCompute<NV>(Teuchos::sublist(pl, "NOX error"), sol)) );
 
-      pl->sublist("NOX energy").set<int>( "refinement", refine );
-      prePostOperators->pushBack( 
-          Teuchos::rcp( new NOX::Pimpact::PrePostEnergyCompute<NV>(
-              Teuchos::sublist(pl, "NOX energy"), base)));
+      //pl->sublist("NOX energy").set<int>( "refinement", refine );
+      //prePostOperators->pushBack( 
+          //Teuchos::rcp( new NOX::Pimpact::PrePostEnergyCompute<NV>(
+              //Teuchos::sublist(pl, "NOX energy"), base)));
 
       prePostOperators->pushBack( 
           Teuchos::rcp(new NOX::Pimpact::PrePostWriter<NV>( Teuchos::sublist(pl, "NOX write") ) ) );
