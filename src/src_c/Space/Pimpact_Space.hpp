@@ -441,7 +441,7 @@ public:
 
   /// \}
 
-  void print(  std::ostream& out=std::cout ) const {
+  void print( std::ostream& out=std::cout ) const {
 
     out << "\t---Space: ---\n";
 

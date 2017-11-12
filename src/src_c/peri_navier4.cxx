@@ -348,24 +348,7 @@ int main(int argi, char** argv ) {
     forcingm1Op = Pimpact::createForcingOp( forcem1 );
   }
 
-  //  S pi = 4.*std::atan(1.);
-  //  S idt = ((S)space->nGlo()[3])/2./pi;
-
-  /*
-  		auto opS2V =
-  		Pimpact::createCompositionOp(
-  		forcingm1Op,
-  		Pimpact::createTimeOpWrap(
-  		Pimpact::create<Pimpact::GradOp>(space)
-  		)
-  		);
-
-  		auto opV2S = Pimpact::createTimeOpWrap(
-  		Pimpact::create<Pimpact::DivOp>( space ) );
-  		*/
-  auto op =
-    Pimpact::createMultiOperatorBase(
-      Pimpact::create<Pimpact::TimeNSOp<SpaceT> >( space ));
+  auto op = Pimpact::create<Pimpact::TimeNSOp<SpaceT> >( space );
 
 
   Teuchos::RCP<BOp> jop;
@@ -395,51 +378,14 @@ int main(int argi, char** argv ) {
               Pimpact::TimeNS4DBSmoother,
               //									Pimpact::TimeStokesBSmoother
               MOP
-              > ( mgSpaces, mgPL );
+              > ( mgSpaces, op, mgPL );
 
 
     jop = Pimpact::createMultiOperatorBase(mg) ;
 
   }
 
-
-  // init lprec
-  /*
-  	 Teuchos::RCP<BOp> lprec = Teuchos::null;
-  	 auto schurParams = Pimpact::createLinSolverParameter( linSolName , tolSchur );
-  //    schurPara->set( "Verbosity", int( Belos::Errors) );
-  schurParams->set( "Output Stream", outSchur );
-
-  auto precParams = Pimpact::createLinSolverParameter( "CG", tolPrec );
-  //    solverParams->set( "Verbosity", int( Belos::Errors) );
-  precParams->set( "Output Stream", outPrec );
-
-  if( 1==precType ) {
-  if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block Schur complement\t: not available ---\n";
-  para->set( "Maximum Iterations", 500 );
-
-  }
-  else if( 2==precType ) {
-
-  if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement:\t not available---\n";
-  }
-  else if( 3==precType ) {
-  if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement\t--- not available\n";
-  }
-
-  auto lp_ = Pimpact::createLinearProblem<MF>(
-  jop, x->clone(), fu->clone(), para, linSolName );
-  if( leftPrec )
-  lp_->setLeftPrec( lprec );
-  else
-  lp_->setRightPrec( lprec );
-  auto lp = Pimpact::createInverseOperatorBase<MF>( lp_ );
-
-  jop=lp;
-  */
-  //    }
-
-  auto inter = NOX::Pimpact::createInterface<MF>( fu, op, jop );
+  auto inter = NOX::Pimpact::createInterface<MF>( fu, Pimpact::createMultiOperatorBase(op), jop );
 
   auto nx = NOX::Pimpact::createVector(x);
 

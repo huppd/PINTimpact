@@ -73,7 +73,7 @@ public:
     return get(i)->getProcGrid()->participating();
   }
 
-  void print(  std::ostream& out=std::cout ) const {
+  void print( std::ostream& out=std::cout ) const {
 
     for( int i=0; i<getNGrids(); ++i ) {
       out << "-------------------------\n";

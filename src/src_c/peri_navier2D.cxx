@@ -363,7 +363,9 @@ int main( int argi, char** argv ) {
             ConvDiffJT,
             ConvDiffSORT
             //MOP
-              > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
+              > ( mgSpaces,
+                  zeroOp,
+                  Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
           if( 0==space->rankST() )
             mgConvDiff->print();
@@ -446,8 +448,10 @@ int main( int argi, char** argv ) {
               Pimpact::DivGradOp,
               Pimpact::DivGradO2Op,
               Pimpact::DivGradO2JSmoother,
-              Pimpact::DivGradO2JSmoother
-                >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
+              Pimpact::DivGradO2JSmoother >(
+                  mgSpaces,
+                  divGradOp,
+                  Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
 
           if( 0==space->rankST() )
             mgDivGrad->print();

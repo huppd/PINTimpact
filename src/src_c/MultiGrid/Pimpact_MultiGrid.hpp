@@ -106,6 +106,7 @@ public:
   /// \todo FSpaceOperator should be passed here
   MultiGrid(
     const Teuchos::RCP<const MGSpacesT>& mgSpaces,
+    const Teuchos::RCP<FOperatorT<typename MGSpacesT::FSpaceT> >& fOperator,
     const Teuchos::RCP<Teuchos::ParameterList>& pl ):
     defectCorrection_( pl->get<bool>("defect correction", true ) ),
     initZero_( pl->get<bool>("init zero", false ) ),
@@ -114,7 +115,7 @@ public:
     numGrids_( pl->get<int>("numGrids", -1) ),
     mgSpaces_(mgSpaces),
     mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
-    mgOps_(   createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
+    mgOps_(   createMGOperators<FOperatorT,COperatorT>(mgSpaces, fOperator) ),
     mgSms_(   createMGSmoothers<SmootherT>( mgOps_, Teuchos::sublist(pl, "Smoother") ) ),
     //cGridSolver_( mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1),
           //Teuchos::sublist(pl,"Coarse Grid Solver") ):Teuchos::null ) {
@@ -300,7 +301,7 @@ public:
 
     MGFieldsT temp( mgSpaces_ );
 
-    mgOps_->get()->assignField( mv );
+    //mgOps_->get()->assignField( mv );
     mgTrans_->getTransferOp()->apply( mv, temp.get(0) );
 
     for( int i=0; i<mgSpaces_->getNGrids()-1; ++i )  {
@@ -363,11 +364,12 @@ template<
 Teuchos::RCP< MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT> >
 createMultiGrid(
   const Teuchos::RCP<const MGSpacesT>& mgSpaces,
+  const Teuchos::RCP<FOperatorT<typename MGSpacesT::FSpaceT> > & fOperatr,
   const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ) {
 
   return Teuchos::rcp( new
       MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT>(
-        mgSpaces, pl ));
+        mgSpaces, fOperatr, pl ));
 }
 
 

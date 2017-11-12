@@ -140,7 +140,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
 		//POP2
 		//POP3
 		MOP
-			> ( mgSpaces, Teuchos::parameterList() ) ;
+			> ( mgSpaces, zeroOp, Teuchos::parameterList() ) ;
 
 	//if( 0==space->rankST() )
 	//mgConvDiff->print();
@@ -338,21 +338,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicSolver, MultiHarmonicDiagOp, Spa
 	using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, maxGrids );
 
-	auto mgConvDiff =
-		Pimpact::createMultiGrid<
-		Pimpact::VectorField,
-		TransVF,
-		RestrVF,
-		InterVF,
-		ConvDiffOpT,
-		ConvDiffOpT,
-		//ConvDiffSORT,
-		ConvDiffJT,
-		//ConvDiffJT
-		//POP2
-		//POP3
-		MOP
-			> ( mgSpaces, Teuchos::parameterList() ) ;
+  auto mgConvDiff = Pimpact::createMultiGrid<
+    Pimpact::VectorField,
+    TransVF,
+    RestrVF,
+    InterVF,
+    ConvDiffOpT,
+    ConvDiffOpT,
+    //ConvDiffSORT,
+    ConvDiffJT,
+    //ConvDiffJT
+    //POP2
+    //POP3
+    MOP
+      > ( mgSpaces, zeroOp, Teuchos::parameterList() ) ;
 
 	//if( 0==space->rankST() )
 	//mgConvDiff->print();

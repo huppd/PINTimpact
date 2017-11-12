@@ -46,14 +46,15 @@ protected:
 
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
-  Teuchos::RCP< FOperatorT >               fOperator_;
-  std::vector< Teuchos::RCP<COperatorT> >  cOperator_;
+  Teuchos::RCP<FOperatorT>                fOperator_;
+  std::vector<Teuchos::RCP<COperatorT> >  cOperator_;
 
 public:
 
-  MGOperators( const Teuchos::RCP<const MGSpacesT>& mgSpaces  ):
+  MGOperators( const Teuchos::RCP<const MGSpacesT>& mgSpaces,
+      const Teuchos::RCP<FOperatorT>& fOperator ):
     mgSpaces_(mgSpaces),
-    fOperator_( Teuchos::rcp( new FOperatorT( mgSpaces_->get() ) ) ),
+    fOperator_( fOperator ),
     cOperator_( mgSpaces_->getNGrids() ) {
 
     for( int i=0; i<mgSpaces_->getNGrids(); ++i )
@@ -89,7 +90,7 @@ public:
         cOperator_[i]->setParameter( para );
   }
 
-  void print(  std::ostream& out=std::cout ) const {
+  void print( std::ostream& out=std::cout ) const {
 
     fOperator_->print();
     for( int i=0; i<mgSpaces_->getNGrids(); ++i ) {
@@ -106,9 +107,11 @@ public:
 template<template<class> class FOperatorT, template<class> class COperatorT=FOperatorT, class MGSpacesT >
 Teuchos::RCP<const MGOperators<MGSpacesT,FOperatorT,COperatorT> >
 createMGOperators(
-  const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
+  const Teuchos::RCP<const MGSpacesT>& mgSpaces,
+  const Teuchos::RCP<FOperatorT<typename MGSpacesT::FSpaceT> >& fOperator ) {
 
-  return Teuchos::rcp( new MGOperators<MGSpacesT,FOperatorT,COperatorT>( mgSpaces ) );
+  return Teuchos::rcp(
+      new MGOperators<MGSpacesT,FOperatorT,COperatorT>( mgSpaces, fOperator ) );
 }
 
 

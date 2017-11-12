@@ -115,7 +115,7 @@ public:
       return interpolationOps_[i];
   }
 
-  void print(  std::ostream& out=std::cout ) const {
+  void print( std::ostream& out=std::cout ) const {
 
     transferOp_->print(out);
 

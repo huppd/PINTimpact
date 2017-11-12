@@ -58,7 +58,7 @@ public:
     opS_->apply( x.getSField(), y.getSField() );
   }
 
-  void print(  std::ostream& out=std::cout ) const {
+  void print( std::ostream& out=std::cout ) const {
 
     out << "=== TransferCompoundOP ===\n";
     opV_->print( out );

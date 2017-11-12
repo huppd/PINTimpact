@@ -264,7 +264,7 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 			//Pimpact::DivGradO2LSmoother,
 			Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv
-				>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
+				>( mgSpaces, divGradOp, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
 
 	if( 0==space->rankST() )
 		mgDivGrad->print();

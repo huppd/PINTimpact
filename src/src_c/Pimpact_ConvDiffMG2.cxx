@@ -71,8 +71,7 @@ int main( int argi, char** argv ) {
         pls->sublist("Smoother").set<short int>( "dir Y", diry );
         pls->sublist("Smoother").set<short int>( "dir Z", 1 );
 
-        auto smoother =
-          Pimpact::createMultiGrid<
+        auto smoother = Pimpact::createMultiGrid<
           Pimpact::VectorField,
           TransVF,
           RestrVF,
@@ -82,7 +81,7 @@ int main( int argi, char** argv ) {
           //ConvDiffJT,
           ConvDiffSORT,
           //ConvDiffSORT
-          MOP > ( mgSpaces, pls );
+          MOP > ( mgSpaces, op, pls );
 
         std::ofstream phifile;
 

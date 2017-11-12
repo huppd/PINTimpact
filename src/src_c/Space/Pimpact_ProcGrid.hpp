@@ -260,7 +260,7 @@ public:
     iB_(ib),
     rankL_(rankL),
     rankU_(rankU)	{
-    std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
+    //std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
   }
 
   /// \todo figure out why freeing is not working, desirable for many Utest, destructor called twice?

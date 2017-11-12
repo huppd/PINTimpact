@@ -121,8 +121,7 @@ int main( int argi, char** argv ) {
       //Pimpact::create<ConvDiffSORT>(
           //zeroOp,
           //Teuchos::sublist(Teuchos::sublist(Teuchos::sublist(pl, "ConvDiff"), "Multi Grid"), "Coarse Grid Solver") ); 
-    auto mgConvDiff =
-      Pimpact::createMultiGrid<
+    auto mgConvDiff = Pimpact::createMultiGrid<
       Pimpact::VectorField,
       TransVF,
       RestrVF,
@@ -132,7 +131,7 @@ int main( int argi, char** argv ) {
       //ConvDiffJT,
       ConvDiffSORT,
       ConvDiffSORT
-      > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
+        > ( mgSpaces, zeroOp, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
     if( 0==space->rankST() )
       mgConvDiff->print();
@@ -271,7 +270,7 @@ int main( int argi, char** argv ) {
 
       err.add( 1., y, -1., rhs );
       //if( withoutput ) err.write( 0 );
-      //if( 1==print ) err.print(   );
+      //if( 1==print ) err.print();
 
       error = err.norm(Pimpact::ENorm::Inf)/rhs.norm(Pimpact::ENorm::Inf);
       std::cout << "\nresidual: " << error << "\n";
@@ -285,7 +284,7 @@ int main( int argi, char** argv ) {
     if( realCase!=0 ) {
       err.add( 1., sol, -1., x );
       if( withoutput ) err.write( 0 );
-      //if( print ) err.print(   );
+      //if( print ) err.print();
 
       error = err.norm(Pimpact::ENorm::Inf);
       std::cout << "\nerror: " << error << "\n";

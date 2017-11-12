@@ -82,7 +82,7 @@ public:
     sop_->setParameter( para );
   }
 
-  void print(  std::ostream& out=std::cout ) const {
+  void print( std::ostream& out=std::cout ) const {
     sop_->print();
   }
 

@@ -120,7 +120,7 @@ public:
   }
 
 
-  void print(  std::ostream& out=std::cout ) const {
+  void print( std::ostream& out=std::cout ) const {
 
     out << "=== Restriction OP ===\n";
     out << "nGather:\t" << this->nGather_ << "\n";

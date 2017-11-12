@@ -62,7 +62,7 @@ public:
       return smoothers_[i];
   }
 
-  //  void print(  std::ostream& out=std::cout ) const { }
+  //  void print( std::ostream& out=std::cout ) const { }
 
 }; // end of class MGSmoothers
 

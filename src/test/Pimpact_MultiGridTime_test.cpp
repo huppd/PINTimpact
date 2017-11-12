@@ -185,6 +185,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance" , 1.e-1 );
 
+	auto op = Pimpact::create<Pimpact::TimeNSOp>( space );
+
 	auto mg = Pimpact::createMultiGrid<
 		CVF,
 		TCO,
@@ -195,7 +197,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 		Pimpact::TimeNS4DBSmoother,
 		//									Pimpact::TimeStokesBSmoother
 		MOP
-			> ( mgSpaces, mgPL );
+			> ( mgSpaces, op, mgPL );
 
 	//	mg->print();
 
@@ -203,7 +205,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 			Pimpact::createTimeField< Pimpact::ScalarField<FSpace4T> >( space ));
 
 	using OpT = Pimpact::TimeStokesOp<FSpace4T>;
-	auto op = Pimpact::create<OpT>( space );
 
 	auto op_true = Pimpact::create<OpT>( space );
 

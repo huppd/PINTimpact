@@ -288,15 +288,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SFconstructor, CS ) {
 
 	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, maxGrids );
 
-	auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradO2Op>( mgSpaces );
+  auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
-	//auto mgOps2 = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces );
-	//auto mgOps2 = Pimpact::createMGOperators<Pimpact::DivGradOp>( mgSpaces );
-	//auto mgOps2 = Pimpact::createMGOperators<Pimpact::InterpolateS2V>( mgSpaces );
-
-	//if( print && 0==space->rankST() ) {
-		//mgOps2->print();
-	//}
+	auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradO2Op>( mgSpaces, op );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SFconstructor, CSG2D )
@@ -312,7 +306,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VFconstructor, CS ) {
 
 	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, maxGrids );
 
-	auto mgOps = Pimpact::createMGOperators<ConvDiffOpT>( mgSpaces );
+  auto op = Pimpact::create<ConvDiffOpT>( space );
+
+	auto mgOps = Pimpact::createMGOperators<ConvDiffOpT>( mgSpaces, op );
 
 	if( print && 0==space->rankST() )
 		mgOps->print();
@@ -331,15 +327,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SFconstructor, CS ) {
 
 	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, maxGrids );
 
+  auto op = Pimpact::create<Pimpact::DivGradOp>( space );
 
-	auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces );
+	auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces, op );
 
 	auto mgSmoother = Pimpact::createMGSmoothers<Pimpact::DivGradO2JSmoother>( mgOps );
 
-	auto op = mgSmoother->get( -2 );
+	auto smoother = mgSmoother->get( -2 );
 
 	if( mgSpaces->participating(-2) && print )
-		op->print();
+		smoother->print();
 
 }
 
@@ -356,14 +353,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VFconstructor, CS ) {
 
 	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, maxGrids );
 
-	auto mgOps = Pimpact::createMGOperators<ConvDiffOpT>( mgSpaces );
+  auto op = Pimpact::create<ConvDiffOpT>( space );
+	auto mgOps = Pimpact::createMGOperators<ConvDiffOpT>( mgSpaces, op );
 
 	auto mgSmoother = Pimpact::createMGSmoothers<ConvDiffSORT>( mgOps );
 
-	auto op = mgSmoother->get( -2 );
+	auto smoother = mgSmoother->get( -2 );
 
 	if( mgSpaces->participating(-2) && print )
-		op->print();
+		smoother->print();
 
 }
 
@@ -1084,7 +1082,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	//mgPL->sublist("Smoother").set<ST>( "max EV", evMin*1.1/30. );
 
 	Teuchos::RCP<MGT> mg =
-		Teuchos::rcp( new MGT( mgSpaces, mgPL ) );
+		Teuchos::rcp( new MGT( mgSpaces, op, mgPL ) );
 
 	auto prec = Pimpact::createMultiOperatorBase( mg );
 
@@ -1288,9 +1286,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffOp, CS, MGT ) {
 			, 1.0e-6 );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set( "Maximum Iterations", 100 );
 
-	Teuchos::RCP<MGT> mg = Teuchos::rcp( new MGT( mgSpaces, mgPL ) );
+	auto op = Pimpact::create<ConvDiffOpT>( space );
 
-	auto op = Pimpact::create< ConvDiffOpT >( space );
+	Teuchos::RCP<MGT> mg = Teuchos::rcp( new MGT( mgSpaces, op, mgPL ) );
+
 
 	Pimpact::VectorField<typename CS::SpaceT> x   ( space );
 	Pimpact::VectorField<typename CS::SpaceT> b   ( space );

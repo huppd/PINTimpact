@@ -90,7 +90,7 @@ public:
   }
 
 
-  void print(  std::ostream& out=std::cout ) const {
+  void print( std::ostream& out=std::cout ) const {
 
     out << "=== TransferMultiHarmonicOP ===\n";
     op_->print( out );

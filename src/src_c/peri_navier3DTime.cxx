@@ -523,7 +523,7 @@ int main( int argi, char** argv ) {
                 Pimpact::TimeNSOp,
 								Pimpact::TimeNS4DBSmoother,
 								//Pimpact::TimeStokesBSmoother,
-                MOP > ( mgSpaces, mgPL );
+                MOP > ( mgSpaces, op, mgPL );
 
       if( "right" == picardPrecString )
         opInv->setRightPrec( Pimpact::createMultiOperatorBase(mg) );

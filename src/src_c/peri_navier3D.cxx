@@ -62,11 +62,11 @@ const int dNC = 4;
 
 using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 
-using FSpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
-using CSpaceT = Pimpact::Space<ST,OT,sd,4,2  >;
+using FSpaceT = SpaceT;
+using CSpaceT = Pimpact::Space<ST,OT,sd,4,2>;
 
-//using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
-using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
+using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
+//using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
 
 using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
@@ -171,15 +171,6 @@ int main( int argi, char** argv ) {
       auto op = Pimpact::createCompoundOpWrap(
                   opV2V, opS2V, opV2S );
 
-      if( 0==space->rankST() ) std::cout << "\tdiv test\n";
-      {
-        auto tempField = x->getField(0).getSField().clone();
-        opV2S->apply( x->getField(0).getVField(), *tempField );
-        ST divergence = tempField->norm(Pimpact::ENorm::L2);
-        if( 0==space->rankST() )
-          std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
-      }
-
       std::string rl = "";
       if( maxRefinement>1 )
         rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
@@ -274,8 +265,8 @@ int main( int argi, char** argv ) {
               x->getField(0).getVField() = sol->getField(0).getVField();
 
             ST pi2 = 2.*std::acos(-1.);
-            ST alpha2 = space->getDomainSize()->getAlpha2();
-            ST re = space->getDomainSize()->getRe();
+            //ST alpha2 = space->getDomainSize()->getAlpha2();
+            //ST re = space->getDomainSize()->getRe();
             ST A =  pl->sublist("Force").get<ST>("A", 0.5);
             ST B =  pl->sublist("Force").get<ST>("B",-0.5);
             ST a =  pl->sublist("Force").get<ST>("a", 1.);
@@ -304,13 +295,22 @@ int main( int argi, char** argv ) {
         }
       }
 
+      if( 0==space->rankST() ) std::cout << "\tdiv test\n";
+      {
+        auto tempField = x->getField(0).getSField().clone();
+        opV2S->apply( x->getField(0).getVField(), *tempField );
+        ST divergence = tempField->norm(Pimpact::ENorm::L2);
+        if( 0==space->rankST() )
+          std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
+      }
+
+
       pl->sublist("Picard Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
           "Output Stream",
           Pimpact::createOstream("Picard"+rl+".txt", withoutput?space->rankST():-1,
             restart));
 
-      auto opInv =
-        Pimpact::createInverseOp<Pimpact::PicardProjector>(
+      auto opInv = Pimpact::createInverseOp<Pimpact::PicardProjector>(
             op, Teuchos::sublist( pl, "Picard Solver" ) );
 
       /*** init preconditioner **********************************************************/
@@ -319,6 +319,7 @@ int main( int argi, char** argv ) {
         pl->sublist("Picard Solver").get<std::string>( "preconditioner", "none" );
 
       if( "none" != picardPrecString ) {
+        if( 0==space->rankST() ) std::cout << "\tinit Picard preconditioner\n";
 
         // create Multi space
         auto mgSpaces = Pimpact::createMGSpaces<CS>(
@@ -326,6 +327,7 @@ int main( int argi, char** argv ) {
 
         ///////////////////////////////////////////begin of opv2v////////////////////////////////////
         //// creat H0-inv prec
+        if( 0==space->rankST() ) std::cout << "\tinit ConvDiff preconditioner\n";
         auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
         pl->sublist("ConvDiff").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
@@ -336,6 +338,7 @@ int main( int argi, char** argv ) {
         auto zeroInv = Pimpact::createInverseOp(
             zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
 
+        if( 0==space->rankST() ) std::cout << "\tinit ModeConvDiff preconditioner\n";
         auto modeOp = Teuchos::rcp(
             new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
@@ -347,8 +350,8 @@ int main( int argi, char** argv ) {
         auto modeInv = Pimpact::createInverseOp(
             modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
-        auto mgConvDiff =
-          Pimpact::createMultiGrid<
+        if( 0==space->rankST() ) std::cout << "\tinit mgConvDiff preconditioner\n";
+        auto mgConvDiff = Pimpact::createMultiGrid<
           Pimpact::VectorField,
           TransVF,
           RestrVF,
@@ -356,10 +359,10 @@ int main( int argi, char** argv ) {
           ConvDiffOpT,
           ConvDiffOpT,
           ConvDiffSORT,
-          ConvDiffSORT
-            //ConvDiffJT,
-            //MOP
-            > ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
+          ConvDiffSORT > (
+              mgSpaces,
+              zeroOp,
+              Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
         if( 0==space->rankST() )
           mgConvDiff->print();
@@ -391,6 +394,7 @@ int main( int argi, char** argv ) {
 
         /////////////////////////////////////////end of opv2v////////////////////////////////////
         ////--- inverse DivGrad
+        if( 0==space->rankST() ) std::cout << "\tinit DivGrad preconditioner\n";
 
         pl->sublist("DivGrad").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
             "Output Stream",
@@ -424,25 +428,26 @@ int main( int argi, char** argv ) {
 
         if( "none" != divGradPrecString ) { // init multigrid divgrad
 
-          auto mgDivGrad =
-            Pimpact::createMultiGrid<
-              Pimpact::ScalarField,
-              Pimpact::TransferOp,
-              Pimpact::RestrictionSFOp,
-              Pimpact::InterpolationOp,
-              Pimpact::DivGradOp,
-              Pimpact::DivGradOp,
-              //Pimpact::DivGradO2Op,
-              //Pimpact::DivGradO2JSmoother,
-              Pimpact::Chebyshev,
-              //Pimpact::DivGradO2SORSmoother,
-              //MOP
-              Pimpact::Chebyshev
+          auto mgDivGrad = Pimpact::createMultiGrid<
+            Pimpact::ScalarField,
+            Pimpact::TransferOp,
+            Pimpact::RestrictionSFOp,
+            Pimpact::InterpolationOp,
+            Pimpact::DivGradOp,
+            //Pimpact::DivGradOp,
+            Pimpact::DivGradO2Op,
+            Pimpact::DivGradO2JSmoother,
+            //Pimpact::Chebyshev,
+            //Pimpact::DivGradO2SORSmoother,
+            //MOP
+            //Pimpact::Chebyshev
+            //Pimpact::DivGradO2Inv
+            //Pimpact::DivGradO2SORSmoother
+            Pimpact::DivGradO2JSmoother
               //Pimpact::DivGradO2Inv
-              //Pimpact::DivGradO2SORSmoother
-              //Pimpact::DivGradO2JSmoother
-                //Pimpact::DivGradO2Inv
-                >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
+              >( mgSpaces,
+                  divGradOp,
+                  Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
 
           if( 0==space->rankST() )
             mgDivGrad->print();

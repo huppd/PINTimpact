@@ -29,16 +29,15 @@ st = 1./30.
 NF = 0
 
 
-
 #
 NPX = 2
 NPY = 16
 NPZ = 6
 NPF = 1
-NPX = 1
-NPY = 4
-NPZ = 1
-NPF = 1
+# NPX = 1
+# NPY = 1
+# NPZ = 4
+# NPF = 1
 #
 LXO = 22.5
 LYO = 600.
@@ -50,9 +49,6 @@ NZO = 513
 NX = 97
 NY = 1025
 NZ = 385
-NX = 33
-NY = 1025
-NZ = 65
 #
 # LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
 # LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
