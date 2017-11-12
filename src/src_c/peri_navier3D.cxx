@@ -304,12 +304,10 @@ int main( int argi, char** argv ) {
         }
       }
 
-      if( withoutput )
-        pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-          "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
-      else
-        pl->sublist("Picard Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-          "Output Stream", Teuchos::rcp( new Teuchos::oblackholestream ) );
+      pl->sublist("Picard Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
+          "Output Stream",
+          Pimpact::createOstream("Picard"+rl+".txt", withoutput?space->rankST():-1,
+            restart));
 
       auto opInv =
         Pimpact::createInverseOp<Pimpact::PicardProjector>(
@@ -317,23 +315,23 @@ int main( int argi, char** argv ) {
 
       /*** init preconditioner **********************************************************/
 
-      std::string picardPrecString = pl->sublist("Picard Solver").get<std::string>( "preconditioner", "none" );
+      std::string picardPrecString =
+        pl->sublist("Picard Solver").get<std::string>( "preconditioner", "none" );
 
       if( "none" != picardPrecString ) {
 
         // create Multi space
-        auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
+        auto mgSpaces = Pimpact::createMGSpaces<CS>(
+            space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
         ///////////////////////////////////////////begin of opv2v////////////////////////////////////
         //// creat H0-inv prec
         auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
-        if( withoutput )
-          pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
-              Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
-        else
-          pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
-              Teuchos::rcp( new Teuchos::oblackholestream ) );
+        pl->sublist("ConvDiff").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
+            "Output Stream",
+            Pimpact::createOstream(zeroOp->getLabel()+rl+".txt",
+              withoutput?space->rankST():-1, restart));
 
         auto zeroInv = Pimpact::createInverseOp(
             zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
@@ -341,13 +339,10 @@ int main( int argi, char** argv ) {
         auto modeOp = Teuchos::rcp(
             new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
-        if( withoutput )
-          pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-              "Output Stream",
-              Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
-        else
-          pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-              "Output Stream", Teuchos::rcp(new Teuchos::oblackholestream) );
+        pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+            "Output Stream",
+            Pimpact::createOstream(modeOp->getLabel()+rl+".txt",
+              withoutput?space->rankST():-1, restart));
 
         auto modeInv = Pimpact::createInverseOp(
             modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
@@ -397,12 +392,10 @@ int main( int argi, char** argv ) {
         /////////////////////////////////////////end of opv2v////////////////////////////////////
         ////--- inverse DivGrad
 
-        if( withoutput )
-          pl->sublist("DivGrad").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
-              Pimpact::createOstream( "DivGrad"+rl+".txt", space->rankST() ) );
-        else
-          pl->sublist("DivGrad").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
-              Teuchos::rcp( new Teuchos::oblackholestream ) );
+        pl->sublist("DivGrad").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
+            "Output Stream",
+            Pimpact::createOstream("DivGrad"+rl+".txt", withoutput?space->rankST():-1,
+              restart));
 
         auto divGradOp =
           Pimpact::createDivGradOp(
@@ -512,7 +505,8 @@ int main( int argi, char** argv ) {
 
       //pl->sublist("Printing").remove("MyPID");
       noxSolverPara->sublist("Printing").set< Teuchos::RCP<std::ostream> >(
-          "Output Stream", Pimpact::createOstream("nonlinear"+rl+".txt", space->rankST() ) );
+          "Output Stream",
+          Pimpact::createOstream("nonlinear"+rl+".txt", space->rankST(), restart));
 
       // NOX PrePostOperators
       Teuchos::RCP<NOX::PrePostOperatorVector> prePostOperators =

@@ -256,8 +256,7 @@ Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank=0, 
 }
 
 
-void setBoundaryConditions( const
-                            Teuchos::RCP<Teuchos::ParameterList>& pl , int dtype ) {
+void setBoundaryConditions( const Teuchos::RCP<Teuchos::ParameterList>& pl , int dtype ) {
 
   switch( static_cast<EDomainType>(dtype) ) {
   case AllDirichlet:
