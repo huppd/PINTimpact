@@ -3,11 +3,10 @@ import os
 import time
 
 HPC = True
-# HPC = False
+HPC = False
 
 # exection path
 EXE_PATH = os.path.expanduser("~/PImpact/release/src_c")
-EXE_PATH = os.path.expanduser("~/PImpact/debug/src_c")
 
 # data patch
 if HPC:
