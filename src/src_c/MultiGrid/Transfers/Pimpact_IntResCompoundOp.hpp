@@ -69,21 +69,7 @@ public:
 }; // end of class IntResCompoundOp
 
 
-
 } // end of namespace Pimpact
-
-
-
-#ifdef COMPILE_ETI
-#include "Pimpact_Space.hpp"
-#include "Pimpact_InterpolationOp.hpp"
-#include "Pimpact_VectorFieldOpWrap.hpp"
-//extern template class Pimpact::IntResCompoundOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > >;
-//extern template class Pimpact::IntResCompoundOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > >;
-//extern template class Pimpact::IntResCompoundOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > > >;
-//extern template class Pimpact::IntResCompoundOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > > >;
-#endif
-
 
 
 #endif // end of #ifndef PIMPACT_INTRESCOMPOUNDOP_HPP

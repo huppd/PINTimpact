@@ -111,21 +111,7 @@ createNonlinearOp(
 }
 
 
-
 } // end of namespace Pimpact
-
-
-#ifdef COMPILE_ETI
-#include "Pimpact_ConvectionDiffusionSOp.hpp"
-extern template class Pimpact::NonlinearOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,2> > >;
-extern template class Pimpact::NonlinearOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,4> > >;
-extern template class Pimpact::NonlinearOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::NonlinearOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,4> > >;
-extern template class Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> > >;
-extern template class Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> > >;
-extern template class Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >;
-#endif
 
 
 #endif // end of #ifndef PIMPACT_NONLINEARVOP_HPP

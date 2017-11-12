@@ -190,14 +190,7 @@ public:
 }; // end of class TimeStokesOp
 
 
-
 } // end of namespace Pimpact
 
-
-
-#ifdef COMPILE_ETI
-extern template class Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> >;
-extern template class Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> >;
-#endif
 
 #endif // end of #ifndef PIMPACT_TIMESTOKESOP_HPP

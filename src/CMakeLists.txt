@@ -70,17 +70,6 @@ else()
 endif()
 
 
-option( enable_ETI "enable_ETI" OFF )
-
-if( enable_ETI )
-	add_definitions( -DCOMPILE_ETI )
-	message( "Pimpact:	enabled ETI\n" )
-else()
-	message( "Pimpact:	disabled ETI\n" )
-endif()
-
-
-
 set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${Trilinos_CXX_COMPILER_FLAGS}     -Wall -pedantic -std=c++11" )
 set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}       ${Trilinos_C_COMPILER_FLAGS}       -Wall -pedantic" )
 set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -Wall" )

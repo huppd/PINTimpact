@@ -93,10 +93,5 @@ createMGSmoothers(
 template<class T> using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
 template<class T> using ConvDiffJT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
-#ifdef COMPILE_ETI
-extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, Pimpact::DivGradO2JSmoother >;
-extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, Pimpact::DivGradO2JSmoother >;
-#endif
-
 
 #endif // end of #ifndef PIMPACT_MGSMOOTHERS_HPP

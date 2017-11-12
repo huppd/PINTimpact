@@ -90,14 +90,4 @@ public:
 } // end of namespace Pimpact
 
 
-
-#ifdef COMPILE_ETI
-#include "Pimpact_ConvectionDiffusionSORSmoother.hpp"
-extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> > >, Pimpact::ConvectionDiffusionSORSmoother>;
-extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> > >, Pimpact::ConvectionDiffusionSORSmoother>;
-extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >, Pimpact::ConvectionDiffusionSORSmoother>;
-extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >, Pimpact::ConvectionDiffusionSORSmoother>;
-#endif
-
-
 #endif // end of #ifndef PIMPACT_NONLINEARSMOOTHER_HPP

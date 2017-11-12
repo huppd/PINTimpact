@@ -90,14 +90,7 @@ public:
 }; // end of class TransferOp
 
 
-
 } // end of namespace Pimpact
-
-
-//#ifdef COMPILE_ETI
-//extern template class Pimpact::TransferOp< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
-//extern template class Pimpact::TransferOp< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
-//#endif
 
 
 #endif // end of #ifndef PIMPACT_TRANSFEROP_HPP

@@ -204,10 +204,4 @@ public:
 } // end of namespace Pimpact
 
 
-#ifdef COMPILE_ETI
-extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,3,3,4>, Pimpact::Space<double,int,3,3,2> >;
-extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,3,4,4>, Pimpact::Space<double,int,3,4,2> >;
-#endif
-
-
 #endif // end of #ifndef PIMPACT_COARSENSTRATEGYGLOBAL_HPP

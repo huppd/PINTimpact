@@ -424,23 +424,25 @@ int main( int argi, char** argv ) {
 
         if( "none" != divGradPrecString ) { // init multigrid divgrad
 
-          auto mgDivGrad = Pimpact::createMultiGrid<
-                           Pimpact::ScalarField,
-                           Pimpact::TransferOp,
-                           Pimpact::RestrictionSFOp,
-                           Pimpact::InterpolationOp,
-                           Pimpact::DivGradOp,
-                           Pimpact::DivGradO2Op,
-                           Pimpact::DivGradO2JSmoother,
-                           //Pimpact::Chebyshev,
-                           //Pimpact::DivGradO2SORSmoother,
-                           //MOP
-                           //Pimpact::Chebyshev
-                           //Pimpact::DivGradO2Inv
-                           //Pimpact::DivGradO2SORSmoother
-                           Pimpact::DivGradO2JSmoother
-                           //Pimpact::DivGradO2Inv
-                           >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
+          auto mgDivGrad =
+            Pimpact::createMultiGrid<
+              Pimpact::ScalarField,
+              Pimpact::TransferOp,
+              Pimpact::RestrictionSFOp,
+              Pimpact::InterpolationOp,
+              Pimpact::DivGradOp,
+              Pimpact::DivGradOp,
+              //Pimpact::DivGradO2Op,
+              //Pimpact::DivGradO2JSmoother,
+              Pimpact::Chebyshev,
+              //Pimpact::DivGradO2SORSmoother,
+              //MOP
+              Pimpact::Chebyshev
+              //Pimpact::DivGradO2Inv
+              //Pimpact::DivGradO2SORSmoother
+              //Pimpact::DivGradO2JSmoother
+                //Pimpact::DivGradO2Inv
+                >( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
 
           if( 0==space->rankST() )
             mgDivGrad->print();

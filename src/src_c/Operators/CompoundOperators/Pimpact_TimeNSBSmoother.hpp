@@ -216,15 +216,7 @@ public:
 }; // end of class TimeNSBSmoother
 
 
-
 } // end of namespace Pimpact
 
-
-
-#ifdef COMPILE_ETI
-#include "Pimpact_TimeNSOp.hpp"
-extern template class Pimpact::TimeNSBSmoother< Pimpact::TimeNSOp< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::TimeNSBSmoother< Pimpact::TimeNSOp< Pimpact::Space<double,int,4,4> > >;
-#endif
 
 #endif // end of #ifndef PIMPACT_TIMENSBSMOOTHER_HPP
