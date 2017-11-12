@@ -26,14 +26,14 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 2
+NF = 0
 
 
 
 #
-NPX = 3
-NPY = 6
-NPZ = 8
+NPX = 2
+NPY = 16
+NPZ = 6
 NPF = 1
 #
 LXO = 22.5
@@ -44,19 +44,19 @@ NYO = 1537
 NZO = 513
 #
 NX = 97
-NY = 769 
-NZ = 257 
+NY = 1025
+NZ = 385
 #
 # LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
 # LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
-# LZ = round(2.*LZO/(NZO-1)*(NZ-1), 1)
+LZ = round(LZO/(NZO-1)*(NZ-1), 1)
 LX = LXO
-LY = LYO/2.
-LZ = LZO/2.
+LY = LYO*2./3.
+# LZ = LZO/2.
 #
-# print('LX', LX)
-# print('LY', LY)
-# print('LZ', LZ)
+print('LX', LX)
+print('LY', LY)
+print('LZ', LZ)
 print('DX', LX/LXO*(NXO-1)/(NX-1))
 print('DY', LY/LYO*(NYO-1)/(NY-1))
 print('DZ', LZ/LZO*(NZO-1)/(NZ-1))
