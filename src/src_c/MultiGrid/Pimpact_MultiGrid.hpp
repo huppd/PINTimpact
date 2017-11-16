@@ -171,8 +171,8 @@ public:
         mgOps_->get(0)->apply( x.get(0), temp.get(0) );
         // b = x - L y + \hat{L} y
         b.get(0).add( 1., b.get(0), 1, temp.get(0) );
-
       }
+
       int i;
       for( i=0; i<numGrids_-1; ++i ) {
         if( i>0 ) x.get(i).init(0.); // necessary? for DivGradOp yes
@@ -252,6 +252,21 @@ public:
       mgTrans_->getInterpolationOp(start)->apply( x.get(start+1), x.get(start) );
 
       for( int j=0; j<numCycles_; ++j ) {
+
+        if( -mgSpaces_->getNgrids()==start && defectCorrection_ ) {
+          mgTrans_->getTransferOp()->apply( x.get(0), y );
+          // defect correction rhs \hat{f}= b = x - L y
+          mgOps_->get()->computeResidual( rhs, y, b.get() );
+
+          // transfer init y and \hat{f} to coarsest coarse
+          mgTrans_->getTransferOp()->apply( y, x.get(0) );
+          mgTrans_->getTransferOp()->apply( b.get(), b.get(0) );
+
+          // residual temp = \hat(L) y
+          mgOps_->get(0)->apply( x.get(0), temp.get(0) );
+          // b = x - L y + \hat{L} y
+          b.get(0).add( 1., b.get(0), 1, temp.get(0) );
+        }
 
         int i;
         for( i=mgSpaces_->getNGrids()+start; i<mgSpaces_->getNGrids()-1; ++i ) {
