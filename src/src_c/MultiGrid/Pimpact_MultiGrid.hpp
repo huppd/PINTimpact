@@ -253,7 +253,7 @@ public:
 
       for( int j=0; j<numCycles_; ++j ) {
 
-        if( -mgSpaces_->getNgrids()==start && defectCorrection_ ) {
+        if( -mgSpaces_->getNGrids()==start && defectCorrection_ ) {
           mgTrans_->getTransferOp()->apply( x.get(0), y );
           // defect correction rhs \hat{f}= b = x - L y
           mgOps_->get()->computeResidual( rhs, y, b.get() );

@@ -30,11 +30,12 @@ ma.set_parameter(ROOT, 'npy', NP)
 
 
 # NXS = [33, 65, 129]
+NXS = [33]
 # NXS = [129]
-NXS = [257]
+# NXS = [257]
 
-RES = 10**np.linspace(0, 2, 3)[1:]
-STS = 10**np.linspace(-2, 0, 3)[1:]
+RES = 10**np.linspace(0, 2, 3)
+STS = 10**np.linspace(-2, 0, 3)
 
 
 # make executable ready
