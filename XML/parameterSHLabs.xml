@@ -154,7 +154,7 @@
       <Parameter docString="" id="92" isDefault="false" isUsed="true" name="2-Norm of Residual" type="double" value="1.05118220860305658e-01" />
     </ParameterList>
   </ParameterList>
-  <ParameterList id="243" name="Multi Grid">
+  <ParameterList id="242" name="Multi Grid">
     <Parameter docString="" id="93" isDefault="false" isUsed="true" name="maxGrids" type="int" value="5" />
   </ParameterList>
   <ParameterList id="243" name="Picard Solver">
@@ -267,7 +267,7 @@
     <ParameterList id="256" name="Eddy prec">
       <Parameter docString="" id="176" isDefault="true" isUsed="true" name="type" type="int" value="4" />
     </ParameterList>
-    <ParameterList id="258" name="Solver">
+    <ParameterList id="257" name="Solver">
       <Parameter docString="" id="177" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="25" />
       <Parameter docString="" id="178" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000005e-04" />
       <Parameter docString="" id="179" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />

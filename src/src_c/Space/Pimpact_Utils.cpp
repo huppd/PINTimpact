@@ -136,16 +136,6 @@ int Pimpact::getDir2( const int dir ) {
 }
 
 
-Teuchos::RCP<std::ostream>
-Pimpact::createOstream( const std::string& fname, int rank ) {
-
-  if( 0==rank )
-    return Teuchos::rcp( new std::ofstream( fname ) );
-  else
-    return Teuchos::rcp( new Teuchos::oblackholestream );
-
-}
-
 void Pimpact::setBoundaryConditions(
     const Teuchos::RCP<Teuchos::ParameterList>& pl , int dtype ) {
 
