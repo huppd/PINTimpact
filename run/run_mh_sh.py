@@ -26,17 +26,13 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 0
+NF = 2
 
 
 #
 NPX = 2
-NPY = 16
+NPY = 8
 NPZ = 6
-NPF = 1
-NPX = 1
-NPY = 1
-NPZ = 4
 NPF = 1
 #
 LXO = 22.5
@@ -100,7 +96,7 @@ pp.chdir(CASE_PATH, 0)
 
 TREE.write('parameter3D.xml')
 nptot = NPX*NPY*NPZ*NPF
-memtot = int(1024.*max(30/nptot, 2))
+memtot = int(1024.*2)
 print()
 print(CASE_PATH)
 EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
