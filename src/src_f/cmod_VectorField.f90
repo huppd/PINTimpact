@@ -158,11 +158,10 @@ contains
   !! \param[in] grid array of grid points
   !! \param[in] n number of grid points
   !! \param[in] sweep_angle sweep angle PHI
-  !! \param[in] angle_attack sweep angle ALPHA
   !! \param[in] kappa boundary suction KAPPA
   !! \param[in] s starting value for shooting
   !! \param[in] r end value for shooting
-  SUBROUTINE shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s,r)
+  SUBROUTINE shoot_v(v,grid,n,sweep_angle_degrees,kappa,s,r)
 
     implicit none
 
@@ -171,8 +170,7 @@ contains
     real(c_double), intent(out)   :: v(n,3)
     real(c_double), intent(in)    :: grid(n)
     real(c_double), intent(inout) :: s,r
-    real(c_double), intent(in)    :: sweep_angle
-    real(c_double), intent(in)    :: angle_attack
+    real(c_double), intent(in)    :: sweep_angle_degrees
     real(c_double), intent(in)    :: kappa
     !-------------------------------------------------------------------------
     real(c_double) :: rhs(3)        !value of right-hand side
@@ -183,9 +181,11 @@ contains
     real(c_double) :: x             !independent variable
     integer(c_int) :: i, k          !counters
     real(c_double) :: cosPhi        !cos(sweep_angle)
-    real(c_double) :: sinAlpha      !sin(angle_attack)
     real(c_double) :: upperBound    !upper interval boundary for integration
+    real(c_double) :: pi 
     !=====================================================================
+
+    pi = 4.*atan(1.)    !!set constants
 
     ! set Runge-Kutta coefficients
     rk1(1) = 0.
@@ -199,8 +199,7 @@ contains
     i = 1
     upperBound = 50.0
 
-    cosPhi   = cos(sweep_angle)
-    sinAlpha = sin(angle_attack)
+    cosPhi   = cos(sweep_angle_degrees*pi/180.)
 
     t(1) = -kappa
     t(2) = 0.
@@ -262,7 +261,7 @@ contains
 
 
 
-  SUBROUTINE shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,sw,r,blThick)
+  SUBROUTINE shoot_w(w,v,grid,n,sweep_angle_degrees,kappa,sv,sw,r,blThick)
 
     implicit none
 
@@ -272,7 +271,6 @@ contains
     real(c_double), intent(out):: v(n,3)                !> OUTPUT: solution vector
     real(c_double), intent(in) :: grid(n)               !> array of grid points
     real(c_double), intent(inout):: sv,sw,r             !> starting and end value for shooting
-    real(c_double), intent(in)   :: sweep_angle         !> sweep angle PHI
     real(c_double), intent(in)   :: sweep_angle_degrees !> sweep angle PHI
     real(c_double), intent(in)   :: kappa               !> boundary suction KAPPA
     real(c_double), intent(out)  :: blThick             !> blThickness (mathematical, non-dimensionalized)
@@ -286,7 +284,10 @@ contains
     integer(c_int) :: i, k          !counters
     real(c_double) :: cosPhi        !cos(sweep_angle)
     real(c_double) :: upperBound    !upper interval boundary for integration
+    real(c_double) :: pi 
     !!!=====================================================================
+
+    pi = 4.*atan(1.)    !!set constants
 
     !!set Runge-Kutta coefficients
     rk1(1) = 0.
@@ -297,7 +298,7 @@ contains
     rk2(3) = 8./15.
 
     !!set initial condition: v(0) = kappa, v'(0) = 0, initial guess depends on kappa, phi, alpha
-    cosPhi = cos(sweep_angle)
+    cosPhi = cos(sweep_angle_degrees*pi/180.)
 
     i = 1
     t(1) = -kappa
@@ -391,8 +392,6 @@ contains
   !! \param[in] rank
   !! \param[in] kappa boundary suction KAPPA
   !! \param[in] sweep_angle_degrees sweep angle PHI
-  !! \param[in] sweep_angle sweep angle PHI
-  !! \param[in] angle_attack
   !! \param[in] n number of grid points
   !! \param[in] grid array of grid points
   !! \param[inout] ub chordwise baseflow profile u
@@ -403,8 +402,6 @@ contains
       rank,                 &
       kappa,                &
       sweep_angle_degrees,  &
-      sweep_angle,          &
-      angle_attack,         &
       n,                    &
       grid,                 &
       ub,                   &
@@ -417,8 +414,6 @@ contains
     integer(c_int), intent(in)    :: rank
     real(c_double), intent(in)    :: kappa
     real(c_double), intent(in)    :: sweep_angle_degrees
-    real(c_double), intent(in)    :: sweep_angle
-    real(c_double), intent(in)    :: angle_attack 
     integer(c_int), intent(in)    :: n
     real(c_double), intent(in)    :: grid(n)
     real(c_double), intent(inout) :: ub(n)
@@ -472,8 +467,8 @@ contains
     s1 = initv2
 
     !! two initial shots
-    call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s0,r0)
-    call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s1,r1)
+    call shoot_v(v,grid,n,sweep_angle_degrees,kappa,s0,r0)
+    call shoot_v(v,grid,n,sweep_angle_degrees,kappa,s1,r1)
 
     i = 1
     !! controlled shooting loop
@@ -487,7 +482,7 @@ contains
         r0 = r1
       end if
 
-      call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s1,r1)
+      call shoot_v(v,grid,n,sweep_angle_degrees,kappa,s1,r1)
 
       if(abs(r1) <= 1e-10) then
         !!goal reached
@@ -523,8 +518,8 @@ contains
     s1 = initw2
 
     !! two initial shots
-    call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s0,r0,blThick)
-    call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
+    call shoot_w(w,v,grid,n,sweep_angle_degrees,kappa,sv,s0,r0,blThick)
+    call shoot_w(w,v,grid,n,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
 
     !! controlled shooting loop
     do
@@ -535,7 +530,7 @@ contains
       s0 = s1old
       r0 = r1
       !!shoot
-      call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
+      call shoot_w(w,v,grid,n,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
 
       !!check result
       IF( abs(r1) <= 1E-10 ) THEN
@@ -1687,7 +1682,6 @@ contains
   !! \param kappa Properties of swept Hiemenz flow
   !! \param sweep_angle_degrees Properties of swept Hiemenz flow
   !! \param sweep_angle Properties of swept Hiemenz flow
-  !! \param angle_attack Properties of swept Hiemenz flow
   !! \param velu
   !! \param velv
   !! \param velw
@@ -1722,8 +1716,6 @@ contains
       nonDim,               &
       kappa,                &
       sweep_angle_degrees,  &
-      sweep_angle,          &
-      angle_attack,         &
       velU,                 &
       velV,                 &
       velW ) bind ( c, name='VF_init_SHBF' )
@@ -1765,8 +1757,6 @@ contains
     integer(c_int), intent(in)     :: nonDim
     real(c_double), intent(in)     :: kappa               
     real(c_double), intent(in)     :: sweep_angle_degrees 
-    real(c_double), intent(in)     :: sweep_angle         
-    real(c_double), intent(in)     :: angle_attack        
 
     real(c_double),  intent(inout) :: velU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
     real(c_double),  intent(inout) :: velV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
@@ -1786,6 +1776,10 @@ contains
     !real(c_double)                ::  baseflow1p     (bL(1):(N(1)+bU(1)))
 
 
+    real(c_double) :: pi 
+
+    pi = 4.*atan(1.)    !!set constants
+
     !---- mjohn 120207 --------------------------- SWEPT HIEMENZ BASE FLOW ---------------------
 
     ! initialize variables
@@ -1798,7 +1792,7 @@ contains
 
     ! ------------------------- get two tangential base flow components (staggered grid! need information on p grid)
     ! get global basic flow (exactly FULL y axis, over all ranks) on yp grid, store in baseflow_global, for two tangent coordinates
-    call calcbasicflow( rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack, M(1),y1p(1),baseflow_global(1,3),baseflow_global(1,1),baseflow_global(1,2), blThick)
+    call calcbasicflow( rank, kappa, sweep_angle_degrees, M(1),y1p(1),baseflow_global(1,3),baseflow_global(1,1),baseflow_global(1,2), blThick)
     ! --- mjohn 051012
     ! set different velocity fields if integration with Hiemenz is performed
     ! integration routines however are unaltered (see below), because variables are overwritten (see usr_config.f90)
@@ -1806,15 +1800,17 @@ contains
     case(0)
       if( rank == 0 ) then
         write(*,'(a)') 'classical non-dimensionalization applied'
+        write(*,*) 'Kappa and Phi are', kappa, ', ', sweep_angle_degrees, '.'
       end if
       ! traditinoal SHBL case
       baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2)
     case default
       if( rank == 0 ) then
         write(*,'(a)') 'novel non-dimensionalization applied'
+        write(*,*) 'Kappa and Phi are', kappa, ', ', sweep_angle_degrees, '.'
       end if
       ! 2 degrees of freedom and novel formalism (cases 1 and 2)
-      baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2) * sin(sweep_angle)
+      baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2) * sin(sweep_angle_degrees*pi/180.)
     end select
     baseflow(bL(1):(N(1)+bU(1)),3) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),3) / Re
 
@@ -1823,7 +1819,7 @@ contains
     y1u_temp(1:M(1))  = y1u(1:M(1))
     y1u_temp(0     )  = 0.
 
-    call calcbasicflow(rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack,M(1)+1,y1u_temp(0),baseflow_global(0,3),baseflow_global(0,1),baseflow_global(0,2), blThick)
+    call calcbasicflow(rank, kappa, sweep_angle_degrees, M(1)+1,y1u_temp(0),baseflow_global(0,3),baseflow_global(0,1),baseflow_global(0,2), blThick)
 
 
     !write(*,*)  'ii, cIup(ii,i)'
@@ -1847,18 +1843,19 @@ contains
     if( rank == 0 ) then
       write(*,*) "distance, velocity (both in x1-direction)"
       DO i = SU(1), NU(1)
-        write(*,*)  i+iShift, baseflow(i,1)
+        write(*,*)  i+iShift, y1u(i+iShift), baseflow(i,1)
       end do
       write(*,*)
       write(*,*) "distance, velocity (both in x2-direction)"
       DO i = SV(1), NV(1)
-        write(*,*) i+iShift, baseflow(i,2)
+        write(*,*) i+iShift, y1u(i+iShift), baseflow(i,2)
       end do
       write(*,*)
       write(*,*) "distance, velocity (both in x3-direction)"
       DO i = SW(1), NW(1)
-        write(*,*) i+iShift, baseflow(i,3)
+        write(*,*) i+iShift, y1u(i+iShift), baseflow(i,3)
       end do
+      write(*,*) 'blThick', blThick 
     endif
 
     do k = SU(3), NU(3)

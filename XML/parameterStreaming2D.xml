@@ -216,7 +216,7 @@
       <Parameter docString="" id="136" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of RHS" />
     </ParameterList>
     <ParameterList id="214" name="Multi Grid">
-      <Parameter docString="" id="137" isDefault="true" isUsed="true" name="cycle type" type="int" value="1" />
+      <Parameter docString="" id="137" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
       <Parameter docString="" id="138" isDefault="true" isUsed="true" name="numCycles" type="int" value="4" />
       <Parameter docString="" id="139" isDefault="true" isUsed="true" name="defect correction" type="bool" value="true" />
       <Parameter docString="" id="140" isDefault="true" isUsed="true" name="init zero" type="bool" value="false" />

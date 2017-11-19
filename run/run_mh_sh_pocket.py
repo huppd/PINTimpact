@@ -28,48 +28,50 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 1
+Re = 356.76213450081639
+Re = 300.
+
+NF = 0
 
 
 CASE_PATH = ['']*3
 
-CASE_PATH[0] = pp.DATA_PATH + '/sh_pocket7'
-pp.mkdir(CASE_PATH, 0)
-pp.chdir(CASE_PATH, 0)
 
-
+#
+DX = 1
+DY = 8
+DZ = 8
 #
 NPX = 1
 NPY = 1
 NPZ = 1
-NPF = 2
+NPF = 1
 #
 LXO = 22.5
 LYO = 600.
 LZO = 150.
+#
 NXO = 97
 NYO = 1537
 NZO = 513
 #
-NX = 97
-NY = 129
-NZ = 129
+NX = (NXO-1)/DX + 1
+NY = (NYO-1)/DY + 1
+NZ = (NZO-1)/DZ + 1
 #
-# LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
-# LY = round(1.5*LYO/(NYO-1)*(NY-1), 1)
-# LZ = round(1.5*LZO/(NZO-1)*(NZ-1), 1)
-LX = LXO # *10./12.
-LY = LYO/3./4.
-LZ = LZO/4.
+LX = LXO/DX
+LY = LYO/DY
+LZ = LZO/DZ
 #
-# print('LX', LX)
-# print('LY', LY)
-# print('LZ', LZ)
-print('DX', LX/LXO*(NXO-1)/(NX-1))
-print('DY', LY/LYO*(NYO-1)/(NY-1))
-print('DZ', LZ/LZO*(NZO-1)/(NZ-1))
+print('LX', LX)
+print('LY', LY)
+print('LZ', LZ)
 #
-ma.set_parameter(ROOT, 'Re', 300.)
+CASE_PATH[0] = pp.DATA_PATH + '/sh_' + str(int(LY))
+pp.mkdir(CASE_PATH, 0)
+pp.chdir(CASE_PATH, 0)
+#
+ma.set_parameter(ROOT, 'Re', Re)
 ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*300.)
 ma.set_parameter(ROOT, 'lx', LX)
 ma.set_parameter(ROOT, 'ly', LY)

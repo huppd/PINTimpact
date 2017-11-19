@@ -20,6 +20,9 @@ os.system('make ' + EXE + ' -j4')
 
 st = 1./30.
 #
+DY = 8
+DZ = 8
+#
 NPX = 1
 NPY = 1
 NPZ = 1
@@ -32,15 +35,15 @@ NXO = 97
 NYO = 1537
 NZO = 513
 #
-NX = 65 
-NY = 65 
-NZ = 65 
+NX = NXO
+NY = (NYO-1)/DY + 1
+NZ = (NZO-1)/DZ + 1
 #
 # LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
 # LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
 LX = LXO
-LY = LYO/2.
-LZ = LZO/2.
+LY = LYO/DY
+LZ = LZO/DZ
 #
 print('LX', LX)
 print('LY', LY)
@@ -54,7 +57,7 @@ ma.set_parameter(ROOT, 'origin z', LZ/2.)
 ma.set_parameter(ROOT, 'nx', NX)
 ma.set_parameter(ROOT, 'ny', NY)
 ma.set_parameter(ROOT, 'nz', NZ)
-ma.set_parameter(ROOT, 'nf', 1)
+ma.set_parameter(ROOT, 'nf', 0)
 ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)

@@ -37,7 +37,7 @@ int main( int argi, char** argv ) {
   pl->set("npy",1);
   pl->set("npx",1);
 
-  pl->set( "domain", 1);
+  //pl->set( "domain", 1);
 
   int nwinds = 1;
 

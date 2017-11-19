@@ -792,9 +792,7 @@ public:
             space()->getDomainSize()->getRe(),
             para.get<int>( "nonDim", 0 ),
             para.get<ST>( "kappa", 0. ),
-            para.get<ST>( "seep angle", 0. ),
-            para.get<ST>( "seep angle", 0. )*pi/180.,
-            para.get<ST>( "attack angle", 0. ),
+            para.get<ST>( "sweep angle", 0. ),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr() );

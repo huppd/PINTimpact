@@ -284,8 +284,6 @@ extern "C" {
     const int& nonDim,
     const double& kappa,
     const double& sweep_angle_degrees,
-    const double& sweep_angle,
-    const double& angle_attack,
     double* const velU,
     double* const velV,
     double* const velW );
