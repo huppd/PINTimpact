@@ -19,7 +19,6 @@
     <Parameter docString="Flow type: depending on main" id="18" isDefault="false" isUsed="true" name="baseflow" type="int" value="1"/>
     <Parameter docString="Flow type: depending on main" id="19" isDefault="false" isUsed="true" name="flow" type="int" value="0"/>
     <ParameterList id="25" name="Solver">
-        <Parameter docString="" id="21" isDefault="false" isUsed="true" name="withprec" type="int" value="2"/>
         <Parameter docString="" id="22" isDefault="false" isUsed="true" name="withoutput" type="int" value="0"/>
         <Parameter docString="" id="23" isDefault="false" isUsed="true" name="refinement" type="int" value="2"/>
         <Parameter docString="" id="24" isDefault="false" isUsed="true" name="initZero" type="int" value="0"/>

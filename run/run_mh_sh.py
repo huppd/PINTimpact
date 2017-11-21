@@ -33,7 +33,7 @@ NF = 2
 NPX = 2
 NPY = 8
 NPZ = 6
-NPF = 1
+NPF = 2
 #
 LXO = 22.5
 LYO = 600.
@@ -45,15 +45,10 @@ NZO = 513
 NX = 97
 NY = 1025
 NZ = 385
-NY = 1025
-NZ = 129
 #
-# LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
-# LY = round(2.*LYO/(NYO-1)*(NY-1), 1)
-LZ = round(LZO/(NZO-1)*(NZ-1), 1)
 LX = LXO
 LY = LYO*2./3.
-# LZ = LZO/2.
+LZ = round(LZO/(NZO-1)*(NZ-1), 1)
 #
 print('LX', LX)
 print('LY', LY)
@@ -82,7 +77,7 @@ ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', NPF)
 ma.set_parameter(ROOT, 'initial guess', 'base')
-ma.set_insublist(ROOT, 'Line Search', 'Method', 'Full Step')
+# ma.set_insublist(ROOT, 'Line Search', 'Method', 'Full Step')
 # ma.set_parameter(ROOT, 'Convergence Tolerance', 0.01)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', 4)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',

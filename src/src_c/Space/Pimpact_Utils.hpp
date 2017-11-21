@@ -252,7 +252,6 @@ Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank=0, 
   }
   else
     return Teuchos::rcp( new Teuchos::oblackholestream );
-
 }
 
 

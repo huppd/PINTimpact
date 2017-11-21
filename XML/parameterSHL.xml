@@ -37,7 +37,6 @@
     <Parameter docString="" id="26" isDefault="true" isUsed="true" name="origin z" type="double" value="2.00000000000000000e+01" />
   </ParameterList>
   <ParameterList id="222" name="Solver">
-    <Parameter docString="" id="27" isDefault="false" isUsed="true" name="withprec" type="int" value="3" />
     <Parameter docString="" id="28" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
     <Parameter docString="" id="29" isDefault="false" isUsed="true" name="max refinement" type="int" value="1" />
     <Parameter docString="" id="30" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
