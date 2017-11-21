@@ -184,7 +184,7 @@ int main( int argi, char** argv ) {
         wind(Pimpact::F::V).init( 1. );
         wind(Pimpact::F::W).init( 1. );
       }
-      if( withoutput ) wind.write( 1000 );
+      //if( withoutput ) wind.write( 1000 );
 
       zeroOp->assignField( wind );
       mgConvDiff->assignField( wind );
@@ -193,7 +193,7 @@ int main( int argi, char** argv ) {
     if( realCase ) {
       rhs.getCField().initField( pl->sublist("Force").sublist("cos mode") );
       rhs.getSField().initField( pl->sublist("Force").sublist("sin mode") );
-      if( withoutput ) rhs.write( 100 );
+      //if( withoutput ) rhs.write( 100 );
     }
     else{
       auto initFunC = []( ST x, ST y ) ->ST { return std::pow((y-0.5),2); };
@@ -211,7 +211,7 @@ int main( int argi, char** argv ) {
           [=]( ST x, ST y, ST z ) ->ST { return initFunS(x,y); } );
 
       sol = x;
-      if( withoutput ) x.write( 10 );
+      //if( withoutput ) x.write( 10 );
 
       // solution init
       rhs.getCField()(Pimpact::F::U).initFromFunction(
@@ -280,11 +280,11 @@ int main( int argi, char** argv ) {
     }
     modeInv->apply( rhs, x );
 
-    if( withoutput ) x.write( 10 );
+    //if( withoutput ) x.write( 10 );
 
     if( realCase!=0 ) {
       err.add( 1., sol, -1., x );
-      if( withoutput ) err.write( 0 );
+      //if( withoutput ) err.write( 0 );
       //if( print ) err.print();
 
       error = err.norm(Pimpact::ENorm::Inf);
