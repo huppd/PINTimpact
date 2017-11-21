@@ -7,7 +7,7 @@ import manipulator as ma
 
 
 # load parameter file
-TREE = ET.parse('../XML/parameter3DTime.xml')
+TREE = ET.parse('../XML/parameterTGVTime.xml')
 ROOT = TREE.getroot()
 
 ma.set_parameter(ROOT, 'withoutput', 1)
@@ -51,13 +51,13 @@ for re in RES:
             ma.set_parameter(ROOT, 'Re', re)
             ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
             ma.set_parameter(ROOT, 'nf', nf)
-            ma.set_parameter(ROOT, 'npx', 1)
-            ma.set_parameter(ROOT, 'npy', 1)
+            ma.set_parameter(ROOT, 'npx', 2)
+            ma.set_parameter(ROOT, 'npy', 2)
             ma.set_parameter(ROOT, 'npz', 1)
-            ma.set_parameter(ROOT, 'npf', 12)
+            ma.set_parameter(ROOT, 'npf', 1)
             TREE.write('parameter3D.xml')
             # nptot = npx[i]*npy[i]*npf[i]
-            nptot = 12
+            nptot = 4
             mem = int(max(1024, 60*1024/nptot))
             for run in RUNS:
                 print()

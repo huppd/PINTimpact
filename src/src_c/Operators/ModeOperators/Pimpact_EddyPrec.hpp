@@ -74,6 +74,10 @@ public:
         applyERinv( x, y );
         break;
       }
+      case 5: {
+        applyER2inv( x, y );
+        break;
+      }
       default: {
         if( mulI_>=mulC_ && mulI_>=mulL_ )
           applyERinv( x, y );
@@ -131,6 +135,7 @@ public:
     y.scale( 0.5, B::N );
   }
 
+
   void applyERinv( const DomainFieldT& x, RangeFieldT& y ) const {
 
     //std::cout << "applyERinv\n";
@@ -152,6 +157,29 @@ public:
 
     y.getCField().add( 0.5, temp.getCField(),  0.5, temp.getSField(), B::N );
     y.getSField().add( 0.5, temp.getCField(), -0.5, temp.getSField(), B::N );
+  }
+
+
+  void applyER2inv( const DomainFieldT& x, RangeFieldT& y ) const {
+
+    //std::cout << "applyERinv\n";
+    // right
+    // set paramters
+    auto pl = Teuchos::parameterList();
+    pl->set<Scalar>( "mulI", mulI_ );
+    pl->set<Scalar>( "mulC", mulC_ );
+    pl->set<Scalar>( "mulL", mulL_ );
+
+    op_->setParameter( pl );
+
+    op_->apply( x.getCField(), y.getCField() );
+
+    pl->set<Scalar>( "mulI", -mulI_ );
+    pl->set<Scalar>( "mulC", -mulC_ );
+    pl->set<Scalar>( "mulL", -mulL_ );
+
+    op_->setParameter( pl );
+    op_->apply( x.getSField(), y.getSField() );
   }
 
 

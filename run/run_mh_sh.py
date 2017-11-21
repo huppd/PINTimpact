@@ -29,6 +29,9 @@ st = 1./30.
 NF = 2
 
 
+CASE_PATH = ['']*3
+
+
 #
 NPX = 2
 NPY = 8
@@ -38,6 +41,7 @@ NPF = 2
 LXO = 22.5
 LYO = 600.
 LZO = 150.
+#
 NXO = 97
 NYO = 1537
 NZO = 513
@@ -53,13 +57,10 @@ LZ = round(LZO/(NZO-1)*(NZ-1), 1)
 print('LX', LX)
 print('LY', LY)
 print('LZ', LZ)
+#
 print('DX', LX/LXO*(NXO-1)/(NX-1))
 print('DY', LY/LYO*(NYO-1)/(NY-1))
 print('DZ', LZ/LZO*(NZO-1)/(NZ-1))
-#
-# print('LX', LX)
-# print('LY', LY)
-# print('LZ', LZ)
 #
 ma.set_parameter(ROOT, 'Re', 300.)
 ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*300.)
@@ -83,7 +84,6 @@ ma.set_parameter(ROOT, 'initial guess', 'base')
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
         # True)
 
-CASE_PATH = ['']*3
 
 CASE_PATH[0] = pp.DATA_PATH + '/shbl_' + str(LY)
 pp.mkdir(CASE_PATH, 0)

@@ -1116,7 +1116,7 @@ contains
 
     integer(c_int) :: info
 
-    omega = 1
+    omega = 0.5
 
     do t = SS(4), NN(4)
 

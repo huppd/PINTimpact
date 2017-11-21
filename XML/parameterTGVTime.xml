@@ -136,11 +136,11 @@
 		<Parameter docString="" id="78" isDefault="true" isUsed="true" name="withoutput" type="int" value="1" />
 	</ParameterList>
 	<ParameterList id="194" name="Multi Grid">
-		<Parameter docString="" id="79" isDefault="false" isUsed="true" name="maxGrids" type="int" value="2" />
+		<Parameter docString="" id="79" isDefault="false" isUsed="true" name="maxGrids" type="int" value="10" />
 	</ParameterList>
 	<ParameterList id="195" name="Picard Solver">
 		<Parameter docString="" id="80" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
-		<Parameter docString="" id="81" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
+		<Parameter docString="" id="81" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<ParameterList id="196" name="Solver">
 			<Parameter docString="" id="82" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="400" />
 			<Parameter docString="" id="83" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
