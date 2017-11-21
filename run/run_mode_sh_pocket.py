@@ -20,30 +20,25 @@ os.system('make ' + EXE + ' -j4')
 
 st = 1./30.
 #
-DY = 8
-DZ = 8
-#
-NPX = 1
-NPY = 1
-NPZ = 1
-NPF = 1
+NPX = 2
+NPY = 8
+NPZ = 6
 #
 LXO = 22.5
 LYO = 600.
 LZO = 150.
+#
 NXO = 97
 NYO = 1537
 NZO = 513
 #
-NX = NXO
-NY = (NYO-1)/DY + 1
-NZ = (NZO-1)/DZ + 1
+NX = 97
+NY = 1025
+NZ = 385
 #
-# LX = round(1.2*LXO/(NXO-1)*(NX-1), 1)
-# LZ = round(1.2*LZO/(NZO-1)*(NZ-1), 1)
 LX = LXO
-LY = LYO/DY
-LZ = LZO/DZ
+LY = LYO*2./3.
+LZ = round(LZO/(NZO-1)*(NZ-1), 1)
 #
 print('LX', LX)
 print('LY', LY)
@@ -57,27 +52,29 @@ ma.set_parameter(ROOT, 'origin z', LZ/2.)
 ma.set_parameter(ROOT, 'nx', NX)
 ma.set_parameter(ROOT, 'ny', NY)
 ma.set_parameter(ROOT, 'nz', NZ)
-ma.set_parameter(ROOT, 'nf', 0)
+ma.set_parameter(ROOT, 'nf', 1)
 ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
-ma.set_parameter(ROOT, 'npf', NPF)
+ma.set_parameter(ROOT, 'npf', 1)
+ma.set_parameter(ROOT, 'Maximum Iterations', 100)
+ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-2)
 
 NYS = [5]
 
 PRECS = [1, 2, 3, 4]
 PRECS = [2, 3, 4]
 PRECS = [3, 4]
-PRECS = [4]
+PRECS = [4, 5]
 
 CYCLES = [1, 2, 4, 8, 16]
 CYCLES = [2, 3, 4, 6, 8]
-CYCLES = [1, 2]
-CYCLES = [1]
+CYCLES = [1, 2, 3]
+CYCLES = [3]
 
 SWEEPS = [1, 2, 4, 8, 16]
-SWEEPS = [1, 2]
-SWEEPS = [1]
+SWEEPS = [1, 2, 3]
+SWEEPS = [2]
 
 MAXGRIDS = [1, 3, 5, 7]
 # MAXGRIDS = [1, 2, 3]
@@ -95,9 +92,9 @@ for side in ['right']:
         pp.mkdir(CASE_PATH, 1)
         pp.chdir(CASE_PATH, 1)
         for prec in PRECS:
-            # CASE_PATH[1] = '/prec_'+str(prec)
-            # pp.mkdir(CASE_PATH, 1)
-            # pp.chdir(CASE_PATH, 1)
+            CASE_PATH[1] = '/prec_'+str(prec)
+            pp.mkdir(CASE_PATH, 1)
+            pp.chdir(CASE_PATH, 1)
             for cycle in CYCLES:
                 CASE_PATH[2] = '/cycle_'+str(cycle)
                 pp.mkdir(CASE_PATH, 2)
@@ -120,7 +117,7 @@ for side in ['right']:
                         ma.set_parameter(ROOT, 'numCycles', cycle)
                         ma.set_parameter(ROOT, 'numIters', sweep)
                         TREE.write('parameter3D.xml')
-                        nptot = NPX*NPY*NPZ*NPF
+                        nptot = NPX*NPY*NPZ
                         print()
                         print(CASE_PATH)
                         exe_str = \
