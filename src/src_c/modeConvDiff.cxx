@@ -18,7 +18,8 @@
 using ST = double;
 using OT = int;
 
-const int sd = 2;
+//const int sd = 2;
+const int sd = 3;
 const int dNC = 4;
 //const int dNC = 3;
 //const int dNC = 2;
