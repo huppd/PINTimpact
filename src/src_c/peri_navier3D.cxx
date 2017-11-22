@@ -668,7 +668,7 @@ int main( int argi, char** argv ) {
     Teuchos::TimeMonitor::summarize();
 
     if( 0==space->rankST() ) {
-      pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
+      //pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
       Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
     }
   }

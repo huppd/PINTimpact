@@ -7,7 +7,7 @@ import manipulator as ma
 
 
 # load parameter file
-TREE = ET.parse('../XML/parameterSHLabs.xml')
+TREE = ET.parse('../XML/parameterSHL.xml')
 ROOT = TREE.getroot()
 
 ma.set_parameter(ROOT, 'withoutput', 1)
