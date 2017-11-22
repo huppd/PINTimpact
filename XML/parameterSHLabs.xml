@@ -291,14 +291,14 @@
       <Parameter docString="" id="189" isDefault="true" isUsed="true" name="A" type="double" value="1.00000000000000000e+02" />
     </ParameterList>
     <ParameterList id="252" name="cos mode">
-      <Parameter docString="" id="191" isDefault="true" isUsed="true" name="Type" type="string" value="disturbance" />
-      <Parameter docString="" id="192" isDefault="true" isUsed="true" name="xc" type="double" value="3.00000000000000000e+00" />
-      <Parameter docString="" id="193" isDefault="true" isUsed="true" name="zc" type="double" value="1.50000000000000000e+00" />
-      <Parameter docString="" id="194" isDefault="true" isUsed="true" name="b" type="double" value="3.00000000000000000e+00" />
-      <Parameter docString="" id="195" isDefault="true" isUsed="true" name="A" type="double" value="1.00000000000000000e+00" />
+      <Parameter docString="" id="190" isDefault="true" isUsed="true" name="Type" type="string" value="disturbance" />
+      <Parameter docString="" id="191" isDefault="true" isUsed="true" name="xc" type="double" value="3.00000000000000000e+00" />
+      <Parameter docString="" id="192" isDefault="true" isUsed="true" name="zc" type="double" value="1.50000000000000000e+00" />
+      <Parameter docString="" id="193" isDefault="true" isUsed="true" name="b" type="double" value="3.00000000000000000e+00" />
+      <Parameter docString="" id="194" isDefault="true" isUsed="true" name="A" type="double" value="1.00000000000000000e+00" />
     </ParameterList>
     <ParameterList id="253" name="sin mode">
-      <Parameter docString="" id="190" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
+      <Parameter docString="" id="195" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
     </ParameterList>
   </ParameterList>
   <ParameterList id="254" name="NOX error">
