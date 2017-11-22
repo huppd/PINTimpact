@@ -7,8 +7,8 @@ import platform_paths as pp
 
 
 # load parameter file
-ma.set_ids('../XML/parameterSHLabs.xml')
-TREE = ET.parse('../XML/parameterSHLabs.xml')
+ma.set_ids('../XML/parameterSHL.xml')
+TREE = ET.parse('../XML/parameterSHL.xml')
 ROOT = TREE.getroot()
 
 # make executable ready
