@@ -145,7 +145,7 @@
     </ParameterList>
   </ParameterList>
   <ParameterList id="230" name="Multi Grid">
-    <Parameter docString="" id="87" isDefault="false" isUsed="true" name="maxGrids" type="int" value="5" />
+    <Parameter docString="" id="87" isDefault="false" isUsed="true" name="maxGrids" type="int" value="6" />
   </ParameterList>
   <ParameterList id="231" name="Picard Solver">
     <Parameter docString="" id="88" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />

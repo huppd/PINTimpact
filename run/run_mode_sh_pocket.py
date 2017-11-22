@@ -61,7 +61,7 @@ ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', 1)
-ma.set_parameter(ROOT, 'Maximum Iterations', 100)
+ma.set_parameter(ROOT, 'Maximum Iterations', 200)
 ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-6)
 
 
@@ -69,31 +69,33 @@ PRECS = [1, 2, 3, 4]
 PRECS = [2, 3, 4]
 PRECS = [3, 4]
 PRECS = [4, 5]
-# PRECS = [5]
+PRECS = [5]
 
 CYCLES = [1, 2, 4, 8, 16]
 CYCLES = [2, 3, 4, 6, 8]
+CYCLES = [1, 2, 3, 4]
 CYCLES = [1, 2, 3]
-CYCLES = [3]
+CYCLES = [1, 2, 3]
+CYCLES = [2]
 
 SWEEPS = [1, 2, 4, 8, 16]
 SWEEPS = [1, 2, 3]
-SWEEPS = [2]
+SWEEPS = [1]
 
 MAXGRIDS = [1, 3, 5, 7]
-# MAXGRIDS = [1, 2, 3]
+MAXGRIDS = [1, 2, 4]
 MAXGRIDS = [3]
 
 CASE_PATH = ['']*6
 
 
+# for side in ['left', 'right']:
 # for side in ['right']:
-# for side in ['left']:
-for side in ['left', 'right']:
+for side in ['left']:
     CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
     pp.mkdir(CASE_PATH, 0)
     for prec in PRECS:
-        CASE_PATH[1] = '/prec_'+str(prec)
+        CASE_PATH[1] = '/prec_'+str(prec-4)
         pp.mkdir(CASE_PATH, 1)
         pp.chdir(CASE_PATH, 1)
         for cycle in CYCLES:
@@ -113,7 +115,8 @@ for side in ['left', 'right']:
                     # LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
                     # ma.set_parameter(ROOT, 'ly', LY)
                     ma.set_parameter(ROOT, 'numGrids', max_grids)
-                    ma.set_parameter(ROOT, 'type', prec)
+                    # ma.set_parameter(ROOT, 'type', prec)
+                    ma.set_parameter(ROOT, 'cycle type', prec-4)
                     ma.set_parameter(ROOT, 'preconditioner', side)
                     ma.set_parameter(ROOT, 'numCycles', cycle)
                     ma.set_parameter(ROOT, 'numIters', sweep)
