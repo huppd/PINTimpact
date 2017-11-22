@@ -47,7 +47,7 @@ NYO = 1537
 NZO = 513
 #
 DX = 1
-DY = 6
+DY = 8
 DZ = 8
 #
 NX = (NXO-1)/DX + 1
@@ -57,6 +57,10 @@ NZ = (NZO-1)/DZ + 1
 LX = LXO/DX
 LY = LYO/DY
 LZ = LZO/DZ
+#
+print('NX', NX)
+print('NY', NY)
+print('NZ', NZ)
 #
 print('LX', LX)
 print('LY', LY)
