@@ -95,7 +95,7 @@ for side in ['left']:
     CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
     pp.mkdir(CASE_PATH, 0)
     for prec in PRECS:
-        CASE_PATH[1] = '/prec_'+str(prec-4)
+        CASE_PATH[1] = '/prec_'+str(prec)
         pp.mkdir(CASE_PATH, 1)
         pp.chdir(CASE_PATH, 1)
         for cycle in CYCLES:
@@ -115,8 +115,8 @@ for side in ['left']:
                     # LY = round(1.2*LYO/(NYO-1)*(NY-1), 1)
                     # ma.set_parameter(ROOT, 'ly', LY)
                     ma.set_parameter(ROOT, 'numGrids', max_grids)
-                    # ma.set_parameter(ROOT, 'type', prec)
-                    ma.set_parameter(ROOT, 'cycle type', prec-4)
+                    ma.set_parameter(ROOT, 'type', prec)
+                    # ma.set_parameter(ROOT, 'cycle type', prec-4)
                     ma.set_parameter(ROOT, 'preconditioner', side)
                     ma.set_parameter(ROOT, 'numCycles', cycle)
                     ma.set_parameter(ROOT, 'numIters', sweep)
