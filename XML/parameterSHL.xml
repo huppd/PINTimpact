@@ -156,7 +156,7 @@
     <Parameter docString="" id="93" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="231" name="Solver">
       <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
-      <Parameter docString="" id="95" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
+      <Parameter docString="" id="95" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="5" />
       <Parameter docString="" id="96" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
       <Parameter docString="" id="97" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
       <Parameter docString="" id="98" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
