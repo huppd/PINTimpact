@@ -33,6 +33,10 @@ CASE_PATH = ['']*3
 
 
 #
+DX = 1
+DY = 2
+DZ = 2
+#
 NPX = 2
 NPY = 8
 NPZ = 6
@@ -47,12 +51,16 @@ NYO = 1537
 NZO = 513
 #
 NX = 97
-NY = 1025
-NZ = 385
+NY = (1025-1)/DY+1
+NZ = (385-1)/DZ+1
 #
 LX = LXO
-LY = LYO*2./3.
+LY = LYO*2./3./DY
 LZ = round(LZO/(NZO-1)*(NZ-1), 1)
+#
+print('NX', NX)
+print('NY', NY)
+print('NZ', NZ)
 #
 print('LX', LX)
 print('LY', LY)
@@ -98,4 +106,4 @@ EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
                         '-R "rusage[mem=' + str(memtot) +
                         ']" ') + pp.EXE_PATH + '/'+EXE
 print(EXE_STRING)
-os.system(EXE_STRING)
+# os.system(EXE_STRING)

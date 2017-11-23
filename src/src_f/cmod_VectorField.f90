@@ -1839,22 +1839,22 @@ contains
 
     baseflow(bL(1):(N(1)+bU(1)),1) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),1) / Re
 
-    ! TEST!!! - debugging purposes only
+    !! TEST!!! - debugging purposes only
     if( rank == 0 ) then
-      write(*,*) "distance, velocity (both in x1-direction)"
-      DO i = SU(1), NU(1)
-        write(*,*)  i+iShift, y1u(i+iShift), baseflow(i,1)
-      end do
-      write(*,*)
-      write(*,*) "distance, velocity (both in x2-direction)"
-      DO i = SV(1), NV(1)
-        write(*,*) i+iShift, y1u(i+iShift), baseflow(i,2)
-      end do
-      write(*,*)
-      write(*,*) "distance, velocity (both in x3-direction)"
-      DO i = SW(1), NW(1)
-        write(*,*) i+iShift, y1u(i+iShift), baseflow(i,3)
-      end do
+      !write(*,*) "distance, velocity (both in x1-direction)"
+      !DO i = SU(1), NU(1)
+        !write(*,*)  i+iShift, y1u(i+iShift), baseflow(i,1)
+      !end do
+      !write(*,*)
+      !write(*,*) "distance, velocity (both in x2-direction)"
+      !DO i = SV(1), NV(1)
+        !write(*,*) i+iShift, y1u(i+iShift), baseflow(i,2)
+      !end do
+      !write(*,*)
+      !write(*,*) "distance, velocity (both in x3-direction)"
+      !DO i = SW(1), NW(1)
+        !write(*,*) i+iShift, y1u(i+iShift), baseflow(i,3)
+      !end do
       write(*,*) 'blThick', blThick 
     endif
 

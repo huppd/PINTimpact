@@ -121,9 +121,9 @@ public:
       if( BC::Dirichlet==space_->bcu(dir) ) {
         for( int ii=SW::BL(X); ii<=SW::BU(X); ++ii )
           cS_[dir](space_->nLoc(dir),ii) = 0.;
-        if( 1== dir )
-          cS_[dir](space_->nLoc(dir),0) = 1.;
-        else
+        //if( 1== dir )
+          //cS_[dir](space_->nLoc(dir),0) = 1.;
+        //else
           cS_[dir](space_->nLoc(dir),0) = mulBC_;
       }
       if( BC::Neumann==space_->bcu(dir) ) {
@@ -218,16 +218,16 @@ public:
         for( OT ii=SW::BL(dir); ii<=SW::BU(dir); ++ii )
           cV_[dir]( space()->ei(fdir,dir,B::Y), ii ) = 0.;
 
-        if( 1==dir ) {
-          for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
-            cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
-              space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
-        }
-        else {
+        //if( 1==dir ) {
+          //for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
+            //cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
+              //space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
+        //}
+        //else {
           for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
             cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
               mulBC_*space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
-        }
+        //}
       } else if( BC::Neumann==space_->bcu(dir) ) {
         using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
 

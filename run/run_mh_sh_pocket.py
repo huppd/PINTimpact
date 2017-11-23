@@ -26,12 +26,16 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 0
+NF = 2
 
 
 CASE_PATH = ['']*3
 
 
+#
+DX = 1
+DY = 16 
+DZ = 8
 #
 NPX = 1
 NPY = 4
@@ -45,10 +49,6 @@ LZO = 150.
 NXO = 97
 NYO = 1537
 NZO = 513
-#
-DX = 1
-DY = 8
-DZ = 8
 #
 NX = (NXO-1)/DX + 1
 NY = (NYO-1)/DY + 1
