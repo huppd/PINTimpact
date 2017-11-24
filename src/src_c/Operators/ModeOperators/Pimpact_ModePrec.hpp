@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_EDDYPREC_HPP
-#define PIMPACT_EDDYPREC_HPP
+#ifndef PIMPACT_MODEPREC_HPP
+#define PIMPACT_MODEPREC_HPP
 
 
 #include "Teuchos_RCP.hpp"
@@ -16,7 +16,7 @@ namespace Pimpact {
 
 /// \ingroup ModeOperator
 template<class OpT>
-class EddyPrec {
+class ModePrec {
 
 public:
 
@@ -39,7 +39,7 @@ protected:
 
 public:
 
-  EddyPrec(
+  ModePrec(
     const Teuchos::RCP<OpT>& op,
     const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
 
@@ -207,7 +207,7 @@ public:
   }
 
   const std::string getLabel() const {
-    return "EddyPrec";
+    return "ModePrec";
   };
 
   void print( std::ostream& out=std::cout ) const {
@@ -215,10 +215,10 @@ public:
     op_->print( out );
   }
 
-}; // end of class EddyPrec
+}; // end of class ModePrec
 
 
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_EDDYPREC_HPP
+#endif // end of #ifndef PIMPACT_MODEPREC_HPP

@@ -237,7 +237,7 @@
     <Parameter docString="" id="148" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
     <Parameter docString="" id="149" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
     <Parameter docString="" id="150" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
-    <ParameterList id="218" name="Eddy prec">
+    <ParameterList id="218" name="Mode prec">
       <Parameter docString="" id="151" isDefault="true" isUsed="true" name="type" type="int" value="4" />
     </ParameterList>
     <ParameterList id="219" name="Solver">

@@ -251,11 +251,15 @@
     <Parameter docString="" id="164" isDefault="true" isUsed="true" name="preconditioner" type="string" value="left" />
     <Parameter docString="" id="165" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
     <Parameter docString="" id="166" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
-    <ParameterList id="243" name="Eddy prec">
+    <ParameterList id="243" name="Mode prec">
       <Parameter docString="" id="167" isDefault="true" isUsed="true" name="type" type="int" value="4" />
     </ParameterList>
     <ParameterList id="244" name="Solver">
+<<<<<<< HEAD
       <Parameter docString="" id="168" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+=======
+      <Parameter docString="" id="168" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+>>>>>>> e0da4f7f71e781b54cf11a43057e4cf30879d6f8
       <Parameter docString="" id="169" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-1" />
       <Parameter docString="" id="170" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="171" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ModeNonlinearOp_ConvectionDiffusionVOp" />

@@ -114,7 +114,7 @@
       <Parameter docString="" id="92" isDefault="false" isUsed="true" name="Output Style" type="int" value="1"/>
       <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Output Stream" type="any" value="Teuchos::RCP&lt;std::ostream>{ptr=0x7f5596521700,node=0x2bd9430,strong_count=1,weak_count=0}"/>
     </ParameterList>
-    <ParameterList id="102" name="Eddy prec">
+    <ParameterList id="102" name="Mode prec">
       <Parameter docString="" id="101" isDefault="true" isUsed="true" name="type" type="int" value="4"/>
     </ParameterList>
   </ParameterList>

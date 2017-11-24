@@ -302,7 +302,7 @@
       value="false" />
     <Parameter docString="" id="230" isDefault="true" isUsed="true" name="initZero" type="bool"
       value="false" />
-    <ParameterList id="99102" name="Eddy prec">
+    <ParameterList id="99102" name="Mode prec">
       <Parameter docString="" id="99101" isDefault="true" isUsed="true" name="type" type="int"
         value="-1"/>
     </ParameterList>
