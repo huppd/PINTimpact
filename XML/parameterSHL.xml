@@ -108,7 +108,7 @@
     </ParameterList>
     <ParameterList id="220" name="Test 3">
       <Parameter docString="" id="68" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
-      <Parameter docString="" id="69" isDefault="false" isUsed="true" name="Tolerance" type="double" value="0.99" />
+      <Parameter docString="" id="69" isDefault="false" isUsed="true" name="Tolerance" type="double" value="0.9" />
       <Parameter docString="" id="70" isDefault="false" isUsed="true" name="Consecutive Iterations" type="int" value="2" />
     </ParameterList>
   </ParameterList>
