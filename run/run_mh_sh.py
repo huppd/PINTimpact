@@ -103,7 +103,7 @@ nptot = NPX*NPY*NPZ*NPF
 memtot = int(1024.*2)
 print()
 print(CASE_PATH)
-EXE_STRING = pp.exe_pre(nptot, ' -N -W 42:00 ' +
+EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
                         '-R "rusage[mem=' + str(memtot) +
                         ']" ') + pp.EXE_PATH + '/'+EXE
 print(EXE_STRING)
