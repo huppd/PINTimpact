@@ -140,7 +140,6 @@
       <Parameter docString="" id="84" isDefault="true" isUsed="true" name="Output Precision" type="int" value="3" />
     </ParameterList>
     <ParameterList id="228" name="Solver Options">
-      <Parameter docString="" id="85" isDefault="false" isUsed="true" name="User Defined Pre/Post Operator" type="any" value="Teuchos::RCP&lt;NOX::Abstract::PrePostOperator&gt;{ptr=0x2cfe6e0,node=0x2cff170,strong_count=3,weak_count=0}" />
       <Parameter docString="" id="86" isDefault="true" isUsed="true" name="Fixed Point Iteration Type" type="string" validatorId="0" value="Seidel" />
     </ParameterList>
   </ParameterList>
@@ -157,7 +156,7 @@
     <ParameterList id="231" name="Solver">
       <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="160" />
       <Parameter docString="" id="95" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
-      <Parameter docString="" id="96" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
+      <Parameter docString="" id="96" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="16" />
       <Parameter docString="" id="97" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
       <Parameter docString="" id="98" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="99" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
