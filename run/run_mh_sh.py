@@ -80,7 +80,8 @@ ma.set_parameter(ROOT, 'nx', NX)
 ma.set_parameter(ROOT, 'ny', NY)
 ma.set_parameter(ROOT, 'nz', NZ)
 ma.set_parameter(ROOT, 'nf', NF)
-ma.set_parameter(ROOT, 'max refinement', 5-NF)
+# ma.set_parameter(ROOT, 'max refinement', 5-NF)
+ma.set_parameter(ROOT, 'max refinement', 1)
 ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
@@ -102,8 +103,8 @@ nptot = NPX*NPY*NPZ*NPF
 memtot = int(1024.*2)
 print()
 print(CASE_PATH)
-EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
+EXE_STRING = pp.exe_pre(nptot, ' -N -W 42:00 ' +
                         '-R "rusage[mem=' + str(memtot) +
                         ']" ') + pp.EXE_PATH + '/'+EXE
 print(EXE_STRING)
-# os.system(EXE_STRING)
+os.system(EXE_STRING)
