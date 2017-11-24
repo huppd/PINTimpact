@@ -120,7 +120,7 @@ int main( int argi, char** argv ) {
     /*********************************************************************************/
     Pimpact::ECoord dir = Pimpact::ECoord::Y;
     ST gamma = 10.;
-    std::string prefix = "energy_" + Pimpact::toString(dir) +"_r0_i0_";
+    std::string prefix = "energy_";
 
     // compute glob energy in y-dir
     if( 0==space->si(::Pimpact::F::U,3) ) {
@@ -130,7 +130,7 @@ int main( int argi, char** argv ) {
       auto out = Pimpact::createOstream( prefix + "0.txt",
           space->getProcGrid()->getRankBar(dir));
 
-      Pimpact::computeEnergyDir( *vel, *out, dir, gamma );
+      Pimpact::computeHEEnergyDir( *vel, *out, gamma );
     }
 
     for( OT i=std::max(space->si(::Pimpact::F::U,3),1); i<=space->ei(::Pimpact::F::U,3); ++i ) {
@@ -138,15 +138,15 @@ int main( int argi, char** argv ) {
         auto out = Pimpact::createOstream( prefix + "C"+std::to_string(i) + ".txt",
             space->getProcGrid()->getRankBar(dir) );
 
-        Pimpact::computeEnergyDir(
-            x->getField(0).getVField().getCField(i), *out, dir, gamma );
+        Pimpact::computeHEEnergyDir(
+            x->getField(0).getVField().getCField(i), *out, gamma );
       }
       {
         auto out = Pimpact::createOstream( prefix + "S"+std::to_string(i) + ".txt",
             space->getProcGrid()->getRankBar(dir) );
 
-        Pimpact::computeEnergyDir(
-            x->getField(0).getVField().getSField(i), *out, dir, gamma );
+        Pimpact::computeHEEnergyDir(
+            x->getField(0).getVField().getSField(i), *out, gamma );
       }
     }
 
@@ -290,7 +290,8 @@ int main( int argi, char** argv ) {
     //pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
     //Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
     //}
-}
-MPI_Finalize();
-return 0;
+  }
+
+  MPI_Finalize();
+  return 0;
 }
