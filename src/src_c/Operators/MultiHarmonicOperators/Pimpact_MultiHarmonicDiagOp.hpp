@@ -3,7 +3,6 @@
 #define PIMPACT_MULDTIHARMONICDIAGOP_HPP
 
 
-//#include "Pimpact_EddyPrec.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 #include "Pimpact_Utils.hpp"
 

@@ -13,7 +13,6 @@
 namespace Pimpact {
 
 extern "C" void OP_TimeNS4DBSmoother(
-  const int& dimens,
   const int* const N,
   const int* const bl,
   const int* const bu,
@@ -129,10 +128,8 @@ public:
         xp(i).exchange();
       }
 
-      int dimens = SpaceT::sdim;
 
       OP_TimeNS4DBSmoother(
-        dimens,
         space()->nLoc(),
         space()->bl(),
         space()->bu(),

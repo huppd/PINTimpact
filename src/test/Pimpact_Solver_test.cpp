@@ -146,8 +146,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
 	//mgConvDiff->print();
 
 	//zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
-	//modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
-	//modeInv->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+	//modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::ModePrec>(zeroInv) ) );
+	//modeInv->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::ModePrec>(zeroInv) ) );
 
 	ST iRe = 1./space->getDomainSize()->getRe();
 	ST a2 = space->getDomainSize()->getAlpha2()*iRe;
@@ -357,8 +357,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicSolver, MultiHarmonicDiagOp, Spa
 	//mgConvDiff->print();
 
 	zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
-	modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
-	//modeInv->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+	modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::ModePrec>(zeroInv) ) );
+	//modeInv->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::ModePrec>(zeroInv) ) );
 
 	auto opV2Vprec = Pimpact::createMultiHarmonicDiagOp( zeroInv, modeInv );
 

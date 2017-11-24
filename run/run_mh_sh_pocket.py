@@ -26,16 +26,15 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 2
+NF = 0
 
 
 CASE_PATH = ['']*3
 
 
-#
 DX = 1
-DY = 16 
-DZ = 8
+DY = 2
+DZ = 2
 #
 NPX = 1
 NPY = 4
@@ -50,13 +49,13 @@ NXO = 97
 NYO = 1537
 NZO = 513
 #
-NX = (NXO-1)/DX + 1
-NY = (NYO-1)/DY + 1
-NZ = (NZO-1)/DZ + 1
+NX = 97
+NY = (1025-1)/2/DY+1
+NZ = (385-1)/2/DZ+1
 #
-LX = LXO/DX
-LY = LYO/DY
-LZ = LZO/DZ
+LX = LXO
+LY = LYO*2./3./DY
+LZ = round(LZO*2/(NZO-1)*(NZ-1), 1)
 #
 print('NX', NX)
 print('NY', NY)
@@ -69,6 +68,7 @@ print('LZ', LZ)
 print('DX', LX/LXO*(NXO-1)/(NX-1))
 print('DY', LY/LYO*(NYO-1)/(NY-1))
 print('DZ', LZ/LZO*(NZO-1)/(NZ-1))
+#
 #
 ma.set_parameter(ROOT, 'Re', 300.)
 ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*300.)

@@ -40,12 +40,12 @@ contains
     ! geometric properties of disc
     !        x0 = L1/2. + L1*amp*SIN(2.*pi*freq*subtime)
     !        y0 = L2/4.
-    !        z0 = L3/2.
+    z0 = 0.
 
     !        R = L1/10.
     !  write(*,*) 'dr=',dr
 
-    dis = SQRT( (x0-x)**2 + (y0-y)**2 )
+    dis = SQRT( (x0-x)**2 + (y0-y)**2 + (z0-z)**2 )
 
     if( dis <= R) then
       dis = 1.
@@ -1899,6 +1899,8 @@ contains
 
 
     pi = 4.*atan(1.)    !!set constants
+
+    fn_val = 0.
 
     if (1 == 2) then
 

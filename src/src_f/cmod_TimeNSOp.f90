@@ -977,7 +977,6 @@ contains
 
 
   subroutine OP_TimeNS4DBSmoother(  &
-      dimens,                       &
       N,                            &
       bL,bU,                        &
       BCL,BCU,                      &
@@ -1013,8 +1012,6 @@ contains
 
 
     implicit none
-
-    integer(c_int), intent(in)  :: dimens
 
     integer(c_int), intent(in)  :: N(4)
 

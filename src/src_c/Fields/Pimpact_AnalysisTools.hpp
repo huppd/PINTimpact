@@ -262,10 +262,7 @@ void computeHEEnergyDir(
       for( OT j=0; j<space->nGlo(dir); ++j ) {
         out << space->getCoordinatesGlobal()->getX(F::S,dir,j+1) << "\t" ;
         for( OT n=0; n<n_Hermitemodes; ++n ) 
-           //if( 0==n )
-             //out << energyGlobal(n, j)/4. << "\t";
-           //else                      
-             out << energyGlobal(n, j) << "\t";
+          out << energyGlobal(n, j) << "\t";
         out << "\n";
       }
   }
