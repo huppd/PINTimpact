@@ -55,10 +55,9 @@ protected:
   SF sFields_[3];
 
   void allocate() {
-    OT n = getStorageSize()/3;
-    s_ = new ST[3*n];
-    for( int i=0; i<3; ++i )
-      sFields_[i].setStoragePtr( s_+i*n );
+    OT n = getStorageSize();
+    setStoragePtr( new ST[n] );
+    std::uninitialized_fill_n(s_, n , 0.);
   }
 
 public:
@@ -67,10 +66,8 @@ public:
     AbstractField<SpaceT>( space ),
     owning_(owning),
     sFields_{ {space,false,F::U}, {space,false,F::V}, {space,false,F::W} } {
-    if( owning_ ) {
-      allocate();
-      init();
-    }
+
+    if( owning_ ) allocate();
   };
 
 
@@ -90,7 +87,6 @@ public:
 
       switch( copyType ) {
       case ECopy::Shallow:
-        init();
         break;
       case ECopy::Deep:
         *this = vF;

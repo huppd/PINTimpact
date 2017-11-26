@@ -37,7 +37,7 @@ public:
 protected:
 
   using ST = typename SpaceT::Scalar;
-  using Ordinal =typename SpaceT::Ordinal;
+  using OT =typename SpaceT::Ordinal;
 
   using ScalarArray =  ST*;
 
@@ -53,12 +53,14 @@ protected:
 private:
 
   void allocate() {
-    setStoragePtr( new ST[ fieldc_.getStorageSize()+fields_.getStorageSize() ] );
+    OT n = getStorageSize();
+    setStoragePtr( new ST[n] );
+    std::uninitialized_fill_n(s_, n , 0.);
   }
 
 public:
 
-  constexpr Ordinal getStorageSize() {
+  constexpr OT getStorageSize() {
     return fieldc_.getStorageSize()+fields_.getStorageSize();
   }
 
@@ -66,7 +68,7 @@ public:
     return s_;
   }
 
-  void setStoragePtr( ST*  array ) {
+  void setStoragePtr( ST* array ) {
     s_ = array;
     fieldc_.setStoragePtr( s_                             );
     fields_.setStoragePtr( s_ + fieldc_.getStorageSize() );
@@ -79,10 +81,7 @@ public:
     fieldc_( space, false ),
     fields_( space, false ) {
 
-    if( owning_ ) {
-      allocate();
-      init();
-    }
+    if( owning_ ) allocate();
   };
 
 
@@ -103,7 +102,6 @@ public:
 
       switch( copyType ) {
       case ECopy::Shallow:
-        init();
         break;
       case ECopy::Deep:
         *this = vF;
@@ -157,7 +155,7 @@ public:
   }
 
   /// \brief returns the length of Field.
-  constexpr Ordinal getLength() {
+  constexpr OT getLength() {
     return fieldc_.getLength() + fields_.getLength();
   }
 

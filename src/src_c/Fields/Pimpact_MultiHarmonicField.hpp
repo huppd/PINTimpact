@@ -57,26 +57,25 @@ protected:
 
   void allocate() {
 
+    OT n = getStorageSize();
+    s_ = new ST[n];
+
+    OT nx = field0_.getStorageSize();
+
+    field0_.setStoragePtr( s_ );
+
     if( global_ ) {
-
-      OT nx = field0_.getStorageSize();
-
-      s_ = new ST[ getStorageSize() ];
-
-      field0_.setStoragePtr( s_ );
 
       for( OT i=0; i<space()->nGlo(3); ++i )
         fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
+
     } else {
 
-      OT nx = field0_.getStorageSize();
-
-      s_ = new ST[ getStorageSize() ];
-
-      field0_.setStoragePtr( s_ );
       for( OT i=0; i<=space()->ei(F::U,3) - std::max(space()->si(F::U,3),1); ++i )
         fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
+
     }
+    std::uninitialized_fill_n(s_, n , 0.);
   }
 
 
@@ -112,7 +111,7 @@ public:
     }
 
     allocate();
-    init();
+    //init();
   };
 
 
@@ -140,7 +139,7 @@ public:
     allocate();
     switch( copyType ) {
     case ECopy::Shallow:
-      init();
+      //init();
       break;
     case ECopy::Deep:
       *this = vF;

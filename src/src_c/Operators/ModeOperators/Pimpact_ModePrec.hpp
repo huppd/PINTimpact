@@ -27,11 +27,12 @@ public:
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
 
-  Scalar mulI_;
-  Scalar mulC_;
-  Scalar mulL_;
+  ST mulI_;
+  ST mulC_;
+  ST mulL_;
 
   int type_;
 
@@ -90,10 +91,11 @@ public:
 
   /// left/right same
   /// \todo fix BC
+  /// \deprecated
   void applyDTinv( const DomainFieldT& x, RangeFieldT& y ) const {
     //std::cout << "applyDTinv\n";
-    y.getCField().add( 0.0,      x.getCField(), -1.0/mulI_, x.getSField(), B::N );
-    y.getSField().add( 1.0/mulI_, x.getCField(), 0.0,      x.getSField(), B::N );
+    //y.getCField().add( 0.0,      x.getCField(), -1.0/mulI_, x.getSField(), B::N );
+    //y.getSField().add( 1.0/mulI_, x.getCField(), 0.0,      x.getSField(), B::N );
   }
 
   void applyCDinv( const DomainFieldT& x, RangeFieldT& y ) const {
@@ -101,9 +103,9 @@ public:
 
     //set paramters
     auto pl = Teuchos::parameterList();
-    pl->set<Scalar>( "mulI", 0. );
-    pl->set<Scalar>( "mulC", mulC_ );
-    pl->set<Scalar>( "mulL", mulL_ );
+    pl->set<ST>( "mulI", 0. );
+    pl->set<ST>( "mulC", mulC_ );
+    pl->set<ST>( "mulL", mulL_ );
     op_->setParameter( pl );
 
     op_->apply( x.getCField(), y.getCField() );
@@ -123,9 +125,9 @@ public:
     //// set paramters
     auto pl = Teuchos::parameterList();
 
-    pl->set<Scalar>( "mulI", mulI_ );
-    pl->set<Scalar>( "mulC", mulC_ );
-    pl->set<Scalar>( "mulL", mulL_ );
+    pl->set<ST>( "mulI", mulI_ );
+    pl->set<ST>( "mulC", mulC_ );
+    pl->set<ST>( "mulL", mulL_ );
 
     op_->setParameter( pl );
 
@@ -142,21 +144,27 @@ public:
     // right
     // set paramters
     auto pl = Teuchos::parameterList();
-    pl->set<Scalar>( "mulI", mulI_ );
-    pl->set<Scalar>( "mulC", mulC_ );
-    pl->set<Scalar>( "mulL", mulL_ );
+    pl->set<ST>( "mulI", mulI_ );
+    pl->set<ST>( "mulC", mulC_ );
+    pl->set<ST>( "mulL", mulL_ );
 
     op_->setParameter( pl );
 
-    DomainFieldT temp( space() );
+    op_->apply( x.getCField(), y.getCField() );
+    op_->apply( x.getSField(), y.getSField() );
 
-    op_->apply( x.getCField(), temp.getCField() );
-    op_->apply( x.getSField(), temp.getSField() );
+    const B wb=B::N;
 
-    y = temp;
+    for( F f=F::U; f<SpaceT::sdim; ++f )
+      for( OT k=space()->si(f,Z,wb); k<=space()->ei(f,Z,wb); ++k )
+        for( OT j=space()->si(f,Y,wb); j<=space()->ei(f,Y,wb); ++j )
+          for( OT i=space()->si(f,X,wb); i<=space()->ei(f,X,wb); ++i ) {
 
-    y.getCField().add( 0.5, temp.getCField(),  0.5, temp.getSField(), B::N );
-    y.getSField().add( 0.5, temp.getCField(), -0.5, temp.getSField(), B::N );
+            ST tempC =  0.5*y.getCField()(f)(i,j,k) + 0.5*y.getSField()(f)(i,j,k);
+            ST tempS =  0.5*y.getCField()(f)(i,j,k) - 0.5*y.getSField()(f)(i,j,k);
+            y.getCField()(f)(i,j,k) = tempC;
+            y.getSField()(f)(i,j,k) = tempS;
+          }
   }
 
 
@@ -166,19 +174,20 @@ public:
     // right
     // set paramters
     auto pl = Teuchos::parameterList();
-    pl->set<Scalar>( "mulI", mulI_ );
-    pl->set<Scalar>( "mulC", mulC_ );
-    pl->set<Scalar>( "mulL", mulL_ );
+    pl->set<ST>( "mulI", mulI_ );
+    pl->set<ST>( "mulC", mulC_ );
+    pl->set<ST>( "mulL", mulL_ );
 
     op_->setParameter( pl );
 
     op_->apply( x.getCField(), y.getCField() );
 
-    pl->set<Scalar>( "mulI", -mulI_ );
-    pl->set<Scalar>( "mulC", -mulC_ );
-    pl->set<Scalar>( "mulL", -mulL_ );
+    pl->set<ST>( "mulI", -mulI_ );
+    pl->set<ST>( "mulC", -mulC_ );
+    pl->set<ST>( "mulL", -mulL_ );
 
     op_->setParameter( pl );
+
     op_->apply( x.getSField(), y.getSField() );
   }
 
@@ -196,9 +205,9 @@ public:
   void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 
     if( para->name()!="Linear Solver" ) {
-      mulI_ = para->get<Scalar>( "mulI" );
-      mulC_ = para->get<Scalar>( "mulC" );
-      mulL_ = para->get<Scalar>( "mulL" );
+      mulI_ = para->get<ST>( "mulI" );
+      mulC_ = para->get<ST>( "mulC" );
+      mulL_ = para->get<ST>( "mulL" );
     }
   }
 

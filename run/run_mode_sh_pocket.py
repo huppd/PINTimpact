@@ -19,10 +19,15 @@ os.system('make ' + EXE + ' -j4')
 
 
 st = 1./30.
+
+DX = 1
+DY = 2
+DZ = 2
 #
-NPX = 2
-NPY = 8
-NPZ = 6
+NPX = 1
+NPY = 4
+NPZ = 1
+NPF = 1
 #
 LXO = 22.5
 LYO = 600.
@@ -33,12 +38,12 @@ NYO = 1537
 NZO = 513
 #
 NX = 97
-NY = 1025
-NZ = 385
+NY = (1025-1)/2/DY+1
+NZ = (385-1)/2/DZ+1
 #
 LX = LXO
-LY = LYO*2./3.
-LZ = round(LZO/(NZO-1)*(NZ-1), 1)
+LY = LYO*2./3./DY
+LZ = round(LZO*DZ/(NZO-1)*(NZ-1), 1)
 #
 print('NX', NX)
 print('NY', NY)
@@ -47,6 +52,10 @@ print('NZ', NZ)
 print('LX', LX)
 print('LY', LY)
 print('LZ', LZ)
+#
+print('DX', LX/LXO*(NXO-1)/(NX-1))
+print('DY', LY/LYO*(NYO-1)/(NY-1))
+print('DZ', LZ/LZO*(NZO-1)/(NZ-1))
 #
 ma.set_parameter(ROOT, 'Re', 300.)
 ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*300.)
@@ -62,14 +71,12 @@ ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', 1)
 ma.set_parameter(ROOT, 'Maximum Iterations', 200)
-ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-6)
+ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-1)
 
 
-PRECS = [1, 2, 3, 4]
-PRECS = [2, 3, 4]
-PRECS = [3, 4]
-PRECS = [4, 5]
-PRECS = [5]
+PRECS = [1, 2, 3, 4, 5]
+PRECS = [2, 3, 4, 5]
+PRECS = [3, 4, 5]
 
 CYCLES = [1, 2, 4, 8, 16]
 CYCLES = [2, 3, 4, 6, 8]
@@ -90,8 +97,8 @@ CASE_PATH = ['']*6
 
 
 # for side in ['left', 'right']:
-# for side in ['right']:
-for side in ['left']:
+for side in ['right']:
+# for side in ['left']:
     CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
     pp.mkdir(CASE_PATH, 0)
     for prec in PRECS:

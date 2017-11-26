@@ -195,7 +195,7 @@ void computeHEEnergyDir(
 
     //if( 0==space->rankST() ) std::cout << "k: " << k << " x3p: " << x3p << "\t";
     for( int n=0; n<n_Hermitemodes; ++n ) {
-      sweight(k-S3p,n) = sweight(k-S3p,n) * std::exp(-std::pow(x3p/gamma, 2)/2.)*dx3p/(gamma*std::sqrt(2*pi));
+      sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p/(gamma*std::sqrt(2*pi));
       //if( 0==space->rankST() ) std::cout << sweight(k-S3p, n) << "\t";
     }
     //std::cout << "\n";
@@ -222,6 +222,7 @@ void computeHEEnergyDir(
   for( OT j=S2p; j<=N2p; ++j ) {        // spanwise
     for( OT i=S1p; i<=N1p; ++i) {       // wall-normal
 
+      // --- integral over z-dimension: \int_{-L_z}^{L_z} u' He(z/gamma) exp( -(z/gamma)^2 dz ---
       // ---------------- HERMITE TRANSFORM OF ALL THREE VELOCITY DISTURBANCES
       He.putScalar( 0. );                            //  initialize Hermite coefficients
       for( OT k=S3p; k<=N3p; ++k ) {  //  chordwise
@@ -237,10 +238,24 @@ void computeHEEnergyDir(
       // call mpi_allreduce(He, He_global, 3*n_Hermitemodes, MPI_REAL8, MPI_SUM, COMM_BAR3, merror)
       MPI_Allreduce( He.values(), He_global.values(), 3*n_Hermitemodes, MPI_REAL8, MPI_SUM, space->getProcGrid()->getCommBar(Z) );
 
+      // --- integral over x-dimension: \int_0^\infty u_kn \dx
       ST dx1p = coord->dx(F::S,X,i);
       for( OT n = 0; n<n_Hermitemodes; ++n ) {
-        energydensity( n, j-space->si(F::S,Y) ) += (std::pow(He_global(0,n), 2)+std::pow(He_global(1,n), 2)+std::pow(He_global(2,n), 2) )*dx1p;
+        energydensity( n, j-space->si(F::S,Y) ) +=
+          (std::pow(He_global(0,n), 2) +
+           std::pow(He_global(1,n), 2) +
+           std::pow(He_global(2,n), 2) )*dx1p;
       }
+      //// --- integral over x-dimension: \int_0^\infty u_kn \dx with weird minus one degree
+      //ST dx1p = coord->dx(F::S,X,i);
+      //energydensity( 0, j-space->si(F::S,Y) ) +=
+         //std::pow(He_global(2,0), 2)*dx1p;
+      //for( OT n = 1; n<n_Hermitemodes; ++n ) {
+        //energydensity( n, j-space->si(F::S,Y) ) +=
+          //(std::pow(He_global(0,n-1), 2) +
+           //std::pow(He_global(1,n-1), 2) +
+           //std::pow(He_global(2,n), 2) )*dx1p;
+      //}
     }
   }
 

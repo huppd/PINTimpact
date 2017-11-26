@@ -60,7 +60,8 @@ protected:
 
   void allocate() {
     OT n = getStorageSize();
-    s_ = new ST[n];
+    setStoragePtr( new ST[n] );
+    std::uninitialized_fill_n(s_, n , 0.);
   }
 
 public:
@@ -74,10 +75,7 @@ public:
     stride2_( (space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1)*(
           space->nLoc(1)+SW::BU(1)-SW::BL(1)+1) ) {
 
-      if( owning_ ) {
-        allocate();
-        init();
-      }
+      if( owning_ ) allocate();
     };
 
 
@@ -100,7 +98,6 @@ public:
 
         switch( copyType ) {
           case ECopy::Shallow:
-            init();
             break;
           case ECopy::Deep:
             *this = sF;
@@ -177,16 +174,27 @@ public:
     Teuchos::Tuple<OT,3> da;
     Teuchos::Tuple<OT,3> db;
 
+    bool with_d_yes = false;
     for( int dir=0; dir<3; ++dir ) {
       da[dir] = ( a.space()->nLoc(dir)-1 )/( space()->nLoc(dir)-1 );
       db[dir] = ( b.space()->nLoc(dir)-1 )/( space()->nLoc(dir)-1 );
+      if( 1!=da[dir] ) with_d_yes=true;
+      if( 1!=db[dir] ) with_d_yes=true;
     }
 
-    for( OT k=space()->si(fType_,Z,wb); k<=space()->ei(fType_,Z,wb); ++k )
-      for( OT j=space()->si(fType_,Y,wb); j<=space()->ei(fType_,Y,wb); ++j )
-        for( OT i=space()->si(fType_,X,wb); i<=space()->ei(fType_,X,wb); ++i )
-          at(i,j,k) = alpha*a.at( (i-1)*da[0]+1, (j-1)*da[1]+1,(k-1)*da[2]+1 )
-                      + beta*b.at( (i-1)*db[0]+1, (j-1)*db[1]+1,(k-1)*db[2]+1 );
+    if( with_d_yes ) {
+      for( OT k=space()->si(fType_,Z,wb); k<=space()->ei(fType_,Z,wb); ++k )
+        for( OT j=space()->si(fType_,Y,wb); j<=space()->ei(fType_,Y,wb); ++j )
+          for( OT i=space()->si(fType_,X,wb); i<=space()->ei(fType_,X,wb); ++i )
+            at(i,j,k) = alpha*a.at( (i-1)*da[0]+1, (j-1)*da[1]+1,(k-1)*da[2]+1 )
+              + beta*b.at( (i-1)*db[0]+1, (j-1)*db[1]+1,(k-1)*db[2]+1 );
+    }
+    else {
+      for( OT k=space()->si(fType_,Z,wb); k<=space()->ei(fType_,Z,wb); ++k )
+        for( OT j=space()->si(fType_,Y,wb); j<=space()->ei(fType_,Y,wb); ++j )
+          for( OT i=space()->si(fType_,X,wb); i<=space()->ei(fType_,X,wb); ++i )
+            at(i,j,k) = alpha*a.at( i, j, k ) + beta*b.at( i, j, k );
+    }
 
     changed();
   }
