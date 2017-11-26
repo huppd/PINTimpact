@@ -228,7 +228,7 @@
       <Parameter docString="" id="148" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
       <Parameter docString="" id="149" isDefault="true" isUsed="true" name="defect correction" type="bool" value="true" />
       <Parameter docString="" id="150" isDefault="true" isUsed="true" name="init zero" type="bool" value="false" />
-      <Parameter docString="" id="151" isDefault="true" isUsed="true" name="numCycles" type="int" value="2" />
+      <Parameter docString="" id="151" isDefault="true" isUsed="true" name="numCycles" type="int" value="4" />
       <Parameter docString="" id="152" isDefault="true" isUsed="true" name="numGrids" type="int" value="3" />
       <ParameterList id="239" name="Coarse Grid Solver">
         <Parameter docString="" id="153" isDefault="true" isUsed="true" name="omega" type="double" value="1.00000000000000000e+00" />
@@ -254,7 +254,7 @@
       <Parameter docString="" id="166" isDefault="true" isUsed="true" name="type" type="int" value="4" />
     </ParameterList>
     <ParameterList id="243" name="Solver">
-      <Parameter docString="" id="167" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+      <Parameter docString="" id="167" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="5" />
       <Parameter docString="" id="168" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-1" />
       <Parameter docString="" id="169" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="170" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ModeNonlinearOp_ConvectionDiffusionVOp" />
