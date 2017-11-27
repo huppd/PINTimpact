@@ -193,7 +193,7 @@ int main( int argi, char** argv ) {
     if( realCase ) {
       rhs.getCField().initField( pl->sublist("Force").sublist("cos mode") );
       rhs.getSField().initField( pl->sublist("Force").sublist("sin mode") );
-      //if( withoutput ) rhs.write( 100 );
+      if( withoutput ) rhs.write( 100 );
     }
     else{
       auto initFunC = []( ST x, ST y ) ->ST { return std::pow((y-0.5),2); };
@@ -278,9 +278,21 @@ int main( int argi, char** argv ) {
 
       x.init();
     }
+
+    x.random();
+    x.scale(0.0001);
+
+    std::cout << "rhs_u^c: " << rhs.getCField()(Pimpact::F::U).norm() << "\n";
+    std::cout << "rhs_v^c: " << rhs.getCField()(Pimpact::F::V).norm() << "\n";
+    std::cout << "rhs_w^c: " << rhs.getCField()(Pimpact::F::W).norm() << "\n";
+    std::cout << "rhs_u^s: " << rhs.getSField()(Pimpact::F::U).norm() << "\n";
+    std::cout << "rhs_v^s: " << rhs.getSField()(Pimpact::F::V).norm() << "\n";
+    std::cout << "rhs_w^s: " << rhs.getSField()(Pimpact::F::W).norm() << "\n";
+
+
     modeInv->apply( rhs, x );
 
-    //if( withoutput ) x.write( 10 );
+    if( withoutput ) x.write( 10 );
 
     if( realCase!=0 ) {
       err.add( 1., sol, -1., x );

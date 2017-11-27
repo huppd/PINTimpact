@@ -26,6 +26,7 @@ public:
 protected:
 
   using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   Scalar mulI_;
   Scalar mulC_;
@@ -60,17 +61,62 @@ public:
     //std::cout << *pl;
     //typename OpT::RangeFieldT temp( space() );
 
-    op_->apply( x.getCField(), y.getCField() );
-    y.getCField().add( 1., y.getCField(),  mulI_, x.getSField(), B::N );
+    const B wnB = B::N;
 
-    op_->apply( x.getSField(), y.getSField() );
-    y.getSField().add( 1., y.getSField(), -mulI_, x.getCField(), B::N );
+    for( F m=F::U; m<SpaceT::sdim; ++m ) {
+      x.getCField()(m).exchange();
+      x.getSField()(m).exchange();
 
-//		pl->set<Scalar>( "mulI", mulI_ );
-//		pl->set<Scalar>( "mulC", mulC_ );
-//		pl->set<Scalar>( "mulL", mulL_ );
-//		op_->setParameter( pl );
+      for( Ordinal k=space()->si(m,Z,wnB); k<=space()->ei(m,Z,wnB); ++k )
+        for( Ordinal j=space()->si(m,Y,wnB); j<=space()->ei(m,Y,wnB); ++j )
+          for( Ordinal i=space()->si(m,X,wnB); i<=space()->ei(m,X,wnB); ++i ) {
+            if( 3==SpaceT::sdim ) {
+              y.getCField()(m)(i,j,k) = 
+                mulI_*x.getSField()(m)(i,j,k)
+                +mulC_*op_->getSOp()->getConvSOp()->innerStenc3D(
+                    op_->getConvField()->get()[static_cast<int>(m)][0](i,j,k),
+                    op_->getConvField()->get()[static_cast<int>(m)][1](i,j,k),
+                    op_->getConvField()->get()[static_cast<int>(m)][2](i,j,k),
+                    x.getCField()(m), i, j, k)
+                -mulL_*op_->getSOp()->getHelmOp()->innerStenc3D(
+                    x.getCField()(m), m, i, j, k) ;
+              y.getSField()(m)(i,j,k) = 
+                -mulI_*x.getCField()(m)(i,j,k)
+                +mulC_*op_->getSOp()->getConvSOp()->innerStenc3D(
+                    op_->getConvField()->get()[static_cast<int>(m)][0](i,j,k),
+                    op_->getConvField()->get()[static_cast<int>(m)][1](i,j,k),
+                    op_->getConvField()->get()[static_cast<int>(m)][2](i,j,k),
+                    x.getSField()(m), i, j, k)
+                -mulL_*op_->getSOp()->getHelmOp()->innerStenc3D(
+                    x.getSField()(m), m, i, j, k) ;
+            }
+            else {
+              y.getCField()(m)(i,j,k) = 
+                mulI_*x.getSField()(m)(i,j,k)
+                +mulC_*op_->getSOp()->getConvSOp()->innerStenc2D(
+                    op_->getConvField()->get()[static_cast<int>(m)][0](i,j,k),
+                    op_->getConvField()->get()[static_cast<int>(m)][1](i,j,k),
+                    x.getCField()(m), i, j, k)
+                -mulL_*op_->getSOp()->getHelmOp()->innerStenc2D(
+                    x.getCField()(m), m, i, j, k) ;
+              y.getSField()(m)(i,j,k) = 
+                -mulI_*x.getCField()(m)(i,j,k)
+                +mulC_*op_->getSOp()->getConvSOp()->innerStenc2D(
+                    op_->getConvField()->get()[static_cast<int>(m)][0](i,j,k),
+                    op_->getConvField()->get()[static_cast<int>(m)][1](i,j,k),
+                    x.getSField()(m), i, j, k)
+                -mulL_*op_->getSOp()->getHelmOp()->innerStenc2D(
+                    x.getSField()(m), m, i, j, k) ;
+            }
+          }
 
+      // boundaries
+      op_->getSOp()->getHelmOp()->applyBC( x.getCField()(m), y.getCField()(m) );
+      op_->getSOp()->getHelmOp()->applyBC( x.getSField()(m), y.getSField()(m) );
+
+      y.getCField()(m).changed();
+      y.getSField()(m).changed();
+    }
   }
 
 

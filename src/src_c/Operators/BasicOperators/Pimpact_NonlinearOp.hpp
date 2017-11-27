@@ -71,6 +71,11 @@ public:
     return convField_;
   }
 
+  Teuchos::RCP<NonlinearWrap<ConvSOpT> >
+  getOp() const {
+    return convVWrap_;
+  }
+
   Teuchos::RCP<const ConvSOpT>
   getSOp() const {
     return convVWrap_->getSOp();

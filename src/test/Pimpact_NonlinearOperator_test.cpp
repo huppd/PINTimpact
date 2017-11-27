@@ -606,6 +606,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeOperator, ModeNonlinearOp, SpaceT ) {
 		zeroOp->assignField( wind );
 	}
 
+	//x.getCField()(Pimpact::F::U).initFromFunction(
+			//[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::cos(x*pi2)*std::cos(y*pi2) ); } );
+	//x.getCField()(Pimpact::F::V).initFromFunction(
+			//[&pi2]( ST x, ST y, ST z ) ->ST { return( -std::sin(x*pi2)*std::sin(y*pi2) ); } );
+
 	x.getSField()(Pimpact::F::U).initFromFunction(
 			[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::cos(x*pi2)*std::sin(y*pi2) ); } );
 	x.getSField()(Pimpact::F::V).initFromFunction(
@@ -647,7 +652,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeOperator, ModeNonlinearOp, SpaceT ) {
 						(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
 						(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
 						(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-						return(  std::cos( std::min(std::max(x,0.),1.)*pi2)*std::sin(std::min(std::max(y,0.),1.)*pi2) );
+						return(  std::cos( std::min(std::max(x,0.),1.)*pi2)*std::sin(std::min(std::max(y,0.),1.)*pi2)*1000. );
 					else
 						return(
 							-    std::sin(x*pi2)*std::sin(y*pi2)
@@ -661,7 +666,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeOperator, ModeNonlinearOp, SpaceT ) {
 						(  ( y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
 						(  ( z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
 						(  ( z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
-						return(  -std::sin(std::min(std::max(x,0.),1.)*pi2)*std::cos(std::min(std::max(y,0.),1.)*pi2) );
+						return(  -std::sin(std::min(std::max(x,0.),1.)*pi2)*std::cos(std::min(std::max(y,0.),1.)*pi2)*1000. );
 					else
 						return(
 							-    std::cos(x*pi2)*std::cos(y*pi2)

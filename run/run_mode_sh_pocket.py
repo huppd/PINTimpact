@@ -21,7 +21,7 @@ os.system('make ' + EXE + ' -j4')
 st = 1./30.
 
 DX = 1
-DY = 2
+DY = 4
 DZ = 2
 #
 NPX = 1
@@ -70,12 +70,13 @@ ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', 1)
-ma.set_parameter(ROOT, 'Maximum Iterations', 200)
-ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-1)
+ma.set_parameter(ROOT, 'Maximum Iterations', 100)
+ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-3)
 
 
 PRECS = [1, 2, 3, 4, 5]
 PRECS = [2, 3, 4, 5]
+PRECS = [3, 4, 5]
 PRECS = [3, 4, 5]
 
 CYCLES = [1, 2, 4, 8, 16]

@@ -819,7 +819,7 @@ public:
               if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
                 w += 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z+zc)/b ) );
               return w; },
-            add );
+              add );
         at(F::U).initFromFunction(
             [=]( ST x_, ST y_, ST z_ ) -> ST {
 
@@ -834,33 +834,7 @@ public:
                 u -= 0.5*A*std::sin( pi*(z+zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
               return u; },
             add );
-        if( Add::N==add ) at(F::W).init();
-        //VF_init_Dist(
-        //space()->rankST(),
-        //space()->nLoc(),
-        //space()->bl(),
-        //space()->bu(),
-        //space()->sIndB(F::U),
-        //space()->eIndB(F::U),
-        //space()->sIndB(F::V),
-        //space()->eIndB(F::V),
-        //space()->sIndB(F::W),
-        //space()->eIndB(F::W),
-        //space()->getBCGlobal()->getBCL( Z ),
-        //space()->getCoordinatesLocal()->getX( F::U, X ),
-        //space()->getCoordinatesLocal()->getX( F::S, X ),
-        //space()->getCoordinatesLocal()->getX( F::S, Y ),
-        //space()->getCoordinatesLocal()->getX( F::W, Z ),
-        //space()->getCoordinatesLocal()->getX( F::S, Z ),
-        //3, // dist_type,
-        //0.15, // vortex_ampli_prim,
-        //3., // vortex_x1pos,
-        //3., // vortex_x3pos,
-        //3., // vortex_radius,
-        //10, // vortex_band,
-        //at(F::U).getRawPtr(),
-        //at(F::V).getRawPtr(),
-        //at(F::W).getRawPtr() );
+        if( Add::N==add ) at(F::V).init();
         break;
       }
       case ScalarFields : {
