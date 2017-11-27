@@ -67,6 +67,10 @@ public:
       x.getCField()(m).exchange();
       x.getSField()(m).exchange();
 
+      //std::cout << "wind0: "  << op_->getConvField()->get()[static_cast<int>(m)][0].norm() << "\n";
+      //std::cout << "wind1: "  << op_->getConvField()->get()[static_cast<int>(m)][1].norm() << "\n";
+      //std::cout << "wind2: "  << op_->getConvField()->get()[static_cast<int>(m)][2].norm() << "\n";
+
       for( Ordinal k=space()->si(m,Z,wnB); k<=space()->ei(m,Z,wnB); ++k )
         for( Ordinal j=space()->si(m,Y,wnB); j<=space()->ei(m,Y,wnB); ++j )
           for( Ordinal i=space()->si(m,X,wnB); i<=space()->ei(m,X,wnB); ++i ) {

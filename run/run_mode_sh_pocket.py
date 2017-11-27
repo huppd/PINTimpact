@@ -21,7 +21,7 @@ os.system('make ' + EXE + ' -j4')
 st = 1./30.
 
 DX = 1
-DY = 4
+DY = 2
 DZ = 2
 #
 NPX = 1
@@ -43,7 +43,7 @@ NZ = (385-1)/2/DZ+1
 #
 LX = LXO
 LY = LYO*2./3./DY
-LZ = round(LZO*DZ/(NZO-1)*(NZ-1), 1)
+LZ = round(LZO*2/(NZO-1)*(NZ-1), 1)
 #
 print('NX', NX)
 print('NY', NY)
@@ -70,36 +70,34 @@ ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', 1)
-ma.set_parameter(ROOT, 'Maximum Iterations', 100)
+ma.set_parameter(ROOT, 'Maximum Iterations', 2)
 ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-3)
+ma.set_parameter(ROOT, 'Output Frequency', 1)
 
 
 PRECS = [1, 2, 3, 4, 5]
 PRECS = [2, 3, 4, 5]
 PRECS = [3, 4, 5]
-PRECS = [3, 4, 5]
+PRECS = [4, 5]
+PRECS = [4]
 
-CYCLES = [1, 2, 4, 8, 16]
-CYCLES = [2, 3, 4, 6, 8]
-CYCLES = [1, 2, 3, 4]
-CYCLES = [1, 2, 3]
-CYCLES = [1, 2, 3]
-CYCLES = [2]
+CYCLES = [4, 8, 16]
+# CYCLES = [4, 8]
+CYCLES = [8]
+CYCLES = [1]
 
 SWEEPS = [1, 2, 4, 8, 16]
-SWEEPS = [1, 2, 3]
+SWEEPS = [1, 2, 4]
 SWEEPS = [1]
 
-MAXGRIDS = [1, 3, 5, 7]
-MAXGRIDS = [1, 2, 4]
 MAXGRIDS = [3]
 
 CASE_PATH = ['']*6
 
 
 # for side in ['left', 'right']:
+# for side in ['left', 'none', 'right']:
 for side in ['right']:
-# for side in ['left']:
     CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
     pp.mkdir(CASE_PATH, 0)
     for prec in PRECS:

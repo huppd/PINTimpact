@@ -193,7 +193,7 @@ int main( int argi, char** argv ) {
     if( realCase ) {
       rhs.getCField().initField( pl->sublist("Force").sublist("cos mode") );
       rhs.getSField().initField( pl->sublist("Force").sublist("sin mode") );
-      if( withoutput ) rhs.write( 100 );
+      //if( withoutput ) rhs.write( 100 );
     }
     else{
       auto initFunC = []( ST x, ST y ) ->ST { return std::pow((y-0.5),2); };
@@ -279,8 +279,8 @@ int main( int argi, char** argv ) {
       x.init();
     }
 
-    x.random();
-    x.scale(0.0001);
+    //x.random();
+    //x.scale(1.e-5);
 
     std::cout << "rhs_u^c: " << rhs.getCField()(Pimpact::F::U).norm() << "\n";
     std::cout << "rhs_v^c: " << rhs.getCField()(Pimpact::F::V).norm() << "\n";
@@ -294,13 +294,22 @@ int main( int argi, char** argv ) {
 
     if( withoutput ) x.write( 10 );
 
-    if( realCase!=0 ) {
+    if( 0==realCase ) {
       err.add( 1., sol, -1., x );
       //if( withoutput ) err.write( 0 );
       //if( print ) err.print();
 
       error = err.norm(Pimpact::ENorm::Inf);
       std::cout << "\nerror: " << error << "\n";
+    }
+    else {
+      modeOp->apply( x, sol );
+      err.add( 1., rhs, -1., sol );
+      if( withoutput ) err.write( 0 );
+      //if( print ) err.print();
+
+      error = err.norm(Pimpact::ENorm::Inf);
+      std::cout << "\nresidual: " << error << "\n";
     }
 
     if( 0==space->rankST() ) {

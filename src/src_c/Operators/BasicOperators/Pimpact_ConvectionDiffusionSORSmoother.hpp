@@ -239,8 +239,6 @@ protected:
                                  + op_->getMulL() * op_->getHelmOp()->innerStenc2D( x, f, i, j, k) ) / diag;
           }
     }
-
-    //applyBC( b, x );
     x.changed();
   }
 
