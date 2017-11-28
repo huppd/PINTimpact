@@ -112,6 +112,7 @@ int main( int argi, char** argv ) {
         Pimpact::createOstream( modeOp->getLabel()+".txt", space->rankST() ) );
     auto modeInv = Pimpact::createInverseOp( modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
+   
     auto mgSpaces =
       Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
@@ -137,21 +138,54 @@ int main( int argi, char** argv ) {
     if( 0==space->rankST() )
       mgConvDiff->print();
 
-    std::string modeConvDiffPrecString =
-      pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
+    {
+      std::string modeConvDiffScalingString =
+        pl->sublist("M_ConvDiff").get<std::string>( "scaling", "none" );
+      if( modeConvDiffScalingString!="none" ) {
+        auto scaleField = x.clone();
 
-    auto modePrec =
-      Pimpact::createMultiOperatorBase(
-        Pimpact::create<Pimpact::ModePrec>(
-          //zeroInv,
-          mgConvDiff,
-          Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
+        const ST pi = 4.*std::atan(1.);
+        const ST width = 0.9;
+        const ST eps = 1.e-6;
 
-    if("right" == modeConvDiffPrecString)
-      modeInv->setRightPrec(modePrec);
+        for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i ) {
+          scaleField->getCField()(i).initFromFunction(
+              [=]( ST x, ST y, ST z ) ->ST { return (y<=width)?1.:( (1.-eps)*std::cos( pi*(y-width)/(1.-width) )/2. + 0.5+eps/2. ); } );
+          scaleField->getSField()(i) = scaleField->getCField()(i);
+        }
+        auto scaleOp = Pimpact::createScalingOp( scaleField );
 
-    if("left" == modeConvDiffPrecString)
-      modeInv->setLeftPrec(modePrec);
+        if("right" == modeConvDiffScalingString) {
+          modeInv->setRightPrec( Pimpact::createMultiOperatorBase(scaleOp) );
+          //scaleField->write(200);
+        }
+
+        if("left" == modeConvDiffScalingString) {
+          modeInv->setLeftPrec( Pimpact::createMultiOperatorBase(scaleOp) );
+          //scaleField->write(200);
+        }
+      }
+    }
+
+    {
+      std::string modeConvDiffPrecString =
+        pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
+
+      if( "none"!=modeConvDiffPrecString ) {
+        auto modePrec =
+          Pimpact::createMultiOperatorBase(
+              Pimpact::create<Pimpact::ModePrec>(
+                //zeroInv,
+                mgConvDiff,
+                Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
+
+        if("right" == modeConvDiffPrecString)
+          modeInv->setRightPrec(modePrec);
+
+        if("left" == modeConvDiffPrecString)
+          modeInv->setLeftPrec(modePrec);
+      }
+    }
 
     ST iRe = 1./space->getDomainSize()->getRe();
     ST a2 = space->getDomainSize()->getAlpha2()*iRe;
