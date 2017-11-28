@@ -18,7 +18,7 @@ os.chdir(pp.EXE_PATH)
 os.system('make ' + EXE + ' -j4')
 
 
-st = 1./30.
+st = 1./60.
 
 DX = 1
 DY = 2
@@ -70,8 +70,8 @@ ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', 1)
-ma.set_parameter(ROOT, 'Maximum Iterations', 2)
-ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-3)
+ma.set_parameter(ROOT, 'Maximum Iterations', 20)
+ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-4)
 ma.set_parameter(ROOT, 'Output Frequency', 1)
 
 
