@@ -358,7 +358,8 @@ int main( int argi, char** argv ) {
           InterVF,
           ConvDiffOpT,
           ConvDiffOpT,
-          ConvDiffSORT,
+          //ConvDiffSORT,
+          ConvDiffJT,
           ConvDiffSORT > (
               mgSpaces,
               zeroOp,
