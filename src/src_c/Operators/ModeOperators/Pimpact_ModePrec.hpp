@@ -155,7 +155,7 @@ public:
 
     const B wb=B::N;
 
-    for( F f=F::U; f<SpaceT::sdim; ++f )
+    for( F f=F::U; f<SpaceT::sdim; ++f ) {
       for( OT k=space()->si(f,Z,wb); k<=space()->ei(f,Z,wb); ++k )
         for( OT j=space()->si(f,Y,wb); j<=space()->ei(f,Y,wb); ++j )
           for( OT i=space()->si(f,X,wb); i<=space()->ei(f,X,wb); ++i ) {
@@ -165,6 +165,9 @@ public:
             y.getCField()(f)(i,j,k) = tempC;
             y.getSField()(f)(i,j,k) = tempS;
           }
+      y.getCField()(f).changed();
+      y.getSField()(f).changed();
+    }
   }
 
 
