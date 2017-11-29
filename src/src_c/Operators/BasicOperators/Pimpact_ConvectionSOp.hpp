@@ -272,7 +272,7 @@ public:
   }
 
   void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
-
+ 
 
   constexpr const Scalar* getCU( const ECoord dir, const F ftype ) {
     return ( ((int)dir)==((int)ftype) )?cVU_[dir].get():cSU_[dir].get();
@@ -282,12 +282,72 @@ public:
     return ( ((int)dir)==((int)ftype) )?cVD_[dir].get():cSD_[dir].get();
   }
 
+protected:
+
   constexpr Scalar getC( const Scalar wind, const ECoord dir, const F ftype, const int i, const int ii ) {
     return ( static_cast<int>(dir)==static_cast<int>(ftype) )?
       (wind>=0? cVU_[dir](i,ii):cVD_[dir](i,ii)) :
       (wind>=0? cSU_[dir](i,ii):cSD_[dir](i,ii));
   }
+ 
+  constexpr Scalar innerStenc3DU( const Scalar u, const Scalar v, const Scalar w, const
+      RangeFieldT& x, const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
+    Scalar dx = 0.;
+    for( int ii=SW::NL(X); ii<=SW::NU(X); ++ii ) {
+      dx += (u>=0? cVU_[X](i,ii):cVD_[X](i,ii))*x(i+ii,j,k);
+    }
+
+    Scalar dy = 0.;
+    for( int jj=SW::NL(Y); jj<=SW::NU(Y); ++jj )
+      dy += (v>=0? cSU_[Y](j,jj):cSD_[Y](j,jj))*x(i,j+jj,k);
+
+    Scalar dz = 0.;
+    for( int kk=SW::NL(Z); kk<=SW::NU(Z); ++kk )
+      dz += (w>=0? cSU_[Z](k,kk):cSD_[Z](k,kk))*x(i,j,k+kk);
+
+    return u*dx+v*dy+w*dz;
+  }
+
+  constexpr Scalar innerStenc3DV( const Scalar u, const Scalar v, const Scalar w, const
+      RangeFieldT& x, const Ordinal i, const Ordinal j, const Ordinal k ) const {
+
+    Scalar dx = 0.;
+    for( int ii=SW::NL(X); ii<=SW::NU(X); ++ii ) {
+      dx += (u>=0? cSU_[X](i,ii):cSD_[X](i,ii))*x(i+ii,j,k);
+    }
+
+    Scalar dy = 0.;
+    for( int jj=SW::NL(Y); jj<=SW::NU(Y); ++jj )
+      dy += (v>=0? cVU_[Y](j,jj):cVD_[Y](j,jj))*x(i,j+jj,k);
+
+    Scalar dz = 0.;
+    for( int kk=SW::NL(Z); kk<=SW::NU(Z); ++kk )
+      dz += (w>=0? cSU_[Z](k,kk):cSD_[Z](k,kk))*x(i,j,k+kk);
+
+    return u*dx+v*dy+w*dz;
+  }
+
+  constexpr Scalar innerStenc3DW( const Scalar u, const Scalar v, const Scalar w, const
+      RangeFieldT& x, const Ordinal i, const Ordinal j, const Ordinal k ) const {
+
+    Scalar dx = 0.;
+    for( int ii=SW::NL(X); ii<=SW::NU(X); ++ii ) {
+      dx += (u>=0? cSU_[X](i,ii):cSD_[X](i,ii))*x(i+ii,j,k);
+    }
+
+    Scalar dy = 0.;
+    for( int jj=SW::NL(Y); jj<=SW::NU(Y); ++jj )
+      dy += (v>=0? cSU_[Y](j,jj):cSD_[Y](j,jj))*x(i,j+jj,k);
+
+    Scalar dz = 0.;
+    for( int kk=SW::NL(Z); kk<=SW::NU(Z); ++kk )
+      dz += (w>=0? cVU_[Z](k,kk):cVD_[Z](k,kk))*x(i,j,k+kk);
+
+    return u*dx+v*dy+w*dz;
+  }
+
+public:
 
   constexpr Scalar innerStenc2D( const Scalar u, const Scalar v, const RangeFieldT& x,
       const Ordinal i, const Ordinal j, const Ordinal k )
@@ -307,19 +367,7 @@ public:
   constexpr Scalar innerStenc3D( const Scalar u, const Scalar v, const Scalar w, const
       RangeFieldT& x, const Ordinal i, const Ordinal j, const Ordinal k ) const {
 
-    Scalar dx = 0.;
-    for( int ii=SW::NL(X); ii<=SW::NU(X); ++ii )
-      dx += getC( u,X, x.getType(),i,ii)*x(i+ii,j,k);
-
-    Scalar dy = 0.;
-    for( int jj=SW::NL(Y); jj<=SW::NU(Y); ++jj )
-      dy += getC( v,Y, x.getType(),j,jj)*x(i,j+jj,k);
-
-    Scalar dz = 0.;
-    for( int kk=SW::NL(Z); kk<=SW::NU(Z); ++kk )
-      dz += getC( w,Z, x.getType(),k,kk)*x(i,j,k+kk);
-
-    return u*dx+v*dy+w*dz;
+    return (F::U==x.getType())?innerStenc3DU(u, v, w, x, i, j, k):((F::V==x.getType())?innerStenc3DV(u, v, w, x, i, j, k):innerStenc3DW(u, v, w, x, i, j, k));
   }
 
   constexpr Scalar innerDiag3D( const Scalar u, const Scalar v, const Scalar w, const F

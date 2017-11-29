@@ -72,7 +72,7 @@ protected:
 
     x.exchange();
 
-    applyBC( b, x, y );
+    //applyBC( b, x, y );
 
     if( 3==SpaceT::sdim ) {
       for( OT k=space()->si(f,Z,B::N); k<=space()->ei(f,Z,B::N); ++k )
@@ -115,7 +115,7 @@ protected:
           }
     }
 
-    //applyBC( b, x, y );
+    applyBC( b, x, y );
     y.changed();
   }
 

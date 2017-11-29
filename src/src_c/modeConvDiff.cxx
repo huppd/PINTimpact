@@ -130,9 +130,10 @@ int main( int argi, char** argv ) {
       InterVF,
       ConvDiffOpT,
       ConvDiffOpT,
-      //ConvDiffJT,
-      ConvDiffSORT,
+      ConvDiffJT,
+      //ConvDiffSORT,
       ConvDiffSORT
+      //ConvDiffJT
         > ( mgSpaces, zeroOp, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
     if( 0==space->rankST() )
@@ -313,8 +314,8 @@ int main( int argi, char** argv ) {
       x.init();
     }
 
-    //x.random();
-    //x.scale(1.e-5);
+    x.random();
+    rhs.init( 0. );
 
     std::cout << "rhs_u^c: " << rhs.getCField()(Pimpact::F::U).norm() << "\n";
     std::cout << "rhs_v^c: " << rhs.getCField()(Pimpact::F::V).norm() << "\n";

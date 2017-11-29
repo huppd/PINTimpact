@@ -94,9 +94,9 @@ public:
       if( BC::Dirichlet==space_->bcl(dir) ) {
         for( int ii=SW::BL(X); ii<=SW::BU(X); ++ii )
           cS_[dir](1,ii) = 0.;
-        //if( 2==dir )
-          //cS_[dir](1,0) = 1.;
-        //else
+        if( Z==dir )
+          cS_[dir](1,0) = 1.;
+        else
           cS_[dir](1,0) = mulBC_;
 
       } else if( BC::Neumann==space_->bcl(dir) ) {
@@ -125,9 +125,9 @@ public:
       if( BC::Dirichlet==space_->bcu(dir) ) {
         for( int ii=SW::BL(X); ii<=SW::BU(X); ++ii )
           cS_[dir](space_->nLoc(dir),ii) = 0.;
-        //if( 1==dir || 2==dir )
-          //cS_[dir](space_->nLoc(dir),0) = 1.;
-        //else
+        if( Y==dir || Z==dir )
+          cS_[dir](space_->nLoc(dir),0) = 1.;
+        else
           cS_[dir](space_->nLoc(dir),0) = mulBC_;
       }
       if( BC::Neumann==space_->bcu(dir) ) {
@@ -182,7 +182,7 @@ public:
           cV_[dir](0,ii) = 0.;
 
 
-        if( 2==dir ) {
+        if( Z==dir ) {
           for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
             cV_[dir](0,ii+1) = space()->getInterpolateV2S()->getC( dir, 1, ii );
         }
@@ -229,16 +229,16 @@ public:
         for( OT ii=SW::BL(dir); ii<=SW::BU(dir); ++ii )
           cV_[dir]( space()->ei(fdir,dir,B::Y), ii ) = 0.;
 
-        //if( 1==dir || 2==dir ) {
-          //for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
-            //cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
-              //space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
-        //}
-        //else {
+        if( Y==dir || Z==dir ) {
+          for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
+            cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
+              space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
+        }
+        else {
           for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
             cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
               mulBC_*space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
-        //}
+        }
       } else if( BC::Neumann==space_->bcu(dir) ) {
         using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
@@ -276,7 +276,6 @@ public:
 
 
 
-  /// \todo change with or without bc, everywhere
   void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N  ) const {
 
     const B nb = B::N;
@@ -571,22 +570,65 @@ public:
     return "Helmholtz";
   };
 
+protected:
 
-  constexpr ST innerStenc3D( const ScalarField<SpaceT>& x, const F fType, const OT i,
-      const OT j, const OT k ) {
+  constexpr ST innerStenc3DU( const ScalarField<SpaceT>& x,
+      const OT i, const OT j, const OT k ) {
 
     ST lap = 0.;
 
     for( int ii=SW::BL(X); ii<=SW::BU(X); ++ii )
-      lap += getC(X,fType,i,ii)*x(i+ii,j,k);
+      lap += cV_[X](i,ii)*x(i+ii,j,k);
 
     for( int jj=SW::BL(Y); jj<=SW::BU(Y); ++jj )
-      lap += getC(Y,fType,j,jj)*x(i,j+jj,k);
+      lap += cS_[Y](j,jj)*x(i,j+jj,k);
 
     for( int kk=SW::BL(Z); kk<=SW::BU(Z); ++kk )
-      lap += getC(Z,fType,k,kk)*x(i,j,k+kk);
+      lap += cS_[Z](k,kk)*x(i,j,k+kk);
 
     return lap;
+  }
+
+  constexpr ST innerStenc3DV( const ScalarField<SpaceT>& x,
+      const OT i, const OT j, const OT k ) {
+
+    ST lap = 0.;
+
+    for( int ii=SW::BL(X); ii<=SW::BU(X); ++ii )
+      lap += cS_[X](i,ii)*x(i+ii,j,k);
+
+    for( int jj=SW::BL(Y); jj<=SW::BU(Y); ++jj )
+      lap += cV_[Y](j,jj)*x(i,j+jj,k);
+
+    for( int kk=SW::BL(Z); kk<=SW::BU(Z); ++kk )
+      lap += cS_[Z](k,kk)*x(i,j,k+kk);
+
+    return lap;
+  }
+
+  constexpr ST innerStenc3DW( const ScalarField<SpaceT>& x,
+      const OT i, const OT j, const OT k ) {
+
+    ST lap = 0.;
+
+    for( int ii=SW::BL(X); ii<=SW::BU(X); ++ii )
+      lap += cS_[X](i,ii)*x(i+ii,j,k);
+
+    for( int jj=SW::BL(Y); jj<=SW::BU(Y); ++jj )
+      lap += cS_[Y](j,jj)*x(i,j+jj,k);
+
+    for( int kk=SW::BL(Z); kk<=SW::BU(Z); ++kk )
+      lap += cV_[Z](k,kk)*x(i,j,k+kk);
+
+    return lap;
+  }
+
+public:
+
+  constexpr ST innerStenc3D( const ScalarField<SpaceT>& x, const F fType, const OT i,
+      const OT j, const OT k ) {
+
+    return (F::U==fType)?innerStenc3DU(x,i,j,k):((F::V==fType)?innerStenc3DV(x,i,j,k):innerStenc3DW(x,i,j,k));
   }
 
   constexpr ST innerStenc2D( const ScalarField<SpaceT>& x, const F fType, const OT i,

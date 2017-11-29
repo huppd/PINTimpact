@@ -20,6 +20,7 @@ os.system('make ' + EXE + ' -j4')
 
 st = 1./30.
 re = 300.
+# re = 100.
 
 DX = 1
 DY = 1
@@ -73,7 +74,7 @@ ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', 1)
-ma.set_parameter(ROOT, 'Maximum Iterations', 5)
+ma.set_parameter(ROOT, 'Maximum Iterations', 40)
 ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-6)
 ma.set_parameter(ROOT, 'Output Frequency', 1)
 
@@ -81,30 +82,31 @@ ma.set_parameter(ROOT, 'Output Frequency', 1)
 PRECS = [1, 2, 3, 4, 5]
 PRECS = [2, 3, 4, 5]
 PRECS = [3, 4, 5]
-PRECS = [4, 5]
-PRECS = [4]
+# PRECS = [4, 5]
+# PRECS = [4]
 
+CYCLES = [2, 4, 8, 16]
 CYCLES = [4, 8, 16]
-CYCLES = [4, 8]
-CYCLES = [4]
-# CYCLES = [1]
+# CYCLES = [4]
+CYCLES = [8]
 
 SWEEPS = [1, 2, 4, 8, 16]
-SWEEPS = [1, 2, 4]
-SWEEPS = [1, 2]
-SWEEPS = [1]
+SWEEPS = [2, 4, 8]
+# SWEEPS = [1, 2]
+SWEEPS = [8]
 
-MAXGRIDS = [3]
+MAXGRIDS = [2, 3, 4]
 
 CASE_PATH = ['']*6
 
 
 # for side in ['left', 'right']:
 # for side in ['left', 'none', 'right']:
-# for side in ['none']:
 # for side in ['left']:
+# for side in ['none']:
 for side in ['right']:
-    CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
+    # CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
+    CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_none'
     pp.mkdir(CASE_PATH, 0)
     for prec in PRECS:
         CASE_PATH[1] = '/prec_'+str(prec)
@@ -124,7 +126,9 @@ for side in ['right']:
                     pp.chdir(CASE_PATH, 5)
                     #
                     ma.set_parameter(ROOT, 'numGrids', max_grids)
+                    # ma.set_parameter(ROOT, 'numGrids', 3)
                     ma.set_parameter(ROOT, 'type', prec)
+                    # ma.set_parameter(ROOT, 'type', 5)
                     # ma.set_parameter(ROOT, 'cycle type', prec-4)
                     ma.set_parameter(ROOT, 'preconditioner', side)
                     ma.set_parameter(ROOT, 'numCycles', cycle)
