@@ -154,7 +154,7 @@
     <Parameter docString="" id="91" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
     <Parameter docString="" id="92" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="232" name="Solver">
-      <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="80" />
+      <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="160" />
       <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
       <Parameter docString="" id="95" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="16" />
       <Parameter docString="" id="96" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
@@ -177,7 +177,7 @@
     <Parameter docString="" id="110" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="234" name="Solver">
       <Parameter docString="" id="111" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />
-      <Parameter docString="" id="112" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+      <Parameter docString="" id="112" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="40" />
       <Parameter docString="" id="113" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
       <Parameter docString="" id="114" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="115" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
@@ -256,7 +256,7 @@
     <ParameterList id="245" name="Solver">
       <Parameter docString="" id="167" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="5" />
       <Parameter docString="" id="168" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="16" />
-      <Parameter docString="" id="169" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+      <Parameter docString="" id="169" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
       <Parameter docString="" id="170" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-1" />
       <Parameter docString="" id="171" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="172" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ModeNonlinearOp_ConvectionDiffusionVOp" />
