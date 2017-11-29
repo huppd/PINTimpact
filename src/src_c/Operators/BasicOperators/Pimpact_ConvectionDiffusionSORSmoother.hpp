@@ -189,7 +189,7 @@ protected:
     const F f = x.getType();
     x.exchange();
 
-    applyBC( b, x );
+    //applyBC( b, x );
 
     Teuchos::Tuple<OT,3> ss;
     Teuchos::Tuple<OT,3> nn;
@@ -239,6 +239,7 @@ protected:
                                  + op_->getMulL() * op_->getHelmOp()->innerStenc2D( x, f, i, j, k) ) / diag;
           }
     }
+    applyBC( b, x );
     x.changed();
   }
 
