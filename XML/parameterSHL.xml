@@ -230,16 +230,16 @@
       <Parameter docString="" id="150" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
       <Parameter docString="" id="151" isDefault="true" isUsed="true" name="defect correction" type="bool" value="true" />
       <Parameter docString="" id="152" isDefault="true" isUsed="true" name="init zero" type="bool" value="false" />
-      <Parameter docString="" id="153" isDefault="true" isUsed="true" name="numCycles" type="int" value="4" />
+      <Parameter docString="" id="153" isDefault="true" isUsed="true" name="numCycles" type="int" value="8" />
       <Parameter docString="" id="154" isDefault="true" isUsed="true" name="numGrids" type="int" value="3" />
       <ParameterList id="243" name="Coarse Grid Solver">
         <Parameter docString="" id="155" isDefault="true" isUsed="true" name="omega" type="double" value="0.5" />
-        <Parameter docString="" id="156" isDefault="true" isUsed="true" name="numIters" type="int" value="2" />
+        <Parameter docString="" id="156" isDefault="true" isUsed="true" name="numIters" type="int" value="8" />
         <Parameter docString="" id="157" isDefault="true" isUsed="true" name="Ordering" type="int" value="2" />
       </ParameterList>
       <ParameterList id="244" name="Smoother">
         <Parameter docString="" id="158" isDefault="true" isUsed="true" name="omega" type="double" value="0.5" />
-        <Parameter docString="" id="159" isDefault="true" isUsed="true" name="numIters" type="int" value="2" />
+        <Parameter docString="" id="159" isDefault="true" isUsed="true" name="numIters" type="int" value="8" />
         <Parameter docString="" id="160" isDefault="true" isUsed="true" name="Ordering" type="int" value="2" />
       </ParameterList>
     </ParameterList>
