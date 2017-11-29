@@ -251,7 +251,7 @@
     <Parameter docString="" id="164" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
     <Parameter docString="" id="165" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="244" name="Mode prec">
-      <Parameter docString="" id="166" isDefault="true" isUsed="true" name="type" type="int" value="5" />
+      <Parameter docString="" id="166" isDefault="true" isUsed="true" name="type" type="int" value="4" />
     </ParameterList>
     <ParameterList id="245" name="Solver">
       <Parameter docString="" id="167" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="5" />
