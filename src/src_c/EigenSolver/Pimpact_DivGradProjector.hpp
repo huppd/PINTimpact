@@ -111,23 +111,23 @@ public:
   DGProjector( const Teuchos::RCP<const OperatorT>& op):
     nullspace_( op->space() ) {
 
-    DivGradNullSpace<DivOp<SpaceT> > compNullspace;
+    //DivGradNullSpace<DivOp<SpaceT> > compNullspace;
 
-    compNullspace.computeNullSpace( op->getDivOp(), nullspace_ );
+    //compNullspace.computeNullSpace( op->getDivOp(), nullspace_ );
   }
 
   void operator()( RangeFieldT& rhs ) const {
 
-    auto space = nullspace_.space();
+    //auto space = nullspace_.space();
     
-    setCornersZero( rhs );
-    ST bla = -nullspace_.dot( rhs );
+    //setCornersZero( rhs );
+    //ST bla = -nullspace_.dot( rhs );
 
-    //if( 0==space->rankST() )
-      //std::cout << "DivGrad^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
+    ////if( 0==space->rankST() )
+      ////std::cout << "DivGrad^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
 
-    if( std::abs( bla )>0. )
-      rhs.add( 1., rhs, bla, nullspace_ );
+    //if( std::abs( bla )>0. )
+      //rhs.add( 1., rhs, bla, nullspace_ );
 
     setCornersZero( rhs );
   }

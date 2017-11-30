@@ -313,6 +313,50 @@ int main( int argi, char** argv ) {
       auto opInv = Pimpact::createInverseOp<Pimpact::PicardProjector>(
             op, Teuchos::sublist( pl, "Picard Solver" ) );
 
+      /*** init scaling *****************************************************************/
+      {
+        std::string picardScalingString =
+          pl->sublist("Picard Solver").get<std::string>( "scaling", "none" );
+
+        if( picardScalingString!="none" ) {
+
+          auto scaleField = x->getField(0).clone( Pimpact::ECopy::Shallow );
+
+          const ST pi = 4.*std::atan(1.);
+          const ST width = 0.9;
+          const ST eps = 1.e-6;
+
+          auto scalefunc =
+            [=]( ST x, ST y, ST z ) ->ST { return (y<=width)?1.:( (1.-eps)*std::cos(
+                  pi*(y-width)/(1.-width) )/2. + 0.5+eps/2. ); };
+
+          if( 0==space->si(Pimpact::F::U,3) ) { 
+            for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i ) {
+              scaleField->getVField().get0Field()(i).initFromFunction( scalefunc );
+            }
+          }
+          for( OT i=std::max(space()->si(Pimpact::F::U,3),1); i<=space()->ei(Pimpact::F::U,3); ++i ) {
+            for( Pimpact::F f=Pimpact::F::U; f<SpaceT::sdim; ++f ) {
+              scaleField->getVField().getCField(i)(f).initFromFunction( scalefunc );
+              scaleField->getVField().getSField(i)(f).initFromFunction( scalefunc );
+            }
+          }
+
+          scaleField->getSField().init( 1. );
+
+          auto scaleOp = Pimpact::createScalingOp( scaleField );
+
+          if("right" == picardScalingString) {
+            opInv->setRightPrec( Pimpact::createMultiOperatorBase(scaleOp) );
+            //scaleField->write(200);
+          }
+          if("left" == picardScalingString) {
+            opInv->setLeftPrec( Pimpact::createMultiOperatorBase(scaleOp) );
+            //scaleField->write(200);
+          }
+        }
+      }
+
       /*** init preconditioner **********************************************************/
 
       std::string picardPrecString =
@@ -358,8 +402,8 @@ int main( int argi, char** argv ) {
           InterVF,
           ConvDiffOpT,
           ConvDiffOpT,
-          //ConvDiffSORT,
-          ConvDiffJT,
+          ConvDiffSORT,
+          //ConvDiffJT,
           ConvDiffSORT > (
               mgSpaces,
               zeroOp,
@@ -378,8 +422,7 @@ int main( int argi, char** argv ) {
         std::string modeConvDiffPrecString =
           pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
 
-        auto modePrec =
-          Pimpact::createMultiOperatorBase(
+        auto modePrec = Pimpact::createMultiOperatorBase(
               Pimpact::create<Pimpact::ModePrec>(
                 mgConvDiff,
                 Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Mode prec") ) );
@@ -392,8 +435,9 @@ int main( int argi, char** argv ) {
 
         // create Hinv prec
         auto opV2Vprec = Pimpact::createMultiHarmonicDiagOp( zeroInv, modeInv );
+        //auto opV2Vprec = Pimpact::createMultiHarmonicDiagOp( mgConvDiff, modeInv );
 
-        /////////////////////////////////////////end of opv2v////////////////////////////////////
+        /////////////////////////////////////////end of opv2v////////////////////////////
         ////--- inverse DivGrad
         if( 0==space->rankST() ) std::cout << "\tinit DivGrad preconditioner\n";
 
@@ -435,7 +479,6 @@ int main( int argi, char** argv ) {
             Pimpact::RestrictionSFOp,
             Pimpact::InterpolationOp,
             Pimpact::DivGradOp,
-            //Pimpact::DivGradOp,
             Pimpact::DivGradO2Op,
             Pimpact::DivGradO2JSmoother,
             //Pimpact::Chebyshev,
@@ -491,7 +534,7 @@ int main( int argi, char** argv ) {
         if( "left" == picardPrecString )
           opInv->setLeftPrec( Pimpact::createMultiOperatorBase( invTriangOp ) );
       }
-      //** end of init preconditioner ***********************************************************
+      //** end of init preconditioner ***************************************************
 
       auto inter = NOX::Pimpact::createInterface(
           fu,
