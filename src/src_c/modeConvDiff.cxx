@@ -315,7 +315,8 @@ int main( int argi, char** argv ) {
     }
 
     x.random();
-    rhs.init( 0. );
+    x.scale(1.e-3);
+    //rhs.init( 0. );
 
     std::cout << "rhs_u^c: " << rhs.getCField()(Pimpact::F::U).norm() << "\n";
     std::cout << "rhs_v^c: " << rhs.getCField()(Pimpact::F::V).norm() << "\n";

@@ -74,7 +74,7 @@ ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', 1)
-ma.set_parameter(ROOT, 'Maximum Iterations', 40)
+ma.set_parameter(ROOT, 'Maximum Iterations', 10)
 ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-6)
 ma.set_parameter(ROOT, 'Output Frequency', 1)
 
@@ -83,7 +83,7 @@ PRECS = [1, 2, 3, 4, 5]
 PRECS = [2, 3, 4, 5]
 PRECS = [3, 4, 5]
 # PRECS = [4, 5]
-# PRECS = [4]
+PRECS = [4]
 
 CYCLES = [2, 4, 8, 16]
 CYCLES = [4, 8, 16]
@@ -95,7 +95,7 @@ SWEEPS = [2, 4, 8]
 # SWEEPS = [1, 2]
 SWEEPS = [8]
 
-MAXGRIDS = [2, 3, 4]
+MAXGRIDS = [3]
 
 CASE_PATH = ['']*6
 

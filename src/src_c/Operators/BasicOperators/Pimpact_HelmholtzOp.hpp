@@ -94,10 +94,8 @@ public:
       if( BC::Dirichlet==space_->bcl(dir) ) {
         for( int ii=SW::BL(X); ii<=SW::BU(X); ++ii )
           cS_[dir](1,ii) = 0.;
-        if( Z==dir )
-          cS_[dir](1,0) = 1.;
-        else
-          cS_[dir](1,0) = mulBC_;
+
+        cS_[dir](1,0) = mulBC_;
 
       } else if( BC::Neumann==space_->bcl(dir) ) {
         FD_getDiffCoeff(
@@ -125,9 +123,6 @@ public:
       if( BC::Dirichlet==space_->bcu(dir) ) {
         for( int ii=SW::BL(X); ii<=SW::BU(X); ++ii )
           cS_[dir](space_->nLoc(dir),ii) = 0.;
-        if( Y==dir || Z==dir )
-          cS_[dir](space_->nLoc(dir),0) = 1.;
-        else
           cS_[dir](space_->nLoc(dir),0) = mulBC_;
       }
       if( BC::Neumann==space_->bcu(dir) ) {
@@ -181,15 +176,8 @@ public:
         for( OT ii=SW::BL(dir); ii<=SW::BU(dir); ++ii )
           cV_[dir](0,ii) = 0.;
 
-
-        if( Z==dir ) {
-          for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
-            cV_[dir](0,ii+1) = space()->getInterpolateV2S()->getC( dir, 1, ii );
-        }
-        else {
-          for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
-            cV_[dir](0,ii+1) = mulBC_*space()->getInterpolateV2S()->getC( dir, 1, ii );
-        }
+        for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
+          cV_[dir](0,ii+1) = mulBC_*space()->getInterpolateV2S()->getC( dir, 1, ii );
       } else if( BC::Neumann==space_->bcl(dir) ) {
 
         using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
@@ -229,16 +217,9 @@ public:
         for( OT ii=SW::BL(dir); ii<=SW::BU(dir); ++ii )
           cV_[dir]( space()->ei(fdir,dir,B::Y), ii ) = 0.;
 
-        if( Y==dir || Z==dir ) {
-          for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
-            cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
-              space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
-        }
-        else {
-          for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
-            cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
-              mulBC_*space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
-        }
+        for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
+          cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
+            mulBC_*space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
       } else if( BC::Neumann==space_->bcu(dir) ) {
         using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
