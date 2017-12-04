@@ -294,9 +294,9 @@ public:
   }
 
   /// \brief Replace the vectors with a random vectors.
-  void random(bool useSeed = false, int seed = 1) {
-    fieldc_.random();
-    fields_.random();
+  void random( bool useSeed=false, const B bcYes=B::Y, int seed=1 ) {
+    fieldc_.random(useSeed, bcYes, seed);
+    fields_.random(useSeed, bcYes, seed);
   }
 
   /// \brief Replace each element of the vector  with \c alpha.

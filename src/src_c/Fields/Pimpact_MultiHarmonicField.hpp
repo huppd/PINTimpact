@@ -424,13 +424,13 @@ public:
 
 
   /// \brief Replace the vectors with a random vectors.
-  void random( const bool useSeed = false, const int seed = 1) {
+  void random( bool useSeed=false, const B bcYes=B::Y, int seed=1 ) {
 
     if( 0==space()->si(F::U,3) )
-      field0_.random();
+      field0_.random(useSeed, bcYes, seed);
 
     for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
-      getField(i).random();
+      getField(i).random(useSeed, bcYes, seed);
 
     changed();
   }

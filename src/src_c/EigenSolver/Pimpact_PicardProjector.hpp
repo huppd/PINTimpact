@@ -198,18 +198,18 @@ public:
 
     // outflow projection
     const ST pi = 4.*std::atan(1.);
-    const ST width = 0.9;
+    const ST width = 0.95;
     const ST eps = 0.;
 
     auto scalefunc = [=]( ST x, ST y, ST z ) ->ST {
       return (y<=width)?0.:( std::cos( pi*(y-width)/(1.-width) + pi )/2. + 0.5); };
 
-    projection_.getVField()(F::U).initFromFunction( scalefunc );
-    setCornersZero( projection_.getVField()(F::U) );
+    //projection_.getVField()(F::U).initFromFunction( scalefunc );
+    //setCornersZero( projection_.getVField()(F::U) );
     projection_.getVField()(F::V).initFromFunction( scalefunc );
     setCornersZero( projection_.getVField()(F::V) );
-    projection_.getVField()(F::W).initFromFunction( scalefunc );
-    setCornersZero( projection_.getVField()(F::W) );
+    //projection_.getVField()(F::W).initFromFunction( scalefunc );
+    //setCornersZero( projection_.getVField()(F::W) );
 
     projection_.getSField().initFromFunction( scalefunc );
     setCornersZero( projection_.getSField() );

@@ -195,7 +195,8 @@ void computeHEEnergyDir(
 
     //if( 0==space->rankST() ) std::cout << "k: " << k << " x3p: " << x3p << "\t";
     for( int n=0; n<n_Hermitemodes; ++n ) {
-      sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p/(gamma*std::sqrt(2*pi));
+      //sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p/(gamma*std::sqrt(2*pi)); // dh: don't know where it is coming from
+      sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p;
       //if( 0==space->rankST() ) std::cout << sweight(k-S3p, n) << "\t";
     }
     //std::cout << "\n";

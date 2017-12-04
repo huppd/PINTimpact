@@ -65,7 +65,7 @@ public:
 
       F fdir = static_cast<F>( dir );
 
-      ST mulBC_ = 1.e3; /// good idea, but has to be considered also in Force( what happens in Schurcomplement? Hopefully nothing
+      ST mulBC_ = 1.e+2; /// good idea, but has to be considered also in Force( what happens in Schurcomplement? Hopefully nothing
 
       // scalar stencil
       cS_[dir] = Stenc( space_->nLoc(dir) );
@@ -178,6 +178,7 @@ public:
 
         for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
           cV_[dir](0,ii+1) = mulBC_*space()->getInterpolateV2S()->getC( dir, 1, ii );
+          //cV_[dir](0,ii+1) = space()->getInterpolateV2S()->getC( dir, 1, ii );
       } else if( BC::Neumann==space_->bcl(dir) ) {
 
         using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
@@ -220,6 +221,7 @@ public:
         for( OT ii=SW::DL(dir); ii<=SW::DU(dir); ++ii )
           cV_[dir](space()->ei(fdir,dir,B::Y), ii) =
             mulBC_*space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
+            //space()->getInterpolateV2S()->getC( dir, space()->ei(F::S,dir,B::Y), ii );
       } else if( BC::Neumann==space_->bcu(dir) ) {
         using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
 

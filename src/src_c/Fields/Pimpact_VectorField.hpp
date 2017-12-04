@@ -806,34 +806,78 @@ public:
         ST A  = para.get<ST>( "A",  0.1 );
 
         Teuchos::RCP<const DomainSize<ST,SpaceT::sdim> > domain = space()->getDomainSize();
-        at(F::W).initFromFunction(
-            [=]( ST x_, ST y_, ST z_ ) -> ST {
+        Teuchos::RCP<const CoordinatesLocal<ST,OT,SpaceT::dimension,SpaceT::dimNC> > coord =
+          space()->getCoordinatesLocal();
 
-              ST x = x_*domain->getSize(X) + domain->getOrigin(X);
-              ST y = y_*domain->getSize(Y) + domain->getOrigin(Y);
-              ST z = z_*domain->getSize(Z) + domain->getOrigin(Z);
-
-              ST w = 0.;
-              if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
-                w -= 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) );
-              if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
-                w += 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z+zc)/b ) );
-              return w; },
-              add );
-        at(F::U).initFromFunction(
-            [=]( ST x_, ST y_, ST z_ ) -> ST {
-
-              ST x = x_*domain->getSize(X) + domain->getOrigin(X);
-              ST y = y_*domain->getSize(Y) + domain->getOrigin(Y);
-              ST z = z_*domain->getSize(Z) + domain->getOrigin(Z);
+        const B bY = B::Y;
+        if( 0<space()->bcl(Y) ) {
+          OT j=space()->si(F::U,Y,bY);
+          for( OT k=space()->si(F::U,Z,bY); k<=space()->ei(F::U,Z,bY); ++k )
+            for( OT i=space()->si(F::U,X,bY); i<=space()->ei(F::U,X,bY); ++i ) {
+              ST x = coord->getX(F::U,X,i);
+              ST z = coord->getX(F::U,Z,k);
 
               ST u = 0.;
-              if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
+              if( std::fabs( x-xc )<b && std::fabs(z-zc)<b )
                 u += 0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
-              if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
+              if( std::fabs( x-xc )<b && std::fabs(z+zc)<b )
                 u -= 0.5*A*std::sin( pi*(z+zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
-              return u; },
-            add );
+              if( Add::Y==add )
+                at(F::U)(i,j,k) += u;
+              else
+                at(F::U)(i,j,k) = u;
+            }
+        }
+        at(F::U).changed();
+
+        if( 0<space()->bcl(Y) ) {
+          OT j=space()->si(F::W,Y,bY);
+          for( OT k=space()->si(F::W,Z,bY); k<=space()->ei(F::W,Z,bY); ++k )
+            for( OT i=space()->si(F::W,X,bY); i<=space()->ei(F::W,X,bY); ++i ) {
+              ST x = coord->getX(F::W,X,i);
+              ST z = coord->getX(F::W,Z,k);
+
+              ST w = 0.;
+              if( std::fabs( x-xc )<b && std::fabs(z-zc)<b )
+                w -= 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) );
+              if( std::fabs( x-xc )<b && std::fabs(z+zc)<b )
+                w += 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z+zc)/b ) );
+              if( Add::Y==add )
+                at(F::W)(i,j,k) += w;
+              else
+                at(F::W)(i,j,k) = w;
+            }
+        }
+        at(F::W).changed();
+
+        //at(F::W).initFromFunction(
+            //[=]( ST x_, ST y_, ST z_ ) -> ST {
+
+              //ST x = x_*domain->getSize(X) + domain->getOrigin(X);
+              //ST y = y_*domain->getSize(Y) + domain->getOrigin(Y);
+              //ST z = z_*domain->getSize(Z) + domain->getOrigin(Z);
+
+              //ST w = 0.;
+              //if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
+                //w -= 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) );
+              //if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
+                //w += 0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z+zc)/b ) );
+              //return w; },
+              //add );
+        //at(F::U).initFromFunction(
+            //[=]( ST x_, ST y_, ST z_ ) -> ST {
+
+              //ST x = x_*domain->getSize(X) + domain->getOrigin(X);
+              //ST y = y_*domain->getSize(Y) + domain->getOrigin(Y);
+              //ST z = z_*domain->getSize(Z) + domain->getOrigin(Z);
+
+              //ST u = 0.;
+              //if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z-zc)<b )
+                //u += 0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
+              //if( y<=Teuchos::ScalarTraits<ST>::eps() && std::fabs( x-xc )<b && std::fabs(z+zc)<b )
+                //u -= 0.5*A*std::sin( pi*(z+zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) );
+              //return u; },
+            //add );
         if( Add::N==add ) at(F::V).init();
         break;
       }

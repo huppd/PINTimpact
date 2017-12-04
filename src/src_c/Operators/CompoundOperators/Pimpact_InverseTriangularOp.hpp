@@ -74,7 +74,6 @@ public:
     temps->add( 1., *temps, -1., x.getSField() );
 
     opS2S_->apply( *temps,  y.getSField() );
-    //y.getSField().scale( -1. );
   }
 
 

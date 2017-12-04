@@ -19,11 +19,11 @@ class DGProjector {
   using ST = typename SpaceT::Scalar;
   using OT = typename SpaceT::Ordinal;
 
-  RangeFieldT nullspace_;
+  //RangeFieldT nullspace_;
 
   void setCornersZero( RangeFieldT& rhs ) const {
 
-    auto space = nullspace_.space();
+    auto space = rhs.space();
 
     // BC XY
     if( space->getBCLocal()->getBCL(X)>0 && space->getBCLocal()->getBCL(Y)>0 ) {
@@ -108,8 +108,9 @@ class DGProjector {
 public:
 
   DGProjector() {}
-  DGProjector( const Teuchos::RCP<const OperatorT>& op):
-    nullspace_( op->space() ) {
+  DGProjector( const Teuchos::RCP<const OperatorT>& op)//:
+    //nullspace_( op->space() )
+  {
 
     //DivGradNullSpace<DivOp<SpaceT> > compNullspace;
 
@@ -123,8 +124,8 @@ public:
     //setCornersZero( rhs );
     //ST bla = -nullspace_.dot( rhs );
 
-    ////if( 0==space->rankST() )
-      ////std::cout << "DivGrad^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
+    //if( 0==space->rankST() )
+      //std::cout << "DivGrad^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
 
     //if( std::abs( bla )>0. )
       //rhs.add( 1., rhs, bla, nullspace_ );

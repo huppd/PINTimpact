@@ -485,8 +485,8 @@ int main( int argi, char** argv ) {
         auto invTriangOp =
           Pimpact::createInverseTriangularOp(
             opV2Vinv,
-            opS2V,
-            //opV2S,
+            //opS2V,
+            opV2S,
             opS2Sinv );
 
         if( "right" == picardPrecString )

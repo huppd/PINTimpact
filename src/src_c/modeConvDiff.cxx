@@ -119,6 +119,13 @@ int main( int argi, char** argv ) {
     //pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
         //Pimpact::createOstream( zeroOp->getLabel()+".txt", space->rankST() ) );
 
+    pl->sublist("ConvDiff").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
+        "Output Stream",
+        Pimpact::createOstream(zeroOp->getLabel()+".txt",
+          withoutput?space->rankST():-1 ));
+
+    auto zeroInv = Pimpact::createInverseOp(
+        zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
     //auto mgConvDiff =
       //Pimpact::create<ConvDiffSORT>(
           //zeroOp,
@@ -130,14 +137,21 @@ int main( int argi, char** argv ) {
       InterVF,
       ConvDiffOpT,
       ConvDiffOpT,
-      ConvDiffJT,
-      //ConvDiffSORT,
+      //ConvDiffJT,
+      ConvDiffSORT,
       ConvDiffSORT
       //ConvDiffJT
         > ( mgSpaces, zeroOp, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
     if( 0==space->rankST() )
       mgConvDiff->print();
+
+    std::string convDiffPrecString =
+      pl->sublist("ConvDiff").get<std::string>( "preconditioner", "right" );
+    if( "right" == convDiffPrecString )
+      zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+    if( "left" == convDiffPrecString )
+      zeroInv->setLeftPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 
     {
       std::string modeConvDiffScalingString =
@@ -176,8 +190,8 @@ int main( int argi, char** argv ) {
         auto modePrec =
           Pimpact::createMultiOperatorBase(
               Pimpact::create<Pimpact::ModePrec>(
-                //zeroInv,
-                mgConvDiff,
+                zeroInv,
+                //mgConvDiff,
                 Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Eddy prec") ) );
 
         if("right" == modeConvDiffPrecString)
@@ -314,8 +328,8 @@ int main( int argi, char** argv ) {
       x.init();
     }
 
-    x.random();
-    x.scale(1.e-3);
+    //x.random();
+    //x.scale(1.e-3);
     //rhs.init( 0. );
 
     std::cout << "rhs_u^c: " << rhs.getCField()(Pimpact::F::U).norm() << "\n";

@@ -23,7 +23,7 @@ re = 300.
 # re = 100.
 
 DX = 1
-DY = 1
+DY = 2
 DZ = 1
 #
 NPX = 1
@@ -39,13 +39,17 @@ NXO = 97
 NYO = 1537
 NZO = 513
 #
-NX = 97
-NY = (1025-1)/4/DY+1
-NZ = (385-1)/4/DZ+1
+NX = 65
+NY = (1025-1)/2/DY+1
+# NZ = (385-1)/2/DZ+1
+NZ = 129
+NZ = 129
 #
 LX = LXO
-LY = LYO*2./3./4./DY
-LZ = round(LZO/(NZO-1)*(NZ-1), 1)
+LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)
+# LY = LYO/3./DY*1.5
+LY = round(LYO*1.5/(NYO-1)*(NY-1), 1)
+LZ = round(LZO*1.5/(NZO-1)*(NZ-1), 1)
 #
 print('NX', NX)
 print('NY', NY)
@@ -74,8 +78,8 @@ ma.set_parameter(ROOT, 'npx', NPX)
 ma.set_parameter(ROOT, 'npy', NPY)
 ma.set_parameter(ROOT, 'npz', NPZ)
 ma.set_parameter(ROOT, 'npf', 1)
-ma.set_parameter(ROOT, 'Maximum Iterations', 10)
-ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-6)
+# ma.set_parameter(ROOT, 'Maximum Iterations', 10)
+# ma.set_parameter(ROOT, 'Convergence Tolerance', 1.e-6)
 ma.set_parameter(ROOT, 'Output Frequency', 1)
 
 
@@ -87,13 +91,13 @@ PRECS = [4]
 
 CYCLES = [2, 4, 8, 16]
 CYCLES = [4, 8, 16]
-# CYCLES = [4]
-CYCLES = [8]
+CYCLES = [4]
+# CYCLES = [1]
 
 SWEEPS = [1, 2, 4, 8, 16]
 SWEEPS = [2, 4, 8]
 # SWEEPS = [1, 2]
-SWEEPS = [8]
+SWEEPS = [1]
 
 MAXGRIDS = [3]
 
@@ -102,8 +106,8 @@ CASE_PATH = ['']*6
 
 # for side in ['left', 'right']:
 # for side in ['left', 'none', 'right']:
-# for side in ['left']:
 # for side in ['none']:
+# for side in ['left']:
 for side in ['right']:
     # CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
     CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_none'

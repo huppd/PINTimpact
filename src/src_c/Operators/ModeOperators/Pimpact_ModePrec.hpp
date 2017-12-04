@@ -50,9 +50,8 @@ public:
     type_( pl->get<int>("type", -1) ),
     op_(op) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    //std:: cout << type_ << "\n";
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
     switch(type_) {
       case 0: {
@@ -87,6 +86,7 @@ public:
         break;
       }
     }
+    //y.write(777);
   }
 
   /// left/right same
@@ -119,8 +119,8 @@ public:
 
     // left
     temp = x;
-    temp.getCField().add( 1.0, x.getCField(),  1.0, x.getSField(), B::N );
-    temp.getSField().add( 1.0, x.getCField(), -1.0, x.getSField(), B::N );
+    temp.getCField().add( 1.0, x.getCField(),  1.0, x.getSField(), B::Y );
+    temp.getSField().add( 1.0, x.getCField(), -1.0, x.getSField(), B::Y );
 
     //// set paramters
     auto pl = Teuchos::parameterList();
@@ -134,7 +134,7 @@ public:
     op_->apply( temp.getCField(), y.getCField() );
     op_->apply( temp.getSField(), y.getSField() );
 
-    y.scale( 0.5, B::N );
+    y.scale( 0.5, B::Y );
   }
 
 
@@ -184,14 +184,8 @@ public:
     op_->setParameter( pl );
 
     op_->apply( x.getCField(), y.getCField() );
-
-    pl->set<ST>( "mulI", -mulI_ );
-    pl->set<ST>( "mulC", -mulC_ );
-    pl->set<ST>( "mulL", -mulL_ );
-
-    op_->setParameter( pl );
-
     op_->apply( x.getSField(), y.getSField() );
+    y.getSField().scale( -1. );
   }
 
 

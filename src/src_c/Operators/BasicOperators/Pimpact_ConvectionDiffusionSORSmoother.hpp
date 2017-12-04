@@ -247,7 +247,7 @@ protected:
   /// \brief implements smoothing for Dirichlet boundary conditions as identity
   /// in tangential / velocity direction or interpolation in wand normal
   /// direction
-  void applyBC( const DomainFieldT& b, RangeFieldT& y	) const {
+  void applyBC( const DomainFieldT& b, RangeFieldT& y ) const {
 
     assert( b.getType()==y.getType() );
 
@@ -265,6 +265,7 @@ protected:
         for( OT k=space()->si(f,Z,B::Y); k<=space()->ei(f,Z,B::Y); ++k )
           for( OT i=space()->si(f,X,B::N); i<=space()->ei(f,X,B::N); ++i ) {
             ST temp = 0.;
+            //std::cout << "f: " << f << "i: " << i << "j: " << "k: " << k << "y: " << y(i,j,k) << "\n";
             for( OT jj=0; jj<=SW::BU(Y); ++jj )
               temp += getHC(Y,f,j,jj)*y(i,j+jj,k);
             y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(Y,f,j,0);
@@ -312,6 +313,7 @@ protected:
             for( OT ii=0; ii<=SW::BU(X); ++ii )
               temp += getHC(X,f,i,ii)*y(i+ii,j,k);
             y(i,j,k) += omegaBC*( b(i,j,k) - temp )/getHC(X,f,i,0);
+            //std::cout << "f: " << f << "i: " << i << "j: " << "k: " << k << "y: " << y(i,j,k) << "\n\n";
           }
       }
       if( 0<space()->bcu(X) ) {

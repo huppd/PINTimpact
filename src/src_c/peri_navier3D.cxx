@@ -314,43 +314,46 @@ int main( int argi, char** argv ) {
             op, Teuchos::sublist( pl, "Picard Solver" ) );
 
       /*** init scaling *****************************************************************/
+      auto scaleField = x->getField(0).clone( Pimpact::ECopy::Shallow );
+      const ST pi = 4.*std::atan(1.);
+      const ST width = 0.95;
+      const ST eps = 1.e-3;
+
+      auto scalefunc =
+        [=]( ST x, ST y, ST z ) ->ST { return (y<=width)?1.:( (1.-eps)*std::cos(
+              pi*(y-width)/(1.-width) )/2. + 0.5+eps/2. ); };
+
+      if( 0==space->si(Pimpact::F::U,3) ) { 
+        for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i )
+          scaleField->getVField().get0Field()(i).initFromFunction( scalefunc );
+        //scaleField->getSField().get0Field().initFromFunction( scalefunc );
+      }
+      for( OT i=std::max(space()->si(Pimpact::F::U,3),1); i<=space()->ei(Pimpact::F::U,3); ++i ) {
+        for( Pimpact::F f=Pimpact::F::U; f<SpaceT::sdim; ++f ) {
+          scaleField->getVField().getCField(i)(f).initFromFunction( scalefunc );
+          scaleField->getVField().getSField(i)(f).initFromFunction( scalefunc );
+        }
+        //scaleField->getSField().getCField(i).initFromFunction( scalefunc );
+        //scaleField->getSField().getSField(i).initFromFunction( scalefunc );
+      }
+
+      //scaleField->getSField().init( 1. );
+
       {
         std::string picardScalingString =
           pl->sublist("Picard Solver").get<std::string>( "scaling", "none" );
 
         if( picardScalingString!="none" ) {
 
-          auto scaleField = x->getField(0).clone( Pimpact::ECopy::Shallow );
-
-          const ST pi = 4.*std::atan(1.);
-          const ST width = 0.9;
-          const ST eps = 1.e-6;
-
-          auto scalefunc =
-            [=]( ST x, ST y, ST z ) ->ST { return (y<=width)?1.:( (1.-eps)*std::cos(
-                  pi*(y-width)/(1.-width) )/2. + 0.5+eps/2. ); };
-
-          if( 0==space->si(Pimpact::F::U,3) ) { 
-            for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i ) {
-              scaleField->getVField().get0Field()(i).initFromFunction( scalefunc );
-            }
-          }
-          for( OT i=std::max(space()->si(Pimpact::F::U,3),1); i<=space()->ei(Pimpact::F::U,3); ++i ) {
-            for( Pimpact::F f=Pimpact::F::U; f<SpaceT::sdim; ++f ) {
-              scaleField->getVField().getCField(i)(f).initFromFunction( scalefunc );
-              scaleField->getVField().getSField(i)(f).initFromFunction( scalefunc );
-            }
-          }
-
-          scaleField->getSField().init( 1. );
-
           auto scaleOp = Pimpact::createScalingOp( scaleField );
 
           if("right" == picardScalingString) {
+            if( 0==space->rankST() ) std::cout << "Picard: right scaling\n";
             opInv->setRightPrec( Pimpact::createMultiOperatorBase(scaleOp) );
             //scaleField->write(200);
           }
           if("left" == picardScalingString) {
+            if( 0==space->rankST() ) std::cout << "Picard: left scaling\n";
             opInv->setLeftPrec( Pimpact::createMultiOperatorBase(scaleOp) );
             //scaleField->write(200);
           }
@@ -419,12 +422,23 @@ int main( int argi, char** argv ) {
         if( "left" == convDiffPrecString )
           zeroInv->setLeftPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 
+        std::string convDiffScalingString =
+          pl->sublist("ConvDiff").get<std::string>( "scaling", "none" );
+        if( "none"!=convDiffScalingString ) {
+          auto scaleOp = Pimpact::createScalingOp( Teuchos::rcpFromRef(scaleField->getVField().get0Field()) );
+          if( "right" == convDiffScalingString )
+            zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(scaleOp) );
+          if( "left" == convDiffScalingString )
+            zeroInv->setLeftPrec( Pimpact::createMultiOperatorBase(scaleOp) );
+        }
+
         std::string modeConvDiffPrecString =
           pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
 
         auto modePrec = Pimpact::createMultiOperatorBase(
               Pimpact::create<Pimpact::ModePrec>(
-                mgConvDiff,
+                //mgConvDiff,
+                zeroInv,
                 Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Mode prec") ) );
 
         if("right" == modeConvDiffPrecString)

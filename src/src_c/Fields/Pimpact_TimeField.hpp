@@ -301,10 +301,10 @@ public:
 
 
   /// \brief Replace the vectors with a random vectors.
-  void random( const bool useSeed = false, const int seed = 1) {
+  void random( bool useSeed=false, const B bcYes=B::Y, int seed=1 ) {
 
     for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      at(i).random();
+      at(i).random(useSeed, bcYes, seed);
     changed();
   }
 
