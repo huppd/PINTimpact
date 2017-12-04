@@ -26,7 +26,11 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
+<<<<<<< HEAD
 NF = 4
+=======
+NF = 0
+>>>>>>> 3c5e69ed7e2f8025eb858e4d35ff25067243d206
 
 
 CASE_PATH = ['']*3
@@ -36,10 +40,17 @@ DX = 1
 DY = 2
 DZ = 1
 #
+<<<<<<< HEAD
 NPX = 1
 NPY = 4
 NPZ = 4
 NPF = 4
+=======
+NPX = 3
+NPY = int(16/DY)
+NPZ = int(12/DZ)
+NPF = 1
+>>>>>>> 3c5e69ed7e2f8025eb858e4d35ff25067243d206
 #
 LXO = 22.5
 LYO = 600.
@@ -101,7 +112,7 @@ pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
 TREE.write('parameter3D.xml')
-nptot = NPX*NPY*NPZ*NPF
+nptot = int(NPX*NPY*NPZ*NPF)
 memtot = int(1024.*2)
 print()
 print(CASE_PATH)
