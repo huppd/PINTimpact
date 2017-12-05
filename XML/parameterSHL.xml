@@ -79,7 +79,7 @@
     <Parameter docString="" id="50" isDefault="true" isUsed="true" name="update" type="int" value="1000" />
     <ParameterList id="216" name="iteration">
       <Parameter docString="" id="51" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
-      <Parameter docString="" id="52" isDefault="true" isUsed="true" name="post" type="bool" value="true" />
+      <Parameter docString="" id="52" isDefault="true" isUsed="true" name="post" type="bool" value="false" />
     </ParameterList>
     <ParameterList id="217" name="solve">
       <Parameter docString="" id="53" isDefault="true" isUsed="true" name="pre" type="bool" value="false" />
@@ -150,7 +150,7 @@
     <Parameter docString="" id="87" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
     <Parameter docString="" id="88" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
     <Parameter docString="" id="89" isDefault="true" isUsed="true" name="scaling" type="string" value="none" />
-    <Parameter docString="" id="90" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true" />
+    <Parameter docString="" id="90" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
     <Parameter docString="" id="91" isDefault="true" isUsed="true" name="level" type="bool" value="true" />
     <Parameter docString="" id="92" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
     <Parameter docString="" id="93" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />

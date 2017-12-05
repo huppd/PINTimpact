@@ -161,8 +161,8 @@ public:
           for( Ordinal i=space()->si(F::S,X); i<=space()->ei(F::S,X); ++i )
             y(i,j,k) = (*x_[0])(i-1+space->getShift(0))* (*x_[1])(j-1+space->getShift(1));
     }
-    Scalar blup = std::sqrt( 1./y.dot(y) );
-    y.scale( blup );
+    //Scalar blup = std::sqrt( 1./y.dot(y) );
+    //y.scale( blup );
   }
 
 

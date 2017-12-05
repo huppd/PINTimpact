@@ -115,13 +115,17 @@ public:
     //DivGradNullSpace<DivOp<SpaceT> > compNullspace;
 
     //compNullspace.computeNullSpace( op->getDivOp(), nullspace_ );
+    
+    //setCornersZero( nullspace_ );
+    
+    //Scalar blup = std::sqrt( 1./nullspace_.dot(nullspace_) );
+    //nullspace_.scale( blup );
   }
 
   void operator()( RangeFieldT& rhs ) const {
 
-    //auto space = nullspace_.space();
+    //auto space = rhs.space();
     
-    //setCornersZero( rhs );
     //ST bla = -nullspace_.dot( rhs );
 
     //if( 0==space->rankST() )
