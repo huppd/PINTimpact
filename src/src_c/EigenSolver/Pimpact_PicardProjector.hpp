@@ -115,7 +115,7 @@ class PicardProjector {
 
   void project( VectorField<SpaceT>& rhs_v, ScalarField<SpaceT>& rhs_s ) const {
 
-    setCornersZero( rhs_s );
+    //setCornersZero( rhs_s );
 
     auto space = nullspace_.space();
 
@@ -191,9 +191,12 @@ public:
         for( OT i=space()->si(F::W,X,B::Y); i<=space()->ei(F::W,X,B::Y); ++i )
           nullspace_.getVField()(F::W)(i,j,ek) = 1.;
     }
+    nullspace_.getVField().changed();
 
-    ST blup =  1./nullspace_.norm();
-    nullspace_.scale( blup );
+    setCornersZero( projection_.getSField() );
+
+    //ST blup =  1./nullspace_.norm();
+    //nullspace_.scale( blup );
     //nullspace_.write( 777 );
 
     // outflow projection
@@ -204,17 +207,23 @@ public:
     auto scalefunc = [=]( ST x, ST y, ST z ) ->ST {
       return (y<=width)?0.:( std::cos( pi*(y-width)/(1.-width) + pi )/2. + 0.5); };
 
-    //projection_.getVField()(F::U).initFromFunction( scalefunc );
-    //setCornersZero( projection_.getVField()(F::U) );
-    projection_.getVField()(F::V).initFromFunction( scalefunc );
-    setCornersZero( projection_.getVField()(F::V) );
-    //projection_.getVField()(F::W).initFromFunction( scalefunc );
-    //setCornersZero( projection_.getVField()(F::W) );
+    if( Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y) ) {
+      // outflow velocity
+      OT ej = space()->ei(F::V,Y,B::Y);
+      for( OT k=space()->si(F::V,Z,B::Y); k<=space()->ei(F::V,Z,B::Y); ++k )
+        for( OT i=space()->si(F::V,X,B::Y); i<=space()->ei(F::V,X,B::Y); ++i )
+          projection_.getVField()(F::V)(i,ej,k) = 1.;
+
+      //// pressure "outflow" 
+      //OT ej = space()->ei(F::S,Y,B::Y);
+      //for( OT k=space()->si(F::S,Z,B::Y); k<=space()->ei(F::S,Z,B::Y); ++k )
+        //for( OT i=space()->si(F::S,X,B::Y); i<=space()->ei(F::S,X,B::Y); ++i )
+          //projection_.getSField()(i,ej,k) = 1.;
+    }
 
     projection_.getSField().initFromFunction( scalefunc );
+    //setCornersZero( projection_.getVField() );
     setCornersZero( projection_.getSField() );
-
-    //projection_.write( 888 );
 
     dotNP_ = nullspace_.dot( projection_ );
 
