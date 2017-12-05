@@ -26,11 +26,7 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-<<<<<<< HEAD
-NF = 4
-=======
-NF = 0
->>>>>>> 3c5e69ed7e2f8025eb858e4d35ff25067243d206
+NF = 3
 
 
 CASE_PATH = ['']*3
@@ -40,17 +36,10 @@ DX = 1
 DY = 2
 DZ = 1
 #
-<<<<<<< HEAD
 NPX = 1
-NPY = 4
+NPY = 6
 NPZ = 4
-NPF = 4
-=======
-NPX = 3
-NPY = int(16/DY)
-NPZ = int(12/DZ)
-NPF = 1
->>>>>>> 3c5e69ed7e2f8025eb858e4d35ff25067243d206
+NPF = 3
 #
 LXO = 22.5
 LYO = 600.
@@ -63,7 +52,7 @@ NZO = 513
 NX = 65
 NY = (1025-1)/2/DY+1
 # NZ = (385-1)/2/DZ+1
-NZ = 257
+NZ = 193
 #
 LX = LXO
 LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)
