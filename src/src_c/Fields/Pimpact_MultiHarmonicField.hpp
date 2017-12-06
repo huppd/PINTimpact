@@ -534,11 +534,16 @@ public:
   }
 
 
-  void read( const int count=0 ) {
+  void read( const int count=0, OT nf_restart=-1 ) {
     if( 0==space()->si(F::U,3) )
       get0Field().read(count);
 
-    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+    if( -1==nf_restart )
+      nf_restart = space()->ei(F::U,3);
+    else if( nf_restart>space()->ei(F::U,3) ) 
+      nf_restart = space()->ei(F::U,3);
+
+    for( OT i=std::max(space()->si(F::U,3),1); i<=nf_restart; ++i ) {
       getCField(i).read( count+2*i-1 );
       getSField(i).read( count+2*i   );
     }

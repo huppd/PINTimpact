@@ -147,7 +147,7 @@ void computeHEEnergyDir(
     const VectorField<SpaceT>& vel,
     std::ostream& out=std::cout,
     const typename SpaceT::Scalar gamma=10.,
-    const int n_Hermitemodes=3 ) {
+    const int n_Hermitemodes=4 ) {
 
   const ECoord dir=ECoord::Y;
 
@@ -195,8 +195,8 @@ void computeHEEnergyDir(
 
     //if( 0==space->rankST() ) std::cout << "k: " << k << " x3p: " << x3p << "\t";
     for( int n=0; n<n_Hermitemodes; ++n ) {
-      //sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p/(gamma*std::sqrt(2*pi)); // dh: don't know where it is coming from
-      sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p;
+      sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p/(gamma*std::sqrt(2*pi)); // dh: don't know where it is coming from: normalization factor for exp(...)
+      //sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p;
       //if( 0==space->rankST() ) std::cout << sweight(k-S3p, n) << "\t";
     }
     //std::cout << "\n";
@@ -240,23 +240,23 @@ void computeHEEnergyDir(
       MPI_Allreduce( He.values(), He_global.values(), 3*n_Hermitemodes, MPI_REAL8, MPI_SUM, space->getProcGrid()->getCommBar(Z) );
 
       // --- integral over x-dimension: \int_0^\infty u_kn \dx
-      ST dx1p = coord->dx(F::S,X,i);
-      for( OT n = 0; n<n_Hermitemodes; ++n ) {
-        energydensity( n, j-space->si(F::S,Y) ) +=
-          (std::pow(He_global(0,n), 2) +
-           std::pow(He_global(1,n), 2) +
-           std::pow(He_global(2,n), 2) )*dx1p;
-      }
-      //// --- integral over x-dimension: \int_0^\infty u_kn \dx with weird minus one degree
       //ST dx1p = coord->dx(F::S,X,i);
-      //energydensity( 0, j-space->si(F::S,Y) ) +=
-         //std::pow(He_global(2,0), 2)*dx1p;
-      //for( OT n = 1; n<n_Hermitemodes; ++n ) {
+      //for( OT n = 0; n<n_Hermitemodes; ++n ) {
         //energydensity( n, j-space->si(F::S,Y) ) +=
-          //(std::pow(He_global(0,n-1), 2) +
-           //std::pow(He_global(1,n-1), 2) +
+          //(std::pow(He_global(0,n), 2) +
+           //std::pow(He_global(1,n), 2) +
            //std::pow(He_global(2,n), 2) )*dx1p;
       //}
+      //// --- integral over x-dimension: \int_0^\infty u_kn \dx with weird minus one degree
+      ST dx1p = coord->dx(F::S,X,i);
+      energydensity( 0, j-space->si(F::S,Y) ) +=
+         std::pow(He_global(2,0), 2)*dx1p;
+      for( OT n = 1; n<n_Hermitemodes; ++n ) {
+        energydensity( n, j-space->si(F::S,Y) ) +=
+          (std::pow(He_global(0,n-1), 2) +
+           std::pow(He_global(1,n-1), 2) +
+           std::pow(He_global(2,n), 2) )*dx1p;
+      }
     }
   }
 
