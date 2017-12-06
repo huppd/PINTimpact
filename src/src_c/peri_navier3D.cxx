@@ -117,6 +117,8 @@ int main( int argi, char** argv ) {
     my_CLP.setOption("filename", &xmlFilename, "file name of the input xml parameterlist");
     int restart = -1;
     my_CLP.setOption("restart", &restart, "number of restart");
+    int nf_restart = -1;
+    my_CLP.setOption("nf_restart", &nf_restart, "number of frequencies nf before restart");
 
     my_CLP.recogniseAllOptions(true);
     my_CLP.throwExceptions(true);
@@ -154,12 +156,10 @@ int main( int argi, char** argv ) {
             Teuchos::rcp( new SF(space) ) ) ) ;
 
 
-    //auto base = x->getField(0).getVField().get0Field().clone(Pimpact::ECopy::Deep);
-    if( restart!=-1 )
-      x->getField(0).read( restart );
-    //else
-      //// init Fields
-      //x->getField(0).getVField().initField( pl->sublist("Base flow") );
+    if( restart!=-1 ) {
+      x->getField(0).getVField().read( restart, nf_restart );
+      x->getField(0).getSField().read( restart, nf_restart );
+    }
     /*********************************************************************************/
     for( int refine=0; refine<maxRefinement; ++refine ) {
 
@@ -168,8 +168,7 @@ int main( int argi, char** argv ) {
       auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
       auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-      auto op = Pimpact::createCompoundOpWrap(
-                  opV2V, opS2V, opV2S );
+      auto op = Pimpact::createCompoundOpWrap( opV2V, opS2V, opV2S );
 
       std::string rl = "";
       if( maxRefinement>1 )
