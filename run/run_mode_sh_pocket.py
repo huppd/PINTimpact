@@ -43,7 +43,6 @@ NX = 65
 NY = (1025-1)/2/DY+1
 # NZ = (385-1)/2/DZ+1
 NZ = 129
-NZ = 129
 #
 LX = LXO
 LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)
@@ -86,12 +85,12 @@ ma.set_parameter(ROOT, 'Output Frequency', 1)
 PRECS = [1, 2, 3, 4, 5]
 PRECS = [2, 3, 4, 5]
 PRECS = [3, 4, 5]
-# PRECS = [4, 5]
-PRECS = [4]
+# PRECS = [3, 5]
+# PRECS = [3]
 
-CYCLES = [2, 4, 8, 16]
-CYCLES = [4, 8, 16]
-CYCLES = [4]
+CYCLES = [1, 2, 4, 8, 16]
+# CYCLES = [4, 8, 16]
+# CYCLES = [4]
 # CYCLES = [1]
 
 SWEEPS = [1, 2, 4, 8, 16]

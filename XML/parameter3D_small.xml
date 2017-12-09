@@ -141,7 +141,7 @@
 	</ParameterList>
 	<ParameterList id="25" name="DivGrad">
 		<Parameter docString="" id="142" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
-		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
+		<Parameter docString="" id="144" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
 		<Parameter docString="" id="931" isDefault="true" isUsed="true" name="preconditioner" type="string" value="left" />
 		<Parameter docString="" id="9113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-1" />
 		<Parameter docString="" id="1111" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true"/>
@@ -216,7 +216,7 @@
 	<ParameterList id="39" name="M_ConvDiff">
 		<Parameter docString="" id="214" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<Parameter docString="" id="229" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="230" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
+		<Parameter docString="" id="230" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
 		<Parameter docString="" id="1931" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />
 		<Parameter docString="" id="19113" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-2" />
 		<ParameterList id="40" name="Solver">
@@ -238,7 +238,7 @@
 		<Parameter docString="" id="1612" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<Parameter docString="" id="183" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<Parameter docString="" id="212" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-		<Parameter docString="" id="213" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
+		<Parameter docString="" id="213" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
 		<Parameter docString="" id="11139" isDefault="true" isUsed="true" name="relative Tol" type="double" value="1.0e-3" />
 		<ParameterList id="38" name="Solver">
 			<Parameter docString="" id="217" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />

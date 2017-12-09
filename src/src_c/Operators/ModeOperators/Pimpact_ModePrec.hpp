@@ -48,7 +48,9 @@ public:
     mulC_(1.),
     mulL_( 1./op->space()->getDomainSize()->getRe() ),
     type_( pl->get<int>("type", -1) ),
-    op_(op) {};
+    op_(op) {
+      std::cout << "type: " << type_ << "\n";
+    };
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
@@ -94,8 +96,9 @@ public:
   /// \deprecated
   void applyDTinv( const DomainFieldT& x, RangeFieldT& y ) const {
     //std::cout << "applyDTinv\n";
-    //y.getCField().add( 0.0,      x.getCField(), -1.0/mulI_, x.getSField(), B::N );
-    //y.getSField().add( 1.0/mulI_, x.getCField(), 0.0,      x.getSField(), B::N );
+    y = x;
+    y.getCField().add( 0.0,      x.getCField(), -1.0/mulI_, x.getSField(), B::N );
+    y.getSField().add( 1.0/mulI_, x.getCField(), 0.0,      x.getSField(), B::N );
   }
 
   void applyCDinv( const DomainFieldT& x, RangeFieldT& y ) const {
@@ -118,7 +121,7 @@ public:
     DomainFieldT temp( space() );
 
     // left
-    temp = x;
+    //temp = x;
     temp.getCField().add( 1.0, x.getCField(),  1.0, x.getSField(), B::Y );
     temp.getSField().add( 1.0, x.getCField(), -1.0, x.getSField(), B::Y );
 
@@ -153,7 +156,7 @@ public:
     op_->apply( x.getCField(), y.getCField() );
     op_->apply( x.getSField(), y.getSField() );
 
-    const B wb=B::N;
+    const B wb=B::Y;
 
     for( F f=F::U; f<SpaceT::sdim; ++f ) {
       for( OT k=space()->si(f,Z,wb); k<=space()->ei(f,Z,wb); ++k )
@@ -184,8 +187,10 @@ public:
     op_->setParameter( pl );
 
     op_->apply( x.getCField(), y.getCField() );
+
     op_->apply( x.getSField(), y.getSField() );
-    y.getSField().scale( -1. );
+
+    y.getSField().scale( -1., B::Y );
   }
 
 
