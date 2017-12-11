@@ -49,7 +49,7 @@ public:
     mulL_( 1./op->space()->getDomainSize()->getRe() ),
     type_( pl->get<int>("type", -1) ),
     op_(op) {
-      std::cout << "type: " << type_ << "\n";
+      //std::cout << "type: " << type_ << "\n";
     };
 
 

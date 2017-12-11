@@ -547,6 +547,7 @@ public:
       getCField(i).read( count+2*i-1 );
       getSField(i).read( count+2*i   );
     }
+    changed();
   }
 
 
