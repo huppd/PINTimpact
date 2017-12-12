@@ -24,7 +24,7 @@ ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
 STS = [1./60., 1./30., 1./10.]
 
-st = 1./30.
+ST = 1./30.
 
 NF = 0
 
@@ -74,7 +74,7 @@ print('DZ', LZ/LZO*(NZO-1)/(NZ-1))
 #
 #
 ma.set_parameter(ROOT, 'Re', 300.)
-ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*300.)
+ma.set_parameter(ROOT, 'alpha2', 2.*pi*ST*300.)
 ma.set_parameter(ROOT, 'lx', LX)
 ma.set_parameter(ROOT, 'ly', LY)
 ma.set_parameter(ROOT, 'lz', LZ)
@@ -92,8 +92,7 @@ ma.set_parameter(ROOT, 'initial guess', 'base')
 # ma.set_insublist(ROOT, 'Line Search', 'Method', 'Full Step')
 # ma.set_parameter(ROOT, 'Convergence Tolerance', 0.01)
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'numIters', 4)
-# ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi',
-        # True)
+# ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi', True)
 
 
 CASE_PATH[0] = pp.DATA_PATH + '/shbl_pocket_' + str(LY)
@@ -101,12 +100,12 @@ pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
 TREE.write('parameter3D.xml')
-nptot = NPX*NPY*NPZ*NPF
-memtot = int(1024.*2)
+NPTOT = NPX*NPY*NPZ*NPF
+MEMTOT = int(1024.*2)
 print()
 print(CASE_PATH)
-EXE_STRING = pp.exe_pre(nptot, ' -N -W 24:00 ' +
-                        '-R "rusage[mem=' + str(memtot) +
+EXE_STRING = pp.exe_pre(NPTOT, ' -N -W 24:00 ' +
+                        '-R "rusage[mem=' + str(MEMTOT) +
                         ']" ') + pp.EXE_PATH + '/'+EXE
 print(EXE_STRING)
 os.system(EXE_STRING)
