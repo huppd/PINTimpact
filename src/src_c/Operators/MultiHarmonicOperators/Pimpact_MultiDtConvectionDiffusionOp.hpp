@@ -173,6 +173,72 @@ public:
     z.changed();
   }
 
+
+  ST compRefRes( const DomainFieldT& y_ref, bool init_yes=true ) const {
+
+    Teuchos::RCP<const DomainFieldT> y;
+    if( y_ref.global() )
+      y = Teuchos::rcpFromRef( y_ref );
+    else {
+      Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp( new DomainFieldT( space(), true ) );
+      *temp = y_ref; // needed because of const
+      y = temp;
+    }
+
+    y->exchange();
+
+    auto z = y.getField(1).clone();
+
+    Ordinal Nf = space()->nGlo(3);
+    Scalar iRe = 1./op_->space()->getDomainSize()->getRe();
+    Scalar a2 = op_->space()->getDomainSize()->getAlpha2()*iRe;
+
+    Scalar mulI;
+
+    // computing cos mode of z
+    Ordinal i = Nf+1;
+
+    for( Ordinal k=1; k+i<=Nf; ++k ) { // thats fine
+
+      op_->apply( getCWind(k+i), y->getCField( k ), z.getCField(), 0., 0.5, 0., Add::Y );
+      op_->apply( getCWind( k ), y->getCField(k+i), z.getCField(), 0., 0.5, 0., Add::Y );
+      op_->apply( getSWind(k+i), y->getSField( k ), z.getCField(), 0., 0.5, 0., Add::Y );
+      op_->apply( getSWind( k ), y->getSField(k+i), z.getCField(), 0., 0.5, 0., Add::Y );
+    }
+
+    // computing sin mode of y
+
+    op_->apply( get0Wind(),  y->getSField(i), z.getSField(i), 0., 1., iRe, Add::N  );
+    op_->apply( getSWind(i), y->get0Field(),  z.getSField(i), 0., 1., 0. , Add::Y );
+
+    for( Ordinal k=1; k+i<=Nf; ++k ) { // that is fine
+
+      op_->apply( getCWind(k+i), y->getSField( k ), z.getSField(), 0., -0.5, 0., Add::Y );
+      op_->apply( getCWind( k ), y->getSField(k+i), z.getSField(), 0.,  0.5, 0., Add::Y );
+      op_->apply( getSWind(k+i), y->getCField( k ), z.getSField(), 0.,  0.5, 0., Add::Y );
+      op_->apply( getSWind( k ), y->getCField(k+i), z.getSField(), 0., -0.5, 0., Add::Y );
+    }
+
+    // strange terms
+    for( Ordinal k=1; k<=Nf; ++k ) {
+      for( Ordinal l=1; l<=Nf; ++l ) { // that is fine
+        i = k+l;
+        if( i==Nf+1 ) { // do something here
+          if( std::max(space()->si(F::U,3),1)<=i && i<=space()->ei(F::U,3) ) {
+            op_->apply( getCWind(k), y->getCField(l), z.getCField(), 0.,  0.5, 0., Add::Y );
+            op_->apply( getSWind(k), y->getSField(l), z.getCField(), 0., -0.5, 0., Add::Y );
+
+            op_->apply( getCWind(k), y->getSField(l), z.getSField(), 0.,  0.5, 0., Add::Y );
+            op_->apply( getSWind(k), y->getCField(l), z.getSField(), 0.,  0.5, 0., Add::Y );
+          }
+        }
+      }
+    }
+
+    return z->norm( ENorm::L2 );
+    //z.changed();
+  }
+
   void applyBC( const DomainFieldT& x, RangeFieldT& y ) const {
 
     if( 0==space()->si(F::U,3) )

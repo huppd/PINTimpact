@@ -394,7 +394,9 @@ int main(int argi, char** argv ) {
   auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
 
 // Set up the status tests
-  auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, tolBelos*1e-4 );
+  Teuchos::RCP<NOX::StatusTest::Generic> statusTest =
+    NOX::StatusTest::buildStatusTests( pl->sublist("NOX Status Test"), NOX::Utils() );
+  //auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, tolBelos*1e-4 );
 
 // Create the list of solver parameters
   auto solverParametersPtr =

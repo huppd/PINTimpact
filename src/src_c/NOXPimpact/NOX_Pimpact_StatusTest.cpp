@@ -1,99 +1,229 @@
-#include "NOX_Pimpact_StatusTest.hpp"
+#include "NOX_StatusTest_NormF.H"
+#include "NOX_Common.H"
+#include "NOX_Abstract_Vector.H"
+#include "NOX_Abstract_Group.H"
+#include "NOX_Solver_Generic.H"
+#include "NOX_Utils.H"
+
+NOX::StatusTest::NormF::
+NormF(double tolerance,
+      NOX::Abstract::Vector::NormType ntype, ScaleType stype,
+      const NOX::Utils* u) :
+  status(Unevaluated),
+  normType(ntype),
+  scaleType(stype),
+  toleranceType(Absolute),
+  specifiedTolerance(tolerance),
+  initialTolerance(1.0),
+  trueTolerance(tolerance),
+  normF(0.0)
+{
+  if (u != NULL)
+    utils = *u;
+}
+
+NOX::StatusTest::NormF::
+NormF(double tolerance, ScaleType stype,
+      const NOX::Utils* u) :
+  status(Unevaluated),
+  normType(NOX::Abstract::Vector::TwoNorm),
+  scaleType(stype),
+  toleranceType(Absolute),
+  specifiedTolerance(tolerance),
+  initialTolerance(1.0),
+  trueTolerance(tolerance),
+  normF(0.0)
+{
+  if (u != NULL)
+    utils = *u;
+}
+
+NOX::StatusTest::NormF::
+NormF(NOX::Abstract::Group& initialGuess, double tolerance,
+      NOX::Abstract::Vector::NormType ntype,
+      NOX::StatusTest::NormF::ScaleType stype,
+      const NOX::Utils* u) :
+  status(Unevaluated),
+  normType(ntype),
+  scaleType(stype),
+  toleranceType(Relative),
+  specifiedTolerance(tolerance),
+  initialTolerance(0.0),
+  trueTolerance(0.0),
+  normF(0.0)
+{
+  if (u != NULL)
+    utils = *u;
+
+  relativeSetup(initialGuess);
+}
 
 
+NOX::StatusTest::NormF::
+NormF(NOX::Abstract::Group& initialGuess, double tolerance, ScaleType stype,
+      const NOX::Utils* u) :
+  status(Unevaluated),
+  normType(NOX::Abstract::Vector::TwoNorm),
+  scaleType(stype),
+  toleranceType(Relative),
+  specifiedTolerance(tolerance),
+  initialTolerance(0.0),
+  trueTolerance(0.0),
+  normF(0.0)
+{
+  if (u != NULL)
+    utils = *u;
 
+  relativeSetup(initialGuess);
+}
 
-Teuchos::RCP< NOX::StatusTest::Generic >
-NOX::Pimpact::createStatusTest( int maxI, double tolF, double tolUpdate ) {
+NOX::StatusTest::NormF::~NormF()
+{
+}
 
-  Teuchos::ParameterList stl;
-  stl.set( "Test Type", "Combo" );
-  stl.set( "Combo Type", "AND" );
-  stl.set( "Number of Tests", 2 );
-  Teuchos::ParameterList& conv = stl.sublist( "Test 0" );
-  Teuchos::ParameterList& nstep = stl.sublist( "Test 1" );
-  //  Teuchos::ParameterList& divergence = stl.sublist( "Test 3" );
-  //  Teuchos::ParameterList& fv = stl.sublist( "Test 4" );
-  conv.set( "Test Type", "Combo" );
-  conv.set( "Combo Type", "OR" );
-  conv.set( "Number of Tests", 4 );
-  Teuchos::ParameterList& normF = conv.sublist( "Test 0" );
-  Teuchos::ParameterList& normUpdate = conv.sublist( "Test 1" );
-  Teuchos::ParameterList& maxiters = conv.sublist( "Test 2" );
-  Teuchos::ParameterList& stagnation = conv.sublist( "Test 3" );
-  //  Teuchos::ParameterList& normWRMS = conv.sublist( "Test 2" );
-  //  Teuchos::ParameterList& userDefined = conv.sublist( "Test 3" );
-  normF.set( "Test Type", "NormF" );
-  normF.set( "Tolerance", tolF );
-  normF.set( "Norm Type", "Two Norm" );
-  normF.set( "Scale Type", "Scaled" );
-  //  normWRMS.set( "Test Type", "NormWRMS" );
-  //  normWRMS.set( "Absolute Tolerance", 1.0e-8 );
-  //  normWRMS.set( "Relative Tolerance", 1.0e-5 );
-  //  normWRMS.set( "Tolerance", 1.0 );
-  //  normWRMS.set( "BDF Multiplier", 1.0 );
-  //  normWRMS.set( "Alpha", 1.0 );
-  //  normWRMS.set( "Beta", 0.5 );
-  normUpdate.set( "Test Type", "NormUpdate" );
-  normUpdate.set( "Tolerance", tolUpdate );
-  normUpdate.set( "Norm Type", "Two Norm" );
-  normUpdate.set( "Scale Type", "Scaled" );
-  //  userDefined.set("Test Type", "User Defined");
-  //  Teuchos::RCP<NOX::StatusTest::Generic> myTest =
-  //      Teuchos::rcp(new MyTest(1.0e-3));
-  //  userDefined.set("User Status Test", myTest);
-  //  fv.set("Test Type", "FiniteValue");
-  //  fv.set("Vector Type", "F Vector");
-  //  fv.set("Norm Type", "Two Norm");
-  //  divergence.set("Test Type", "Divergence");
-  //  divergence.set("Tolerance", 1.0e+20);
-  //  divergence.set("Consecutive Iterations", 3);
-  stagnation.set( "Test Type", "Stagnation" );
-  stagnation.set( "Tolerance", 1.0 );
-  stagnation.set( "Consecutive Iterations", 10 );
-  maxiters.set( "Test Type", "MaxIters" );
-  maxiters.set( "Maximum Iterations", maxI );
-  nstep.set( "Test Type", "NStep" );
-  nstep.set( "N", 2 );
-  //  Teuchos::RCP<NOX::StatusTest::Generic>
-  Teuchos::RCP< NOX::StatusTest::Generic > status_tests =
-    NOX::StatusTest::buildStatusTests( stl, NOX::Utils() );
-
-  return status_tests;
-
-} // end of createStatusTest
-
-
-
-Teuchos::RCP<Teuchos::ParameterList>
-NOX::Pimpact::createNOXSolverParameter(
-  const std::string& solverName,
-  const std::string& lineSearchName ) {
-
-  Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr = Teuchos::parameterList( solverName );
-  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
-
-  // Create the directions parameters sublist
-  Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
-  sl.set( "Method", solverName );
-
-  if( solverName=="NonlinearCG" ) {
-    Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
-    sll.set( "Precondition", "On" );
-    //    sll.set( "Restart Frequency", 10  );
+void NOX::StatusTest::NormF::relativeSetup(NOX::Abstract::Group& initialGuess)
+{
+  NOX::Abstract::Group::ReturnType rtype;
+  rtype = initialGuess.computeF();
+  if (rtype != NOX::Abstract::Group::Ok)
+  {
+    utils.err() << "NOX::StatusTest::NormF::NormF - Unable to compute F"
+        << std::endl;
+    throw "NOX Error";
   }
 
+  initialTolerance = computeNorm(initialGuess);
+  trueTolerance = specifiedTolerance * initialTolerance;
+}
 
-  Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
-  lineSearchParameters.set( "Method", lineSearchName );
-  if( lineSearchName=="Backtrack" ) {
-    lineSearchParameters.sublist("Backtrack").set( "Recovery Step", 1.e-6 );
-  }
-  if( lineSearchName=="Polynomial" ) {
-    Teuchos::ParameterList& sll = lineSearchParameters.sublist("Polynomial");
-    sll.set( "Interpolation Type", "Quadratic3" );
-    sll.set( "Recovery Step Type", "Last Computed Step" );
-  }
-  return solverParametersPtr;
+void NOX::StatusTest::NormF::reset(double tolerance)
+{
+  specifiedTolerance = tolerance;
 
-} // end of createNOXSolverParameter
+  if (toleranceType == Absolute)
+    trueTolerance = tolerance;
+  else
+    trueTolerance = specifiedTolerance * initialTolerance;
+}
+
+void NOX::StatusTest::NormF::reset(NOX::Abstract::Group& initialGuess,
+                   double tolerance)
+{
+  specifiedTolerance = tolerance;
+  relativeSetup(initialGuess);
+}
+
+double NOX::StatusTest::NormF::computeNorm(const NOX::Abstract::Group& grp)
+{
+  if (!grp.isF())
+    return -1.0;
+
+  double norm;
+  NOX::size_type n = grp.getX().length();
+
+  switch (normType)
+  {
+
+  case NOX::Abstract::Vector::TwoNorm:
+    norm = grp.getNormF();
+    if (scaleType == Scaled)
+      norm /= sqrt(1.0 * static_cast<double>(n));
+    break;
+
+  default:
+    norm = grp.getF().norm(normType);
+    if (scaleType == Scaled)
+      norm /= static_cast<double>(n);
+    break;
+
+  }
+
+  return norm;
+}
+
+
+NOX::StatusTest::StatusType NOX::StatusTest::NormF::
+checkStatus(const NOX::Solver::Generic& problem,
+        NOX::StatusTest::CheckType checkType)
+{
+  if (checkType == NOX::StatusTest::None)
+  {
+    normF = 0.0;
+    status = Unevaluated;
+  }
+  else
+  {
+    normF = computeNorm( problem.getSolutionGroup() );
+    status = ((normF != -1) && (normF < trueTolerance)) ? Converged : Unconverged;
+  }
+
+  return status;
+}
+
+NOX::StatusTest::StatusType NOX::StatusTest::NormF::getStatus() const
+{
+  return status;
+}
+
+std::ostream& NOX::StatusTest::NormF::print(std::ostream& stream, int indent) const
+{
+  for (int j = 0; j < indent; j ++)
+    stream << ' ';
+  stream << status;
+  stream << "F-Norm = " << Utils::sciformat(normF,3);
+  stream << " < " << Utils::sciformat(trueTolerance, 3);
+  stream << "\n";
+
+  for (int j = 0; j < indent; j ++)
+    stream << ' ';
+  stream << std::setw(13) << " ";
+  stream << "(";
+
+  if (scaleType == Scaled)
+    stream << "Length-Scaled";
+  else
+    stream << "Unscaled";
+
+  stream << " ";
+
+  if (normType == NOX::Abstract::Vector::TwoNorm)
+    stream << "Two-Norm";
+  else if (normType == NOX::Abstract::Vector::OneNorm)
+    stream << "One-Norm";
+  else if (normType == NOX::Abstract::Vector::MaxNorm)
+    stream << "Max-Norm";
+
+  stream << ", ";
+
+  if (toleranceType == Absolute)
+    stream << "Absolute Tolerance";
+  else
+    stream << "Relative Tolerance";
+
+  stream << ")";
+
+  stream << std::endl;
+
+  return stream;
+}
+
+
+double NOX::StatusTest::NormF::getNormF() const
+{
+  return normF;
+}
+
+double NOX::StatusTest::NormF::getTrueTolerance() const
+{
+  return trueTolerance;
+}
+
+double NOX::StatusTest::NormF::getSpecifiedTolerance() const
+{
+  return specifiedTolerance;
+}
+
+double NOX::StatusTest::NormF::getInitialTolerance() const
+{
+  return initialTolerance;
+}

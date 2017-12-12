@@ -93,12 +93,12 @@ using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 template<class T>
 using MOP = Pimpact::InverseOp<T>;
 
-//template<class T> using PrecS = Pimpact::MultiOpSmoother< Pimpact::DivGradO2JSmoother<T> >;
-//template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
-template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
-//template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::Chebyshev >;
-template<class T> using POP2  = Pimpact::PrecInverseOp< T, ConvDiffJT >;
-template<class T> using POP3  = Pimpact::PrecInverseOp< T, ConvDiffSORT >;
+//template<class T> using PrecS = Pimpact::MultiOpSmoother<Pimpact::DivGradO2JSmoother<T>>;
+//template<class T> using POP   = Pimpact::PrecInverseOp<T, Pimpact::DivGradO2SORSmoother>;
+template<class T> using POP   = Pimpact::PrecInverseOp<T, Pimpact::DivGradO2JSmoother>;
+//template<class T> using POP   = Pimpact::PrecInverseOp<T, Pimpact::Chebyshev>;
+template<class T> using POP2  = Pimpact::PrecInverseOp<T, ConvDiffJT>;
+template<class T> using POP3  = Pimpact::PrecInverseOp<T, ConvDiffSORT>;
 
 
 
@@ -150,8 +150,7 @@ int main( int argi, char** argv ) {
     if( 0==space->rankST() ) std::cout << "initial field\n";
 
     // init vectors
-    Teuchos::RCP<MF> x =
-      wrapMultiField( createCompoundField(
+    Teuchos::RCP<MF> x = wrapMultiField( createCompoundField(
             Teuchos::rcp( new VF(space,true) ),
             Teuchos::rcp( new SF(space) ) ) ) ;
 

@@ -92,7 +92,7 @@
     <Parameter docString="" id="57" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="4" />
     <ParameterList id="217" name="Test 0">
       <Parameter docString="" id="58" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormF" />
-      <Parameter docString="" id="59" isDefault="false" isUsed="true" name="Tolerance" type="double" value="0.3" />
+      <Parameter docString="" id="59" isDefault="false" isUsed="true" name="Tolerance" type="double" value="0.3e-7" />
       <Parameter docString="" id="60" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
       <Parameter docString="" id="61" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Unscaled" />
     </ParameterList>
@@ -177,7 +177,7 @@
     <Parameter docString="" id="110" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="233" name="Solver">
       <Parameter docString="" id="111" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
-      <Parameter docString="" id="112" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="8" />
+      <Parameter docString="" id="112" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="4" />
       <Parameter docString="" id="113" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-12" />
       <Parameter docString="" id="114" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="115" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
