@@ -38,7 +38,7 @@ DZ = 1
 #
 NPX = 1
 NPY = 4
-NPZ = 1
+NPZ = 4
 NPF = 1
 #
 LXO = 22.5
