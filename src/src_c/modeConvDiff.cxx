@@ -242,6 +242,7 @@ int main( int argi, char** argv ) {
     if( realCase ) {
       rhs.getCField().initField( pl->sublist("Force").sublist("cos mode") );
       rhs.getSField().initField( pl->sublist("Force").sublist("sin mode") );
+      std::cout << "||rhs||_L2: " << rhs.norm(Pimpact::ENorm::L2) << "\n";
       //if( withoutput ) rhs.write( 100 );
     }
     else{

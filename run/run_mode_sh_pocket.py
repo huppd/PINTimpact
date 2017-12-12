@@ -18,17 +18,17 @@ os.chdir(pp.EXE_PATH)
 os.system('make ' + EXE + ' -j4')
 
 
-st = 1./30.
-re = 300.
-# re = 100.
+ST = 1./30.
+RE = 300.
+# RE = 100.
 
 DX = 1
 DY = 1
 DZ = 1
 #
 NPX = 1
-NPY = 12
-NPZ = 10
+NPY = 4
+NPZ = 4
 NPF = 1
 #
 LXO = 22.5
@@ -41,9 +41,11 @@ NZO = 513
 #
 NX = 65
 # NY = (1025-1)/2/DY+1
-NY = 769
+# NY = 769
+NY = 129
 # NZ = 257
-NZ = 321
+# NZ = 321
+NZ = 129
 #
 LX = LXO
 LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)
@@ -63,8 +65,8 @@ print('DY', LY/LYO*(NYO-1)/(NY-1))
 print('DZ', LZ/LZO*(NZO-1)/(NZ-1))
 #
 #
-ma.set_parameter(ROOT, 'Re', re)
-ma.set_parameter(ROOT, 'alpha2', 2.*pi*st*re)
+ma.set_parameter(ROOT, 'Re', RE)
+ma.set_parameter(ROOT, 'alpha2', 2.*pi*ST*RE)
 ma.set_parameter(ROOT, 'lx', LX)
 ma.set_parameter(ROOT, 'ly', LY)
 ma.set_parameter(ROOT, 'lz', LZ)
@@ -86,13 +88,12 @@ PRECS = [1, 2, 3, 4, 5]
 PRECS = [2, 3, 4, 5]
 PRECS = [3, 4, 5]
 # PRECS = [3, 5]
-# PRECS = [3]
+PRECS = [3]
 
 CYCLES = [1, 2, 4, 8, 16]
-CYCLES = [2, 4, 8]
 # CYCLES = [4, 8, 16]
 # CYCLES = [4]
-# CYCLES = [1]
+CYCLES = [1]
 
 SWEEPS = [1, 2, 4, 8, 16]
 SWEEPS = [2, 4, 8]

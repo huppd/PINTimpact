@@ -33,11 +33,11 @@ CASE_PATH = ['']*3
 
 
 DX = 1
-DY = 2
+DY = 4
 DZ = 1
 #
 NPX = 1
-NPY = 4
+NPY = 2
 NPZ = 4
 NPF = 1
 #
@@ -57,7 +57,6 @@ NZ = 129
 #
 LX = LXO
 LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)
-# LY = LYO/3./DY*1.5
 LY = round(LYO*1.5/(NYO-1)*(NY-1), 1)
 LZ = round(LZO*1.5/(NZO-1)*(NZ-1), 1)
 #
