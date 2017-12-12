@@ -155,10 +155,10 @@
     <Parameter docString="" id="92" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
     <Parameter docString="" id="93" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="233" name="Solver">
-      <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="160" />
+      <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="200" />
       <Parameter docString="" id="95" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
       <Parameter docString="" id="96" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="1600" />
-      <Parameter docString="" id="97" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
+      <Parameter docString="" id="97" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
       <Parameter docString="" id="98" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="99" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
       <Parameter docString="" id="100" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
