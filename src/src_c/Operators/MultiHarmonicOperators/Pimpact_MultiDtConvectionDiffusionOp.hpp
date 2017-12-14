@@ -18,20 +18,20 @@ namespace Pimpact {
 
 
 /// \ingroup MultiHarmonicOperator
-template<class ST>
+template<class SpT>
 class MultiDtConvectionDiffusionOp {
 
 public:
 
-  using SpaceT = ST;
+  using SpaceT = SpT;
 
   using DomainFieldT = MultiHarmonicField< VectorField<SpaceT> >;
   using RangeFieldT = MultiHarmonicField< VectorField<SpaceT> >;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
 
   Teuchos::RCP< NonlinearWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
 
@@ -49,7 +49,7 @@ public:
     windc_( space->nGlo(3) ),
     winds_( space->nGlo(3) ) {
 
-    for( Ordinal i=0; i<space->nGlo(3); ++i ) {
+    for( OT i=0; i<space->nGlo(3); ++i ) {
       windc_[i] = create<ConvectionField>( space );
       winds_[i] = create<ConvectionField>( space );
     }
@@ -73,7 +73,7 @@ public:
 
     wind0_->assignField( y->get0Field() );
 
-    for( Ordinal i=1; i<=space()->nGlo(3); ++i ) {
+    for( OT i=1; i<=space()->nGlo(3); ++i ) {
       windc_[i-1]->assignField( y->getCField(i) );
       winds_[i-1]->assignField( y->getSField(i) );
     }
@@ -93,30 +93,30 @@ public:
 
     y->exchange();
 
-    Ordinal Nf = space()->nGlo(3);
-    Scalar iRe = 1./op_->space()->getDomainSize()->getRe();
-    Scalar a2 = op_->space()->getDomainSize()->getAlpha2()*iRe;
+    OT Nf = space()->nGlo(3);
+    ST iRe = 1./op_->space()->getDomainSize()->getRe();
+    ST a2 = op_->space()->getDomainSize()->getAlpha2()*iRe;
 
-    Scalar mulI;
+    ST mulI;
 
     // computing zero mode of z
     if( 0==space()->si(F::U,3) ) {
 
       op_->apply( get0Wind(), y->get0Field(), z.get0Field(), 0., 1., iRe, Add::N );
 
-      for( Ordinal i=1; i<=Nf; ++i ) {
+      for( OT i=1; i<=Nf; ++i ) {
         op_->apply( getCWind(i), y->getCField(i), z.get0Field(), 0., 0.5, 0., Add::Y );
         op_->apply( getSWind(i), y->getSField(i), z.get0Field(), 0., 0.5, 0., Add::Y );
       }
     }
 
     // computing cos mode of z
-    for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 
       op_->apply( get0Wind( ), y->getCField(i), z.getCField(i), 0., 1., iRe, Add::N  );
       op_->apply( getCWind(i), y->get0Field( ), z.getCField(i), 0., 1., 0.,  Add::Y );
 
-      for( Ordinal k=1; k+i<=Nf; ++k ) { // thats fine
+      for( OT k=1; k+i<=Nf; ++k ) { // thats fine
 
         mulI = (k==i)?(a2*i):0;
 
@@ -128,12 +128,12 @@ public:
     }
 
     // computing sin mode of y
-    for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
 
       op_->apply( get0Wind(),  y->getSField(i), z.getSField(i), 0., 1., iRe, Add::N  );
       op_->apply( getSWind(i), y->get0Field(),  z.getSField(i), 0., 1., 0. , Add::Y );
 
-      for( Ordinal k=1; k+i<=Nf; ++k ) { // that is fine
+      for( OT k=1; k+i<=Nf; ++k ) { // that is fine
 
         mulI = (k==i)?(a2*i):0;
 
@@ -145,7 +145,7 @@ public:
     }
 
     // rest of time
-    for( Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
       if( Nf/2+1<=i && i<=Nf ) {
         mulI = a2*i;
         z.getCField(i).add( 1., z.getCField(i),  mulI, y->getSField(i), B::N );
@@ -154,9 +154,9 @@ public:
     }
 
     // strange terms
-    Ordinal i;
-    for( Ordinal k=1; k<=Nf; ++k ) {
-      for( Ordinal l=1; l<=Nf; ++l ) { // that is fine
+    OT i;
+    for( OT k=1; k<=Nf; ++k ) {
+      for( OT l=1; l<=Nf; ++l ) { // that is fine
         i = k+l;
         if( i<=Nf ) { // do something here
           if( std::max(space()->si(F::U,3),1)<=i && i<=space()->ei(F::U,3) ) {
@@ -174,7 +174,7 @@ public:
   }
 
 
-  ST compRefRes( const DomainFieldT& y_ref, bool init_yes=true ) const {
+  ST compRefRes( const DomainFieldT& y_ref ) const {
 
     Teuchos::RCP<const DomainFieldT> y;
     if( y_ref.global() )
@@ -187,50 +187,20 @@ public:
 
     y->exchange();
 
-    auto z = y.getField(1).clone();
+    auto z = y->getField(1).clone(ECopy::Shallow);
 
-    Ordinal Nf = space()->nGlo(3);
-    Scalar iRe = 1./op_->space()->getDomainSize()->getRe();
-    Scalar a2 = op_->space()->getDomainSize()->getAlpha2()*iRe;
-
-    Scalar mulI;
-
-    // computing cos mode of z
-    Ordinal i = Nf+1;
-
-    for( Ordinal k=1; k+i<=Nf; ++k ) { // thats fine
-
-      op_->apply( getCWind(k+i), y->getCField( k ), z.getCField(), 0., 0.5, 0., Add::Y );
-      op_->apply( getCWind( k ), y->getCField(k+i), z.getCField(), 0., 0.5, 0., Add::Y );
-      op_->apply( getSWind(k+i), y->getSField( k ), z.getCField(), 0., 0.5, 0., Add::Y );
-      op_->apply( getSWind( k ), y->getSField(k+i), z.getCField(), 0., 0.5, 0., Add::Y );
-    }
-
-    // computing sin mode of y
-
-    op_->apply( get0Wind(),  y->getSField(i), z.getSField(i), 0., 1., iRe, Add::N  );
-    op_->apply( getSWind(i), y->get0Field(),  z.getSField(i), 0., 1., 0. , Add::Y );
-
-    for( Ordinal k=1; k+i<=Nf; ++k ) { // that is fine
-
-      op_->apply( getCWind(k+i), y->getSField( k ), z.getSField(), 0., -0.5, 0., Add::Y );
-      op_->apply( getCWind( k ), y->getSField(k+i), z.getSField(), 0.,  0.5, 0., Add::Y );
-      op_->apply( getSWind(k+i), y->getCField( k ), z.getSField(), 0.,  0.5, 0., Add::Y );
-      op_->apply( getSWind( k ), y->getCField(k+i), z.getSField(), 0., -0.5, 0., Add::Y );
-    }
+    OT Nf = space()->nGlo(3);
 
     // strange terms
-    for( Ordinal k=1; k<=Nf; ++k ) {
-      for( Ordinal l=1; l<=Nf; ++l ) { // that is fine
-        i = k+l;
+    for( OT k=1; k<=Nf; ++k ) {
+      for( OT l=1; l<=Nf; ++l ) { // that is fine
+        OT i = k+l;
         if( i==Nf+1 ) { // do something here
-          if( std::max(space()->si(F::U,3),1)<=i && i<=space()->ei(F::U,3) ) {
-            op_->apply( getCWind(k), y->getCField(l), z.getCField(), 0.,  0.5, 0., Add::Y );
-            op_->apply( getSWind(k), y->getSField(l), z.getCField(), 0., -0.5, 0., Add::Y );
+          op_->apply( getCWind(k), y->getCField(l), z->getCField(), 0.,  0.5, 0., Add::Y );
+          op_->apply( getSWind(k), y->getSField(l), z->getCField(), 0., -0.5, 0., Add::Y );
 
-            op_->apply( getCWind(k), y->getSField(l), z.getSField(), 0.,  0.5, 0., Add::Y );
-            op_->apply( getSWind(k), y->getCField(l), z.getSField(), 0.,  0.5, 0., Add::Y );
-          }
+          op_->apply( getCWind(k), y->getSField(l), z->getSField(), 0.,  0.5, 0., Add::Y );
+          op_->apply( getSWind(k), y->getCField(l), z->getSField(), 0.,  0.5, 0., Add::Y );
         }
       }
     }
@@ -244,7 +214,7 @@ public:
     if( 0==space()->si(F::U,3) )
       op_->getSOp()->getHelmholtzOp()->applyBC( x.get0Field(), y.get0Field() );
 
-    for( typename SpaceT::Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+    for( typename SpaceT::OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
       op_->getSOp()->getHelmholtzOp()->applyBC( x.getCField(i), y.getCField(i) );
       op_->getSOp()->getHelmholtzOp()->applyBC( x.getSField(i), y.getSField(i) );
     }
@@ -276,10 +246,10 @@ protected:
     return wind0_->get();
   }
 
-  constexpr const FieldTensorT& getCWind( const Ordinal i) const {
+  constexpr const FieldTensorT& getCWind( const OT i) const {
     return windc_[i-1]->get();
   }
-  constexpr const FieldTensorT& getSWind( const Ordinal i) const {
+  constexpr const FieldTensorT& getSWind( const OT i) const {
     return winds_[i-1]->get();
   }
 

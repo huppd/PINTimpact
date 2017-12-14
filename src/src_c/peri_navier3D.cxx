@@ -21,13 +21,13 @@
 #include "BelosPimpactAdapter.hpp"
 #include "NOX_Pimpact_Group.hpp"
 #include "NOX_Pimpact_Interface.hpp"
-#include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_StatusTest.hpp"
 #include "NOX_Pimpact_PrePostError.hpp"
 #include "NOX_Pimpact_PrePostEnergy.hpp"
 #include "NOX_Pimpact_PrePostSpectrum.hpp"
 #include "NOX_Pimpact_PrePostWriter.hpp"
 #include "NOX_Pimpact_PrePostWriteRestart.hpp"
+#include "NOX_Pimpact_RefinementTest.hpp"
+#include "NOX_Pimpact_Vector.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
@@ -77,6 +77,14 @@ using MSF = Pimpact::MultiField<SF>;
 using CF = Pimpact::CompoundField< VF, SF>;
 using MF = Pimpact::MultiField<CF>;
 
+
+using OpV2VT = Pimpact::MultiDtConvectionDiffusionOp<SpaceT>;
+using OpV2ST = Pimpact::MultiHarmonicOpWrap< Pimpact::DivOp<SpaceT> >;
+using OpS2VT = Pimpact::MultiHarmonicOpWrap< Pimpact::GradOp<SpaceT> >;
+
+using OpT = Pimpact::CompoundOpWrap<OpV2VT, OpS2VT, OpV2ST>;
+using IOpT = Pimpact::InverseOp<OpT, Pimpact::PicardProjector>;
+
 using BOp = Pimpact::OperatorBase<MF>;
 
 using NV = NOX::Pimpact::Vector<MF>;
@@ -99,6 +107,10 @@ template<class T> using POP   = Pimpact::PrecInverseOp<T, Pimpact::DivGradO2JSmo
 //template<class T> using POP   = Pimpact::PrecInverseOp<T, Pimpact::Chebyshev>;
 template<class T> using POP2  = Pimpact::PrecInverseOp<T, ConvDiffJT>;
 template<class T> using POP3  = Pimpact::PrecInverseOp<T, ConvDiffSORT>;
+
+
+using InterfaceT = NOX::Pimpact::Interface< MF, Pimpact::MultiOpWrap<OpT>,
+      Pimpact::MultiOpWrap<IOpT> >;
 
 
 
@@ -150,7 +162,8 @@ int main( int argi, char** argv ) {
     if( 0==space->rankST() ) std::cout << "initial field\n";
 
     // init vectors
-    Teuchos::RCP<MF> x = wrapMultiField( createCompoundField(
+    Teuchos::RCP<MF> x =
+      wrapMultiField( createCompoundField(
             Teuchos::rcp( new VF(space,true) ),
             Teuchos::rcp( new SF(space) ) ) ) ;
 
@@ -163,11 +176,16 @@ int main( int argi, char** argv ) {
     for( int refine=0; refine<maxRefinement; ++refine ) {
 
       if( 0==space->rankST() ) std::cout << "create operator\n";
-      auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
-      auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
-      auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-      auto op = Pimpact::createCompoundOpWrap( opV2V, opS2V, opV2S );
+      Teuchos::RCP<OpV2VT> opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
+
+      Teuchos::RCP<OpS2VT> opS2V =
+        Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
+
+      Teuchos::RCP<OpV2ST> opV2S =
+        Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
+
+      Teuchos::RCP<OpT> op = Pimpact::createCompoundOpWrap( opV2V, opS2V, opV2S );
 
       std::string rl = "";
       if( maxRefinement>1 )
@@ -557,6 +575,19 @@ int main( int argi, char** argv ) {
 
       Teuchos::RCP<NOX::Abstract::Group> group =
         NOX::Pimpact::createGroup(Teuchos::parameterList(), inter, nx);
+
+      { // setting up refinement stopping cirtion
+        Teuchos::RCP<std::ostream> refOut = Pimpact::createOstream(
+            "refinementTest.txt", withoutput?space->rankST():-1, ((0==refine)?-1:1) );
+
+        Teuchos::RCP<NOX::StatusTest::Generic> refinementTest =
+          Teuchos::rcp( new NOX::Pimpact::RefinementTest<InterfaceT>(
+                pl->sublist("Solver").get<double>("refinement residual tol", 1.),
+                refOut) );
+
+        pl->sublist("NOX Status Test").sublist("Test 4").set("Test Type", "User Defined");
+        pl->sublist("NOX Status Test").sublist("Test 4").set("User Status Test", refinementTest);
+      }
 
       // Set up the status tests
       Teuchos::RCP<NOX::StatusTest::Generic> statusTest =

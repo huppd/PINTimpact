@@ -14,15 +14,16 @@ ROOT = TREE.getroot()
 
 
 ma.set_parameter(ROOT, 'withoutput', 1)
-ma.set_parameter(ROOT, 'refinement step', 2)
-ma.set_parameter(ROOT, 'max refinement', 1)
-ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
+ma.set_parameter(ROOT, 'refinement step', 1)
+ma.set_parameter(ROOT, 'max refinement', 10)
+ma.set_parameter(ROOT, 'refinement tol', 1.e-6)
 
 NP = 2
 
 ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
-ma.set_parameter(ROOT, 'nf', 12)
+# ma.set_parameter(ROOT, 'nf', 12)
+ma.set_parameter(ROOT, 'nf', 1)
 
 ma.set_parameter(ROOT, 'npx', NP)
 ma.set_parameter(ROOT, 'npy', NP)
@@ -30,9 +31,9 @@ ma.set_parameter(ROOT, 'npy', NP)
 
 
 # NXS = [33, 65, 129]
-# NXS = [33]
+NXS = [33]
 # NXS = [129]
-NXS = [257]
+# NXS = [257]
 
 RES = 10**np.linspace(0, 2, 3)
 STS = 10**np.linspace(-2, 0, 3)
@@ -73,9 +74,9 @@ for tol in [2]:
             memtot = int(1024.*max(60./nptot, 2))
             print()
             print(CASE_PATH)
-            EXE_STRING = pp.exe_pre(nptot, ' -N -W 42:00 ' +
-                                    '-R "rusage[mem=' + str(memtot) + ']" '
-                                    # ' -R "select[model=XeonE5_2680v3]" ' +
-                                    ) + pp.EXE_PATH + '/'+EXE
+            EXE_STRING = pp.exe_pre(nptot, ' -N -W 42:00 ' + '-R "rusage[mem='
+                                    + str(memtot) + ']" ') + pp.EXE_PATH + \
+                '/'+EXE
+            # ' -R "select[model=XeonE5_2680v3]" ' +
             print(EXE_STRING)
             os.system(EXE_STRING)

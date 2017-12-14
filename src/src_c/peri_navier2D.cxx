@@ -21,12 +21,13 @@
 #include "BelosPimpactAdapter.hpp"
 #include "NOX_Pimpact_Group.hpp"
 #include "NOX_Pimpact_Interface.hpp"
-#include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_StatusTest.hpp"
 #include "NOX_Pimpact_PrePostError.hpp"
 #include "NOX_Pimpact_PrePostEnergy.hpp"
 #include "NOX_Pimpact_PrePostSpectrum.hpp"
 #include "NOX_Pimpact_PrePostWriter.hpp"
+#include "NOX_Pimpact_PrePostWriteRestart.hpp"
+#include "NOX_Pimpact_RefinementTest.hpp"
+#include "NOX_Pimpact_Vector.hpp"
 
 #include "Pimpact_AnalysisTools.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
@@ -61,10 +62,11 @@ const int dNC = 4;
 
 using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 
-using FSpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
-using CSpaceT = Pimpact::Space<ST,OT,sd,4,2  >;
+using FSpaceT = SpaceT;
+using CSpaceT = Pimpact::Space<ST,OT,sd,4,2>;
 
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
+//using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
 
 using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
@@ -74,6 +76,14 @@ using MSF = Pimpact::MultiField<SF>;
 
 using CF = Pimpact::CompoundField< VF, SF>;
 using MF = Pimpact::MultiField<CF>;
+
+
+using OpV2VT = Pimpact::MultiDtConvectionDiffusionOp<SpaceT>;
+using OpV2ST = Pimpact::MultiHarmonicOpWrap< Pimpact::DivOp<SpaceT> >;
+using OpS2VT = Pimpact::MultiHarmonicOpWrap< Pimpact::GradOp<SpaceT> >;
+
+using OpT = Pimpact::CompoundOpWrap<OpV2VT, OpS2VT, OpV2ST>;
+using IOpT = Pimpact::InverseOp<OpT, Pimpact::PicardProjector>;
 
 using BOp = Pimpact::OperatorBase<MF>;
 
@@ -99,6 +109,8 @@ template<class T> using POP2  = Pimpact::PrecInverseOp< T, ConvDiffJT >;
 template<class T> using POP3  = Pimpact::PrecInverseOp< T, ConvDiffSORT >;
 
 
+using InterfaceT = NOX::Pimpact::Interface< MF, Pimpact::MultiOpWrap<OpT>,
+      Pimpact::MultiOpWrap<IOpT> >;
 
 
 
@@ -157,12 +169,17 @@ int main( int argi, char** argv ) {
     for( int refine=0; refine<maxRefinement; ++refine ) {
 
       if( 0==space->rankST() ) std::cout << "create operator\n";
-      auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
-      auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
-      auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-      auto op = Pimpact::createCompoundOpWrap(
-                  opV2V, opS2V, opV2S );
+      Teuchos::RCP<OpV2VT> opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
+
+      Teuchos::RCP<OpS2VT> opS2V =
+        Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
+
+      Teuchos::RCP<OpV2ST> opV2S =
+        Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
+
+      Teuchos::RCP<OpT> op = Pimpact::createCompoundOpWrap( opV2V, opS2V, opV2S );
+
 
       if( 0==space->rankST() ) std::cout << "\tdiv test\n";
       {
@@ -203,45 +220,43 @@ int main( int argi, char** argv ) {
           ST re = space->getDomainSize()->getRe();
           ST A =  pl->sublist("Force").get<ST>("A", 0.5);
           ST B =  pl->sublist("Force").get<ST>("B",-0.5);
-          ST C =  pl->sublist("Force").get<ST>("C", 0.);
           ST a =  pl->sublist("Force").get<ST>("a", 1.);
           ST b =  pl->sublist("Force").get<ST>("b", 1.);
-          ST c =  pl->sublist("Force").get<ST>("c", 1.);
-          TEUCHOS_TEST_FOR_EXCEPT( std::abs( a*A + b*B + c*C )>1.e-16 );
+          TEUCHOS_TEST_FOR_EXCEPT( std::abs( a*A + b*B )>1.e-16 );
 
           // --- init RHS ---
           if( 0==space->si(Pimpact::F::U,3) ) {
             fu->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return A*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2)/re; } );
+                [&]( ST x, ST y, ST z ) ->ST { return A*(a*a+b*b)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/re; } );
             fu->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return B*(a*a+b*b+c*c)*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re; } );
+                [&]( ST x, ST y, ST z ) ->ST { return B*(a*a+b*b)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/re; } );
           }
 
           if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
             fu->getField(0).getVField().getCField(1)(Pimpact::F::U).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return alpha2*A*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2)/re; } );
+                [&]( ST x, ST y, ST z ) ->ST { return alpha2*A*std::sin(a*x*pi2)*std::cos(b*y*pi2)/re; } );
             fu->getField(0).getVField().getCField(1)(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return alpha2*B*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re; } );
+                [&]( ST x, ST y, ST z ) ->ST { return alpha2*B*std::cos(a*x*pi2)*std::sin(b*y*pi2)/re; } );
 
             fu->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return A*(a*a+b*b+c*c)*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2)/re; } );
+                [&]( ST x, ST y, ST z ) ->ST { return A*(a*a+b*b)*std::sin(a*x*pi2)*std::cos(b*y*pi2)/re; } );
             fu->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return B*(a*a+b*b+c*c)*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re; } );
+                [&]( ST x, ST y, ST z ) ->ST { return B*(a*a+b*b)*std::cos(a*x*pi2)*std::sin(b*y*pi2)/re; } );
           }
 
           // --- init solution ---
           if( 0==space->si(Pimpact::F::U,3) ) {
             sol->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return A*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2); } );
+                [&]( ST x, ST y, ST z ) ->ST { return A*std::sin(a*x*pi2)*std::cos(b*y*pi2); } );
             sol->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return B*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2); } );
+                [&]( ST x, ST y, ST z ) ->ST { return B*std::cos(a*x*pi2)*std::sin(b*y*pi2); } );
           }
 
           if( 1>=space->si(Pimpact::F::U,3) && 1<=space->ei(Pimpact::F::U,3) ) {
             sol->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return A*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::cos(c*z*pi2) ; } );
+                [&]( ST x, ST y, ST z ) ->ST { return A*std::sin(a*x*pi2)*std::cos(b*y*pi2); } );
             sol->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-                [&]( ST x, ST y, ST z ) ->ST { return B*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2) ; } );
+                [&]( ST x, ST y, ST z ) ->ST { return B*std::cos(a*x*pi2)*std::sin(b*y*pi2); } );
           }
         }
 
@@ -269,14 +284,12 @@ int main( int argi, char** argv ) {
               x->getField(0).getVField() = sol->getField(0).getVField();
 
             ST pi2 = 2.*std::acos(-1.);
-            ST alpha2 = space->getDomainSize()->getAlpha2();
-            ST re = space->getDomainSize()->getRe();
+            //ST alpha2 = space->getDomainSize()->getAlpha2();
+            //ST re = space->getDomainSize()->getRe();
             ST A =  pl->sublist("Force").get<ST>("A", 0.5);
             ST B =  pl->sublist("Force").get<ST>("B",-0.5);
-            ST C =  pl->sublist("Force").get<ST>("C", 0.);
             ST a =  pl->sublist("Force").get<ST>("a", 1.);
             ST b =  pl->sublist("Force").get<ST>("b", 1.);
-            ST c =  pl->sublist("Force").get<ST>("c", 1.);
 
             if( 0==space->si(Pimpact::F::U,3) ) {
               x->getField(0).getSField().get0Field().initFromFunction(
@@ -304,8 +317,7 @@ int main( int argi, char** argv ) {
           "Output Stream",
           Pimpact::createOstream("Picard"+rl+".txt", withoutput?space->rankST():-1));
 
-      auto opInv =
-        Pimpact::createInverseOp<Pimpact::PicardProjector>(
+      Teuchos::RCP<IOpT> opInv = Pimpact::createInverseOp<Pimpact::PicardProjector>(
             op, Teuchos::sublist( pl, "Picard Solver" ) );
 
       /*** init preconditioner **********************************************************/
@@ -496,15 +508,27 @@ int main( int argi, char** argv ) {
       }
       //** end of init preconditioner ***********************************************************
 
-      auto inter = NOX::Pimpact::createInterface(
-          fu,
-          Pimpact::createMultiOpWrap(op),
-          Pimpact::createMultiOpWrap(opInv) );
+      Teuchos::RCP<InterfaceT> inter =
+        NOX::Pimpact::createInterface(
+            fu, Pimpact::createMultiOpWrap(op), Pimpact::createMultiOpWrap(opInv) );
 
       auto nx = NOX::Pimpact::createVector( x );
 
       Teuchos::RCP<NOX::Abstract::Group> group =
         NOX::Pimpact::createGroup(Teuchos::parameterList(), inter, nx);
+
+      { // setting up refinement stopping cirtion
+        Teuchos::RCP<std::ostream> refOut = Pimpact::createOstream(
+            "refinementTest.txt", space->rankST(), ((refine==0)?-1:1) );
+
+        Teuchos::RCP<NOX::StatusTest::Generic> refinementTest =
+          Teuchos::rcp( new NOX::Pimpact::RefinementTest<InterfaceT>(
+                pl->sublist("Solver").get<double>( "refinement residual tol", 1.),
+                refOut) );
+
+        pl->sublist("NOX Status Test").sublist("Test 0").sublist("Test 4").set("Test Type", "User Defined");
+        pl->sublist("NOX Status Test").sublist("Test 0").sublist("Test 4").set("User Status Test", refinementTest);
+      }
 
       // Set up the status tests
       Teuchos::RCP<NOX::StatusTest::Generic> statusTest =
@@ -583,20 +607,6 @@ int main( int argi, char** argv ) {
         else if( 0==(space->nGlo(3)+1)%space->getProcGrid()->getNP(3) )
           rank_1 = 1;
         int rank_nf = space->getProcGrid()->getNP(3)-1;
-
-        // nonnice blocking version
-        //MPI_bcast(
-            //&u_1,                                // buffer	starting address of buffer (choice)
-            //1,                                   // number of entries in buffer (non-negative integer)
-            //MPI_DOUBLE,                          // data type of buffer (handle)
-            //rank_1,                              // rank of broadcast root (integer)
-            //space->getProcGrid()->getCommBar(3));// communicator (handle)
-        //MPI_bcast(
-            //&u_nf,                               // buffer	starting address of buffer (choice)
-            //1,                                   // number of entries in buffer (non-negative integer)
-            //MPI_DOUBLE,                          // data type of buffer (handle)
-            //rank_nf,                             // rank of broadcast root (integer)
-            //space->getProcGrid()->getCommBar(3));// ccommunicator (handle) ommunicator (handle)
 
         // nice nonblocking version
         MPI_Request req_1, req_nf;  

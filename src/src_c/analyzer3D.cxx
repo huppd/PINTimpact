@@ -22,7 +22,6 @@
 #include "NOX_Pimpact_Group.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_StatusTest.hpp"
 #include "NOX_Pimpact_PrePostError.hpp"
 #include "NOX_Pimpact_PrePostEnergy.hpp"
 #include "NOX_Pimpact_PrePostSpectrum.hpp"

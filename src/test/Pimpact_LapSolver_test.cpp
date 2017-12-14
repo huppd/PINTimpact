@@ -22,7 +22,6 @@
 #include "NOX_Pimpact_Group.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_StatusTest.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_Fields.hpp"

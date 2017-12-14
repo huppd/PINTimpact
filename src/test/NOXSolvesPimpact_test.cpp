@@ -15,7 +15,7 @@
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
-#include "NOX_Pimpact_StatusTest.hpp"
+#include "NOX_Pimpact_RefinementTest.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"

@@ -19,16 +19,18 @@
 
 #include "NOX.H"
 
-#include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
-#include "NOX_Pimpact_StatusTest.hpp"
+#include "NOX_Pimpact_RefinementTest.hpp"
+#include "NOX_Pimpact_Vector.hpp"
+
 #include "Pimpact_Utils.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorFactory.hpp"
+
 #include "Pimpact_LinSolverParameter.hpp"
 #include "BelosPimpactAdapter.hpp"
 
@@ -369,16 +371,16 @@ int main(int argi, char** argv ) {
     mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-1 );
 
     auto mg = Pimpact::createMultiGrid<
-              CVF,
-              TCO,
-              RES,
-              INT,
-              Pimpact::TimeNSOp,
-              Pimpact::TimeNSOp,
-              Pimpact::TimeNS4DBSmoother,
-              //									Pimpact::TimeStokesBSmoother
-              MOP
-              > ( mgSpaces, op, mgPL );
+      CVF,
+      TCO,
+      RES,
+      INT,
+      Pimpact::TimeNSOp,
+      Pimpact::TimeNSOp,
+      Pimpact::TimeNS4DBSmoother,
+      //									Pimpact::TimeStokesBSmoother
+      MOP
+        > ( mgSpaces, op, mgPL );
 
 
     jop = Pimpact::createMultiOperatorBase(mg) ;
@@ -393,18 +395,18 @@ int main(int argi, char** argv ) {
 
   auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
 
-// Set up the status tests
+  // Set up the status tests
   Teuchos::RCP<NOX::StatusTest::Generic> statusTest =
     NOX::StatusTest::buildStatusTests( pl->sublist("NOX Status Test"), NOX::Utils() );
   //auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, tolBelos*1e-4 );
 
-// Create the list of solver parameters
-  auto solverParametersPtr =
-    NOX::Pimpact::createNOXSolverParameter( nonLinSolName, lineSearchName );
+  // Create the solver
+  Teuchos::RCP<Teuchos::ParameterList> noxSolverPara =
+    Teuchos::sublist(pl, "NOX Solver");
 
-// Create the solver
+  // Create the solver
   Teuchos::RCP<NOX::Solver::Generic> solver =
-    NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
+    NOX::Solver::buildSolver( group, statusTest, noxSolverPara);
 
   if(0==rank) std::cout << "\n\t--- Nf: 0\tdof: "<<x->getLength()<<"\t---\n";
 // Solve the nonlinear system

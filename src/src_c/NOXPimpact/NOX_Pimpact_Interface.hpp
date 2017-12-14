@@ -32,12 +32,15 @@ namespace Pimpact {
 /// implementation.  Used by NOX::Epetra::Group to provide a link
 /// to the external code for residual fills.
 /// \tparam FieldT hast to be of type \c Pimpact::MultiField.
+/// \note it is assumed that op_ is getting assigned if jopInv is assigned
 template< class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::OperatorBase<FT> >
 class Interface {
 
 public:
 
   using FieldT = FT;
+
+  using OperatorT = OpT;
 
 protected:
 
@@ -60,8 +63,6 @@ public:
   /// Compute the function, F, given the specified input vector x.
   NOX::Abstract::Group::ReturnType computeF( const FieldT& x, FieldT& f ) {
 
-    //x.write();
-    op_->assignField( x );
     op_->apply( x, f );
     f.add( 1., f, -1., *fu_ );
 
@@ -77,12 +78,15 @@ public:
   }
 
 
-  NOX::Abstract::Group::ReturnType applyJacobian( const FieldT& x, FieldT& y, const Belos::ETrans type=Belos::NOTRANS ) {
+  NOX::Abstract::Group::ReturnType applyJacobian( const FieldT& x, FieldT& y,
+      const Belos::ETrans type=Belos::NOTRANS ) {
+
     return NOX::Abstract::Group::NotDefined;
   }
 
 
-  NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const FieldT& x, FieldT& y ) {
+  NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params,
+      const FieldT& x, FieldT& y ) {
 
     double atol = params.get<double>("Tolerance");
     if( atol>0. ) {
@@ -101,6 +105,11 @@ public:
 
   NOX::Abstract::Group::ReturnType applyPreconditioner( const FieldT& x, FieldT& y ) {
     return NOX::Abstract::Group::NotDefined;
+  }
+
+
+  Teuchos::RCP<const OpT> getOperatorPtr() const {
+    return op_;
   }
 
 }; // end of class Interface

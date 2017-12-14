@@ -65,7 +65,7 @@ public:
     return op_->hasApplyTranspose();
   }
 
-  Teuchos::RCP<OperatorT> getOperatorPtr() {
+  Teuchos::RCP<const OperatorT> getOperatorPtr() const {
     return op_;
   }
 
