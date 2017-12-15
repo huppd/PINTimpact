@@ -18,6 +18,63 @@
 namespace Pimpact {
 
 
+template<class MultiHarmonicFieldT>
+typename MultiHarmonicFieldT::SpaceT::Scalar
+truncErrorEstimate( const MultiHarmonicFieldT& field, ENorm normType=ENorm::L2 ) {
+
+  using ST = typename MultiHarmonicFieldT::SpaceT::Scalar;
+  using OT = typename MultiHarmonicFieldT::SpaceT::Ordinal;
+
+  auto space = field.space();
+
+  ST u_1, u_nf;
+
+  OT nf = space->nGlo(3);
+
+
+  if( 0<nf and space->si(F::U,3)<=1 and 1<=space->ei(F::U,3) )
+    u_1  = field.getField(1).norm(normType);
+
+  if( 0<nf and space->si(F::U,3)<=nf and space->nGlo(3)<=nf )
+    u_nf = field.getField(nf).norm(normType);
+
+  int rank_1 = 0;
+  if( 1==space->getProcGrid()->getNP(3) )
+    rank_1 = 0;
+  else if( 0==(space->nGlo(3)+1)%space->getProcGrid()->getNP(3) )
+    rank_1 = 1;
+  int rank_nf = space->getProcGrid()->getNP(3)-1;
+
+  // nice nonblocking version
+  MPI_Request req_1, req_nf;  
+
+  MPI_Ibcast(
+      &u_1,                                // buffer	starting address of buffer (choice)
+      1,                                   // number of entries in buffer (non-negative integer)
+      MPI_DOUBLE,                          // data type of buffer (handle)
+      rank_1,                              // rank of broadcast root (integer)
+      space->getProcGrid()->getCommBar(3), // communicator (handle)
+      &req_1);                             // communication request
+  MPI_Ibcast(
+      &u_nf,                               // buffer	starting address of buffer (choice)
+      1,                                   // number of entries in buffer (non-negative integer)
+      MPI_DOUBLE,                          // data type of buffer (handle)
+      rank_nf,                             // rank of broadcast root (integer)
+      space->getProcGrid()->getCommBar(3), // ccommunicator (handle) ommunicator (handle)
+      &req_nf);                            // communication request
+
+  MPI_Wait(&req_1, MPI_STATUS_IGNORE); 
+  MPI_Wait(&req_nf, MPI_STATUS_IGNORE); 
+
+  ST truncError = 1.;
+
+  if( u_nf != u_1 ) // just in case u_1=u_nf=0
+    truncError = u_nf / u_1 ;
+
+  return truncError;
+}
+
+
 /// \note has not a very good parallel efficiency( exchange) so only use for analyzing
 template<class MultiHarmonicFieldT>
 void writeSpectrum( const MultiHarmonicFieldT& field,

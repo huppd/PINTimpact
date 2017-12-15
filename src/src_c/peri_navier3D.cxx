@@ -663,46 +663,9 @@ int main( int argi, char** argv ) {
 
       // spectral refinement
       if( maxRefinement>1 ) {
-        ST u_1, u_nf;
+          
+        ST truncError = Pimpact::truncErrorEstimate( x->getField(0).getVField() );
 
-        //space->print();
-        if( 0<space->nGlo(3) and space()->si(Pimpact::F::U,3)<=1 and 1<=space()->ei(Pimpact::F::U,3) )
-          u_1  = x->getField(0).getVField().getField(1).norm( Pimpact::ENorm::L2 );
-        if( 0<space->nGlo(3) and space()->si(Pimpact::F::U,3)<=space->nGlo(3) and space->nGlo(3)<=space()->ei(Pimpact::F::U,3) )
-          u_nf = x->getField(0).getVField().getField(space->nGlo(3)).norm( Pimpact::ENorm::L2 );
-
-
-        int rank_1 = 0;
-        if( 1==space->getProcGrid()->getNP(3) )
-          rank_1 = 0;
-        else if( 0==(space->nGlo(3)+1)%space->getProcGrid()->getNP(3) )
-          rank_1 = 1;
-        int rank_nf = space->getProcGrid()->getNP(3)-1;
-
-        // nice nonblocking version
-        MPI_Request req_1, req_nf;  
-
-        MPI_Ibcast(
-            &u_1,                                // buffer	starting address of buffer (choice)
-            1,                                   // number of entries in buffer (non-negative integer)
-            MPI_DOUBLE,                          // data type of buffer (handle)
-            rank_1,                              // rank of broadcast root (integer)
-            space->getProcGrid()->getCommBar(3), // communicator (handle)
-            &req_1);                             // communication request
-        MPI_Ibcast(
-            &u_nf,                               // buffer	starting address of buffer (choice)
-            1,                                   // number of entries in buffer (non-negative integer)
-            MPI_DOUBLE,                          // data type of buffer (handle)
-            rank_nf,                             // rank of broadcast root (integer)
-            space->getProcGrid()->getCommBar(3), // ccommunicator (handle) ommunicator (handle)
-            &req_nf);                            // communication request
-        
-        MPI_Wait(&req_1, MPI_STATUS_IGNORE); 
-        MPI_Wait(&req_nf, MPI_STATUS_IGNORE); 
-
-        ST truncError = 1.;
-        if( u_nf != u_1 ) // just in case u_1=u_nf=0
-          truncError = u_nf / u_1 ;
         if( NOX::StatusTest::StatusType::Converged == status && truncError < refinementTol ) {
           if( 0==space->rankST() )
             std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " < " << refinementTol << "\n\n";

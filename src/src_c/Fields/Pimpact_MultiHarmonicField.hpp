@@ -413,11 +413,23 @@ public:
   /// \brief mv := a
   MultiHarmonicField& operator=( const MultiHarmonicField& a ) {
 
-    if( 0==space()->si(F::U,3) )
+    if( global_ and a.global_ and a.exchangedState_ ) {
       field0_ = a.get0Field();
 
-    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
-      getField(i) = a.getField(i);
+      for( OT i=1; i<=space()->nGlo(3); ++i )
+        getField(i) = a.getField(i);
+      exchangedState_ = a.exchangedState_;
+    }
+    else {
+
+      if( 0==space()->si(F::U,3) )
+        field0_ = a.get0Field();
+
+      for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i )
+        getField(i) = a.getField(i);
+
+      changed();
+    }
 
     return *this;
   }
@@ -535,6 +547,7 @@ public:
 
 
   void read( const int count=0, OT nf_restart=-1 ) {
+
     if( 0==space()->si(F::U,3) )
       get0Field().read(count);
 
