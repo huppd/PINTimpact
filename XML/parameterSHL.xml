@@ -255,10 +255,11 @@
     <Parameter docString="" id="166" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="245" name="Mode prec">
       <Parameter docString="" id="167" isDefault="true" isUsed="true" name="type" type="int" value="3" />
+      <Parameter docString="" id="116767" isDefault="true" isUsed="true" name="mode omega" type="double" value="1" />
     </ParameterList>
     <ParameterList id="246" name="Solver">
       <Parameter docString="" id="168" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
-      <Parameter docString="" id="169" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="80" />
+      <Parameter docString="" id="169" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
       <Parameter docString="" id="170" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="20" />
       <Parameter docString="" id="171" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-12" />
       <Parameter docString="" id="172" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />

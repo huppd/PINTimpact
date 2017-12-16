@@ -111,7 +111,6 @@ public:
     }
 
     allocate();
-    //init();
   };
 
 
@@ -138,12 +137,11 @@ public:
 
     allocate();
     switch( copyType ) {
-    case ECopy::Shallow:
-      //init();
-      break;
-    case ECopy::Deep:
-      *this = vF;
-      break;
+      case ECopy::Shallow:
+        break;
+      case ECopy::Deep:
+        *this = vF;
+        break;
     }
   };
 
@@ -177,6 +175,7 @@ public:
   IFT& get0Field() {
     return field0_;
   }
+
   constexpr const IFT& get0Field() {
     return field0_;
   }
@@ -184,6 +183,7 @@ public:
   ModeField<IFT>& getField( const OT i ) {
     return *fields_[index(i)];
   }
+
   constexpr const ModeField<IFT>& getField( const OT i ) {
     return *fields_[index(i)];
   }
@@ -191,6 +191,7 @@ public:
   IFT& getCField( const OT i ) {
     return fields_[index(i)]->getCField();
   }
+
   constexpr const IFT& getCField( const OT i ) {
     return fields_[index(i)]->getCField();
   }
@@ -198,15 +199,14 @@ public:
   IFT& getSField( const OT i ) {
     return fields_[index(i)]->getSField();
   }
+
   constexpr const IFT& getSField( const OT i ) {
     return fields_[index(i)]->getSField();
   }
 
-
   constexpr const Teuchos::RCP<const SpaceT>& space() {
     return AF::space_;
   }
-
 
   constexpr const MPI_Comm& comm() {
     return space()->getProcGrid()->getCommWorld();
@@ -226,7 +226,6 @@ public:
 
     return len;
   }
-
 
 
   /// \}
@@ -292,7 +291,6 @@ public:
       getField(i).scale( alpha, wB );
 
     changed();
-
   }
 
 
@@ -311,7 +309,6 @@ public:
 
     changed();
   }
-
 
 
 
@@ -474,6 +471,7 @@ public:
     changed();
   }
 
+
   void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
 
     if( 0==space()->si(F::U,3) )
@@ -511,26 +509,26 @@ public:
 
   void writeEvol( const int count=0 ) const {
 
-      exchange();
+    exchange();
 
-      if( space()->getProcGrid()->getIB(3)==1 ) {
-        ST pi = 4.*std::atan(1.);
-        OT nf = space()->nGlo(3);
-        OT nt = 4*nf;
-        Teuchos::RCP<IFT> temp = get0Field().clone( Pimpact::ECopy::Shallow );
-        for( OT i=0; i<nt;  ++i ) {
-          *temp = get0Field();
-          for( OT j=1; j<=nf; ++j ) {
-            temp->add(
+    if( space()->getProcGrid()->getIB(3)==1 ) {
+      ST pi = 4.*std::atan(1.);
+      OT nf = space()->nGlo(3);
+      OT nt = 4*nf;
+      Teuchos::RCP<IFT> temp = get0Field().clone( Pimpact::ECopy::Shallow );
+      for( OT i=0; i<nt;  ++i ) {
+        *temp = get0Field();
+        for( OT j=1; j<=nf; ++j ) {
+          temp->add(
               1., *temp,
               std::sin( 2.*pi*i*(static_cast<ST>(j))/nt ), getSField(j) );
-            temp->add(
+          temp->add(
               std::cos( 2.*pi*i*(static_cast<ST>(j))/nt ), getCField(j),
               1., *temp );
-            temp->write( count+i );
-          }
+          temp->write( count+i );
         }
       }
+    }
   }
 
 
@@ -607,9 +605,7 @@ public:
       OT nfl  = (space()->getGridSizeLocal()->get(3)+1)/np;
       OT rem  = (space()->getGridSizeLocal()->get(3)+1)%np;
 
-//			std::cout << "\trankST: " << space()->rankST() << "\tsendcount: " << sendcount << "\n";
-
-//			MPI_Barrier( space()->getProcGrid()->getCommBar(3) );
+      //MPI_Barrier( space()->getProcGrid()->getCommBar(3) );
 
       for( int rank=0; rank<np; ++rank ) {
         if( 0==rank )
@@ -628,15 +624,15 @@ public:
 
       // exchange modes
       MPI_Allgatherv(
-        MPI_IN_PLACE,                         // sendbuf
-        sendcount,                            // sendcount
-        MPI_REAL8,                            // sendtype
-        s_,                                   // recvbuf
-        recvcounts,                           // recvcounts
-        displs,                               // displs
-        MPI_REAL8,                            // recvtype
-        space()->getProcGrid()->getCommBar(3) // comm
-      );
+          MPI_IN_PLACE,                         // sendbuf
+          sendcount,                            // sendcount
+          MPI_REAL8,                            // sendtype
+          s_,                                   // recvbuf
+          recvcounts,                           // recvcounts
+          displs,                               // displs
+          MPI_REAL8,                            // recvtype
+          space()->getProcGrid()->getCommBar(3) // comm
+          );
 
       delete[] recvcounts;
       delete[] displs;

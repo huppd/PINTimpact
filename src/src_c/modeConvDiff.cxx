@@ -190,8 +190,8 @@ int main( int argi, char** argv ) {
         auto modePrec =
           Pimpact::createMultiOperatorBase(
               Pimpact::create<Pimpact::ModePrec>(
-                //zeroInv,
-                mgConvDiff,
+                zeroInv,
+                //mgConvDiff,
                 Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Mode prec") ) );
 
         if("right" == modeConvDiffPrecString)
@@ -329,8 +329,8 @@ int main( int argi, char** argv ) {
       x.init();
     }
 
-    //x.random();
-    //x.scale(1.e-3);
+    x.random();
+    x.scale(1.e-3);
     //rhs.init( 0. );
 
     std::cout << "rhs_u^c: " << rhs.getCField()(Pimpact::F::U).norm() << "\n";

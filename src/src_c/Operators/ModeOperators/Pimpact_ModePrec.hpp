@@ -34,6 +34,8 @@ protected:
   ST mulC_;
   ST mulL_;
 
+  ST omega_;
+
   int type_;
 
   Teuchos::RCP<OpT> op_;
@@ -43,13 +45,14 @@ public:
   ModePrec(
     const Teuchos::RCP<OpT>& op,
     const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
-
     mulI_(0.),
     mulC_(1.),
     mulL_( 1./op->space()->getDomainSize()->getRe() ),
+    omega_( pl->get<ST>("mode omega", 1.) ),
     type_( pl->get<int>("type", -1) ),
     op_(op) {
-      //std::cout << "type: " << type_ << "\n";
+      std::cout << "type: " << type_ << "\n";
+      std::cout << "omega: " << omega_ << "\n";
     };
 
 
@@ -78,6 +81,20 @@ public:
       }
       case 5: {
         applyER2inv( x, y );
+        break;
+      }
+      case 6: {
+        applyLSOR( x, y );
+        break;
+      }
+      case 7: {
+        applySSOR( x, y );
+        break;
+      }
+      case 8: {
+        applyUSOR( x, y );
+        auto temp = y.clone(ECopy::Deep);
+        applyLSOR( *temp, y );
         break;
       }
       default: {
@@ -193,6 +210,87 @@ public:
     y.getSField().scale( -1., B::Y );
   }
 
+
+  void applyUSOR( const DomainFieldT& x, RangeFieldT& y ) const {
+
+    // set paramters
+    auto pl = Teuchos::parameterList();
+    pl->set<ST>( "mulI", 0. );
+    pl->set<ST>( "mulC", mulC_ );
+    pl->set<ST>( "mulL", mulL_ );
+
+    op_->setParameter( pl );
+
+    op_->apply( x.getSField(), y.getSField() );
+    
+    if( omega_!= 1. )
+      y.getSField().scale( omega_ );
+
+    auto temp = x.getCField().clone( ECopy::Deep );
+
+    temp->add( 1., *temp, -mulI_, y.getSField(), B::N );
+
+    op_->apply( *temp, y.getCField() );
+
+    if( omega_!= 1. )
+      y.getCField().scale( omega_ );
+  }
+
+
+  void applyLSOR( const DomainFieldT& x, RangeFieldT& y ) const {
+
+    // set paramters
+    auto pl = Teuchos::parameterList();
+    pl->set<ST>( "mulI", 0. );
+    pl->set<ST>( "mulC", mulC_ );
+    pl->set<ST>( "mulL", mulL_ );
+
+    op_->setParameter( pl );
+
+    op_->apply( x.getCField(), y.getCField() );
+
+    if( omega_!= 1. )
+      y.getCField().scale( omega_ );
+
+    auto temp = x.getSField().clone( ECopy::Deep );
+
+    temp->add( 1., *temp, +mulI_, y.getCField(), B::N );
+
+    op_->apply( *temp, y.getSField() );
+
+    if( omega_!= 1. )
+      y.getSField().scale( omega_ );
+  }
+
+  void applySSOR( const DomainFieldT& x, RangeFieldT& y ) const {
+
+    applyUSOR( x, y );
+
+    // set paramters
+    auto pl = Teuchos::parameterList();
+    pl->set<ST>( "mulI", 0. );
+    pl->set<ST>( "mulC", mulC_ );
+    pl->set<ST>( "mulL", mulL_ );
+
+    op_->setParameter( pl );
+
+    //auto innerOp = op_->getOperator();
+
+    //auto temp = x.clone( ECopy::Shallow );
+
+    //innerOp->apply(
+        //*wrapMultiField(Teuchos::rcpFromRef(y.getCField())),
+        //*wrapMultiField(Teuchos::rcpFromRef(temp->getCField())) );
+    //innerOp->apply(
+        //*wrapMultiField(Teuchos::rcpFromRef(y.getSField())),
+        //*wrapMultiField(Teuchos::rcpFromRef(temp->getSField())) );
+
+    auto temp = x.clone( ECopy::Deep );
+    applyLSOR( *temp, y );
+
+    if( omega_!= 1. )
+      y.scale( omega_/(2.-omega_) );
+  }
 
   void assignField(const DomainFieldT& mv) {};
 
