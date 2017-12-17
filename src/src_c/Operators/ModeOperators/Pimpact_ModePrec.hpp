@@ -274,18 +274,18 @@ public:
 
     op_->setParameter( pl );
 
-    //auto innerOp = op_->getOperator();
+    auto innerOp = op_->getOperator();
 
-    //auto temp = x.clone( ECopy::Shallow );
+    auto temp = x.clone( ECopy::Shallow );
 
-    //innerOp->apply(
-        //*wrapMultiField(Teuchos::rcpFromRef(y.getCField())),
-        //*wrapMultiField(Teuchos::rcpFromRef(temp->getCField())) );
-    //innerOp->apply(
-        //*wrapMultiField(Teuchos::rcpFromRef(y.getSField())),
-        //*wrapMultiField(Teuchos::rcpFromRef(temp->getSField())) );
+    innerOp->apply(
+        *wrapMultiField(Teuchos::rcpFromRef(y.getCField())),
+        *wrapMultiField(Teuchos::rcpFromRef(temp->getCField())) );
+    innerOp->apply(
+        *wrapMultiField(Teuchos::rcpFromRef(y.getSField())),
+        *wrapMultiField(Teuchos::rcpFromRef(temp->getSField())) );
 
-    auto temp = x.clone( ECopy::Deep );
+    //auto temp = x.clone( ECopy::Deep );
     applyLSOR( *temp, y );
 
     if( omega_!= 1. )
