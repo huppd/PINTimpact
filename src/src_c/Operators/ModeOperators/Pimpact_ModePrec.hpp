@@ -51,8 +51,8 @@ public:
     omega_( pl->get<ST>("mode omega", 1.) ),
     type_( pl->get<int>("type", -1) ),
     op_(op) {
-      std::cout << "type: " << type_ << "\n";
-      std::cout << "omega: " << omega_ << "\n";
+      //std::cout << "type: " << type_ << "\n";
+      //std::cout << "omega: " << omega_ << "\n";
     };
 
 
