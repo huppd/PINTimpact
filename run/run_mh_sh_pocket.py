@@ -33,11 +33,11 @@ CASE_PATH = ['']*3
 
 
 DX = 1
-DY = 4
+DY = 2
 DZ = 1
 #
 NPX = 1
-NPY = 2
+NPY = 4
 NPZ = 4
 NPF = 1
 #
@@ -95,7 +95,7 @@ ma.set_parameter(ROOT, 'initial guess', 'base')
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi', True)
 
 
-CASE_PATH[0] = pp.DATA_PATH + '/shbl_pocket_' + str(LY)
+CASE_PATH[0] = pp.DATA_PATH + '/shbl_' + str(LY)
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
