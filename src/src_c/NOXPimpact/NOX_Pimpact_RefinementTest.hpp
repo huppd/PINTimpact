@@ -72,10 +72,17 @@ public:
       normF_ = computeFNorm( problem.getSolutionGroup() );
       normRF_ = computeRFNorm( problem.getSolutionGroup() );
 
+    Teuchos::RCP<const NOX::Abstract::Vector> x =
+      problem.getSolutionGroup().getXPtr();
+
+    int nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
+      InterfaceT::FieldT> >(x)->getConstFieldPtr()->space()->nGlo(3) + 1;
+
+
       if( normRF_==0. )
         status_ = NOX::StatusTest::Unconverged;
       else
-        status_ = ( normF_ < tolerance_*normRF_ ) ?
+        status_ = ( normF_ < nf*tolerance_*normRF_ ) ?
           NOX::StatusTest::Converged :
           NOX::StatusTest::Unconverged;
     }
