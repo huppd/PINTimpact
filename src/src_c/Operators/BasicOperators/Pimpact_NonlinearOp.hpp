@@ -4,6 +4,7 @@
 
 
 #include "Pimpact_ConvectionField.hpp"
+#include "Pimpact_ScalarField.hpp"
 #include "Pimpact_NonlinearVWrap.hpp"
 
 
@@ -69,6 +70,10 @@ public:
   Teuchos::RCP< ConvectionField<SpaceT> >
   getConvField() const {
     return convField_;
+  }
+
+  const ScalarField<SpaceT>* getConvField(F f) const {
+    return convField_->get()[static_cast<int>(f)];
   }
 
   Teuchos::RCP<NonlinearWrap<ConvSOpT> >

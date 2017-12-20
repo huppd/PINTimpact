@@ -20,6 +20,8 @@ public:
 
   using SpaceT = typename OpT::SpaceT;
 
+  using InnerOpT = OpT;
+
   using DomainFieldT = ModeField<typename OpT::DomainFieldT >;
   using RangeFieldT = ModeField<typename OpT::RangeFieldT  >;
 
@@ -78,18 +80,18 @@ public:
               y.getCField()(m)(i,j,k) = 
                 mulI_*x.getSField()(m)(i,j,k)
                 +mulC_*op_->getSOp()->getConvSOp()->innerStenc3D(
-                    op_->getConvField()->get()[static_cast<int>(m)][0](i,j,k),
-                    op_->getConvField()->get()[static_cast<int>(m)][1](i,j,k),
-                    op_->getConvField()->get()[static_cast<int>(m)][2](i,j,k),
+                    op_->getConvField(m)[0](i,j,k),
+                    op_->getConvField(m)[1](i,j,k),
+                    op_->getConvField(m)[2](i,j,k),
                     x.getCField()(m), i, j, k)
                 -mulL_*op_->getSOp()->getHelmOp()->innerStenc3D(
                     x.getCField()(m), m, i, j, k) ;
               y.getSField()(m)(i,j,k) = 
                 -mulI_*x.getCField()(m)(i,j,k)
                 +mulC_*op_->getSOp()->getConvSOp()->innerStenc3D(
-                    op_->getConvField()->get()[static_cast<int>(m)][0](i,j,k),
-                    op_->getConvField()->get()[static_cast<int>(m)][1](i,j,k),
-                    op_->getConvField()->get()[static_cast<int>(m)][2](i,j,k),
+                    op_->getConvField(m)[0](i,j,k),
+                    op_->getConvField(m)[1](i,j,k),
+                    op_->getConvField(m)[2](i,j,k),
                     x.getSField()(m), i, j, k)
                 -mulL_*op_->getSOp()->getHelmOp()->innerStenc3D(
                     x.getSField()(m), m, i, j, k) ;
@@ -98,16 +100,16 @@ public:
               y.getCField()(m)(i,j,k) = 
                 mulI_*x.getSField()(m)(i,j,k)
                 +mulC_*op_->getSOp()->getConvSOp()->innerStenc2D(
-                    op_->getConvField()->get()[static_cast<int>(m)][0](i,j,k),
-                    op_->getConvField()->get()[static_cast<int>(m)][1](i,j,k),
+                    op_->getConvField(m)[0](i,j,k),
+                    op_->getConvField(m)[1](i,j,k),
                     x.getCField()(m), i, j, k)
                 -mulL_*op_->getSOp()->getHelmOp()->innerStenc2D(
                     x.getCField()(m), m, i, j, k) ;
               y.getSField()(m)(i,j,k) = 
                 -mulI_*x.getCField()(m)(i,j,k)
                 +mulC_*op_->getSOp()->getConvSOp()->innerStenc2D(
-                    op_->getConvField()->get()[static_cast<int>(m)][0](i,j,k),
-                    op_->getConvField()->get()[static_cast<int>(m)][1](i,j,k),
+                    op_->getConvField(m)[0](i,j,k),
+                    op_->getConvField(m)[1](i,j,k),
                     x.getSField()(m), i, j, k)
                 -mulL_*op_->getSOp()->getHelmOp()->innerStenc2D(
                     x.getSField()(m), m, i, j, k) ;
@@ -121,10 +123,17 @@ public:
       y.getCField()(m).changed();
       y.getSField()(m).changed();
     }
+    //y = x;
   }
 
+  void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
+    apply( x, res );
+    res.add( 1., b, -1., res );
+  }
 
-  void assignField( const DomainFieldT& mv ) { };
+  void assignField( const DomainFieldT& mv ) {
+    op_->assignField( mv.getCField() );
+  };
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
@@ -141,7 +150,7 @@ public:
   }
 
 
-  Teuchos::RCP< OpT > getInnerOpPtr() {
+  Teuchos::RCP<OpT> getInnerOpPtr() {
     return op_;
   }
 

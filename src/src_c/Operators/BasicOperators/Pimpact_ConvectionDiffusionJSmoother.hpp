@@ -120,9 +120,8 @@ protected:
   }
 
   /// \brief implements smoothing for Dirichlet boundary conditions as identity
-  /// in tangential / velocity direction or interpolation in wand normal
+  /// in tangential/velocity direction or interpolation in wand normal
   /// direction
-  /// \todo think of computing interpolated values in corner directly
   void applyBC( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y ) const {
 
     assert( b.getType()==y.getType() );

@@ -73,7 +73,6 @@ public:
 protected:
 
   bool defectCorrection_;
-  bool initZero_;
   int numCycles_;
   int cycleType_;
   int numGrids_;
@@ -109,7 +108,6 @@ public:
     const Teuchos::RCP<FOperatorT<typename MGSpacesT::FSpaceT> >& fOperator,
     const Teuchos::RCP<Teuchos::ParameterList>& pl ):
     defectCorrection_( pl->get<bool>("defect correction", true ) ),
-    initZero_( pl->get<bool>("init zero", false ) ),
     numCycles_( pl->get<int>("numCycles",FSpaceT::dimNC-CSpaceT::dimNC+1) ),
     cycleType_( pl->get<int>( "cycle type", 0 ) ),
     numGrids_( pl->get<int>("numGrids", -1) ),
@@ -140,6 +138,7 @@ public:
       applyVFull( rhs, y );
   }
 
+
   /// \brief solves \f$ L y = x \f$
   /// defect correction\f$ \hat{L}u_{k+1} = f-L u_k +\hat{L}u_k \f$ and V-cylce for solving with \f$\hat{L}\f$
   /// \note todo extract smooth/restrict/interpolate method???
@@ -152,8 +151,7 @@ public:
 
     // === no defect correction
     if( !defectCorrection_ ) {
-      if( !initZero_ )
-        mgTrans_->getTransferOp()->apply( y, x.get(0) );
+      mgTrans_->getTransferOp()->apply( y, x.get(0) );
       mgTrans_->getTransferOp()->apply( rhs, b.get(0) );
     }
 
@@ -174,7 +172,7 @@ public:
       }
 
       int i;
-      for( i=0; i<numGrids_-1; ++i ) {
+      for( i=0; i<=numGrids_-1; ++i ) {
         if( i>0 ) x.get(i).init(0.); // necessary? for DivGradOp yes
 
         if( mgSpaces_->participating(i) ) {
@@ -348,9 +346,14 @@ public:
   };
 
 
+  Teuchos::RCP<const MGTransfersT>
+  getTransfers() {
+    return mgTrans_;
+  }
+
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
-    out << "#grids: " << numGrids_ << " numCycles: "<<numCycles_<< " init zero: "<<initZero_ << "\n";
+    out << "#grids: " << numGrids_ << " numCycles: " << numCycles_ << "\n";
     out << "FOperator: " << mgOps_->get()->getLabel() << " d" << FSpaceT::dimNC << "\n";
     if( mgSpaces_->participating(0) )
       out << "COperator: " << mgOps_->get(0)->getLabel()  << " d" << CSpaceT::dimNC << "\n";

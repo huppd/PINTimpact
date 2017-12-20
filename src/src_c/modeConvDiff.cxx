@@ -10,6 +10,8 @@
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_MultiGrid.hpp"
+#include "Pimpact_TransferModeOp.hpp"
+#include "Pimpact_ModeSmoother.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
 
@@ -28,6 +30,9 @@ using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 
 using FSpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 using CSpaceT = Pimpact::Space<ST,OT,sd,4,2>;
+
+
+using MGSpacesT = Pimpact::MGSpaces<FSpaceT,CSpaceT>;
 
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 //using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>; // dirty fix: till gather isn't fixed
@@ -53,9 +58,25 @@ using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
 template<class T>
 using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
+template<class T1,class T2>
+using ModeTransVF = Pimpact::TransferModeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> > >;
+template<class T>
+using ModeRestrVF = Pimpact::TransferModeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> > >;
+template<class T>
+using ModeInterVF = Pimpact::TransferModeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> > >;
 
 template<class T>
 using MOP = Pimpact::InverseOp<T>;
+
+template<class T>
+using ModeField = Pimpact::ModeField<Pimpact::VectorField<T>>;
+
+template<class T>
+using ModeOp = Pimpact::ModeNonlinearOp<ConvDiffOpT<T>>;
+
+template<class OpT>
+using ModeSmootherT = Pimpact::ModeSmoother<OpT, ConvDiffSORT>;
+//using ModeSmootherT = Pimpact::ModeSmoother<OpT, ConvDiffJT>;
 
 ////template<class T> using PrecS = Pimpact::MultiOpSmoother< Pimpact::DivGradO2JSmoother<T> >;
 ////template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
@@ -64,8 +85,10 @@ using MOP = Pimpact::InverseOp<T>;
 //template<class T> using POP2  = Pimpact::PrecInverseOp< T, ConvDiffJT >;
 //template<class T> using POP3  = Pimpact::PrecInverseOp< T, ConvDiffSORT >;
 
+//using ModeFields = Pimpact::MGFields<
 
 
+using MGFieldsT = Pimpact::MGFields<MGSpacesT, ModeField>;
 
 int main( int argi, char** argv ) {
 
@@ -104,8 +127,7 @@ int main( int argi, char** argv ) {
 
     Teuchos::RCP<ConvDiffOpT<SpaceT>> zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
-    auto modeOp = Teuchos::rcp(
-        new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
+    Teuchos::RCP<ModeOp<SpaceT>> modeOp = Teuchos::rcp( new ModeOp<SpaceT>( zeroOp ) );
 
     pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
         "Output Stream",
@@ -113,7 +135,7 @@ int main( int argi, char** argv ) {
     auto modeInv = Pimpact::createInverseOp( modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
    
-    auto mgSpaces =
+    Teuchos::RCP<const MGSpacesT> mgSpaces =
       Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
     //pl->sublist("ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >( "Output Stream",
@@ -143,8 +165,23 @@ int main( int argi, char** argv ) {
       //ConvDiffJT
         > ( mgSpaces, zeroOp, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
-    if( 0==space->rankST() )
+    auto mgMConvDiff = Pimpact::createMultiGrid<
+      ModeField,
+      ModeTransVF,
+      ModeRestrVF,
+      ModeInterVF,
+      ModeOp,
+      ModeOp,
+      ModeSmootherT,
+      //ModeSmootherT
+      //MOP,
+      MOP 
+        > ( mgSpaces, modeOp, Teuchos::sublist( Teuchos::sublist( pl, "M_ConvDiff"), "Multi Grid" ) ) ;
+
+    if( 0==space->rankST() ) {
       mgConvDiff->print();
+      mgMConvDiff->print();
+    }
 
     std::string convDiffPrecString =
       pl->sublist("ConvDiff").get<std::string>( "preconditioner", "right" );
@@ -153,54 +190,32 @@ int main( int argi, char** argv ) {
     if( "left" == convDiffPrecString )
       zeroInv->setLeftPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 
-    {
-      std::string modeConvDiffScalingString =
-        pl->sublist("M_ConvDiff").get<std::string>( "scaling", "none" );
-      if( modeConvDiffScalingString!="none" ) {
-        auto scaleField = x.clone();
+    //{
+      //std::string modeConvDiffPrecString =
+        //pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
 
-        const ST pi = 4.*std::atan(1.);
-        const ST width = 0.9;
-        const ST eps = 1.e-6;
+      //if( "none"!=modeConvDiffPrecString ) {
+        //auto modePrec =
+          //Pimpact::createMultiOperatorBase(
+              //Pimpact::create<Pimpact::ModePrec>(
+                //zeroInv,
+                ////mgConvDiff,
+                //Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Mode prec") ) );
 
-        for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i ) {
-          scaleField->getCField()(i).initFromFunction(
-              [=]( ST x, ST y, ST z ) ->ST { return (y<=width)?1.:( (1.-eps)*std::cos( pi*(y-width)/(1.-width) )/2. + 0.5+eps/2. ); } );
-          scaleField->getSField()(i) = scaleField->getCField()(i);
-        }
-        auto scaleOp = Pimpact::createScalingOp( scaleField );
+        //if("right" == modeConvDiffPrecString)
+          //modeInv->setRightPrec(modePrec);
 
-        if("right" == modeConvDiffScalingString) {
-          modeInv->setRightPrec( Pimpact::createMultiOperatorBase(scaleOp) );
-          //scaleField->write(200);
-        }
+        //if("left" == modeConvDiffPrecString)
+          //modeInv->setLeftPrec(modePrec);
+      //}
+    //}
+    std::string modeConvDiffPrecString =
+      pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
+    if("right" == modeConvDiffPrecString)
+      modeInv->setRightPrec(Pimpact::createMultiOperatorBase(mgMConvDiff));
 
-        if("left" == modeConvDiffScalingString) {
-          modeInv->setLeftPrec( Pimpact::createMultiOperatorBase(scaleOp) );
-          //scaleField->write(200);
-        }
-      }
-    }
-
-    {
-      std::string modeConvDiffPrecString =
-        pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
-
-      if( "none"!=modeConvDiffPrecString ) {
-        auto modePrec =
-          Pimpact::createMultiOperatorBase(
-              Pimpact::create<Pimpact::ModePrec>(
-                zeroInv,
-                //mgConvDiff,
-                Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Mode prec") ) );
-
-        if("right" == modeConvDiffPrecString)
-          modeInv->setRightPrec(modePrec);
-
-        if("left" == modeConvDiffPrecString)
-          modeInv->setLeftPrec(modePrec);
-      }
-    }
+    if("left" == modeConvDiffPrecString)
+      modeInv->setLeftPrec(Pimpact::createMultiOperatorBase(mgMConvDiff));
 
     ST iRe = 1./space->getDomainSize()->getRe();
     ST a2 = space->getDomainSize()->getAlpha2()*iRe;
@@ -237,6 +252,9 @@ int main( int argi, char** argv ) {
 
       zeroOp->assignField( wind );
       mgConvDiff->assignField( wind );
+      auto modeWind = x.clone(Pimpact::ECopy::Shallow);
+      modeWind->getCField() = wind;
+      mgMConvDiff->assignField( *modeWind );
     }
 
     if( realCase ) {
@@ -329,26 +347,33 @@ int main( int argi, char** argv ) {
       x.init();
     }
 
-    x.random();
+    //x.random(false, Pimpact::B::N);
+    x.random(false, Pimpact::B::Y);
     x.scale(1.e-3);
     //rhs.init( 0. );
 
-    std::cout << "rhs_u^c: " << rhs.getCField()(Pimpact::F::U).norm() << "\n";
-    std::cout << "rhs_v^c: " << rhs.getCField()(Pimpact::F::V).norm() << "\n";
-    std::cout << "rhs_w^c: " << rhs.getCField()(Pimpact::F::W).norm() << "\n";
-    std::cout << "rhs_u^s: " << rhs.getSField()(Pimpact::F::U).norm() << "\n";
-    std::cout << "rhs_v^s: " << rhs.getSField()(Pimpact::F::V).norm() << "\n";
-    std::cout << "rhs_w^s: " << rhs.getSField()(Pimpact::F::W).norm() << "\n";
+    //rhs.init( -1. );
+    //x.init(0.);
+
+    //MGFieldsT xs( mgSpaces );
+    ////xs.get() = rhs;
+    //xs.get().init(0.);
+
+    //modeOp->computeResidual( xs.get(), rhs, x );
+    //x.write(777);
+
+    //mgMConvDiff->getTransfers()->restriction( xs );
+    //xs.get(0).write(77);
+    //xs.get(1).write(99);
 
 
     modeInv->apply( rhs, x );
+    //modeOp->apply( rhs, x );
 
     if( withoutput ) x.write( 10 );
 
     if( 0==realCase ) {
       err.add( 1., sol, -1., x );
-      //if( withoutput ) err.write( 0 );
-      //if( print ) err.print();
 
       error = err.norm(Pimpact::ENorm::Inf);
       std::cout << "\nerror: " << error << "\n";
@@ -357,14 +382,12 @@ int main( int argi, char** argv ) {
       modeOp->apply( x, sol );
       err.add( 1., rhs, -1., sol );
       if( withoutput ) err.write( 0 );
-      //if( print ) err.print();
 
       error = err.norm(Pimpact::ENorm::Inf);
       std::cout << "\nresidual: " << error << "\n";
     }
 
     if( 0==space->rankST() ) {
-      //pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
       Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
     }
     Teuchos::TimeMonitor::summarize();
