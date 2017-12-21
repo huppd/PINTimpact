@@ -37,8 +37,8 @@ DY = 1
 DZ = 1
 #
 NPX = 1
-NPY = 8
-NPZ = 8
+NPY = 12
+NPZ = 10
 NPF = 1
 #
 LXO = 22.5
@@ -50,10 +50,10 @@ NYO = 1537
 NZO = 513
 #
 NX = 65
-NY = 513 
-# NY = 769
-NZ = 257
-# NZ = 321
+# NY = 513 
+NY = 769
+# NZ = 257
+NZ = 321
 #
 LX = LXO
 LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)
