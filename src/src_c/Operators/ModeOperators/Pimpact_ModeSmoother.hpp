@@ -15,7 +15,7 @@ namespace Pimpact {
 
 
 /// \ingroup ModeOperator
-template<class OpT, template<class> class SmootherT>
+template<class OpT>
 class ModeSmoother {
 
 public:
@@ -69,7 +69,15 @@ public:
 
     switch(type_) {
       case 2: {
-        applyGS( x, y );
+        applyGSplaine( x, y );
+        break;
+      }
+      case 3: {
+        applyGSall( x, y );
+        break;
+      }
+      case 4: {
+        applyGSSH( x, y );
         break;
       }
       default: {
@@ -235,153 +243,61 @@ public:
     }
   }
 
-  void applyGS( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    const B wnB = B::N;
+  void applyGSplaine( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    for( F m=F::U; m<SpaceT::sdim; ++m ) {
-      for( int iter=0; iter<numIter_; ++iter ) {
+    Teuchos::Tuple<bool,4> downwinding = Teuchos::tuple(true, true, true, true);
+    for( int iter=0; iter<numIter_; ++iter ) {
+      applyGS( x, y, downwinding) ;
+    }
+  }
 
-        y.getCField()(m).exchange();
-        y.getSField()(m).exchange();
 
-        for( OT k=space()->si(m,Z,wnB); k<=space()->ei(m,Z,wnB); ++k )
-          for( OT j=space()->si(m,Y,wnB); j<=space()->ei(m,Y,wnB); ++j )
-            for( OT i=space()->si(m,X,wnB); i<=space()->ei(m,X,wnB); ++i ) {
-              if( 3==SpaceT::sdim ) {
+  void applyGSall( const DomainFieldT& x, RangeFieldT& y ) const {
 
-                ST diag = mulC_*innerOp_->getSOp()->getConvSOp()->innerDiag3D(
-                    innerOp_->getConvField(m)[0](i,j,k),
-                    innerOp_->getConvField(m)[1](i,j,k),
-                    innerOp_->getConvField(m)[2](i,j,k), m, i, j, k )
-                  - mulL_ * innerOp_->getSOp()->getHelmOp()->innerDiag3D( m, i, j, k) ;
+    for( int iter=0; iter<numIter_; ++iter ) {
 
-                assert( diag!=0 );
+      Teuchos::Tuple<bool,4> downwinding = Teuchos::tuple(true, true, true, true);
 
-                y.getCField()(m)(i,j,k) += ( x.getCField()(m)(i,j,k)
-                    - mulI_*y.getSField()(m)(i,j,k)
-                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc3D(
-                      innerOp_->getConvField(m)[0](i,j,k),
-                      innerOp_->getConvField(m)[1](i,j,k),
-                      innerOp_->getConvField(m)[2](i,j,k),
-                      y.getCField()(m), i, j, k)
-                    +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc3D(
-                      y.getCField()(m), m, i, j, k) )/diag;
-                y.getSField()(m)(i,j,k) += ( x.getSField()(m)(i,j,k)
-                    + mulI_*y.getCField()(m)(i,j,k)
-                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc3D(
-                      innerOp_->getConvField(m)[0](i,j,k),
-                      innerOp_->getConvField(m)[1](i,j,k),
-                      innerOp_->getConvField(m)[2](i,j,k),
-                      y.getSField()(m), i, j, k)
-                    +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc3D(
-                      y.getSField()(m), m, i, j, k) )/diag;
-              }
-              else {
-                ST diag = mulC_*innerOp_->getSOp()->getConvSOp()->innerDiag2D(
-                    innerOp_->getConvField(m)[0](i,j,k),
-                    innerOp_->getConvField(m)[1](i,j,k), m, i, j, k )
-                  - mulL_ * innerOp_->getSOp()->getHelmOp()->innerDiag2D(m, i, j, k) ;
-                assert( diag!=0 );
+      for( int i=0; i<2; ++i ) {
+        downwinding[0] = i;
+        for( int j=0; j<2; ++j ) {
+          downwinding[1] = j;
+          for( int k=0; k<2; ++k ) {
+            downwinding[2] = k;
+            for( int l=0; l<2; ++l ) {
+              downwinding[3] = l;
 
-                y.getCField()(m)(i,j,k) += ( x.getCField()(m)(i,j,k)
-                    - mulI_*y.getSField()(m)(i,j,k)
-                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc2D(
-                      innerOp_->getConvField(m)[0](i,j,k),
-                      innerOp_->getConvField(m)[1](i,j,k),
-                      y.getCField()(m), i, j, k)
-                    +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc2D(
-                      y.getCField()(m), m, i, j, k) )/diag;
-                y.getSField()(m)(i,j,k) += ( x.getSField()(m)(i,j,k)
-                    + mulI_*y.getCField()(m)(i,j,k)
-                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc2D(
-                      innerOp_->getConvField(m)[0](i,j,k),
-                      innerOp_->getConvField(m)[1](i,j,k),
-                      y.getSField()(m), i, j, k)
-                    + mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc2D(
-                      y.getSField()(m), m, i, j, k) )/diag;
-              }
+              //if( 0==space()->rankST() )
+                //std::cout << downwinding << "\n";
+
+              applyGS( x, y, downwinding) ;
             }
+          }
+        }
+      }
+    }
+    //if( 0==space()->rankST() )
+      //std::cout << "\n";
+  }
 
-        applyBCGS( x.getCField()(m), y.getCField()(m) );
-        applyBCGS( x.getSField()(m), y.getSField()(m) );
 
-        y.getCField()(m).changed();
-        y.getSField()(m).changed();
+  void applyGSSH( const DomainFieldT& x, RangeFieldT& y ) const {
 
-        y.getCField()(m).exchange();
-        y.getSField()(m).exchange();
+    for( int iter=0; iter<numIter_; ++iter ) {
 
-        for( OT k=space()->si(m,Z,wnB); k<=space()->ei(m,Z,wnB); ++k )
-          for( OT j=space()->si(m,Y,wnB); j<=space()->ei(m,Y,wnB); ++j )
-            for( OT i=space()->si(m,X,wnB); i<=space()->ei(m,X,wnB); ++i ) {
-              if( 3==SpaceT::sdim ) {
+      Teuchos::Tuple<bool,4> downwinding = Teuchos::tuple(false, true, true, true);
 
-                ST diag = mulC_*innerOp_->getSOp()->getConvSOp()->innerDiag3D(
-                    innerOp_->getConvField(m)[0](i,j,k),
-                    innerOp_->getConvField(m)[1](i,j,k),
-                    innerOp_->getConvField(m)[2](i,j,k), m, i, j, k )
-                  - mulL_ * innerOp_->getSOp()->getHelmOp()->innerDiag3D( m, i, j, k) ;
+      for( int i=0; i<2; ++i ) {
+        downwinding[0] = i;
+        for( int k=0; k<2; ++k ) {
+          downwinding[2] = k;
+          for( int l=0; l<2; ++l ) {
+            downwinding[3] = l;
 
-                assert( diag!=0 );
-
-                y.getSField()(m)(i,j,k) += omega_*(
-                    x.getSField()(m)(i,j,k)
-                    + mulI_*y.getCField()(m)(i,j,k)
-                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc3D(
-                      innerOp_->getConvField(m)[0](i,j,k),
-                      innerOp_->getConvField(m)[1](i,j,k),
-                      innerOp_->getConvField(m)[2](i,j,k),
-                      y.getSField()(m), i, j, k)
-                    + mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc3D(
-                      y.getSField()(m), m, i, j, k) )/diag;
-
-                y.getCField()(m)(i,j,k) += omega_ * (
-                    x.getCField()(m)(i,j,k)
-                    - mulI_*y.getSField()(m)(i,j,k)
-                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc3D(
-                      innerOp_->getConvField(m)[0](i,j,k),
-                      innerOp_->getConvField(m)[1](i,j,k),
-                      innerOp_->getConvField(m)[2](i,j,k),
-                      y.getCField()(m), i, j, k)
-                    +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc3D(
-                      y.getCField()(m), m, i, j, k) )/diag;
-
-              }
-              else {
-                ST diag = mulC_*innerOp_->getSOp()->getConvSOp()->innerDiag2D(
-                    innerOp_->getConvField(m)[0](i,j,k),
-                    innerOp_->getConvField(m)[1](i,j,k), m, i, j, k )
-                  - mulL_ * innerOp_->getSOp()->getHelmOp()->innerDiag2D(m, i, j, k) ;
-                assert( diag!=0 );
-
-                y.getSField()(m)(i,j,k) += omega_*(
-                    x.getSField()(m)(i,j,k)
-                    + mulI_*y.getCField()(m)(i,j,k)
-                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc2D(
-                      innerOp_->getConvField(m)[0](i,j,k),
-                      innerOp_->getConvField(m)[1](i,j,k),
-                      y.getSField()(m), i, j, k)
-                    + mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc2D(
-                      y.getSField()(m), m, i, j, k) )/diag;
-
-                y.getCField()(m)(i,j,k) += omega_*(
-                    x.getCField()(m)(i,j,k)
-                    - mulI_*y.getSField()(m)(i,j,k)
-                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc2D(
-                      innerOp_->getConvField(m)[0](i,j,k),
-                      innerOp_->getConvField(m)[1](i,j,k),
-                      y.getCField()(m), i, j, k)
-                    + mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc2D(
-                      y.getCField()(m), m, i, j, k) )/diag;
-              }
-            }
-
-        applyBCGS( x.getCField()(m), y.getCField()(m) );
-        applyBCGS( x.getSField()(m), y.getSField()(m) );
-
-        y.getCField()(m).changed();
-        y.getSField()(m).changed();
+            applyGS( x, y, downwinding) ;
+          }
+        }
       }
     }
   }
@@ -654,7 +570,7 @@ private:
 
     const F f = y.getType();
 
-    const ST omegaBC = omega_;
+    const ST omegaBC = 1.;
 
     // U-field
     if( F::U==f ) {
@@ -870,6 +786,136 @@ private:
   constexpr ST getHC( const ECoord dir, const F ftype, const OT i, const OT ii ) {
     return innerOp_->getSOp()->getHelmOp()->getC(dir,ftype,i,ii);
   }
+
+
+protected:
+
+  void applyGS(
+      const DomainFieldT& x, RangeFieldT& y, const Teuchos::Tuple<bool,4>& downwinding ) const {
+
+    Teuchos::Tuple<OT,3> ss;
+    Teuchos::Tuple<OT,3> nn;
+    Teuchos::Tuple<OT,3> ii;
+
+    for( F m=F::U; m<SpaceT::sdim; ++m ) {
+
+      for( int i=0; i<3; ++i ) {
+        ss[i] = (downwinding[i]>0)?(space()->si(m,i,B::N)  ):(space()->ei(m,i,B::N)  );
+        nn[i] = (downwinding[i]>0)?(space()->ei(m,i,B::N)+1):(space()->si(m,i,B::N)-1);
+        ii[i] = (downwinding[i]>0)?1:-1;
+      }
+
+
+      y.getCField()(m).exchange();
+      y.getSField()(m).exchange();
+
+      for( OT k=ss[Z]; k!=nn[Z]; k+=ii[Z] )
+        for( OT j=ss[Y]; j!=nn[Y]; j+=ii[Y] )
+          for( OT i=ss[X]; i!=nn[X]; i+=ii[X] ) {
+            if( 3==SpaceT::sdim ) {
+
+              ST diag = mulC_*innerOp_->getSOp()->getConvSOp()->innerDiag3D(
+                  innerOp_->getConvField(m)[0](i,j,k),
+                  innerOp_->getConvField(m)[1](i,j,k),
+                  innerOp_->getConvField(m)[2](i,j,k), m, i, j, k )
+                - mulL_ * innerOp_->getSOp()->getHelmOp()->innerDiag3D( m, i, j, k) ;
+
+              assert( diag!=0 );
+
+              if( downwinding[4] ) {
+                y.getCField()(m)(i,j,k) += ( x.getCField()(m)(i,j,k)
+                    - mulI_*y.getSField()(m)(i,j,k)
+                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc3D(
+                      innerOp_->getConvField(m)[0](i,j,k),
+                      innerOp_->getConvField(m)[1](i,j,k),
+                      innerOp_->getConvField(m)[2](i,j,k),
+                      y.getCField()(m), i, j, k)
+                    +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc3D(
+                      y.getCField()(m), m, i, j, k) )/diag;
+              y.getSField()(m)(i,j,k) += ( x.getSField()(m)(i,j,k)
+                  + mulI_*y.getCField()(m)(i,j,k)
+                  - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc3D(
+                    innerOp_->getConvField(m)[0](i,j,k),
+                    innerOp_->getConvField(m)[1](i,j,k),
+                    innerOp_->getConvField(m)[2](i,j,k),
+                    y.getSField()(m), i, j, k)
+                  +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc3D(
+                    y.getSField()(m), m, i, j, k) )/diag;
+              }
+              else {
+                y.getSField()(m)(i,j,k) += ( x.getSField()(m)(i,j,k)
+                    + mulI_*y.getCField()(m)(i,j,k)
+                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc3D(
+                      innerOp_->getConvField(m)[0](i,j,k),
+                      innerOp_->getConvField(m)[1](i,j,k),
+                      innerOp_->getConvField(m)[2](i,j,k),
+                      y.getSField()(m), i, j, k)
+                    +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc3D(
+                      y.getSField()(m), m, i, j, k) )/diag;
+                y.getCField()(m)(i,j,k) += ( x.getCField()(m)(i,j,k)
+                    - mulI_*y.getSField()(m)(i,j,k)
+                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc3D(
+                      innerOp_->getConvField(m)[0](i,j,k),
+                      innerOp_->getConvField(m)[1](i,j,k),
+                      innerOp_->getConvField(m)[2](i,j,k),
+                      y.getCField()(m), i, j, k)
+                    +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc3D(
+                      y.getCField()(m), m, i, j, k) )/diag;
+              }
+            }
+            else {
+              ST diag = mulC_*innerOp_->getSOp()->getConvSOp()->innerDiag2D(
+                  innerOp_->getConvField(m)[0](i,j,k),
+                  innerOp_->getConvField(m)[1](i,j,k), m, i, j, k )
+                - mulL_ * innerOp_->getSOp()->getHelmOp()->innerDiag2D(m, i, j, k) ;
+              assert( diag!=0 );
+
+              if( downwinding[4] ) {
+                y.getCField()(m)(i,j,k) += ( x.getCField()(m)(i,j,k)
+                    - mulI_*y.getSField()(m)(i,j,k)
+                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc2D(
+                      innerOp_->getConvField(m)[0](i,j,k),
+                      innerOp_->getConvField(m)[1](i,j,k),
+                      y.getCField()(m), i, j, k)
+                    +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc2D(
+                      y.getCField()(m), m, i, j, k) )/diag;
+                y.getSField()(m)(i,j,k) += ( x.getSField()(m)(i,j,k)
+                    + mulI_*y.getCField()(m)(i,j,k)
+                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc2D(
+                      innerOp_->getConvField(m)[0](i,j,k),
+                      innerOp_->getConvField(m)[1](i,j,k),
+                      y.getSField()(m), i, j, k)
+                    + mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc2D(
+                      y.getSField()(m), m, i, j, k) )/diag;
+              }
+              else{
+                y.getSField()(m)(i,j,k) += ( x.getSField()(m)(i,j,k)
+                    + mulI_*y.getCField()(m)(i,j,k)
+                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc2D(
+                      innerOp_->getConvField(m)[0](i,j,k),
+                      innerOp_->getConvField(m)[1](i,j,k),
+                      y.getSField()(m), i, j, k)
+                    + mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc2D(
+                      y.getSField()(m), m, i, j, k) )/diag;
+                y.getCField()(m)(i,j,k) += ( x.getCField()(m)(i,j,k)
+                    - mulI_*y.getSField()(m)(i,j,k)
+                    - mulC_*innerOp_->getSOp()->getConvSOp()->innerStenc2D(
+                      innerOp_->getConvField(m)[0](i,j,k),
+                      innerOp_->getConvField(m)[1](i,j,k),
+                      y.getCField()(m), i, j, k)
+                    +mulL_*innerOp_->getSOp()->getHelmOp()->innerStenc2D(
+                      y.getCField()(m), m, i, j, k) )/diag;
+              }
+            } // end of if( dimm...
+          } // end of loop
+
+      applyBCGS( x.getCField()(m), y.getCField()(m) );
+      applyBCGS( x.getSField()(m), y.getSField()(m) );
+
+      y.getCField()(m).changed();
+      y.getSField()(m).changed();
+    } // end of F looop
+  } // end of applyGS 
 
 }; // end of class ModeSmoother
 

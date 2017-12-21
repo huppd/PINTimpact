@@ -90,13 +90,15 @@ PRECS = [1, 2, 3, 4, 5]
 PRECS = [2, 3, 4, 5]
 PRECS = [3, 4, 5]
 # PRECS = [3, 5]
-PRECS = [9]
+PRECS = [3, 4, 2]
+PRECS = [1]
 
-CYCLES = [1, 2, 4]
+CYCLES = [1]
 
-SWEEPS = [2, 4, 8]
+# SWEEPS = [2, 4, 8]
+SWEEPS = [2]
 
-MAXGRIDS = [2, 3, 4]
+MAXGRIDS = [-1]
 
 CASE_PATH = ['']*6
 
@@ -131,6 +133,8 @@ for side in ['right']:
                     ma.set_parameter(ROOT, 'type', prec)
                     # ma.set_parameter(ROOT, 'type', 5)
                     # ma.set_parameter(ROOT, 'cycle type', prec-4)
+                    # ma.set_parameter(ROOT, 'Maximum Iterations',
+                                     # int(2*72/sweep/cycle))
                     ma.set_parameter(ROOT, 'preconditioner', side)
                     ma.set_parameter(ROOT, 'numCycles', cycle)
                     ma.set_parameter(ROOT, 'numIters', sweep)

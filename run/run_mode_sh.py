@@ -81,15 +81,15 @@ ma.set_parameter(ROOT, 'Maximum Iterations', 20)
 ma.set_parameter(ROOT, 'Output Frequency', 1)
 
 
-PRECS = [9]
+PRECS = [1]
 # PRECS = [6, 7]
 # PRECS = [2, 6, 7]
 # PRECS = [5, 3, 6, 7]
 
 
 # OMEGAS = [0.5, 1., 1.5]
-# OMEGAS = [0.1, 0.3, 0.5, 0.7, 0.9, 1.0, 1.1, 1.2,]
-OMEGAS = [0.5]
+OMEGAS = [0.1, 0.2, 0.3, 0.4, 0.5]
+# OMEGAS = [0.5]
 
 
 CASE_PATH = ['']*3
@@ -109,11 +109,7 @@ for side in ['right']:
             #
             # ma.set_parameter(ROOT, 'preconditioner', 'none')
             ma.set_parameter(ROOT, 'type', prec)
-            if prec<6:
-                ma.set_parameter(ROOT, 'omega', omega)
-            else:
-                ma.set_parameter(ROOT, 'mode omega', omega)
-            # ma.set_parameter(ROOT, 'mode omega', 0.5)
+            ma.set_parameter(ROOT, 'omega', omega)
             TREE.write('parameter3D.xml')
             nptot = NPX*NPY*NPZ
             print()

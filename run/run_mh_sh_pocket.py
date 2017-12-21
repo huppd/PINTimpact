@@ -33,7 +33,7 @@ CASE_PATH = ['']*3
 
 
 DX = 1
-DY = 2
+DY = 4
 DZ = 1
 #
 NPX = 1

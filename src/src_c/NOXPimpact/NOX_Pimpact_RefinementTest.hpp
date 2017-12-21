@@ -63,6 +63,8 @@ public:
   virtual NOX::StatusTest::StatusType
   checkStatus(const NOX::Solver::Generic& problem, NOX::StatusTest::CheckType checkType) {
 
+    int nf = 0;
+
     if( checkType == NOX::StatusTest::None ) {
       normF_ = 0.0;
       normRF_ = 0.0;
@@ -75,7 +77,7 @@ public:
     Teuchos::RCP<const NOX::Abstract::Vector> x =
       problem.getSolutionGroup().getXPtr();
 
-    int nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
+    nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
       InterfaceT::FieldT> >(x)->getConstFieldPtr()->space()->nGlo(3) + 1;
 
 
@@ -88,7 +90,7 @@ public:
     }
 
     if( !out_.is_null() )
-      (*out_) << normF_ << "\t" << normRF_ << "\n";
+      (*out_) << problem.getNumIterations() << nf << normF_ << "\t" << normRF_ << "\n";
 
     return status_;
   }

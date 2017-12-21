@@ -96,7 +96,8 @@ public:
                 npNew[dir] = p;
           }
           //--- enforce gathering of coarsest grid to one processor ---
-          if( ( (nGlo[dir]-1)%2!=0 || nGlo[dir]<cgsize || i==maxGrids-1 ) )
+          //if( ( (nGlo[dir]-1)%2!=0 || nGlo[dir]<cgsize || i==maxGrids-1 ) )
+          if( ( (nGlo[dir]-1)%2!=0 || nGlo[dir]<cgsize ) )
             npNew[dir] = 1;
 
           //multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir, nGlo, stride, NB, IB, i==maxGrids-1 ) );

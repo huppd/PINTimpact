@@ -36,12 +36,14 @@
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
 #include "Pimpact_ModeNonlinearOp.hpp"
+#include "Pimpact_ModeSmoother.hpp"
 #include "Pimpact_MultiGrid.hpp"
 #include "Pimpact_MultiOpSmoother.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorFactory.hpp"
 #include "Pimpact_PicardProjector.hpp"
 #include "Pimpact_RefinementStrategy.hpp"
+#include "Pimpact_TransferModeOp.hpp"
 #include "Pimpact_TransferCompoundOp.hpp"
 #include "Pimpact_TransferMultiHarmonicOp.hpp"
 #include "Pimpact_Utils.hpp"
@@ -52,6 +54,7 @@
 
 
 
+// Space types
 using ST = double;
 using OT = int;
 
@@ -65,11 +68,18 @@ using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 using FSpaceT = SpaceT;
 using CSpaceT = Pimpact::Space<ST,OT,sd,4,2>;
 
+using MGSpacesT = Pimpact::MGSpaces<FSpaceT,CSpaceT>;
+
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 //using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
 
+
+// Field types
 using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
+
+template<class T>
+using ModeField = Pimpact::ModeField<Pimpact::VectorField<T> >;
 
 using MVF = Pimpact::MultiField<VF>;
 using MSF = Pimpact::MultiField<SF>;
@@ -78,6 +88,7 @@ using CF = Pimpact::CompoundField< VF, SF>;
 using MF = Pimpact::MultiField<CF>;
 
 
+// Operator types
 using OpV2VT = Pimpact::MultiDtConvectionDiffusionOp<SpaceT>;
 using OpV2ST = Pimpact::MultiHarmonicOpWrap< Pimpact::DivOp<SpaceT> >;
 using OpS2VT = Pimpact::MultiHarmonicOpWrap< Pimpact::GradOp<SpaceT> >;
@@ -87,9 +98,19 @@ using IOpT = Pimpact::InverseOp<OpT, Pimpact::PicardProjector>;
 
 using BOp = Pimpact::OperatorBase<MF>;
 
-using NV = NOX::Pimpact::Vector<MF>;
+template<class T>
+using ModeOp = Pimpact::ModeNonlinearOp<ConvDiffOpT<T> >;
 
 
+// Smoother types
+template<class T>
+using MOP = Pimpact::InverseOp<T>;
+
+template<class OpT>
+using ModeSmootherT = Pimpact::ModeSmoother<OpT>;
+
+
+// transfer types
 template<class T1,class T2>
 using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
 template<class T>
@@ -97,21 +118,19 @@ using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
 template<class T>
 using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
-
+template<class T1,class T2>
+using ModeTransVF = Pimpact::TransferModeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> > >;
 template<class T>
-using MOP = Pimpact::InverseOp<T>;
+using ModeRestrVF = Pimpact::TransferModeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> > >;
+template<class T>
+using ModeInterVF = Pimpact::TransferModeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> > >;
 
-//template<class T> using PrecS = Pimpact::MultiOpSmoother<Pimpact::DivGradO2JSmoother<T>>;
-//template<class T> using POP   = Pimpact::PrecInverseOp<T, Pimpact::DivGradO2SORSmoother>;
-template<class T> using POP   = Pimpact::PrecInverseOp<T, Pimpact::DivGradO2JSmoother>;
-//template<class T> using POP   = Pimpact::PrecInverseOp<T, Pimpact::Chebyshev>;
-template<class T> using POP2  = Pimpact::PrecInverseOp<T, ConvDiffJT>;
-template<class T> using POP3  = Pimpact::PrecInverseOp<T, ConvDiffSORT>;
 
+// NOX types
+using NV = NOX::Pimpact::Vector<MF>;
 
 using InterfaceT = NOX::Pimpact::Interface< MF, Pimpact::MultiOpWrap<OpT>,
       Pimpact::MultiOpWrap<IOpT> >;
-
 
 
 
@@ -193,12 +212,12 @@ int main( int argi, char** argv ) {
 
       if( 0==space->rankST() ) std::cout << "create RHS:\n";
       Teuchos::RCP<MF> fu = x->clone( Pimpact::ECopy::Shallow );
-      auto sol = fu->clone( Pimpact::ECopy::Shallow);
+      Teuchos::RCP<MF> sol = fu->clone( Pimpact::ECopy::Shallow);
 
       {
         if( 0==space->rankST() ) std::cout << "\tBC interpolation\n";
         {
-          auto temp = x->getField(0).getVField().clone(Pimpact::ECopy::Shallow);
+          Teuchos::RCP<VF> temp = x->getField(0).getVField().clone(Pimpact::ECopy::Shallow);
           temp->initField( pl->sublist("Base flow") );
           // to get the Dirichlet for the RHS (necessary interpolation) ugly
           // super ugly hack for BC::Dirichlet
@@ -313,7 +332,7 @@ int main( int argi, char** argv ) {
 
       if( 0==space->rankST() ) std::cout << "\tdiv test\n";
       {
-        auto tempField = x->getField(0).getSField().clone();
+        Teuchos::RCP<SF> tempField = x->getField(0).getSField().clone();
         opV2S->apply( x->getField(0).getVField(), *tempField );
         ST divergence = tempField->norm(Pimpact::ENorm::L2);
         if( 0==space->rankST() )
@@ -385,11 +404,11 @@ int main( int argi, char** argv ) {
         if( 0==space->rankST() ) std::cout << "\tinit Picard preconditioner\n";
 
         // create Multi space
-        auto mgSpaces = Pimpact::createMGSpaces<CS>(
+        Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<CS>(
             space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
-        ///////////////////////////////////////////begin of opv2v////////////////////////////////////
-        //// creat H0-inv prec
+        ///////////////////////////////////////////begin of opv2v///////////////////////////////////
+        //// creat F0-inv prec
         if( 0==space->rankST() ) std::cout << "\tinit ConvDiff preconditioner\n";
         auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
@@ -400,18 +419,6 @@ int main( int argi, char** argv ) {
 
         auto zeroInv = Pimpact::createInverseOp(
             zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
-
-        if( 0==space->rankST() ) std::cout << "\tinit ModeConvDiff preconditioner\n";
-        auto modeOp = Teuchos::rcp(
-            new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
-
-        pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-            "Output Stream",
-            Pimpact::createOstream(modeOp->getLabel()+rl+".txt",
-              withoutput?space->rankST():-1, restart));
-
-        auto modeInv = Pimpact::createInverseOp(
-            modeOp, Teuchos::sublist(pl, "M_ConvDiff") );
 
         if( 0==space->rankST() ) std::cout << "\tinit mgConvDiff preconditioner\n";
         auto mgConvDiff = Pimpact::createMultiGrid<
@@ -438,24 +445,54 @@ int main( int argi, char** argv ) {
         if( "left" == convDiffPrecString )
           zeroInv->setLeftPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 
-        std::string convDiffScalingString =
-          pl->sublist("ConvDiff").get<std::string>( "scaling", "none" );
-        if( "none"!=convDiffScalingString ) {
-          auto scaleOp = Pimpact::createScalingOp( Teuchos::rcpFromRef(scaleField->getVField().get0Field()) );
-          if( "right" == convDiffScalingString )
-            zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(scaleOp) );
-          if( "left" == convDiffScalingString )
-            zeroInv->setLeftPrec( Pimpact::createMultiOperatorBase(scaleOp) );
+        //// creat FMode-inv prec
+        if( 0==space->rankST() ) std::cout << "\tinit ModeConvDiff preconditioner\n";
+        auto modeOp = Teuchos::rcp( new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >(
+              zeroOp ) );
+
+        pl->sublist("M_ConvDiff").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+            "Output Stream",
+            Pimpact::createOstream(modeOp->getLabel()+rl+".txt",
+              withoutput?space->rankST():-1, restart));
+
+        auto modeInv = Pimpact::createInverseOp( modeOp, Teuchos::sublist(pl,
+              "M_ConvDiff") );
+
+
+        Teuchos::RCP<Pimpact::OperatorBase<
+          Pimpact::MultiField< Pimpact::ModeField< Pimpact::VectorField<SpaceT> > > > >
+          modePrec;
+
+        //auto
+        if( pl->sublist("M_ConvDiff").get<std::string>( "preconditioner type", "block"
+              )=="block" )
+          modePrec = Pimpact::createMultiOperatorBase(
+              Pimpact::create<Pimpact::ModePrec>(
+                //mgConvDiff,
+                zeroInv,
+                Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Mode prec") ) );
+        else { // precondtioner type =="multi grid"
+
+          auto mgMConvDiff = Pimpact::createMultiGrid<
+            ModeField,
+            ModeTransVF,
+            ModeRestrVF,
+            ModeInterVF,
+            ModeOp,
+            ModeOp,
+            ModeSmootherT,
+            //ModeSmootherT
+            //MOP,
+            MOP 
+              > ( mgSpaces, modeOp, Teuchos::sublist( Teuchos::sublist( pl, "M_ConvDiff"), "Multi Grid" ) ) ;
+
+          if( 0==space->rankST() )
+            mgMConvDiff->print();
+          modePrec = Pimpact::createMultiOperatorBase( mgMConvDiff );
         }
 
-        std::string modeConvDiffPrecString =
-          pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
-
-        auto modePrec = Pimpact::createMultiOperatorBase(
-              Pimpact::create<Pimpact::ModePrec>(
-                mgConvDiff,
-                //zeroInv,
-                Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Mode prec") ) );
+        std::string modeConvDiffPrecString = pl->sublist("M_ConvDiff").get<std::string>(
+            "preconditioner", "right" );
 
         if("right" == modeConvDiffPrecString)
           modeInv->setRightPrec(modePrec);
@@ -463,7 +500,7 @@ int main( int argi, char** argv ) {
         if("left" == modeConvDiffPrecString)
           modeInv->setLeftPrec(modePrec);
 
-        // create Hinv prec
+        // create Finv prec
         auto opV2Vprec = Pimpact::createMultiHarmonicDiagOp( zeroInv, modeInv );
         //auto opV2Vprec = Pimpact::createMultiHarmonicDiagOp( mgConvDiff, modeInv );
 
@@ -578,7 +615,7 @@ int main( int argi, char** argv ) {
 
       { // setting up refinement stopping cirtion
         Teuchos::RCP<std::ostream> refOut = Pimpact::createOstream(
-            "refinementTest.txt", withoutput?space->rankST():-1, ((0==refine)?-1:1) );
+            "refinementTest.txt", withoutput?space->rankST():-1, restart );
 
         Teuchos::RCP<NOX::StatusTest::Generic> refinementTest =
           Teuchos::rcp( new NOX::Pimpact::RefinementTest<InterfaceT>(

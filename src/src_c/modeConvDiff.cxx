@@ -17,6 +17,7 @@
 
 
 
+// Space types
 using ST = double;
 using OT = int;
 
@@ -37,20 +38,25 @@ using MGSpacesT = Pimpact::MGSpaces<FSpaceT,CSpaceT>;
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 //using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>; // dirty fix: till gather isn't fixed
 
-//using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
-//using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
 
-//using MVF = Pimpact::MultiField<VF>;
-//using MSF = Pimpact::MultiField<SF>;
+// Field types
+template<class T>
+using ModeField = Pimpact::ModeField<Pimpact::VectorField<T>>;
 
-//using CF = Pimpact::CompoundField< VF, SF>;
-//using MF = Pimpact::MultiField<CF>;
+using MGFieldsT = Pimpact::MGFields<MGSpacesT, ModeField>;
 
-//using BOp = Pimpact::OperatorBase<MF>;
+// Operator types
+template<class T>
+using ModeOp = Pimpact::ModeNonlinearOp<ConvDiffOpT<T> >;
 
-//using NV = NOX::Pimpact::Vector<MF>;
+// Smoother types
+template<class OpT>
+using ModeSmootherT = Pimpact::ModeSmoother<OpT>;
 
+template<class T>
+using MOP = Pimpact::InverseOp<T>;
 
+// Transfer types
 template<class T1,class T2>
 using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
 template<class T>
@@ -65,30 +71,11 @@ using ModeRestrVF = Pimpact::TransferModeOp<Pimpact::VectorFieldOpWrap<Pimpact::
 template<class T>
 using ModeInterVF = Pimpact::TransferModeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> > >;
 
-template<class T>
-using MOP = Pimpact::InverseOp<T>;
-
-template<class T>
-using ModeField = Pimpact::ModeField<Pimpact::VectorField<T>>;
-
-template<class T>
-using ModeOp = Pimpact::ModeNonlinearOp<ConvDiffOpT<T>>;
-
-template<class OpT>
-using ModeSmootherT = Pimpact::ModeSmoother<OpT, ConvDiffSORT>;
-//using ModeSmootherT = Pimpact::ModeSmoother<OpT, ConvDiffJT>;
-
-////template<class T> using PrecS = Pimpact::MultiOpSmoother< Pimpact::DivGradO2JSmoother<T> >;
-////template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
-//template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
-////template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::Chebyshev >;
-//template<class T> using POP2  = Pimpact::PrecInverseOp< T, ConvDiffJT >;
-//template<class T> using POP3  = Pimpact::PrecInverseOp< T, ConvDiffSORT >;
-
-//using ModeFields = Pimpact::MGFields<
 
 
-using MGFieldsT = Pimpact::MGFields<MGSpacesT, ModeField>;
+
+
+
 
 int main( int argi, char** argv ) {
 
