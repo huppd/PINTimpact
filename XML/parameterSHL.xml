@@ -196,13 +196,13 @@
       <Parameter docString="" id="124" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />
       <Parameter docString="" id="125" isDefault="false" isUsed="true" name="numGrids" type="int" value="-1" />
       <ParameterList id="257" name="Smoother">
-        <Parameter docString="" id="126" isDefault="false" isUsed="true" name="numIters" type="int" value="12" />
+        <Parameter docString="" id="126" isDefault="false" isUsed="true" name="numIters" type="int" value="6" />
         <Parameter docString="" id="127" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
         <Parameter docString="" id="128" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
         <Parameter docString="" id="129" isDefault="true" isUsed="true" name="Jacobi" type="bool" value="true" />
       </ParameterList>
       <ParameterList id="258" name="Coarse Grid Solver">
-        <Parameter docString="" id="130" isDefault="false" isUsed="true" name="numIters" type="int" value="12" />
+        <Parameter docString="" id="130" isDefault="false" isUsed="true" name="numIters" type="int" value="6" />
         <Parameter docString="" id="131" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
         <Parameter docString="" id="132" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
         <Parameter docString="" id="133" isDefault="true" isUsed="true" name="Jacobi" type="bool" value="true" />

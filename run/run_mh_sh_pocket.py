@@ -37,7 +37,7 @@ DY = 2
 DZ = 1
 #
 NPX = 1
-NPY = 4
+NPY = 2
 NPZ = 4
 NPF = 1
 #
