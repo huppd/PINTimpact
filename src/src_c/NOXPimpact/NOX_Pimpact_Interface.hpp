@@ -47,6 +47,7 @@ protected:
   Teuchos::RCP<FieldT> fu_;
   Teuchos::RCP<OpT>    op_;
   Teuchos::RCP<IOpT>   jopInv_;
+  Teuchos::RCP<FieldT> resScaling_;
 
 public:
 
@@ -54,10 +55,12 @@ public:
   Interface(
     Teuchos::RCP<FieldT> fu=Teuchos::null,
     Teuchos::RCP<OpT>    op=Teuchos::null,
-    Teuchos::RCP<IOpT>   jop=Teuchos::null ):
+    Teuchos::RCP<IOpT>   jop=Teuchos::null,
+    Teuchos::RCP<FieldT> resScaling=Teuchos::null ):
     fu_( fu ),
     op_(op),
-    jopInv_(jop) {};
+    jopInv_(jop),
+    resScaling_(resScaling) {};
 
 
   /// Compute the function, F, given the specified input vector x.
@@ -112,6 +115,10 @@ public:
     return op_;
   }
 
+  Teuchos::RCP<const FieldT> getScalingPtr() const {
+    return resScaling_;
+  }
+
 }; // end of class Interface
 
 
@@ -121,9 +128,10 @@ template<class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::
 Teuchos::RCP< Interface<FT,OpT,IOpT> > createInterface(
   Teuchos::RCP<FT> fu=Teuchos::null,
   Teuchos::RCP<OpT>  op=Teuchos::null,
-  Teuchos::RCP<IOpT> jop=Teuchos::null ) {
+  Teuchos::RCP<IOpT> jop=Teuchos::null,
+  Teuchos::RCP<FT> scaleField=Teuchos::null) {
 
-  return Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop) );
+  return Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop,scaleField) );
 }
 
 

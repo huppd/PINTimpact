@@ -335,8 +335,8 @@ int main( int argi, char** argv ) {
     }
 
     //x.random(false, Pimpact::B::N);
-    x.random(false, Pimpact::B::Y);
-    x.scale(1.e-3);
+    //x.random(false, Pimpact::B::Y);
+    //x.scale(1.e-3);
     //rhs.init( 0. );
 
     //rhs.init( -1. );

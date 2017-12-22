@@ -96,7 +96,7 @@ PRECS = [1]
 CYCLES = [1]
 
 # SWEEPS = [2, 4, 8]
-SWEEPS = [2]
+SWEEPS = [4]
 
 MAXGRIDS = [-1]
 
@@ -109,7 +109,7 @@ CASE_PATH = ['']*6
 # for side in ['left']:
 for side in ['right']:
     # CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_' + side
-    CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_none'
+    CASE_PATH[0] = pp.DATA_PATH + '/SHL_mode_prec_all'
     pp.mkdir(CASE_PATH, 0)
     for prec in PRECS:
         CASE_PATH[1] = '/prec_'+str(prec)
@@ -128,15 +128,15 @@ for side in ['right']:
                     pp.mkdir(CASE_PATH, 5)
                     pp.chdir(CASE_PATH, 5)
                     #
-                    ma.set_parameter(ROOT, 'numGrids', max_grids)
+                    # ma.set_parameter(ROOT, 'numGrids', max_grids)
                     # ma.set_parameter(ROOT, 'numGrids', 3)
-                    ma.set_parameter(ROOT, 'type', prec)
+                    # ma.set_parameter(ROOT, 'type', prec)
                     # ma.set_parameter(ROOT, 'type', 5)
                     # ma.set_parameter(ROOT, 'cycle type', prec-4)
                     # ma.set_parameter(ROOT, 'Maximum Iterations',
                                      # int(2*72/sweep/cycle))
-                    ma.set_parameter(ROOT, 'preconditioner', side)
-                    ma.set_parameter(ROOT, 'numCycles', cycle)
+                    # ma.set_parameter(ROOT, 'preconditioner', side)
+                    # ma.set_parameter(ROOT, 'numCycles', cycle)
                     ma.set_parameter(ROOT, 'numIters', sweep)
                     TREE.write('parameter3D.xml')
                     nptot = NPX*NPY*NPZ

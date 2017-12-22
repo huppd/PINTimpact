@@ -124,7 +124,7 @@ public:
       //assert( !(numGrids_==-1 || numGrids_<mgSpaces_->getNGrids()) );
       if( numGrids_==-1 ) {
         numGrids_ = mgSpaces_->getNGrids()-1;
-        pl->set<int>("numGrids", numGrids_); 
+        //pl->set<int>("numGrids", numGrids_); 
       }
     }
 
@@ -302,7 +302,7 @@ public:
             mgSms_->get( i )->apply( b.get(i), x.get(i) );
           }
         }
-      }
+      } // end numCycles
     }
 
     mgTrans_->getTransferOp()->apply( x.get(0), y );

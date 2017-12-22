@@ -90,7 +90,7 @@ public:
     }
 
     if( !out_.is_null() )
-      (*out_) << problem.getNumIterations() << nf << normF_ << "\t" << normRF_ << "\n";
+      (*out_) << problem.getNumIterations() << "\t" << nf << "\n" << normF_ << "\t" << normRF_ << "\n";
 
     return status_;
   }
