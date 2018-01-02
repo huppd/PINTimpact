@@ -32,13 +32,9 @@ NF = 0
 CASE_PATH = ['']*3
 
 
-DX = 1
-DY = 2
-DZ = 1
-#
 NPX = 1
-NPY = 2
-NPZ = 4
+NPY = 4
+NPZ = 12
 NPF = 1
 #
 LXO = 22.5
@@ -50,10 +46,16 @@ NYO = 1537
 NZO = 513
 #
 NX = 65
-NY = (1025-1)/2/DY+1
-# NZ = (385-1)/2/DZ+1
-NZ = 129
-NZ = 129
+
+# NY = 129
+NY = 257
+# NY = 513 
+# NY = 769
+
+# NZ = 129
+# NZ = 257
+# NZ = 321
+NZ = 385
 #
 LX = LXO
 LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)
