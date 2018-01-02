@@ -273,13 +273,13 @@ public:
       throw "NOX Error: Fill Failed";
     }
 
-    if( sharedInterfacePtr_->getObject(this)->getScalingPtr().is_null() )
-      normF_ = RHSVectorPtr_->norm();
-    else {
-      auto scaledRHS = RHSVectorPtr_->getField().clone(::Pimpact::ECopy::Deep);
-      scaledRHS->scale( *sharedInterfacePtr_->getObject(this)->getScalingPtr() );
-      normF_ = scaledRHS->norm();
-    }
+    //if( sharedInterfacePtr_->getObject(this)->getScalingPtr().is_null() )
+    normF_ = RHSVectorPtr_->norm();
+    //else {
+      //auto scaledRHS = RHSVectorPtr_->getField().clone(::Pimpact::ECopy::Deep);
+      //scaledRHS->scale( *sharedInterfacePtr_->getObject(this)->getScalingPtr() );
+      //normF_ = scaledRHS->norm();
+    //}
 
     isValidRHS_ = true;
 

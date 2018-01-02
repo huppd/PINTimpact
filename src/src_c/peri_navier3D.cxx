@@ -349,28 +349,28 @@ int main( int argi, char** argv ) {
             op, Teuchos::sublist( pl, "Picard Solver" ) );
 
       /*** init scaling *****************************************************************/
-      Teuchos::RCP<MF> scaleField = x->clone( Pimpact::ECopy::Shallow );
-      const ST pi = 4.*std::atan(1.);
-      const ST width = 0.95;
-      const ST eps = 1.e-3;
+      //Teuchos::RCP<MF> scaleField = x->clone( Pimpact::ECopy::Shallow );
+      //const ST pi = 4.*std::atan(1.);
+      //const ST width = 0.925;
+      //const ST eps = 1.e-6;
 
-      auto scalefunc =
-        [=]( ST x, ST y, ST z ) ->ST { return (y<=width)?1.:( (1.-eps)*std::cos(
-              pi*(y-width)/(1.-width) )/2. + 0.5+eps/2. ); };
+      //auto scalefunc =
+        //[=]( ST x, ST y, ST z ) ->ST { return (y<=width)?1.:( (1.-eps)*std::cos(
+              //pi*(y-width)/(1.-width) )/2. + 0.5+eps/2. ); };
 
-      if( 0==space->si(Pimpact::F::U,3) ) { 
-        for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i )
-          scaleField->getField(0).getVField().get0Field()(i).initFromFunction( scalefunc );
-        scaleField->getField(0).getSField().get0Field().initFromFunction( scalefunc );
-      }
-      for( OT i=std::max(space()->si(Pimpact::F::U,3),1); i<=space()->ei(Pimpact::F::U,3); ++i ) {
-        for( Pimpact::F f=Pimpact::F::U; f<SpaceT::sdim; ++f ) {
-          scaleField->getField(0).getVField().getCField(i)(f).initFromFunction( scalefunc );
-          scaleField->getField(0).getVField().getSField(i)(f).initFromFunction( scalefunc );
-        }
-        scaleField->getField(0).getSField().getCField(i).initFromFunction( scalefunc );
-        scaleField->getField(0).getSField().getSField(i).initFromFunction( scalefunc );
-      }
+      //if( 0==space->si(Pimpact::F::U,3) ) { 
+        //for( Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i )
+          //scaleField->getField(0).getVField().get0Field()(i).initFromFunction( scalefunc );
+        //scaleField->getField(0).getSField().get0Field().initFromFunction( scalefunc );
+      //}
+      //for( OT i=std::max(space()->si(Pimpact::F::U,3),1); i<=space()->ei(Pimpact::F::U,3); ++i ) {
+        //for( Pimpact::F f=Pimpact::F::U; f<SpaceT::sdim; ++f ) {
+          //scaleField->getField(0).getVField().getCField(i)(f).initFromFunction( scalefunc );
+          //scaleField->getField(0).getVField().getSField(i)(f).initFromFunction( scalefunc );
+        //}
+        //scaleField->getField(0).getSField().getCField(i).initFromFunction( scalefunc );
+        //scaleField->getField(0).getSField().getSField(i).initFromFunction( scalefunc );
+      //}
 
       /*** init preconditioner **********************************************************/
 
@@ -445,8 +445,8 @@ int main( int argi, char** argv ) {
               )=="block" )
           modePrec = Pimpact::createMultiOperatorBase(
               Pimpact::create<Pimpact::ModePrec>(
-                //mgConvDiff,
-                zeroInv,
+                mgConvDiff,
+                //zeroInv,
                 Teuchos::sublist(Teuchos::sublist(pl, "M_ConvDiff"), "Mode prec") ) );
         else { // precondtioner type =="multi grid"
 
@@ -583,8 +583,9 @@ int main( int argi, char** argv ) {
       auto inter = NOX::Pimpact::createInterface(
           fu,
           Pimpact::createMultiOpWrap(op),
-          Pimpact::createMultiOpWrap(opInv),
-          scaleField);
+          Pimpact::createMultiOpWrap(opInv) );
+          //,
+          //scaleField);
 
       auto nx = NOX::Pimpact::createVector( x );
 
