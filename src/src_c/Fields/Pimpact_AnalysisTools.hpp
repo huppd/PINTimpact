@@ -248,11 +248,11 @@ void computeHEEnergyDir(
 
     // He2, He3, ...
     for( int n=2; n<n_Hermitemodes; ++n )
-      sweight(k-S3p,n) = (x3p/gamma*sweight(k-S3p,n-1) - std::sqrt(static_cast<ST>(n-1.))*sweight(k-S3p,n-2))/sqrt(static_cast<ST>(n));
+      sweight(k-S3p,n) = (x3p/gamma*sweight(k-S3p,n-1) - std::sqrt(static_cast<ST>(n-1))*sweight(k-S3p,n-2))/sqrt(static_cast<ST>(n));
 
     //if( 0==space->rankST() ) std::cout << "k: " << k << " x3p: " << x3p << "\t";
     for( int n=0; n<n_Hermitemodes; ++n ) {
-      sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p/(gamma*std::sqrt(2*pi)); // dh: don't know where it is coming from: normalization factor for exp(...)
+      sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p/std::sqrt(gamma*std::sqrt(2*pi)); // dh: don't know where it is coming from: normalization factor for exp(...)
       //sweight(k-S3p,n) *= std::exp( -std::pow(x3p/gamma, 2)/2. )*dx3p;
       //if( 0==space->rankST() ) std::cout << sweight(k-S3p, n) << "\t";
     }
