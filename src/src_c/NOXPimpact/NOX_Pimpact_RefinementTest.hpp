@@ -29,6 +29,9 @@ private:
   //! Tolerance required for convergence.
   double tolerance_;
 
+  //! Tolerance required for convergence.
+  double toleranceF_;
+
   /// \brief Norm of F to be compared to trueTolerance
   double normF_;
 
@@ -47,6 +50,7 @@ public:
   RefinementTest( double tolerance=1., const Teuchos::RCP<std::ostream>& out=Teuchos::null,
       const NOX::Utils* u = NULL ):
     tolerance_(tolerance),
+    toleranceF_(1.e-6),
     normF_(0.0),
     normRF_(0.0),
     out_(out) {
@@ -63,7 +67,7 @@ public:
   virtual NOX::StatusTest::StatusType
   checkStatus(const NOX::Solver::Generic& problem, NOX::StatusTest::CheckType checkType) {
 
-    int nf = 0;
+    int nf = 1;
 
     if( checkType == NOX::StatusTest::None ) {
       normF_ = 0.0;
@@ -71,26 +75,26 @@ public:
       status_ = NOX::StatusTest::Unevaluated;
     }
     else {
-      normF_ = computeFNorm( problem.getSolutionGroup() );
+
+      normF_ = computeFNorm( problem.getSolutionGroup() )/nf;
       normRF_ = computeRFNorm( problem.getSolutionGroup() );
 
-    Teuchos::RCP<const NOX::Abstract::Vector> x =
-      problem.getSolutionGroup().getXPtr();
+      Teuchos::RCP<const NOX::Abstract::Vector> x =
+        problem.getSolutionGroup().getXPtr();
 
-    nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
-      InterfaceT::FieldT> >(x)->getConstFieldPtr()->space()->nGlo(3) + 1;
+      nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
+        InterfaceT::FieldT> >(x)->getConstFieldPtr()->space()->nGlo(3) + 1;
 
-
-      if( normRF_==0. )
+      if( normRF_ < toleranceF_/nf )
         status_ = NOX::StatusTest::Unconverged;
       else
-        status_ = ( normF_ < nf*tolerance_*normRF_ ) ?
+        status_ = ( normF_ < tolerance_*normRF_ ) ?
           NOX::StatusTest::Converged :
           NOX::StatusTest::Unconverged;
     }
 
     if( !out_.is_null() )
-      (*out_) << problem.getNumIterations() << "\t" << nf << "\t" << normF_ << "\t" << normRF_ << "\n";
+      (*out_) << problem.getNumIterations() << "\t" << nf << "\t" << normF_*nf << "\t" << normRF_ << "\n";
 
     return status_;
   }
@@ -105,7 +109,7 @@ public:
     for (int j = 0; j < indent; j ++)
       stream << ' ';
     stream << status_;
-    stream << "F-Norm/FR-Norm = " << Utils::sciformat(normF_,3);
+    stream << "F-Norm<FR-Norm = " << Utils::sciformat(normF_,3);
     stream << " < " << Utils::sciformat(tolerance_*normRF_, 3);
     stream << "\n";
 
