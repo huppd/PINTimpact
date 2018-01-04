@@ -181,8 +181,8 @@
     <Parameter docString="" id="112" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="256" name="Solver">
       <Parameter docString="" id="113" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
-      <Parameter docString="" id="114" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="8" />
-      <Parameter docString="" id="115" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-2" />
+      <Parameter docString="" id="114" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="4" />
+      <Parameter docString="" id="115" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-12" />
       <Parameter docString="" id="116" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="117" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
       <Parameter docString="" id="118" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -218,7 +218,7 @@
     <Parameter docString="" id="139" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <Parameter docString="" id="140" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
     <ParameterList id="261" name="Solver">
-      <Parameter docString="" id="141" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="12" />
+      <Parameter docString="" id="141" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
       <Parameter docString="" id="142" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
       <Parameter docString="" id="143" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="144" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ConvectionDiffusionVOp" />
