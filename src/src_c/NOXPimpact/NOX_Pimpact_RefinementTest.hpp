@@ -69,29 +69,29 @@ public:
 
     int nf = 1;
 
-    if( checkType == NOX::StatusTest::None ) {
-      normF_ = 0.0;
-      normRF_ = 0.0;
-      status_ = NOX::StatusTest::Unevaluated;
-    }
-    else {
+    //if( checkType == NOX::StatusTest::None ) {
+      //normF_ = 0.0;
+      //normRF_ = 0.0;
+      //status_ = NOX::StatusTest::Unevaluated;
+    //}
+    //else {
 
-      normF_ = computeFNorm( problem.getSolutionGroup() )/nf;
-      normRF_ = computeRFNorm( problem.getSolutionGroup() );
+    normF_ = computeFNorm( problem.getSolutionGroup() )/nf;
+    normRF_ = computeRFNorm( problem.getSolutionGroup() );
 
-      Teuchos::RCP<const NOX::Abstract::Vector> x =
-        problem.getSolutionGroup().getXPtr();
+    Teuchos::RCP<const NOX::Abstract::Vector> x =
+      problem.getSolutionGroup().getXPtr();
 
-      nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
-        InterfaceT::FieldT> >(x)->getConstFieldPtr()->space()->nGlo(3) + 1;
+    nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
+      InterfaceT::FieldT> >(x)->getConstFieldPtr()->space()->nGlo(3) + 1;
 
-      if( normRF_ < toleranceF_/nf )
-        status_ = NOX::StatusTest::Unconverged;
-      else
-        status_ = ( normF_ < tolerance_*normRF_ ) ?
-          NOX::StatusTest::Converged :
-          NOX::StatusTest::Unconverged;
-    }
+    if( normRF_ < toleranceF_/nf )
+      status_ = NOX::StatusTest::Unconverged;
+    else
+      status_ = ( normF_ < tolerance_*normRF_ ) ?
+        NOX::StatusTest::Converged :
+        NOX::StatusTest::Unconverged;
+    //}
 
     if( !out_.is_null() )
       (*out_) << problem.getNumIterations() << "\t" << nf << "\t" << normF_*nf << "\t" << normRF_ << "\n";
