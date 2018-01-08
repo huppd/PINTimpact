@@ -149,6 +149,8 @@ int main( int argi, char** argv ) {
       }
     }
 
+    Pimpact::writeMHLambda2( x->getField(0).getVField(), 20000 );
+    Pimpact::writeMHLambda2evol( x->getField(0).getVField(), 10000 );
     x->write();
 
 

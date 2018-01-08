@@ -8,7 +8,9 @@
 
 #include "Teuchos_ScalarTraits.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
+#include "Teuchos_SerialDenseVector.hpp"
 
+#include "Pimpact_DivOp.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_VectorField.hpp"
 
@@ -72,6 +74,210 @@ truncErrorEstimate( const MultiHarmonicFieldT& field, ENorm normType=ENorm::L2 )
     truncError = u_nf / u_1 ;
 
   return truncError;
+}
+
+
+template<class MHFieldT>
+void writeMHLambda2( const MHFieldT& x, int id ) {
+
+  using SpaceT = typename MHFieldT::SpaceT;
+
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
+
+  auto space = x.space();
+
+  if( 0==space->si(F::U,3) )
+    writeLambda2( x.get0Field(), id );
+
+  for( OT i=std::max(space->si(F::U,3),1); i<=space->ei(F::U,3); ++i ) {
+    writeLambda2( x.getCField(i), id+2*i-1 );
+    writeLambda2( x.getSField(i), id+2*i   );
+  }
+}
+
+
+template<class MHFieldT>
+void writeMHLambda2evol( const MHFieldT& x, int id ) {
+
+  using SpaceT = typename MHFieldT::SpaceT;
+
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
+
+  auto space = x.space();
+
+  x.exchange();
+
+  if( space()->getProcGrid()->getIB(3)==1 ) {
+
+    ST pi = 4.*std::atan(1.);
+    OT nf = space()->nGlo(3);
+    OT nt = 4*nf;
+
+    auto temp = x.get0Field().clone( ECopy::Shallow );
+
+    for( OT i=0; i<nt;  ++i ) {
+      *temp = x.get0Field();
+      for( OT j=1; j<=nf; ++j ) {
+        temp->add(
+            1., *temp,
+            std::sin( 2.*pi*i*(static_cast<ST>(j))/nt ), x.getSField(j) );
+        temp->add(
+            std::cos( 2.*pi*i*(static_cast<ST>(j))/nt ), x.getCField(j),
+            1., *temp );
+        writeLambda2( *temp, id+2*i   );
+      }
+    }
+  }
+}
+
+
+template<class VectorFieldT>
+void writeLambda2( const VectorFieldT& x, int id ) {
+
+  using SpaceT = typename VectorFieldT::SpaceT;
+
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
+
+  auto space = x.space();
+
+  Teuchos::SerialDenseVector<OT, ST> TT(6);
+
+  ST PP, QQ, RR;
+  ST rho, theta;
+
+  ST eps = 1.e-5;
+
+  ST temp;
+  Teuchos::SerialDenseVector<OT, ST> lam(3);
+
+  OT m, n;
+
+  //--- pi ---
+  ST pi = 2.*std::abs(std::acos(0.));
+
+  //==============================================================================
+  //=== interpolate velocities  ==================================================
+  //==============================================================================
+  //auto interpolateV2S = space->getInterpolateV2S();
+
+  //SFT u( space );
+  //SFT v( space );
+  //SFT w( space );
+ 
+  //interpolateV2S->apply( field(F::U), u );
+  //interpolateV2S->apply( field(F::V), v );
+  //interpolateV2S->apply( field(F::W), w );
+  
+  //u.exchange();
+  //v.exchange();
+  //w.exchange();
+
+
+  //======================================================================================
+  //=== lambda ===========================================================================
+  //======================================================================================
+
+  x.exchange();
+  ScalarField<SpaceT> res( space );
+
+  auto divOp = create<DivOp>( space );
+
+  for( OT k=space->si(F::S,Z); k<=space->ei(F::S,Z); ++k )
+    for( OT j=space->si(F::S,Y); j<=space->ei(F::S,Y); ++j )
+      for( OT i=space->si(F::S,X); i<=space->ei(F::S,X); ++i ) {
+
+        Teuchos::SerialDenseMatrix<OT, ST> Dvel(3, 3, true);
+
+        //--- d/dx ----
+        for( int ii=space->dl(X); ii<=space->du(X); ++ii ) {
+          Dvel(X, X) += divOp->getC(X,i,ii)*x(F::U)(i+ii,j,k);
+          Dvel(Y, X) += divOp->getC(X,i,ii)*x(F::V)(i+ii,j,k);
+          Dvel(Z, X) += divOp->getC(X,i,ii)*x(F::W)(i+ii,j,k);
+        }
+
+        //--- d/dy ------------------------------------------
+        for( int jj=space->dl(Y); jj<=space->du(Y); ++jj ) {
+          Dvel(X, Y) +=  divOp->getC(Y,j,jj)*x(F::U)(i,j+jj,k);
+          Dvel(Y, Y) +=  divOp->getC(Y,j,jj)*x(F::V)(i,j+jj,k);
+          Dvel(Z, Y) +=  divOp->getC(Y,j,jj)*x(F::W)(i,j+jj,k);
+        }
+
+        //--- d/dz ------------------------------------------
+        for( int kk=space->dl(Z); kk<=space->du(Z); ++kk ) {
+          Dvel(X, Z) +=  divOp->getC(Z,k,kk)*x(F::U)(i,j,k+kk);
+          Dvel(Y, Z) +=  divOp->getC(Z,k,kk)*x(F::V)(i,j,k+kk);
+          Dvel(Z, Z) +=  divOp->getC(Z,k,kk)*x(F::W)(i,j,k+kk);
+        }
+
+
+        //--- Tensor symmetric ----------------------------------------------------
+        TT(X) = 2.*(Dvel(X,X)*Dvel(X,X) + Dvel(X,Y)*Dvel(Y,X) + Dvel(X,Z)*Dvel(Z,X));
+        TT(Y) = 2.*(Dvel(Y,X)*Dvel(X,Y) + Dvel(Y,Y)*Dvel(Y,Y) + Dvel(Y,Z)*Dvel(Z,Y));
+        TT(Z) = 2.*(Dvel(Z,X)*Dvel(X,Z) + Dvel(Z,Y)*Dvel(Y,Z) + Dvel(Z,Z)*Dvel(Z,Z));
+
+        TT(3) = (Dvel(X,X) + Dvel(Y,Y))*(Dvel(X,Y) + Dvel(Y,X)) + Dvel(X,Z)*Dvel(Z,Y) + Dvel(Y,Z)*Dvel(Z,X);
+        TT(4) = (Dvel(X,X) + Dvel(Z,Z))*(Dvel(X,Z) + Dvel(Z,X)) + Dvel(X,Y)*Dvel(Y,Z) + Dvel(Z,Y)*Dvel(Y,X);
+        TT(5) = (Dvel(Y,Y) + Dvel(Z,Z))*(Dvel(Y,Z) + Dvel(Z,Y)) + Dvel(Y,X)*Dvel(X,Z) + Dvel(Z,X)*Dvel(X,Y);
+
+        //--- Invariants -------------------------------------------------------------
+        PP = TT(X) + TT(Y) + TT(Z);
+        QQ = TT(X)*TT(Y) + TT(X)*TT(Z) + TT(Y)*TT(Z) - std::pow(TT(3), 2) -
+          std::pow(TT(4), 2) - std::pow(TT(5), 2);
+        RR = TT(X)*TT(Y)*TT(Z) + 2.*TT(3)*TT(4)*TT(5) - std::pow(TT(X)*TT(5), 2) -
+          TT(Y)*std::pow(TT(4), 2) - TT(Z)*std::pow(TT(3), 2);
+
+
+        //--- Eigenwerte --------------------------------------------------------------
+        rho = std::pow((PP/3.), 2) - QQ/3.;
+        if( rho <= eps ) {
+          //-------------------------------------------------------------------------
+          // y:=lam-PP/3.                                                            
+          // y**3+p*y+q=0.                                                           
+          // p:=QQ-PP**2/3.                                                          
+          // q:=-2*(PP/3)**3+PP*QQ/3.-RR                                             
+          // TT ist symmetrisch ==> lam(1:3) reell <==> D=(p/3.)**3+(q/2.)**2 .LE. 0.
+          //                    ==> falls p=QQ-PP**2/3.=0.                           
+          //                    ==> q:=-2*(PP/3)**3+PP**3/9.-RR = (PP/3)**3-RR      
+          //                    ==> D=(q/2.)**2 .LE. 0. <==> q=0. <==> RR=(PP/3)**3
+          //                    <==> lam(1:3)=lam(3) 
+          //                    ==> y=0.                                             
+          //                    ==> lam=PP/3.=RR**(1./3.)                             
+          //--------------------------------------------------------------------------
+          res(i,j,k) = PP/3.;
+        }
+        else {
+          rho = std::sqrt( rho );
+          QQ  = (std::pow(PP/3., 3) - QQ*(PP/6.) + RR/2.)/std::pow(rho, 3);
+
+          if( std::abs(QQ) < 1.) 
+            theta = std::acos(QQ)/3.;
+          else {
+            if( QQ > 0.) 
+              theta = 0.;
+            else
+              theta = pi/3.;
+          }
+
+          lam(X) = std::cos(theta           );
+          lam(Y) = std::cos(theta + 2.*pi/3.);
+          lam(Z) = std::cos(theta + 4.*pi/3.);
+
+
+          //--- sortieren ------------------------------------------------------------
+          std::sort( lam.values(), lam.values()+3 );
+          //for( int m=0; m<3; ++m )
+            //for( int n=m+1; n<3; ++n )
+              //if( lam(m) > lam(n) )
+                //std::swap( lam(m), lam(n) );
+
+          // Faktor 1/2, da bei TT(1:6) mit 2 durchmultipliziert wurde ...
+          res(i,j,k) = rho*lam(2) + PP/6.;
+        }
+      }
+  res.write( id );
 }
 
 
@@ -161,14 +367,14 @@ void computeEnergyDir( const VectorField<SpaceT>& vel, std::ostream& out=std::co
   }
 
   MPI_Reduce(
-    (0==space->getProcGrid()->getRankSlice(dir))?
-    MPI_IN_PLACE:energy.data(),	                // void* send_data,
-    energy.data(),                              // void* recv_data,
-    space->nLoc(dir),                           // int count,
-    MPI_REAL8,                                  // MPI_Datatype datatype,
-    MPI_SUM,                                    // MPI_Op op,
-    0,                                          // int root,
-    space->getProcGrid()->getCommSlice(dir) );  // MPI_Comm communicator);
+      (0==space->getProcGrid()->getRankSlice(dir))?
+      MPI_IN_PLACE:energy.data(),	                // void* send_data,
+      energy.data(),                              // void* recv_data,
+      space->nLoc(dir),                           // int count,
+      MPI_REAL8,                                  // MPI_Datatype datatype,
+      MPI_SUM,                                    // MPI_Op op,
+      0,                                          // int root,
+      space->getProcGrid()->getCommSlice(dir) );  // MPI_Comm communicator);
 
   //std::cout << space->nGlo(dir) << "\n";
   //std::cout << space->nLoc(dir) << "\n";
@@ -178,14 +384,14 @@ void computeEnergyDir( const VectorField<SpaceT>& vel, std::ostream& out=std::co
 
   if( 0==space->getProcGrid()->getRankSlice(dir) ) {
     MPI_Gather(
-      energy.data(),                           // void* send_data,
-      space->nLoc(dir)-1,                      // int send_count,
-      MPI_REAL8,                               // MPI_Datatype send_datatype,
-      energyGlobal.data(),                     // void* recv_data,
-      space->nLoc(dir)-1,                      // int recv_count,
-      MPI_REAL8,                               // MPI_Datatype recv_datatype,
-      0,                                       // int root,
-      space->getProcGrid()->getCommBar(dir) ); // MPI_Comm communicator);
+        energy.data(),                           // void* send_data,
+        space->nLoc(dir)-1,                      // int send_count,
+        MPI_REAL8,                               // MPI_Datatype send_datatype,
+        energyGlobal.data(),                     // void* recv_data,
+        space->nLoc(dir)-1,                      // int recv_count,
+        MPI_REAL8,                               // MPI_Datatype recv_datatype,
+        0,                                       // int root,
+        space->getProcGrid()->getCommBar(dir) ); // MPI_Comm communicator);
 
     if( 0==space->getProcGrid()->getRankBar(dir) )
       for( OT j=0; j<space->nGlo(dir); ++j )
@@ -221,7 +427,7 @@ void computeHEEnergyDir(
     std::cout << " gamma     = " << gamma << "\n";
     std::cout << " n_Hermite = " << n_Hermitemodes << "\n";
   }
-    
+
   OT S1p = space->si(F::S,X);
   OT N1p = space->ei(F::S,X);
   OT S2p = space->si(F::S,Y);
@@ -299,15 +505,15 @@ void computeHEEnergyDir(
       // --- integral over x-dimension: \int_0^\infty u_kn \dx
       //ST dx1p = coord->dx(F::S,X,i);
       //for( OT n = 0; n<n_Hermitemodes; ++n ) {
-        //energydensity( n, j-space->si(F::S,Y) ) +=
-          //(std::pow(He_global(0,n), 2) +
-           //std::pow(He_global(1,n), 2) +
-           //std::pow(He_global(2,n), 2) )*dx1p;
+      //energydensity( n, j-space->si(F::S,Y) ) +=
+      //(std::pow(He_global(0,n), 2) +
+      //std::pow(He_global(1,n), 2) +
+      //std::pow(He_global(2,n), 2) )*dx1p;
       //}
       //// --- integral over x-dimension: \int_0^\infty u_kn \dx with weird minus one degree
       ST dx1p = coord->dx(F::S,X,i);
       energydensity( 0, j-space->si(F::S,Y) ) +=
-         std::pow(He_global(2,0), 2)*dx1p;
+        std::pow(He_global(2,0), 2)*dx1p;
       for( OT n = 1; n<n_Hermitemodes; ++n ) {
         energydensity( n, j-space->si(F::S,Y) ) +=
           (std::pow(He_global(0,n-1), 2) +
@@ -322,14 +528,14 @@ void computeHEEnergyDir(
 
   if( 0==space->getProcGrid()->getRankSlice(dir) ) {
     MPI_Gather(
-      energydensity.values(),                  // void* send_data,
-      (space->nLoc(dir)-1)*n_Hermitemodes,     // int send_count,
-      MPI_REAL8,                               // MPI_Datatype send_datatype,
-      energyGlobal.values(),                     // void* recv_data,
-      (space->nLoc(dir)-1)*n_Hermitemodes,     // int recv_count,
-      MPI_REAL8,                               // MPI_Datatype recv_datatype,
-      0,                                       // int root,
-      space->getProcGrid()->getCommBar(dir) ); // MPI_Comm communicator);
+        energydensity.values(),                  // void* send_data,
+        (space->nLoc(dir)-1)*n_Hermitemodes,     // int send_count,
+        MPI_REAL8,                               // MPI_Datatype send_datatype,
+        energyGlobal.values(),                     // void* recv_data,
+        (space->nLoc(dir)-1)*n_Hermitemodes,     // int recv_count,
+        MPI_REAL8,                               // MPI_Datatype recv_datatype,
+        0,                                       // int root,
+        space->getProcGrid()->getCommBar(dir) ); // MPI_Comm communicator);
 
     if( 0==space->getProcGrid()->getRankBar(dir) )
       for( OT j=0; j<space->nGlo(dir); ++j ) {
