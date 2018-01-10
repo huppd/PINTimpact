@@ -99,7 +99,7 @@ public:
 
     if( !out_.is_null() ) {
       *out_ << problem.getNumIterations() << "\t" << nf << "\t" << normF_ << "\t" <<
-        normRF_ << "\t" << nfr << std::endl;
+        normRF_ << "\t" << std::max(nfr, 1) << std::endl;
     }
 
     return status_;
