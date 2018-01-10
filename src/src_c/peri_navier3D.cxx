@@ -172,7 +172,7 @@ int main( int argi, char** argv ) {
 
     int maxRefinement     = pl->sublist("Solver").get<int>("max refinement", 1);
     ST  refinementTol  = pl->sublist("Solver").get<ST>(  "refinement tol",  1.e-6 );
-    int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
+    int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2    );
 
     Teuchos::RCP<const SpaceT> space =
       Pimpact::create<SpaceT>( Teuchos::sublist( pl, "Space", true ) );
@@ -599,6 +599,8 @@ int main( int argi, char** argv ) {
         Teuchos::RCP<NOX::StatusTest::Generic> refinementTest =
           Teuchos::rcp( new NOX::Pimpact::RefinementTest<InterfaceT>(
                 pl->sublist("Solver").get<double>("refinement residual tol", 1.),
+                pl->sublist("NOX Status Test").sublist("Test 0").get<double>("Tolerance", 1.e-6),
+                refinementStep,
                 refOut) );
 
         pl->sublist("NOX Status Test").sublist("Test 4").set("Test Type", "User Defined");

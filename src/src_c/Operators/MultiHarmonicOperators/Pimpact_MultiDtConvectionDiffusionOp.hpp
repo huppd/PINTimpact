@@ -5,10 +5,11 @@
 
 #include "Pimpact_ConvectionField.hpp"
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
-#include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
+#include "Pimpact_MultiField.hpp"
 #include "Pimpact_NonlinearVWrap.hpp"
 #include "Pimpact_Utils.hpp"
+#include "Pimpact_VectorField.hpp"
 
 
 
@@ -174,7 +175,7 @@ public:
   }
 
 
-  ST compRefRes( const DomainFieldT& y_ref ) const {
+  ST compRefRes( const DomainFieldT& y_ref, OT NfP=1 ) const {
 
     Teuchos::RCP<const DomainFieldT> y;
     if( y_ref.global() )
@@ -187,7 +188,7 @@ public:
 
     y->exchange();
 
-    auto z = y->getField(1).clone(ECopy::Shallow);
+    MultiField<ModeField<typename DomainFieldT::InnerFieldT> > z(y->getField(1), NfP, ECopy::Shallow);
 
     OT Nf = space()->nGlo(3);
 
@@ -195,18 +196,17 @@ public:
     for( OT k=1; k<=Nf; ++k ) {
       for( OT l=1; l<=Nf; ++l ) { // that is fine
         OT i = k+l;
-        if( i==Nf+1 ) { // do something here
-          op_->apply( getCWind(k), y->getCField(l), z->getCField(), 0.,  0.5, 0., Add::Y );
-          op_->apply( getSWind(k), y->getSField(l), z->getCField(), 0., -0.5, 0., Add::Y );
+        if( Nf<i && i<=Nf+NfP ) { // do something here
+          op_->apply( getCWind(k), y->getCField(l), z.getField(i-Nf-1).getCField(), 0.,  0.5, 0., Add::Y );
+          op_->apply( getSWind(k), y->getSField(l), z.getField(i-Nf-1).getCField(), 0., -0.5, 0., Add::Y );
 
-          op_->apply( getCWind(k), y->getSField(l), z->getSField(), 0.,  0.5, 0., Add::Y );
-          op_->apply( getSWind(k), y->getCField(l), z->getSField(), 0.,  0.5, 0., Add::Y );
+          op_->apply( getCWind(k), y->getSField(l), z.getField(i-Nf-1).getSField(), 0.,  0.5, 0., Add::Y );
+          op_->apply( getSWind(k), y->getCField(l), z.getField(i-Nf-1).getSField(), 0.,  0.5, 0., Add::Y );
         }
       }
     }
 
-    return z->norm( ENorm::L2 );
-    //z.changed();
+    return z.norm( ENorm::L2 );
   }
 
   void applyBC( const DomainFieldT& x, RangeFieldT& y ) const {
