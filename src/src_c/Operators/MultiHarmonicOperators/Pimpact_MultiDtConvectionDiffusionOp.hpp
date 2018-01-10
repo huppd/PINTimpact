@@ -175,7 +175,9 @@ public:
   }
 
 
-  ST compRefRes( const DomainFieldT& y_ref, OT NfP=1 ) const {
+  /// computes residual of higher modes >N_f, and returns the according residual of the
+  /// modes that are bigger than the cutoff
+  std::pair<ST, OT> compRefRes( const DomainFieldT& y_ref, ST cutoff=1.e-6 ) const {
 
     Teuchos::RCP<const DomainFieldT> y;
     if( y_ref.global() )
@@ -188,15 +190,16 @@ public:
 
     y->exchange();
 
-    MultiField<ModeField<typename DomainFieldT::InnerFieldT> > z(y->getField(1), NfP, ECopy::Shallow);
-
     OT Nf = space()->nGlo(3);
+
+    MultiField<ModeField<typename DomainFieldT::InnerFieldT> > z(y->getField(1), Nf, ECopy::Shallow);
+
 
     // strange terms
     for( OT k=1; k<=Nf; ++k ) {
       for( OT l=1; l<=Nf; ++l ) { // that is fine
         OT i = k+l;
-        if( Nf<i && i<=Nf+NfP ) { // do something here
+        if( Nf<i && i<=2*Nf ) { // do something here
           op_->apply( getCWind(k), y->getCField(l), z.getField(i-Nf-1).getCField(), 0.,  0.5, 0., Add::Y );
           op_->apply( getSWind(k), y->getSField(l), z.getField(i-Nf-1).getCField(), 0., -0.5, 0., Add::Y );
 
@@ -206,8 +209,20 @@ public:
       }
     }
 
-    return z.norm( ENorm::L2 );
+    std::vector<ST> norms( Nf );
+    z.norm( norms, ENorm::L2 );
+
+    OT NfR = Nf-1;
+    while( NfR>=0 && norms[NfR]<cutoff )
+      --NfR;
+
+    ST res = 0.;
+    for( OT i=0; i<=NfR; ++i )
+      res += std::pow(norms[i], 2);
+
+    return std::make_pair<ST,OT>( std::sqrt(res), NfR+1);
   }
+
 
   void applyBC( const DomainFieldT& x, RangeFieldT& y ) const {
 

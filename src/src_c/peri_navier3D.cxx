@@ -600,7 +600,6 @@ int main( int argi, char** argv ) {
           Teuchos::rcp( new NOX::Pimpact::RefinementTest<InterfaceT>(
                 pl->sublist("Solver").get<double>("refinement residual tol", 1.),
                 pl->sublist("NOX Status Test").sublist("Test 0").get<double>("Tolerance", 1.e-6),
-                refinementStep,
                 refOut) );
 
         pl->sublist("NOX Status Test").sublist("Test 4").set("Test Type", "User Defined");

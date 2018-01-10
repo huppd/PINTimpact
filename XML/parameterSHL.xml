@@ -40,7 +40,7 @@
     <Parameter docString="" id="27" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
     <Parameter docString="" id="28" isDefault="false" isUsed="true" name="max refinement" type="int" value="2" />
     <Parameter docString="" id="29" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.00000000000000005e-04" />
-    <Parameter docString="" id="30" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
+    <Parameter docString="" id="30" isDefault="false" isUsed="true" name="refinement step" type="int" value="2" />
     <Parameter docString="" id="31" isDefault="true" isUsed="true" name="refinement residual tol" type="double" value="1.00000000000000000e+02" />
     <Parameter docString="" id="32" isDefault="false" isUsed="true" name="initial guess" type="string" value="base" />
   </ParameterList>

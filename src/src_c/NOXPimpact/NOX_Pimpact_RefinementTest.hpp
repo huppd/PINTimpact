@@ -29,11 +29,8 @@ private:
   /// Tolerance of difference.
   double tolerance_;
 
-  /// Tolerance of mininum considered residual.
-  double toleranceF_;
-
-  /// number of considered additional modes
-  int nfr_;
+  /// cutoff tolerance for which modes are assumed to be zero.
+  double cutoff_;
 
   /// \brief Norm of F to be compared to trueTolerance
   double normF_;
@@ -50,12 +47,11 @@ private:
 public:
 
   /// Constructor
-  RefinementTest( double tolerance=1., double toleranceF=1.e-6, int nfr=1,
+  RefinementTest( double tolerance=1., double cutoff=1.e-6,
       const Teuchos::RCP<std::ostream>& out=Teuchos::null,
       const NOX::Utils* u = NULL ):
     tolerance_(tolerance),
-    toleranceF_(toleranceF),
-    nfr_(nfr),
+    cutoff_(cutoff),
     normF_(0.0),
     normRF_(0.0),
     out_(out) {
@@ -78,6 +74,7 @@ public:
     int nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
       InterfaceT::FieldT> >(x)->getConstFieldPtr()->space()->nGlo(3) + 1;
 
+    int nfr = 0;
     if( checkType == NOX::StatusTest::None ) {
       normF_ = 0.0;
       normRF_ = 0.0;
@@ -85,22 +82,25 @@ public:
     }
     else {
 
-      int nfr = nfr_;
-      if( nfr_>nf ) nfr = nf;
+      normF_ = computeFNorm( problem.getSolutionGroup() );
 
-      normF_ = computeFNorm( problem.getSolutionGroup() )/nf;
-      normRF_ = computeRFNorm( problem.getSolutionGroup(), nfr )/nfr;
+      std::pair<double, int> resF = computeRFNorm( problem.getSolutionGroup(), cutoff_/nf );
+      normRF_ = resF.first;
+      nfr = resF.second;
 
-      if( normRF_ < toleranceF_/nf )
+
+      if( nfr==0 )
         status_ = NOX::StatusTest::Unconverged;
       else
-        status_ = ( normF_ < tolerance_*normRF_ ) ?
+        status_ = ( normF_/nf < tolerance_*normRF_/nfr ) ?
           NOX::StatusTest::Converged :
           NOX::StatusTest::Unconverged;
     }
 
-    if( !out_.is_null() )
-      (*out_) << problem.getNumIterations() << "\t" << nf << "\t" << normF_*nf << "\t" << normRF_ << "\n";
+    if( !out_.is_null() ) {
+      *out_ << problem.getNumIterations() << "\t" << nf << "\t" << normF_ << "\t" <<
+        normRF_ << "\t" << nfr << std::endl;
+    }
 
     return status_;
   }
@@ -171,7 +171,7 @@ private:
   ///
   /// \note Returns -1.0 if F(x) has not been calculated for the given grp (i.e.,
   /// grp.isF() is false).
-  double computeRFNorm( const NOX::Abstract::Group& grp, int nfr ) {
+  std::pair<double, int> computeRFNorm( const NOX::Abstract::Group& grp, double cutoff ) {
 
     if (!grp.isJacobian()) const_cast<NOX::Abstract::Group&>(grp).computeJacobian();
 
@@ -186,10 +186,9 @@ private:
       >(x)->getConstFieldPtr()->space()->nGlo(3)>0 )
       return op->getOperatorPtr()->getOpV2V()->compRefRes( Teuchos::rcp_dynamic_cast<const
           NOX::Pimpact::Vector<typename InterfaceT::FieldT>
-          >(x)->getConstFieldPtr()->getField(0).getVField(), nfr );
+          >(x)->getConstFieldPtr()->getField(0).getVField(), cutoff);
     else
-      return 0.;
-
+      return std::pair<double, int>(0., 0);
   }
 };
 
