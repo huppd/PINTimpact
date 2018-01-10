@@ -33,8 +33,13 @@ CASE_PATH = ['']*3
 
 
 NPX = 1
-NPY = 4
-NPZ = 12
+
+NPY = 2
+# NPY = 4
+# NPY = 8
+
+NPZ = 8
+
 NPF = 1
 #
 LXO = 22.5
@@ -45,22 +50,25 @@ NXO = 97
 NYO = 1537
 NZO = 513
 #
+# NX = NXO
 NX = 65
 
-# NY = 129
-NY = 257
-# NY = 513 
+NY = 129
+# NY = 257
+# NY = 512
+
+# NY = 193
+# NY = 385 
 # NY = 769
 
-# NZ = 129
-# NZ = 257
-# NZ = 321
-NZ = 385
+# NZ = NZO
+NZ = 385 
 #
-LX = LXO
+# LX = LXO
 LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)
 LY = round(LYO*1.5/(NYO-1)*(NY-1), 1)
 LZ = round(LZO*1.5/(NZO-1)*(NZ-1), 1)
+# LZ = LZO 
 #
 print('NX', NX)
 print('NY', NY)
