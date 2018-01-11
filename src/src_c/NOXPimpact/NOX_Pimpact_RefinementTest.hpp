@@ -120,27 +120,18 @@ public:
       stream << ' ';
 
     stream << status_;
-    stream << "FR-Norm > cuttoff = " << Utils::sciformat(normRF_, 3);
-    stream << " > " << Utils::sciformat(cutoff_, 3);
+    stream << "Number of additional modes = " << nfr_ << " > 0" ;
     stream << "\n";
 
     for (int j = 0; j < indent; j ++)
       stream << ' ';
     stream << std::setw(13) << " ";
 
-    if( normRF_>0. )
-      stream << "and F-Norm/FR-Norm < tol = " << Utils::sciformat(normF_*nfr_/normRF_, 3);
+    if( nfr_>0 )
+      stream << "F-Norm/FR-Norm < tol = " << Utils::sciformat(normF_*nfr_/normRF_, 3);
     else
-      stream << "and F-Norm/FR-Norm < tol = Infty";
+      stream << "F-Norm/FR-Norm < tol = Infty";
     stream << " < " << Utils::sciformat(tolerance_, 3);
-    stream << "\n";
-
-    for (int j = 0; j < indent; j ++)
-      stream << ' ';
-    stream << std::setw(13) << " ";
-
-    stream << "(number of additional modes = " << nfr_ << ")";
-
     stream << std::endl;
 
     return stream;
