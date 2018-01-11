@@ -38,6 +38,8 @@ private:
   /// \brief Norm of refined F
   double normRF_;
 
+  int nfr_;
+
   //! Ostream used to print errors
   NOX::Utils utils_;
 
@@ -74,7 +76,7 @@ public:
     int nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
       InterfaceT::FieldT> >(x)->getConstFieldPtr()->space()->nGlo(3) + 1;
 
-    int nfr = 0;
+    nfr_ = 0;
     if( checkType == NOX::StatusTest::None ) {
       normF_ = 0.0;
       normRF_ = 0.0;
@@ -86,21 +88,23 @@ public:
 
       std::pair<double, int> resF = computeRFNorm( problem.getSolutionGroup(), cutoff_/nf );
       normRF_ = resF.first;
-      nfr = resF.second;
+      nfr_ = resF.second;
 
 
-      if( nfr==0 )
+      if( nfr_==0 )
         status_ = NOX::StatusTest::Unconverged;
       else
-        status_ = ( normF_/nf < tolerance_*normRF_/nfr ) ?
+        status_ = ( normF_/nf < tolerance_*normRF_/nfr_ ) ?
           NOX::StatusTest::Converged :
           NOX::StatusTest::Unconverged;
     }
 
     if( !out_.is_null() ) {
       *out_ << problem.getNumIterations() << "\t" << nf << "\t" << normF_ << "\t" <<
-        normRF_ << "\t" << std::max(nfr, 1) << std::endl;
+        normRF_ << "\t" << std::max(nfr_, 1) << std::endl;
     }
+    if( nf!=0 )
+      normF_ /=nf;
 
     return status_;
   }
@@ -114,14 +118,28 @@ public:
 
     for (int j = 0; j < indent; j ++)
       stream << ' ';
+
     stream << status_;
-    stream << "F-Norm<FR-Norm = " << Utils::sciformat(normF_,3);
-    stream << " < " << Utils::sciformat(tolerance_*normRF_, 3);
+    stream << "FR-Norm > cuttoff = " << Utils::sciformat(normRF_, 3);
+    stream << " > " << Utils::sciformat(cutoff_, 3);
     stream << "\n";
 
     for (int j = 0; j < indent; j ++)
       stream << ' ';
     stream << std::setw(13) << " ";
+
+    if( normRF_>0. )
+      stream << "and F-Norm/FR-Norm < tol = " << Utils::sciformat(normF_*nfr_/normRF_, 3);
+    else
+      stream << "and F-Norm/FR-Norm < tol = Infty";
+    stream << " < " << Utils::sciformat(tolerance_, 3);
+    stream << "\n";
+
+    for (int j = 0; j < indent; j ++)
+      stream << ' ';
+    stream << std::setw(13) << " ";
+
+    stream << "(number of additional modes = " << nfr_ << ")";
 
     stream << std::endl;
 
