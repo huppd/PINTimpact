@@ -11,6 +11,7 @@
 #include "Teuchos_SerialDenseVector.hpp"
 
 #include "Pimpact_DivOp.hpp"
+#include "Pimpact_InterpolateS2VOp.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_VectorField.hpp"
 
@@ -78,11 +79,10 @@ truncErrorEstimate( const MultiHarmonicFieldT& field, ENorm normType=ENorm::L2 )
 
 
 template<class MHFieldT>
-void writeMHLambda2( const MHFieldT& x, int id ) {
+void writeMHLambda2( MHFieldT& x, int id ) {
 
   using SpaceT = typename MHFieldT::SpaceT;
 
-  using ST = typename SpaceT::Scalar;
   using OT = typename SpaceT::Ordinal;
 
   auto space = x.space();
@@ -98,7 +98,7 @@ void writeMHLambda2( const MHFieldT& x, int id ) {
 
 
 template<class MHFieldT>
-void writeMHLambda2evol( const MHFieldT& x, int id ) {
+void writeMHLambda2evol( MHFieldT& x, int id ) {
 
   using SpaceT = typename MHFieldT::SpaceT;
 
@@ -126,7 +126,7 @@ void writeMHLambda2evol( const MHFieldT& x, int id ) {
         temp->add(
             std::cos( 2.*pi*i*(static_cast<ST>(j))/nt ), x.getCField(j),
             1., *temp );
-        writeLambda2( *temp, id+2*i   );
+        writeLambda2( *temp, id+2*i );
       }
     }
   }
@@ -134,12 +134,13 @@ void writeMHLambda2evol( const MHFieldT& x, int id ) {
 
 
 template<class VectorFieldT>
-void writeLambda2( const VectorFieldT& x, int id ) {
+void writeLambda2( VectorFieldT& x, int id ) {
 
   using SpaceT = typename VectorFieldT::SpaceT;
 
   using ST = typename SpaceT::Scalar;
   using OT = typename SpaceT::Ordinal;
+  using SFT = ScalarField<SpaceT>;
 
   auto space = x.space();
 
@@ -150,7 +151,7 @@ void writeLambda2( const VectorFieldT& x, int id ) {
 
   ST eps = 1.e-5;
 
-  ST temp;
+  //ST temp;
   Teuchos::SerialDenseVector<OT, ST> lam(3);
 
   OT m, n;
@@ -161,20 +162,17 @@ void writeLambda2( const VectorFieldT& x, int id ) {
   //==============================================================================
   //=== interpolate velocities  ==================================================
   //==============================================================================
-  //auto interpolateV2S = space->getInterpolateV2S();
+  {
+    auto interpolateV2S = space->getInterpolateV2S();
+    auto interpolateS2V = create<InterpolateS2V>( space );
 
-  //SFT u( space );
-  //SFT v( space );
-  //SFT w( space );
- 
-  //interpolateV2S->apply( field(F::U), u );
-  //interpolateV2S->apply( field(F::V), v );
-  //interpolateV2S->apply( field(F::W), w );
-  
-  //u.exchange();
-  //v.exchange();
-  //w.exchange();
+    SFT temp( space );
 
+    for( F i=F::U; i<SpaceT::sdim; ++i ) {
+      interpolateV2S->apply( x(i), temp );
+      interpolateS2V->apply( temp, x(i) );
+    }
+  }
 
   //======================================================================================
   //=== lambda ===========================================================================
