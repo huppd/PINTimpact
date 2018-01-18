@@ -166,6 +166,8 @@ int main( int argi, char** argv ) {
 
     //////////////////////////////////////////  set up initial stuff ////////////////////////////
 
+    pl->sublist("NOX Solver").sublist("Solver Options").set<std::string>("Status Test Check Type", "Complete"); // dirty fix probably, should be fixed in NOX
+
     std::string initGuess = pl->sublist("Solver").get<std::string>( "initial guess", "zero" );
 
     int withoutput=pl->sublist("Solver").get<int>( "withoutput", 1 );
