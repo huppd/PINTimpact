@@ -26,7 +26,7 @@ STS = [1./60., 1./30., 1./10.]
 
 ST = 1./30.
 
-NF = 0
+NF = 1
 
 
 CASE_PATH = ['']*3
@@ -39,7 +39,8 @@ NPY = 4
 NPY = 8
 
 # NPZ = 10
-NPZ = 8
+# NPZ = 8
+NPZ = 12
 
 NPF = 1
 #
@@ -107,7 +108,7 @@ ma.set_parameter(ROOT, 'initial guess', 'base')
 # ma.set_insublist(ROOT, 'Coarse Grid Solver', 'Jacobi', True)
 
 
-CASE_PATH[0] = pp.DATA_PATH + '/shbl_' + str(LY)
+CASE_PATH[0] = pp.DATA_PATH + '/shf_' + str(LY)
 pp.mkdir(CASE_PATH, 0)
 pp.chdir(CASE_PATH, 0)
 
