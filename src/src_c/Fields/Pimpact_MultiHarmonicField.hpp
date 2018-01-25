@@ -121,7 +121,6 @@ public:
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
   MultiHarmonicField( const MultiHarmonicField& vF, const ECopy copyType=ECopy::Deep ):
     AF( vF.space() ),
-    //global_( vF.global_ ),
     global_( vF.space()->np(3)==1 ),
     field0_( vF.field0_, copyType ),
     fields_( vF.space()->nGlo(3) ),

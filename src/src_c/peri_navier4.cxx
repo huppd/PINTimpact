@@ -292,11 +292,7 @@ int main(int argi, char** argv ) {
 
 
   // init vectors
-  auto x =
-    Pimpact::wrapMultiField(
-      Pimpact::createCompoundField(
-        Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-        Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ) ) );
+  auto x = Pimpact::wrapMultiField( Pimpact::create<CF>(space) );
 
 
   // init Fields, init and rhs

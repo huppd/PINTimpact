@@ -156,10 +156,7 @@ int main( int argi, char** argv ) {
     if( 0==space->rankST() ) std::cout << "initial field\n";
 
     // init vectors
-    Teuchos::RCP<MF> x =
-      wrapMultiField( createCompoundField(
-            Teuchos::rcp( new VF(space,true) ),
-            Teuchos::rcp( new SF(space) ) ) ) ;
+    Teuchos::RCP<MF> x = Pimpact::wrapMultiField( Pimpact::create<CF>(space) );
 
     // init Fields
     x->getField(0).getVField().initField( pl->sublist("Base flow") );
@@ -615,20 +612,9 @@ int main( int argi, char** argv ) {
         //refineOp->print();
 
         // init Fields for fine Boundary conditions
-        Teuchos::RCP<CF> xf =
-          createCompoundField(
-              Teuchos::rcp( new VF(spaceF,true) ),
-              Teuchos::rcp( new SF(spaceF) ) );
-        //Teuchos::RCP<CF> fuf =
-          //createCompoundField(
-              //Teuchos::rcp( new VF(spaceF,true) ),
-              //Teuchos::rcp( new SF(spaceF) ) );
+        Teuchos::RCP<CF> xf = Pimpact::create<CF>(spaceF);
         //xf->getVField().initField( pl->sublist("Base flow") );
 
-        //Teuchos::RCP<CF> temp =
-          //createCompoundField(
-              //Teuchos::rcp( new VF(spaceF,true) ),
-              //Teuchos::rcp( new SF(spaceF) ) );
 
         //refineOp->apply( x->getField(0), *temp );
         refineOp->apply( x->getField(0), *xf );

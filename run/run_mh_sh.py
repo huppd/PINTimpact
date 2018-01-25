@@ -26,7 +26,7 @@ STS = [1./60., 1./30., 1./10.]
 
 st = 1./30.
 
-NF = 0
+NF = 2
 
 
 CASE_PATH = ['']*3
@@ -35,7 +35,7 @@ CASE_PATH = ['']*3
 NPX = 1
 NPY = 2
 NPZ = 4
-NPF = 1
+NPF = 2
 #
 LXO = 22.5
 LYO = 600.
@@ -46,8 +46,10 @@ NYO = 1537
 NZO = 513
 #
 NX = 65
-NY = 129
-NZ = 129
+NY = 65
+NZ = 65
+# NY = 129
+# NZ = 129
 #
 LX = LXO
 LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)

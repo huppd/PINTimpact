@@ -105,10 +105,7 @@ int main( int argi, char** argv ) {
     if( 0==space->rankST() ) std::cout << "initial field\n";
 
     // init vectors
-    Teuchos::RCP<MF> x =
-      wrapMultiField( createCompoundField(
-            Teuchos::rcp( new VF(space,true) ),
-            Teuchos::rcp( new SF(space) ) ) ) ;
+    Teuchos::RCP<MF> x = Pimpact::wrapMultiField( Pimpact::create<CF>(space) );
 
     // init Fields
     x->getField(0).getVField().initField( pl->sublist("Base flow") );
