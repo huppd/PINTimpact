@@ -127,7 +127,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, clone, FType ) {
 
   auto space = Pimpact::create<SpaceT>( pl );
 
-  auto mv = Teuchos::rcp( new FType(space,10) );
+  auto mv = Teuchos::rcp( new FType(space, 1) );
 
   auto mv2 = mv->clone(10);
 
