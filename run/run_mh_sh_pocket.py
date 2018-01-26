@@ -36,11 +36,9 @@ NPX = 1
 
 NPY = 2
 NPY = 4
-NPY = 8
+# NPY = 8
 
-# NPZ = 10
-# NPZ = 8
-NPZ = 12
+NPZ = 10
 
 NPF = 1
 #
@@ -57,14 +55,15 @@ NX = 65
 
 NY = 129
 NY = 257
-NY = 513
+# NY = 513
 
 # NY = 193
 # NY = 385 
 # NY = 769
 
 # NZ = NZO
-NZ = 385 
+NZ = 321 
+# NZ = 385 
 # NZ = 481 
 #
 # LX = LXO

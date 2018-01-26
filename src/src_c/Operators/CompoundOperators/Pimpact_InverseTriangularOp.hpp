@@ -54,26 +54,26 @@ public:
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
     // upper triangular
-    //opS2S_->apply( x.getSField(),  y.getSField() );
-    //y.getSField().scale( -1. );
+    opS2S_->apply( x.getSField(),  y.getSField() );
+    y.getSField().scale( -1. );
 
-    //VF tempv( space() );
+    VF tempv( space() );
 
-    //opS2V_->apply( y.getSField(), tempv, Add::Y );
+    opS2V_->apply( y.getSField(), tempv, Add::Y );
 
-    //tempv.add( -1., tempv, 1., x.getVField() );
+    tempv.add( -1., tempv, 1., x.getVField() );
 
-    //opV2V_->apply( tempv, y.getVField() );
+    opV2V_->apply( tempv, y.getVField() );
 
-    // lower triangular
-    opV2V_->apply( x.getVField(), y.getVField() );
+    //// lower triangular
+    //opV2V_->apply( x.getVField(), y.getVField() );
 
-    auto temps = x.getSField().clone( ECopy::Shallow );
-    opS2V_->apply( y.getVField(), *temps, Add::N );
+    //auto temps = x.getSField().clone( ECopy::Shallow );
+    //opS2V_->apply( y.getVField(), *temps, Add::N );
 
-    temps->add( 1., *temps, -1., x.getSField() );
+    //temps->add( 1., *temps, -1., x.getSField() );
 
-    opS2S_->apply( *temps,  y.getSField() );
+    //opS2S_->apply( *temps,  y.getSField() );
   }
 
 
