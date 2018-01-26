@@ -3,6 +3,8 @@
 #define PIMPACT_UTILS_HPP
 
 
+#include <fstream>
+
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ParameterList.hpp"
 #include "BelosTypes.hpp"
@@ -30,7 +32,7 @@ enum class ECopy : bool {
 
 
 /// \todo change T->3, consistently
-/// \todo make enum class
+/// \todo make enum class 
 /// \todo make it iterable( <, ++ )
 enum ECoord {
   X = 0, ///< 0
@@ -38,6 +40,8 @@ enum ECoord {
   Z = 2, ///< 2
   T = 4  ///< 4
 };
+
+enum class Owning : bool { Y=true, N=false };
 
 std::string toString( ECoord type ) {
   switch( type ) {

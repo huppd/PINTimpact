@@ -170,7 +170,7 @@ int main( int argi, char** argv ) {
     if( 0==space->rankST() ) std::cout << "initial field\n";
 
     // init vectors
-    Teuchos::RCP<MF> x = Pimpcat::wrapMultiField(
+    Teuchos::RCP<MF> x = Pimpact::wrapMultiField(
         Pimpact::create<CF>(space) );
 
     // init Fields

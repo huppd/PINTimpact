@@ -55,10 +55,10 @@ public:
   void apply( const DT& x_ref, RT& y ) const {
 
     Teuchos::RCP<const DT> x;
-    if( x_ref.global() )
+    if( x_ref.global()==DT::Global::Y )
       x = Teuchos::rcpFromRef( x_ref );
     else {
-      Teuchos::RCP<DT> temp = Teuchos::rcp( new DT( x_ref.space(), true ) );
+      Teuchos::RCP<DT> temp = Teuchos::rcp( new DT( x_ref.space(), DT::Global::Y ) );
       *temp = x_ref;
       x = temp;
     }

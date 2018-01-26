@@ -292,11 +292,11 @@ void writeSpectrum( const MultiHarmonicFieldT& field,
   // just on rank "zero"
   Teuchos::RCP<const MultiHarmonicFieldT> y;
 
-  if( field.global() )
+  if( field.global()==MultiHarmonicFieldT::Global::Y )
     y = Teuchos::rcpFromRef( field );
   else {
     Teuchos::RCP<MultiHarmonicFieldT> temp =
-      Teuchos::rcp( new MultiHarmonicFieldT( space, true ) );
+      Teuchos::rcp( new MultiHarmonicFieldT( space, MultiHarmonicFieldT::Global::Y ) );
     *temp = field;
     y = temp;
   }

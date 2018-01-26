@@ -569,7 +569,6 @@ int main( int argi, char** argv ) {
           Pimpact::createInverseTriangularOp(
             opV2Vprec,
             opS2V,
-            //opV2S,
             opS2Sinv );
 
         if( "right" == picardPrecString )

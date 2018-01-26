@@ -61,10 +61,11 @@ public:
 
     Teuchos::RCP<const DomainFieldT> y;
 
-    if( y_ref.global() )
+    if( y_ref.global()==DomainFieldT::Global::Y )
       y = Teuchos::rcpFromRef( y_ref );
     else {
-      Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp( new DomainFieldT( space(), true ) );
+      Teuchos::RCP<DomainFieldT> temp =
+        Teuchos::rcp( new DomainFieldT( space(), DomainFieldT::Global::Y ) );
       *temp = y_ref;
       y = temp;
       //std::cout << "assign op: y->global(): " << y->global() << "\n";
@@ -84,10 +85,11 @@ public:
   void apply( const DomainFieldT& y_ref, RangeFieldT& z, bool init_yes=true ) const {
 
     Teuchos::RCP<const DomainFieldT> y;
-    if( y_ref.global() )
+    if( y_ref.global()==DomainFieldT::Global::Y )
       y = Teuchos::rcpFromRef( y_ref );
     else {
-      Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp( new DomainFieldT( space(), true ) );
+      Teuchos::RCP<DomainFieldT> temp =
+        Teuchos::rcp( new DomainFieldT( space(), DomainFieldT::Global::Y ) );
       *temp = y_ref; // needed because of const
       y = temp;
     }
@@ -180,10 +182,11 @@ public:
   std::pair<ST, OT> compRefRes( const DomainFieldT& y_ref, ST cutoff=1.e-6 ) const {
 
     Teuchos::RCP<const DomainFieldT> y;
-    if( y_ref.global() )
+    if( y_ref.global()==DomainFieldT::Global::Y )
       y = Teuchos::rcpFromRef( y_ref );
     else {
-      Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp( new DomainFieldT( space(), true ) );
+      Teuchos::RCP<DomainFieldT> temp =
+        Teuchos::rcp( new DomainFieldT( space(), DomainFieldT::Global::Y ) );
       *temp = y_ref; // needed because of const
       y = temp;
     }

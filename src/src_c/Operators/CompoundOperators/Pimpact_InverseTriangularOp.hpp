@@ -64,16 +64,6 @@ public:
     tempv.add( -1., tempv, 1., x.getVField() );
 
     opV2V_->apply( tempv, y.getVField() );
-
-    //// lower triangular
-    //opV2V_->apply( x.getVField(), y.getVField() );
-
-    //auto temps = x.getSField().clone( ECopy::Shallow );
-    //opS2V_->apply( y.getVField(), *temps, Add::N );
-
-    //temps->add( 1., *temps, -1., x.getSField() );
-
-    //opS2S_->apply( *temps,  y.getSField() );
   }
 
 

@@ -52,6 +52,10 @@ int npf = 1;
 using SF = Pimpact::ScalarField<SpaceT>;
 using VF = Pimpact::VectorField<SpaceT>;
 
+using CF = Pimpact::CompoundField<
+  Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
+  Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
+
 using TSF = Pimpact::TimeField<SF>;
 using TVF = Pimpact::TimeField<VF>;
 
@@ -113,8 +117,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOperator ) {
 
 	auto op = Pimpact::create<OpT>( space );
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
+
 	auto y = x->clone();
 	auto y_cc = x->clone();
 	auto error = x->clone();
@@ -188,8 +192,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>( op ));
 
 	// test smoothing properties
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
 	auto y = x->clone();
 	auto error = x->clone();
 	auto true_sol = x->clone();	
@@ -247,8 +250,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth ) {
 	auto lSmoother = Teuchos::rcp(new Pimpact::TimeStokesLSmoother<OpT>( op ));
 
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
 
 	auto error = x->clone(); 
 	x->random();
@@ -283,9 +285,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>( op ));
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField<
-			Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
 
 	auto y = x->clone();
 	auto Ax = x->clone();
@@ -338,8 +338,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
 
 	auto lSmoother = Teuchos::rcp(new Pimpact::TimeStokesLSmoother<OpT>( op ));
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
 	auto y = x->clone();
 	auto error = x->clone();
 	auto true_sol = x->clone();
@@ -381,8 +380,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSBSmooth ) {
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNSBSmoother<OpT>( op ));
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
 	auto rhs = x->clone();
 	auto error = x->clone();
 	auto zero_wind = x->clone();
@@ -426,8 +424,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSBSmooth_conv ) {
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNSBSmoother<OpT>( op ));
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
 	auto y = x->clone();
 	auto error = x->clone();
 	auto true_sol = x->clone();
@@ -479,8 +476,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNS4DBSmoothasfd ) {
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNS4DBSmoother<OpT>( op ));
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
 	auto rhs = x->clone();
 	auto error = x->clone();
 
@@ -521,8 +517,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNS4DBSmooth_conv ) {
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNS4DBSmoother<OpT>( op ));
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
 	auto y = x->clone();
 	auto error = x->clone();
 	auto true_sol = x->clone();
@@ -574,8 +569,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNS4DBSmooth ) {
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNS4DBSmoother<OpT>( op ));
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::create<CF>( space );
 	auto rhs = x->clone();
 	auto error = x->clone();
 

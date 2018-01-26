@@ -107,7 +107,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, constructor, FType ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field = Pimpact::createMultiHarmonic<FType>( space,
+      static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global) );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, constructor, SF )
@@ -134,7 +135,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, clone, FType ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field = Pimpact::createMultiHarmonic<FType>( space,
+      static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global) );
 
 	auto field2 = field->clone();
 }
@@ -162,7 +164,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InfNorm, FType ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field = Pimpact::createMultiHarmonic<FType>( space,
+      static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global) );
 
 	ST norm;
 
@@ -211,7 +214,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InitTwoNorm, FType  ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field = Pimpact::createMultiHarmonic<FType>( space,
+      static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global) );
 
 	int N = field->getLength();
 
@@ -245,7 +249,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, dot, FType  ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field1 = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field1 = Pimpact::createMultiHarmonic<FType>( space,
+      static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global) );
 
 	auto field2 = field1->clone();
 
@@ -300,7 +305,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, scale, FType ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field = Pimpact::createMultiHarmonic<FType>( space,
+      static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global) );
 
 	int N = field->getLength();
 	ST norm;
@@ -335,7 +341,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, random, FType ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field = Pimpact::createMultiHarmonic<FType>( space,
+      static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global) );
 
 	int N = field->getLength();
 	ST norm;
@@ -370,7 +377,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, add, FType ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field1 = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field1 = Pimpact::createMultiHarmonic<FType>( space,
+      static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global) );
 	auto field2 = field1->clone();
 	auto field3 = field1->clone();
 
@@ -430,7 +438,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space, true );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, Pimpact::MultiHarmonicField<FType>::Global::Y );
 
 	if( space->si(Pimpact::F::U,3)<=0 )
 		field->get0Field().init( 1. );
@@ -472,7 +480,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, write, FType ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field = Pimpact::createMultiHarmonic<FType>( space,
+      static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global) );
 
 	field->init( 1. );
 	//	field->write();

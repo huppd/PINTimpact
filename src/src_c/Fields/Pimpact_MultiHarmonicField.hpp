@@ -35,6 +35,8 @@ public:
   using SpaceT = typename IFT::SpaceT;
   using InnerFieldT = IFT;
 
+  enum class Global : bool { Y=true, N=false };
+
 protected:
 
   using ST = typename SpaceT::Scalar;
@@ -44,7 +46,7 @@ protected:
 
   using AF = AbstractField<SpaceT>;
 
-  const bool global_;
+  const Global global_;
 
   IFT field0_;
 
@@ -64,7 +66,7 @@ protected:
 
     field0_.setStoragePtr( s_ );
 
-    if( global_ ) {
+    if( global_==Global::Y ) {
 
       for( OT i=0; i<space()->nGlo(3); ++i )
         fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
@@ -82,7 +84,7 @@ protected:
 public:
 
   constexpr OT getStorageSize() {
-    return ( global_ )?
+    return ( global_==Global::Y )?
       ( ( 1 + 2*space()->nGlo(3))*field0_.getStorageSize() ):
       ( ( 1 + 2*( space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) +
                   1))*field0_.getStorageSize() );
@@ -90,9 +92,9 @@ public:
 
 
   MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space ):
-    MultiHarmonicField( space, space->np(3)==1 ) {};
+    MultiHarmonicField( space, static_cast<Global>(space->np(3)==1) ) {};
 
-  MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool global ):
+  MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const Global global ):
     AF( space ),
     global_(global),
     field0_( space, false ),
@@ -102,7 +104,7 @@ public:
     assert( 4 == SpaceT::dimension  );
     assert( true == space()->getStencilWidths()->spectralT() );
 
-    if( global_ ) {
+    if( global_==Global::Y ) {
       for( OT i=0; i<space->nGlo(3); ++i )
         fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
     } else {
@@ -121,12 +123,12 @@ public:
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
   MultiHarmonicField( const MultiHarmonicField& vF, const ECopy copyType=ECopy::Deep ):
     AF( vF.space() ),
-    global_( vF.space()->np(3)==1 ),
+    global_( static_cast<Global>(vF.space()->np(3)==1) ),
     field0_( vF.field0_, copyType ),
     fields_( vF.space()->nGlo(3) ),
     exchangedState_(vF.exchangedState_) {
 
-    if( global_ ) {
+    if( global_==Global::Y ) {
       for( OT i=1; i<=space()->nGlo(3); ++i )
         fields_[i-1] = Teuchos::rcp( new ModeField<IFT>( vF.getField(i), copyType ) );
     } else {
@@ -161,13 +163,13 @@ public:
 protected:
 
   constexpr OT index( const OT i ) {
-    return i - 1 + (( global_||0==space()->si(F::U,3) )?
+    return i - 1 + (( global_==Global::Y||0==space()->si(F::U,3) )?
              0: (-space()->si(F::U,3)+1) );
   };
 
 public:
 
-  constexpr const bool& global() {
+  constexpr const Global& global() {
     return global_;
   }
 
@@ -409,7 +411,7 @@ public:
   /// \brief mv := a
   MultiHarmonicField& operator=( const MultiHarmonicField& a ) {
 
-    if( global_ and a.global_ and a.exchangedState_ ) {
+    if( global_==Global::Y and a.global_==Global::Y and a.exchangedState_ ) {
       field0_ = a.get0Field();
 
       for( OT i=1; i<=space()->nGlo(3); ++i )
@@ -573,7 +575,7 @@ public:
 
   void exchange() const {
 
-    assert( global_ );
+    assert( global_==Global::Y );
 
     // check if exchange is necessary
     if( exchangedState_==false ) {
@@ -673,8 +675,8 @@ Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
 /// \param space scalar Vector Space to which returned vector belongs
 /// \param global
 template<class FieldT>
-Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
-  const Teuchos::RCP<const typename FieldT::SpaceT >& space, bool global ) {
+Teuchos::RCP< MultiHarmonicField<FieldT> > createMultiHarmonic(
+  const Teuchos::RCP<const typename FieldT::SpaceT >& space, const typename MultiHarmonicField<FieldT>::Global global ) {
 
   return Teuchos::rcp( new  MultiHarmonicField<FieldT>( space, global ) );
 }

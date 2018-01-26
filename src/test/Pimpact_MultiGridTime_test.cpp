@@ -139,8 +139,9 @@ TEUCHOS_STATIC_SETUP() {
 }
 
 
-template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
-Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
+template<class SpaceT> using CF = Pimpact::CompoundField<
+    Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
+    Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
 
 template<class SpaceT> using INT = Pimpact::IntResCompoundOp<
 	Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
@@ -188,7 +189,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	auto op = Pimpact::create<Pimpact::TimeNSOp>( space );
 
 	auto mg = Pimpact::createMultiGrid<
-		CVF,
+		CF,
 		TCO,
 		RES,
 		INT,
@@ -201,8 +202,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
 	//	mg->print();
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<FSpace4T> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<FSpace4T> >( space ));
+  auto x = Pimpact::create<CF>( space );
 
 	using OpT = Pimpact::TimeStokesOp<FSpace4T>;
 

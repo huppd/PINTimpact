@@ -43,10 +43,10 @@ public:
 
     Teuchos::RCP<const DomainFieldT> y;
 
-    if( y_ref.global() )
+    if( y_ref.global()==DomainFieldT::Global::Y )
       y = Teuchos::rcpFromRef( y_ref );
     else {
-      Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp( new DomainFieldT( space(), true ) );
+      Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp( new DomainFieldT( space(), DomainFieldT::Global::Y ) );
       *temp = y_ref;
       y = temp;
       //std::cout << "prec: y->global(): " << y->global() << "\n";

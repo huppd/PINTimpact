@@ -494,8 +494,7 @@ int main( int argi, char** argv ) {
         auto invTriangOp =
           Pimpact::createInverseTriangularOp(
             opV2Vinv,
-            //opS2V,
-            opV2S,
+            opS2V,
             opS2Sinv );
 
         if( "right" == picardPrecString )
@@ -521,6 +520,7 @@ int main( int argi, char** argv ) {
         Teuchos::RCP<NOX::StatusTest::Generic> refinementTest =
           Teuchos::rcp( new NOX::Pimpact::RefinementTest<InterfaceT>(
                 pl->sublist("Solver").get<double>( "refinement residual tol", 1.),
+                pl->sublist("NOX Status Test").sublist("Test 0").get<double>("Tolerance", 1.e-6),
                 refOut) );
 
         pl->sublist("NOX Status Test").sublist("Test 0").sublist("Test 4").set("Test Type", "User Defined");
