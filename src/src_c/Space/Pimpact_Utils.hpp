@@ -31,6 +31,15 @@ enum class ECopy : bool {
 };
 
 
+enum class Owning : bool { Y=true, N=false };
+
+std::ostream& operator<<( std::ostream& out, Owning o ) {
+  if( o==Owning::Y ) 
+    return out << "Yes";
+  else
+    return out << "No";
+}
+
 /// \todo change T->3, consistently
 /// \todo make enum class 
 /// \todo make it iterable( <, ++ )
@@ -40,8 +49,6 @@ enum ECoord {
   Z = 2, ///< 2
   T = 4  ///< 4
 };
-
-enum class Owning : bool { Y=true, N=false };
 
 std::string toString( ECoord type ) {
   switch( type ) {

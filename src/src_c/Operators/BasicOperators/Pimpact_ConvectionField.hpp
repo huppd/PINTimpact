@@ -51,15 +51,15 @@ public:
     interpolateS2V_( create<InterpolateS2V>(space) ),
     interpolateV2S_( createInterpolateV2S( space ) ),
     u_{
-    { { space,true,F::U } ,
-      { space,true,F::U } ,
-      { space,true,F::U } },{
-      { space,true,F::V } ,
-      { space,true,F::V } ,
-      { space,true,F::V } },{
-      { space,true,F::W } ,
-      { space,true,F::W } ,
-      { space,true,F::W } }
+    { { space, Owning::Y, F::U } ,
+      { space, Owning::Y, F::U } ,
+      { space, Owning::Y, F::U } },{
+      { space, Owning::Y, F::V } ,
+      { space, Owning::Y, F::V } ,
+      { space, Owning::Y, F::V } },{
+      { space, Owning::Y, F::W } ,
+      { space, Owning::Y, F::W } ,
+      { space, Owning::Y, F::W } }
   } {};
 
   ConvectionField(

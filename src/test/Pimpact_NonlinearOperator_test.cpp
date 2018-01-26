@@ -61,15 +61,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionSOp, SpaceT ) {
   auto space = Pimpact::create<SpaceT>( pl );
 
 	Pimpact::ScalarField<SpaceT> u[3][3] = { 
-		{ { space, true, Pimpact::F::U },
-			{ space, true, Pimpact::F::U },
-			{ space, true, Pimpact::F::U }},{
-			{ space, true, Pimpact::F::V },
-			{ space, true, Pimpact::F::V },
-			{ space, true, Pimpact::F::V }},{
-			{ space, true, Pimpact::F::W },
-			{ space, true, Pimpact::F::W },
-			{ space, true, Pimpact::F::W }}
+		{ { space, Pimpact::Owning::Y, Pimpact::F::U },
+			{ space, Pimpact::Owning::Y, Pimpact::F::U },
+			{ space, Pimpact::Owning::Y, Pimpact::F::U }},{
+			{ space, Pimpact::Owning::Y, Pimpact::F::V },
+			{ space, Pimpact::Owning::Y, Pimpact::F::V },
+			{ space, Pimpact::Owning::Y, Pimpact::F::V }},{
+			{ space, Pimpact::Owning::Y, Pimpact::F::W },
+			{ space, Pimpact::Owning::Y, Pimpact::F::W },
+			{ space, Pimpact::Owning::Y, Pimpact::F::W }}
 	};
 
 	Pimpact::VectorField<SpaceT> x   ( space );
@@ -884,15 +884,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionSOp, SpaceT ) {
 				rank = space->rankST();
 
 				Pimpact::ScalarField<SpaceT> wind[3][3] = { 
-					{ { space, true, Pimpact::F::U },
-						{ space, true, Pimpact::F::U },
-						{ space, true, Pimpact::F::U }},{
-						{ space, true, Pimpact::F::V },
-						{ space, true, Pimpact::F::V },
-						{ space, true, Pimpact::F::V }},{
-						{ space, true, Pimpact::F::W },
-						{ space, true, Pimpact::F::W },
-						{ space, true, Pimpact::F::W }}
+					{ { space, Pimpact::Owning::Y, Pimpact::F::U },
+						{ space, Pimpact::Owning::Y, Pimpact::F::U },
+						{ space, Pimpact::Owning::Y, Pimpact::F::U }},{
+						{ space, Pimpact::Owning::Y, Pimpact::F::V },
+						{ space, Pimpact::Owning::Y, Pimpact::F::V },
+						{ space, Pimpact::Owning::Y, Pimpact::F::V }},{
+						{ space, Pimpact::Owning::Y, Pimpact::F::W },
+						{ space, Pimpact::Owning::Y, Pimpact::F::W },
+						{ space, Pimpact::Owning::Y, Pimpact::F::W }}
 				};
 				auto windfunc = [&pi2]( ST x ) -> ST {
 					return( -std::cos(pi2*x/2) );

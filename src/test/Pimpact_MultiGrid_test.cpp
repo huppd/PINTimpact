@@ -413,8 +413,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType )
 			Teuchos::RCP< Pimpact::ScalarField<typename CS::CSpaceT> > sol;
 			Teuchos::RCP< Pimpact::ScalarField<typename CS::CSpaceT> > er;
 
-			Pimpact::ScalarField<typename CS::CSpaceT> fieldf( mgSpaces->get( level-1 ), true, *type );
-			Pimpact::ScalarField<typename CS::CSpaceT> fieldc( mgSpaces->get( level   ), true, *type );
+			Pimpact::ScalarField<typename CS::CSpaceT> fieldf( mgSpaces->get( level-1 ), Pimpact::Owning::Y, *type );
+			Pimpact::ScalarField<typename CS::CSpaceT> fieldc( mgSpaces->get( level   ), Pimpact::Owning::Y, *type );
 
 			sol = fieldc.clone();
 			er = fieldc.clone();
@@ -542,8 +542,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 			if( 0==space->rankST() )
 				std::cout << "field type: " << type[i] << "\n";
 
-			Pimpact::ScalarField<typename CS::CSpaceT> fieldf( mgSpaces->get( level   ), true, type[i] );
-			Pimpact::ScalarField<typename CS::CSpaceT> fieldc( mgSpaces->get( level+1 ), true, type[i] );
+			Pimpact::ScalarField<typename CS::CSpaceT> fieldf( mgSpaces->get( level   ), Pimpact::Owning::Y, type[i] );
+			Pimpact::ScalarField<typename CS::CSpaceT> fieldc( mgSpaces->get( level+1 ), Pimpact::Owning::Y, type[i] );
 			auto sol = fieldf.clone();
 			auto er = fieldf.clone();
 

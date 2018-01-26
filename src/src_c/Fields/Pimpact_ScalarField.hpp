@@ -49,7 +49,7 @@ protected:
 
   ScalarArray s_;
 
-  const bool owning_;
+  const Owning owning_;
 
   State exchangedState_;
 
@@ -66,7 +66,8 @@ protected:
 
 public:
 
-  ScalarField( const Teuchos::RCP<const SpaceT>& space, const  bool owning=true, const F fType=F::S ):
+  ScalarField( const Teuchos::RCP<const SpaceT>& space, const Owning owning=Owning::Y,
+      const F fType=F::S ):
     AbstractField<SpaceT>( space ),
     owning_(owning),
     exchangedState_( Teuchos::tuple( true, true, true ) ),
@@ -75,7 +76,7 @@ public:
     stride2_( (space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1)*(
           space->nLoc(1)+SW::BU(1)-SW::BL(1)+1) ) {
 
-      if( owning_ ) allocate();
+      if( owning_==Owning::Y ) allocate();
     };
 
 
@@ -92,7 +93,7 @@ public:
     stride1_( sF.stride1_ ),
     stride2_( sF.stride2_ ) {
 
-      if( owning_ ) {
+      if( owning_==Owning::Y ) {
 
         allocate();
 
@@ -108,13 +109,13 @@ public:
 
 
   ~ScalarField() {
-    if( owning_ ) delete[] s_;
+    if( owning_==Owning::Y ) delete[] s_;
   }
 
 
   Teuchos::RCP<ScalarField> clone( const ECopy copyType=ECopy::Deep ) const {
 
-    Teuchos::RCP<ScalarField> mv = Teuchos::rcp( new ScalarField( space(), true, this->fType_ ) );
+    Teuchos::RCP<ScalarField> mv = Teuchos::rcp( new ScalarField( space(), Owning::Y, this->fType_ ) );
 
     switch( copyType ) {
     case ECopy::Shallow:
@@ -1076,8 +1077,7 @@ public:
       Teuchos::RCP< ScalarField<SpaceT> > temp;
 
       if( F::S != fType_ ) {
-        temp = Teuchos::rcp(
-                 new ScalarField<SpaceT>( space(), true, F::S ) );
+        temp = Teuchos::rcp( new ScalarField<SpaceT>( space(), Owning::Y, F::S ) );
         space()->getInterpolateV2S()->apply( *this, *temp );
       }
 

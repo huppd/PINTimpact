@@ -74,7 +74,7 @@ public:
     mfs_ = Teuchos::Array< Teuchos::RCP<Field> >( nt );
 
     for( int i=0; i<nt; ++i )
-      mfs_[i] = Teuchos::rcp( new Field( space, false ) );
+      mfs_[i] = Teuchos::rcp( new Field( space, Owning::N ) );
 
     Ordinal nx = at(0).getStorageSize();
 
@@ -103,7 +103,7 @@ public:
     mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
 
     for( int i=0; i<nt; ++i )
-      mfs_[i] = Teuchos::rcp( new Field( space(), false ) );
+      mfs_[i] = Teuchos::rcp( new Field( space(), Owning::N ) );
 
     Ordinal nx = mfs_[0]->getStorageSize();
 
@@ -135,7 +135,7 @@ public:
 
   /// \brief Create a new \c TimeField with
   Teuchos::RCP< FieldT > clone( const ECopy ctype = ECopy::Deep ) const {
-    Teuchos::RCP< FieldT > mv_ = Teuchos::rcp( new FieldT(*this,ctype) );
+    Teuchos::RCP< FieldT > mv_ = Teuchos::rcp( new FieldT(*this, ctype) );
     return mv_;
   }
 

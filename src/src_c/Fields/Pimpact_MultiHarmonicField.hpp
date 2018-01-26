@@ -97,7 +97,7 @@ public:
   MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const Global global ):
     AF( space ),
     global_(global),
-    field0_( space, false ),
+    field0_( space, Owning::N ),
     fields_( space->nGlo(3) ),
     exchangedState_( true ) {
 
@@ -106,10 +106,10 @@ public:
 
     if( global_==Global::Y ) {
       for( OT i=0; i<space->nGlo(3); ++i )
-        fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
+        fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, Owning::N ) );
     } else {
       for( OT i=0; i<space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1; ++i )
-        fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
+        fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, Owning::N ) );
     }
 
     allocate();

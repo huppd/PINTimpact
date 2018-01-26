@@ -452,9 +452,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, ReadWrite, SpaceT ) {
   types.push_back( Pimpact::F::W );
 
   for( auto type: types ) {
-    Pimpact::ScalarField<SpaceT> write( space, true, type );
-    Pimpact::ScalarField<SpaceT> read( space, true, type );
-    Pimpact::ScalarField<SpaceT> err( space, true, type );
+    Pimpact::ScalarField<SpaceT> write(space, Pimpact::Owning::Y, type );
+    Pimpact::ScalarField<SpaceT> read( space, Pimpact::Owning::Y, type );
+    Pimpact::ScalarField<SpaceT> err(  space, Pimpact::Owning::Y, type );
 
     for( int i=1; i<=6; ++i ) {
       write.initField( static_cast<Pimpact::EScalarField>(i) );

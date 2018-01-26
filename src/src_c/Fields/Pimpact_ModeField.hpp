@@ -43,7 +43,7 @@ protected:
 
   using AF =  AbstractField<SpaceT>;
 
-  const bool owning_;
+  const Owning owning_;
 
   IFT fieldc_;
   IFT fields_;
@@ -75,13 +75,13 @@ public:
   }
 
 
-  ModeField( const Teuchos::RCP<const SpaceT>& space, const bool owning=true ):
+  ModeField( const Teuchos::RCP<const SpaceT>& space, const Owning owning=Owning::Y ):
     AF( space ),
     owning_(owning),
-    fieldc_( space, false ),
-    fields_( space, false ) {
+    fieldc_( space, Owning::N ),
+    fields_( space, Owning::N ) {
 
-    if( owning_ ) allocate();
+    if( owning_==Owning::Y ) allocate();
   };
 
 
@@ -96,7 +96,7 @@ public:
     fieldc_( vF.fieldc_, copyType ),
     fields_( vF.fields_, copyType ) {
 
-    if( owning_ ) {
+    if( owning_==Owning::Y ) {
 
       allocate();
 
@@ -111,7 +111,7 @@ public:
   };
 
   ~ModeField() {
-    if( owning_ ) delete[] s_;
+    if( owning_==Owning::Y ) delete[] s_;
   }
 
   Teuchos::RCP<ModeField> clone( const ECopy cType=ECopy::Deep ) const {

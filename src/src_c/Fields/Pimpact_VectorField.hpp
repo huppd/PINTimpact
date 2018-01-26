@@ -50,7 +50,7 @@ protected:
 
   ScalarArray s_;
 
-  const bool owning_; /// < not template parameter
+  const Owning owning_; /// < not template parameter
 
   SF sFields_[3];
 
@@ -62,12 +62,15 @@ protected:
 
 public:
 
-  VectorField( const Teuchos::RCP< const SpaceT >& space, const bool owning=true ):
+  VectorField( const Teuchos::RCP<const SpaceT>& space, const Owning owning=Owning::Y ):
     AbstractField<SpaceT>( space ),
     owning_(owning),
-    sFields_{ {space,false,F::U}, {space,false,F::V}, {space,false,F::W} } {
+    sFields_{
+      {space, Owning::N, F::U},
+      {space, Owning::N, F::V},
+      {space, Owning::N, F::W} } {
 
-    if( owning_ ) allocate();
+    if( owning_==Owning::Y ) allocate();
   };
 
 
@@ -81,7 +84,7 @@ public:
     owning_(vF.owning_),
     sFields_{ {vF(F::U),copyType}, {vF(F::V),copyType}, {vF(F::W),copyType} } {
 
-    if( owning_ ) {
+    if( owning_==Owning::Y ) {
 
       allocate();
 
@@ -97,7 +100,7 @@ public:
 
 
   ~VectorField() {
-    if( owning_ ) delete[] s_;
+    if( owning_==Owning::Y ) delete[] s_;
   }
 
   Teuchos::RCP<VectorField> clone( const ECopy copyType=ECopy::Deep ) const {

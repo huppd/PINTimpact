@@ -348,7 +348,7 @@ public:
 
     const F m = y.getType();
 
-    DomainFieldT temp( space(), true, m );
+    DomainFieldT temp( space(), Owning::Y, m );
 
     assert( y.getType() == x.getType() );
 
