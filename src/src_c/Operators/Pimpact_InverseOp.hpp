@@ -60,7 +60,7 @@ protected:
   Teuchos::RCP< Teuchos::ParameterList > solverParameter_;
   Teuchos::RCP< Belos::LinearProblem<ST, MF, MOpT> > problem_;
 
-  Teuchos::RCP<const ProjectorT<OpT>> projector_;
+  Teuchos::RCP<const ProjectorT<OpT> > projector_;
 
 public:
 
@@ -86,13 +86,13 @@ public:
     relTol_(1.),
     solverName_( "GMRES" ),
     solverParameter_(
-        createLinSolverParameter( "GMRES", 1.e-1, -1, Teuchos::rcp( new Teuchos::oblackholestream ),10 ) ),
+        createLinSolverParameter( "GMRES", 1.e-1, -1, Teuchos::rcp( new Teuchos::oblackholestream ), 10 ) ),
     problem_(
       Teuchos::rcp(
         new Belos::LinearProblem<ST,MF,MOpT>(
           createMultiOperatorBase( op ),
-          Teuchos::rcp( new MF(op->space()) ),
-          Teuchos::rcp( new MF(op->space()) ) ) ) ) {
+          Teuchos::null,
+          Teuchos::null) ) ) {
       if( nullspaceOrtho_ )
         projector_ = Teuchos::rcp( new ProjectorT<OpT>(op) );
     }
@@ -111,50 +111,59 @@ public:
     problem_(
       Teuchos::rcp( new Belos::LinearProblem<ST,MF,MOpT>(
                       createMultiOperatorBase( op ),
-                      Teuchos::rcp( new MF(op->space()) ),
-                      Teuchos::rcp( new MF(op->space()) ) ) )) {
+                      Teuchos::null,
+                      Teuchos::null ) )) {
       if( nullspaceOrtho_ )
         projector_ = Teuchos::rcp( new ProjectorT<OpT>(op) );
     }
 
 
-  void apply( const DomainFieldT& rhs, RangeFieldT& y, const Add add=Add::N  ) const {
+  void apply( const DomainFieldT& rhs, RangeFieldT& x, const Add add=Add::N  ) const {
     apply(
-      *wrapMultiField( Teuchos::rcpFromRef<DomainFieldT>(
-                         const_cast<DomainFieldT&>(rhs) ) ),
-      *wrapMultiField( Teuchos::rcpFromRef<RangeFieldT>(y) ) );
+        wrapMultiField( Teuchos::rcpFromRef<DomainFieldT>( const_cast<DomainFieldT&>(rhs)
+            ) ),
+        wrapMultiField( Teuchos::rcpFromRef<RangeFieldT>(x) ) );
   }
 
 
   /// \brief MultiField helper (useful for MH ops)
-  void apply( const MF& rhs, MF& y, const Add add=Add::N  ) const {
+  void apply( const MF& rhs, MF& x, const Add add=Add::N  ) const {
 
-    if( initZero_ ) y.init( );
+    apply( Teuchos::rcpFromRef<const MF>(rhs), Teuchos::rcpFromRef<MF>(x) );
+  }
+
+private:
+
+  void apply( const Teuchos::RCP<const MF>& rhs, const Teuchos::RCP<MF>& x, const Add add=Add::N  ) const {
+
+    if( initZero_ ) x->init( );
 
     if( nullspaceOrtho_ ) {
-      for( int i=0; i<rhs.getNumberVecs(); ++i )
-        (*projector_)( const_cast<RangeFieldT&>(rhs.getField(i)) );
+      for( int i=0; i<rhs->getNumberVecs(); ++i )
+        (*projector_)( const_cast<RangeFieldT&>(rhs->getField(i)) );
     }
 
-    problem_->setProblem( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(rhs) );
+    problem_->setProblem( x, rhs );
     Belos::SolverFactory<ST,MF,MOpT> factory;
 
     Teuchos::RCP< Belos::SolverManager<ST,MF,MOpT> > solver =
-      factory.create(solverName_,solverParameter_);
+      factory.create(solverName_, solverParameter_);
 
     solver->setProblem( problem_ );
     Belos::ReturnType succes = solver->solve();
 
     if( debug_ ) {
-      y.write();
-      rhs.write(100);
+      x->write();
+      rhs->write(100);
       std::cout << getLabel() << ": succes? " << succes << "\n";
       assert( Belos::ReturnType::Converged==succes );
     }
 
-    if( level_ ) y.level();
+    if( level_ ) x->level();
+    problem_->setProblem();
   }
 
+public:
 
   void assignField( const DomainFieldT& mvr ) {
 
