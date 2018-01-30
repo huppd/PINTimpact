@@ -73,10 +73,10 @@ using MF = Pimpact::MultiField<CF>;
 
 
 
-int main( int argi, char** argv ) {
+int main(int argi, char** argv) {
 
   // intialize MPI
-  MPI_Init( &argi, &argv );
+  MPI_Init(&argi, &argv);
 
   {
     /////////////////////////////////////////// set up parameters ///////////////////////////
@@ -93,62 +93,63 @@ int main( int argi, char** argv ) {
     my_CLP.parse(argi,argv);
 
     Teuchos::RCP<Teuchos::ParameterList> pl;
-    pl = Teuchos::getParametersFromXmlFile( "parameterOut.xml" );
+    pl = Teuchos::getParametersFromXmlFile("parameterOut.xml");
     ////////////////////////////////////////// end of set up parameters /////////////////////////
 
 
     //////////////////////////////////////////  set up initial stuff ////////////////////////////
     Teuchos::RCP<const SpaceT> space =
-      Pimpact::create<SpaceT>( Teuchos::sublist( pl, "Space", true ) );
+      Pimpact::create<SpaceT>(Teuchos::sublist(pl, "Space", true));
 
 
-    if( 0==space->rankST() ) std::cout << "initial field\n";
+    if(0==space->rankST()) std::cout << "initial field\n";
 
     // init vectors
-    Teuchos::RCP<MF> x = Pimpact::wrapMultiField( Pimpact::create<CF>(space) );
+    //Teuchos::RCP<MF> x = Pimpact::wrapMultiField(Pimpact::create<CF>(space));
+    Teuchos::RCP<MF> x = Teuchos::rcp(new MF(space));
 
     // init Fields
-    x->getField(0).getVField().initField( pl->sublist("Base flow") );
+    x->getField(0).getVField().initField(pl->sublist("Base flow"));
 
     auto base = x->getField(0).getVField().get0Field().clone(Pimpact::ECopy::Deep);
 
-    x->getField(0).read( restart );
+    x->getField(0).read(restart);
     /*********************************************************************************/
     Pimpact::ECoord dir = Pimpact::ECoord::Y;
     ST gamma = 10.;
     std::string prefix = "energy_";
 
     // compute glob energy in y-dir
-    if( 0==space->si(::Pimpact::F::U,3) ) {
-      auto vel =  x->getField(0).getVField().get0Field().clone( ::Pimpact::ECopy::Deep );
-      vel->add( 1., *vel, -1., *base );
+    if(0==space->si(::Pimpact::F::U,3)) {
+      auto vel =  x->getField(0).getVField().get0Field().clone(::Pimpact::ECopy::Deep);
+      vel->add(1., *vel, -1., *base);
 
-      auto out = Pimpact::createOstream( prefix + "0.txt",
+      auto out = Pimpact::createOstream(prefix + "0.txt",
           space->getProcGrid()->getRankBar(dir));
 
-      Pimpact::computeHEEnergyDir( *vel, *out, gamma );
+      Pimpact::computeHEEnergyDir(*vel, *out, gamma);
     }
 
-    for( OT i=std::max(space->si(::Pimpact::F::U,3),1); i<=space->ei(::Pimpact::F::U,3); ++i ) {
+    for(OT i=std::max(space->si(::Pimpact::F::U,3),1); i<=space->ei(::Pimpact::F::U,3); ++i) {
       {
-        auto out = Pimpact::createOstream( prefix + "C"+std::to_string(i) + ".txt",
-            space->getProcGrid()->getRankBar(dir) );
+        auto out = Pimpact::createOstream(prefix + "C"+std::to_string(i) + ".txt",
+            space->getProcGrid()->getRankBar(dir));
 
         Pimpact::computeHEEnergyDir(
-            x->getField(0).getVField().getCField(i), *out, gamma );
+            x->getField(0).getVField().getCField(i), *out, gamma);
       }
       {
-        auto out = Pimpact::createOstream( prefix + "S"+std::to_string(i) + ".txt",
-            space->getProcGrid()->getRankBar(dir) );
+        auto out = Pimpact::createOstream(prefix + "S"+std::to_string(i) + ".txt",
+            space->getProcGrid()->getRankBar(dir));
 
         Pimpact::computeHEEnergyDir(
-            x->getField(0).getVField().getSField(i), *out, gamma );
+            x->getField(0).getVField().getSField(i), *out, gamma);
       }
     }
 
     x->write();
-    Pimpact::writeMHLambda2evol( x->getField(0).getVField(), 10000 );
-    Pimpact::writeMHLambda2( x->getField(0).getVField(), 20000 );
+    Pimpact::writeMHLambda2evol(x->getField(0).getVField(), 10000);
+    Pimpact::writeMHLambda2(x->getField(0).getVField(), 20000);
   }
 
   MPI_Finalize();

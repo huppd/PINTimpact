@@ -44,28 +44,28 @@ protected:
 
 public:
 
-  MultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ):
-    op_( create<NonlinearWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
-    wind0_( create<ConvectionField>(space) ),
-    windc_( space->nGlo(3) ),
-    winds_( space->nGlo(3) ) {
+  MultiDtConvectionDiffusionOp(const Teuchos::RCP<const SpaceT>& space):
+    op_(create<NonlinearWrap>(create<ConvectionDiffusionSOp<SpaceT> >(space))),
+    wind0_(create<ConvectionField>(space)),
+    windc_(space->nGlo(3)),
+    winds_(space->nGlo(3)) {
 
-    for( OT i=0; i<space->nGlo(3); ++i ) {
-      windc_[i] = create<ConvectionField>( space );
-      winds_[i] = create<ConvectionField>( space );
+    for(OT i=0; i<space->nGlo(3); ++i) {
+      windc_[i] = create<ConvectionField>(space);
+      winds_[i] = create<ConvectionField>(space);
     }
   };
 
 
-  void assignField( const DomainFieldT& y_ref ) {
+  void assignField(const DomainFieldT& y_ref) {
 
     Teuchos::RCP<const DomainFieldT> y;
 
-    if( y_ref.global()==DomainFieldT::Global::Y )
-      y = Teuchos::rcpFromRef( y_ref );
+    if(y_ref.global()==DomainFieldT::Global::Y)
+      y = Teuchos::rcpFromRef(y_ref);
     else {
       Teuchos::RCP<DomainFieldT> temp =
-        Teuchos::rcp( new DomainFieldT( space(), DomainFieldT::Global::Y ) );
+        Teuchos::rcp(new DomainFieldT(space(), DomainFieldT::Global::Y));
       *temp = y_ref;
       y = temp;
       //std::cout << "assign op: y->global(): " << y->global() << "\n";
@@ -73,23 +73,23 @@ public:
 
     y->exchange();
 
-    wind0_->assignField( y->get0Field() );
+    wind0_->assignField(y->get0Field());
 
-    for( OT i=1; i<=space()->nGlo(3); ++i ) {
-      windc_[i-1]->assignField( y->getCField(i) );
-      winds_[i-1]->assignField( y->getSField(i) );
+    for(OT i=1; i<=space()->nGlo(3); ++i) {
+      windc_[i-1]->assignField(y->getCField(i));
+      winds_[i-1]->assignField(y->getSField(i));
     }
   };
 
 
-  void apply( const DomainFieldT& y_ref, RangeFieldT& z, bool init_yes=true ) const {
+  void apply(const DomainFieldT& y_ref, RangeFieldT& z, bool init_yes=true) const {
 
     Teuchos::RCP<const DomainFieldT> y;
-    if( y_ref.global()==DomainFieldT::Global::Y )
-      y = Teuchos::rcpFromRef( y_ref );
+    if(y_ref.global()==DomainFieldT::Global::Y)
+      y = Teuchos::rcpFromRef(y_ref);
     else {
       Teuchos::RCP<DomainFieldT> temp =
-        Teuchos::rcp( new DomainFieldT( space(), DomainFieldT::Global::Y ) );
+        Teuchos::rcp(new DomainFieldT(space(), DomainFieldT::Global::Y));
       *temp = y_ref; // needed because of const
       y = temp;
     }
@@ -103,71 +103,71 @@ public:
     ST mulI;
 
     // computing zero mode of z
-    if( 0==space()->si(F::U,3) ) {
+    if(0==space()->si(F::U,3)) {
 
-      op_->apply( get0Wind(), y->get0Field(), z.get0Field(), 0., 1., iRe, Add::N );
+      op_->apply(get0Wind(), y->get0Field(), z.get0Field(), 0., 1., iRe, Add::N);
 
-      for( OT i=1; i<=Nf; ++i ) {
-        op_->apply( getCWind(i), y->getCField(i), z.get0Field(), 0., 0.5, 0., Add::Y );
-        op_->apply( getSWind(i), y->getSField(i), z.get0Field(), 0., 0.5, 0., Add::Y );
+      for(OT i=1; i<=Nf; ++i) {
+        op_->apply(getCWind(i), y->getCField(i), z.get0Field(), 0., 0.5, 0., Add::Y);
+        op_->apply(getSWind(i), y->getSField(i), z.get0Field(), 0., 0.5, 0., Add::Y);
       }
     }
 
     // computing cos mode of z
-    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i) {
 
-      op_->apply( get0Wind( ), y->getCField(i), z.getCField(i), 0., 1., iRe, Add::N  );
-      op_->apply( getCWind(i), y->get0Field( ), z.getCField(i), 0., 1., 0.,  Add::Y );
+      op_->apply(get0Wind(), y->getCField(i), z.getCField(i), 0., 1., iRe, Add::N );
+      op_->apply(getCWind(i), y->get0Field(), z.getCField(i), 0., 1., 0.,  Add::Y);
 
-      for( OT k=1; k+i<=Nf; ++k ) { // thats fine
+      for(OT k=1; k+i<=Nf; ++k) { // thats fine
 
         mulI = (k==i)?(a2*i):0;
 
-        op_->apply( getCWind(k+i), y->getCField( k ), z.getCField(i),   0., 0.5, 0., Add::Y );
-        op_->apply( getCWind( k ), y->getCField(k+i), z.getCField(i),   0., 0.5, 0., Add::Y );
-        op_->apply( getSWind(k+i), y->getSField( k ), z.getCField(i), mulI, 0.5, 0., Add::Y );
-        op_->apply( getSWind( k ), y->getSField(k+i), z.getCField(i),   0., 0.5, 0., Add::Y );
+        op_->apply(getCWind(k+i), y->getCField(k), z.getCField(i),   0., 0.5, 0., Add::Y);
+        op_->apply(getCWind(k), y->getCField(k+i), z.getCField(i),   0., 0.5, 0., Add::Y);
+        op_->apply(getSWind(k+i), y->getSField(k), z.getCField(i), mulI, 0.5, 0., Add::Y);
+        op_->apply(getSWind(k), y->getSField(k+i), z.getCField(i),   0., 0.5, 0., Add::Y);
       }
     }
 
     // computing sin mode of y
-    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
+    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i) {
 
-      op_->apply( get0Wind(),  y->getSField(i), z.getSField(i), 0., 1., iRe, Add::N  );
-      op_->apply( getSWind(i), y->get0Field(),  z.getSField(i), 0., 1., 0. , Add::Y );
+      op_->apply(get0Wind(),  y->getSField(i), z.getSField(i), 0., 1., iRe, Add::N );
+      op_->apply(getSWind(i), y->get0Field(),  z.getSField(i), 0., 1., 0. , Add::Y);
 
-      for( OT k=1; k+i<=Nf; ++k ) { // that is fine
+      for(OT k=1; k+i<=Nf; ++k) { // that is fine
 
         mulI = (k==i)?(a2*i):0;
 
-        op_->apply( getCWind(k+i), y->getSField( k ), z.getSField(i),    0., -0.5, 0., Add::Y );
-        op_->apply( getCWind( k ), y->getSField(k+i), z.getSField(i),    0.,  0.5, 0., Add::Y );
-        op_->apply( getSWind(k+i), y->getCField( k ), z.getSField(i), -mulI,  0.5, 0., Add::Y );
-        op_->apply( getSWind( k ), y->getCField(k+i), z.getSField(i),    0., -0.5, 0., Add::Y );
+        op_->apply(getCWind(k+i), y->getSField(k), z.getSField(i),    0., -0.5, 0., Add::Y);
+        op_->apply(getCWind(k), y->getSField(k+i), z.getSField(i),    0.,  0.5, 0., Add::Y);
+        op_->apply(getSWind(k+i), y->getCField(k), z.getSField(i), -mulI,  0.5, 0., Add::Y);
+        op_->apply(getSWind(k), y->getCField(k+i), z.getSField(i),    0., -0.5, 0., Add::Y);
       }
     }
 
     // rest of time
-    for( OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
-      if( Nf/2+1<=i && i<=Nf ) {
+    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i) {
+      if(Nf/2+1<=i && i<=Nf) {
         mulI = a2*i;
-        z.getCField(i).add( 1., z.getCField(i),  mulI, y->getSField(i), B::N );
-        z.getSField(i).add( 1., z.getSField(i), -mulI, y->getCField(i), B::N );
+        z.getCField(i).add(1., z.getCField(i),  mulI, y->getSField(i), B::N);
+        z.getSField(i).add(1., z.getSField(i), -mulI, y->getCField(i), B::N);
       }
     }
 
     // strange terms
     OT i;
-    for( OT k=1; k<=Nf; ++k ) {
-      for( OT l=1; l<=Nf; ++l ) { // that is fine
+    for(OT k=1; k<=Nf; ++k) {
+      for(OT l=1; l<=Nf; ++l) { // that is fine
         i = k+l;
-        if( i<=Nf ) { // do something here
-          if( std::max(space()->si(F::U,3),1)<=i && i<=space()->ei(F::U,3) ) {
-            op_->apply( getCWind(k), y->getCField(l), z.getCField(i), 0.,  0.5, 0., Add::Y );
-            op_->apply( getSWind(k), y->getSField(l), z.getCField(i), 0., -0.5, 0., Add::Y );
+        if(i<=Nf) { // do something here
+          if(std::max(space()->si(F::U,3),1)<=i && i<=space()->ei(F::U,3)) {
+            op_->apply(getCWind(k), y->getCField(l), z.getCField(i), 0.,  0.5, 0., Add::Y);
+            op_->apply(getSWind(k), y->getSField(l), z.getCField(i), 0., -0.5, 0., Add::Y);
 
-            op_->apply( getCWind(k), y->getSField(l), z.getSField(i), 0.,  0.5, 0., Add::Y );
-            op_->apply( getSWind(k), y->getCField(l), z.getSField(i), 0.,  0.5, 0., Add::Y );
+            op_->apply(getCWind(k), y->getSField(l), z.getSField(i), 0.,  0.5, 0., Add::Y);
+            op_->apply(getSWind(k), y->getCField(l), z.getSField(i), 0.,  0.5, 0., Add::Y);
           }
         }
       }
@@ -179,14 +179,14 @@ public:
 
   /// computes residual of higher modes >N_f, and returns the according residual of the
   /// modes that are bigger than the cutoff
-  std::pair<ST, OT> compRefRes( const DomainFieldT& y_ref, ST cutoff=1.e-6 ) const {
+  std::pair<ST, OT> compRefRes(const DomainFieldT& y_ref, ST cutoff=1.e-6) const {
 
     Teuchos::RCP<const DomainFieldT> y;
-    if( y_ref.global()==DomainFieldT::Global::Y )
-      y = Teuchos::rcpFromRef( y_ref );
+    if(y_ref.global()==DomainFieldT::Global::Y)
+      y = Teuchos::rcpFromRef(y_ref);
     else {
       Teuchos::RCP<DomainFieldT> temp =
-        Teuchos::rcp( new DomainFieldT( space(), DomainFieldT::Global::Y ) );
+        Teuchos::rcp(new DomainFieldT(space(), DomainFieldT::Global::Y));
       *temp = y_ref; // needed because of const
       y = temp;
     }
@@ -195,46 +195,46 @@ public:
 
     OT Nf = space()->nGlo(3);
 
-    MultiField<ModeField<typename DomainFieldT::InnerFieldT> > z(y->getField(1), Nf, ECopy::Shallow);
+    MultiField<ModeField<typename DomainFieldT::InnerFieldT> > z(space(), Nf);
 
 
     // strange terms
-    for( OT k=1; k<=Nf; ++k ) {
-      for( OT l=1; l<=Nf; ++l ) { // that is fine
+    for(OT k=1; k<=Nf; ++k) {
+      for(OT l=1; l<=Nf; ++l) { // that is fine
         OT i = k+l;
-        if( Nf<i && i<=2*Nf ) { // do something here
-          op_->apply( getCWind(k), y->getCField(l), z.getField(i-Nf-1).getCField(), 0.,  0.5, 0., Add::Y );
-          op_->apply( getSWind(k), y->getSField(l), z.getField(i-Nf-1).getCField(), 0., -0.5, 0., Add::Y );
+        if(Nf<i && i<=2*Nf) { // do something here
+          op_->apply(getCWind(k), y->getCField(l), z.getField(i-Nf-1).getCField(), 0.,  0.5, 0., Add::Y);
+          op_->apply(getSWind(k), y->getSField(l), z.getField(i-Nf-1).getCField(), 0., -0.5, 0., Add::Y);
 
-          op_->apply( getCWind(k), y->getSField(l), z.getField(i-Nf-1).getSField(), 0.,  0.5, 0., Add::Y );
-          op_->apply( getSWind(k), y->getCField(l), z.getField(i-Nf-1).getSField(), 0.,  0.5, 0., Add::Y );
+          op_->apply(getCWind(k), y->getSField(l), z.getField(i-Nf-1).getSField(), 0.,  0.5, 0., Add::Y);
+          op_->apply(getSWind(k), y->getCField(l), z.getField(i-Nf-1).getSField(), 0.,  0.5, 0., Add::Y);
         }
       }
     }
 
-    std::vector<ST> norms( Nf );
-    z.norm( norms, ENorm::L2 );
+    std::vector<ST> norms(Nf);
+    z.norm(norms, ENorm::L2);
 
     OT NfR = Nf-1;
-    while( NfR>=0 && norms[NfR]<cutoff )
+    while(NfR>=0 && norms[NfR]<cutoff)
       --NfR;
 
     ST res = 0.;
-    for( OT i=0; i<=NfR; ++i )
+    for(OT i=0; i<=NfR; ++i)
       res += std::pow(norms[i], 2);
 
-    return std::make_pair<ST,OT>( std::sqrt(res), NfR+1);
+    return std::make_pair<ST,OT>(std::sqrt(res), NfR+1);
   }
 
 
-  void applyBC( const DomainFieldT& x, RangeFieldT& y ) const {
+  void applyBC(const DomainFieldT& x, RangeFieldT& y) const {
 
-    if( 0==space()->si(F::U,3) )
-      op_->getSOp()->getHelmholtzOp()->applyBC( x.get0Field(), y.get0Field() );
+    if(0==space()->si(F::U,3))
+      op_->getSOp()->getHelmholtzOp()->applyBC(x.get0Field(), y.get0Field());
 
-    for( typename SpaceT::OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
-      op_->getSOp()->getHelmholtzOp()->applyBC( x.getCField(i), y.getCField(i) );
-      op_->getSOp()->getHelmholtzOp()->applyBC( x.getSField(i), y.getSField(i) );
+    for(typename SpaceT::OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i) {
+      op_->getSOp()->getHelmholtzOp()->applyBC(x.getCField(i), y.getCField(i));
+      op_->getSOp()->getHelmholtzOp()->applyBC(x.getSField(i), y.getSField(i));
     }
   }
 
@@ -243,7 +243,7 @@ public:
     return op_->space();
   };
 
-  void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+  void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
 
   bool hasApplyTranspose() const {
     return false;
@@ -253,9 +253,9 @@ public:
     return "MHDtConvectionDiffusion";
   };
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
     out <<  getLabel() << ":\n";
-    op_->print( out );
+    op_->print(out);
   }
 
 protected:
@@ -264,10 +264,10 @@ protected:
     return wind0_->get();
   }
 
-  constexpr const FieldTensorT& getCWind( const OT i) const {
+  constexpr const FieldTensorT& getCWind(const OT i) const {
     return windc_[i-1]->get();
   }
-  constexpr const FieldTensorT& getSWind( const OT i) const {
+  constexpr const FieldTensorT& getSWind(const OT i) const {
     return winds_[i-1]->get();
   }
 
@@ -278,9 +278,9 @@ protected:
 /// \relates MultiDtConvectionDiffusionOp
 template<class SpaceT>
 Teuchos::RCP<MultiDtConvectionDiffusionOp<SpaceT> >
-createMultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ) {
+createMultiDtConvectionDiffusionOp(const Teuchos::RCP<const SpaceT>& space) {
 
-  return Teuchos::rcp( new MultiDtConvectionDiffusionOp<SpaceT>( space ) );
+  return Teuchos::rcp(new MultiDtConvectionDiffusionOp<SpaceT>(space));
 }
 
 

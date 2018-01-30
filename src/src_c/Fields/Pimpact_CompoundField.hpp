@@ -36,27 +36,53 @@ public:
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal =typename SpaceT::Ordinal;
+  using ST = typename SpaceT::Scalar;
+  using OT =typename SpaceT::Ordinal;
+
+  using ScalarArray =  ST*;
 
   using AF = AbstractField<SpaceT>;
+
+  const Owning owning_;
 
   VField vfield_;
   SField sfield_;
 
+  ScalarArray s_;
+
+private:
+
+  void allocate() {
+    OT n = getStorageSize();
+    setStoragePtr(new ST[n]);
+    std::uninitialized_fill_n(s_, n , 0.);
+  }
+
 public:
 
-  CompoundField( const Teuchos::RCP<const SpaceT>& space, F dummy=F::S ):
-    AF( space ),
-    vfield_( space ),
-    sfield_( space ) {};
+  constexpr OT getStorageSize() {
+    return vfield_.getStorageSize() + sfield_.getStorageSize();
+  }
 
-  //CompoundField(
-    //const Teuchos::RCP<VField>& vfield,
-    //const Teuchos::RCP<SField>& sfield ):
-    //AF( vfield->space() ),
-    //vfield_(vfield),
-    //sfield_(sfield) {};
+  constexpr ST* getRawPtr() {
+    return s_;
+  }
+
+  void setStoragePtr(ST* array) {
+    s_ = array;
+    vfield_.setStoragePtr(s_                           );
+    sfield_.setStoragePtr(s_ + vfield_.getStorageSize());
+  }
+
+
+  CompoundField(const Teuchos::RCP<const SpaceT>& space, const Owning owning=Owning::Y):
+    AF(space),
+    owning_(owning),
+    vfield_(space, Owning::N),
+    sfield_(space, Owning::N) {
+
+    if(owning_==Owning::Y) allocate();
+  };
 
 
   /// \brief copy constructor.
@@ -64,15 +90,44 @@ public:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param field
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
-  CompoundField( const CompoundField& field, const ECopy copyType=ECopy::Deep ):
-    AF( field.space() ),
-    vfield_( field.vfield_, copyType ),
-    sfield_( field.sfield_, copyType ) {
-  };
+  CompoundField(const CompoundField& field, const ECopy copyType=ECopy::Deep):
+    AF(field.space()),
+    owning_(field.owning_),
+    vfield_(field.vfield_, copyType),
+    sfield_(field.sfield_, copyType) {
+
+      if(owning_==Owning::Y) {
+
+        allocate();
+
+        switch(copyType) {
+          case ECopy::Shallow:
+            break;
+          case ECopy::Deep:
+            *this = field;
+            break;
+        }
+      }
+    };
 
 
-  Teuchos::RCP<CompoundField> clone( const ECopy ctype=ECopy::Deep ) const {
-    return Teuchos::rcp( new CompoundField( *this, ctype ) );
+  ~CompoundField() {
+    if(owning_==Owning::Y) delete[] s_;
+  }
+  
+  Teuchos::RCP<CompoundField> clone(const ECopy ctype=ECopy::Deep) const {
+
+    Teuchos::RCP<CompoundField> mv = Teuchos::rcp(new CompoundField(space()));
+
+    switch(ctype) {
+      case ECopy::Shallow:
+        break;
+      case ECopy::Deep:
+        *mv = *this;
+        break;
+    }
+
+    return mv;
   }
 
   /// \name Attribute methods
@@ -106,7 +161,7 @@ public:
   /// the vector length is withregard to the inner points
   /// \return vector length
   /// \brief returns the length of Field.
-  constexpr Ordinal getLength() {
+  constexpr OT getLength() {
     return vfield_.getLength() + sfield_.getLength();
   }
 
@@ -117,10 +172,12 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
-  void add( const Scalar alpha, const CompoundField& a, const Scalar beta, const CompoundField& b, const B wb=B::Y ) {
+  void add(const ST alpha, const CompoundField& a, const ST beta, const CompoundField& b,
+      const B wb=B::Y) {
+
     // add test for consistent VectorSpaces in debug mode
-    vfield_.add(alpha, a.vfield_, beta, b.vfield_, wb );
-    sfield_.add(alpha, a.sfield_, beta, b.sfield_, wb );
+    vfield_.add(alpha, a.vfield_, beta, b.vfield_, wb);
+    sfield_.add(alpha, a.sfield_, beta, b.sfield_, wb);
   }
 
 
@@ -130,9 +187,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs( const CompoundField& y ) {
-    vfield_.abs( y.vfield_ );
-    sfield_.abs( y.sfield_ );
+  void abs(const CompoundField& y) {
+
+    vfield_.abs(y.vfield_);
+    sfield_.abs(y.sfield_);
   }
 
 
@@ -141,14 +199,16 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const CompoundField& y) {
-    vfield_.reciprocal( y.vfield_ );
-    sfield_.reciprocal( y.sfield_ );
+  void reciprocal(const CompoundField& y) {
+
+    vfield_.reciprocal(y.vfield_);
+    sfield_.reciprocal(y.sfield_);
   }
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
-  void scale( const Scalar alpha ) {
+  void scale(const ST alpha) {
+
     vfield_.scale(alpha);
     sfield_.scale(alpha);
   }
@@ -159,18 +219,19 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale( const CompoundField& a) {
-    vfield_.scale( a.vfield_ );
-    sfield_.scale( a.sfield_ );
+  void scale(const CompoundField& a) {
+
+    vfield_.scale(a.vfield_);
+    sfield_.scale(a.sfield_);
   }
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dotLoc( const CompoundField& a ) {
+  constexpr ST dotLoc(const CompoundField& a) {
 
-    Scalar b = 0.;
+    ST b = 0.;
 
-    b = vfield_.dotLoc( a.vfield_ ) + sfield_.dotLoc( a.sfield_ );
+    b = vfield_.dotLoc(a.vfield_) + sfield_.dotLoc(a.sfield_);
 
     return b;
   }
@@ -178,9 +239,9 @@ public:
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this,
   /// i.e.\f$b = y^H this\f$.
-  constexpr Scalar dot( const CompoundField& y ) {
+  constexpr ST dot(const CompoundField& y) {
 
-    return this->reduce( comm(), dotLoc( y ) );
+    return this->reduce(comm(), dotLoc(y));
   }
 
 
@@ -189,19 +250,19 @@ public:
   /// \{
 
   /// \brief Compute the norm of the field.
-  constexpr Scalar normLoc( const ENorm type=ENorm::Two ) {
+  constexpr ST normLoc(const ENorm type=ENorm::Two) {
 
     return (ENorm::Inf==type)?
-      std::max(vfield_.normLoc(type), sfield_.normLoc(type) ):
+      std::max(vfield_.normLoc(type), sfield_.normLoc(type)):
       (vfield_.normLoc(type) + sfield_.normLoc(type));
   }
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( const ENorm type=ENorm::Two ) {
+  constexpr ST norm(const ENorm type=ENorm::Two) {
 
-    Scalar normvec = this->reduce( comm(), normLoc( type ),
-        (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
+    ST normvec = this->reduce(comm(), normLoc(type),
+        (ENorm::Inf==type)?MPI_MAX:MPI_SUM);
 
     normvec = (ENorm::Two==type||ENorm::L2==type) ?
       std::sqrt(normvec) :
@@ -216,8 +277,9 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const CompoundField& weights ) {
-    return vfield_.normLoc( weights.vfield_ ) + sfield_.normLoc( weights.sfield_ );
+  constexpr ST normLoc(const CompoundField& weights) {
+
+    return vfield_.normLoc(weights.vfield_) + sfield_.normLoc(weights.sfield_);
   }
 
   /// \brief Weighted 2-Norm.
@@ -226,8 +288,9 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const CompoundField& weights ) {
-    return std::sqrt( this->reduce( comm(), normLoc( weights ) ) );
+  constexpr ST norm(const CompoundField& weights) {
+
+    return std::sqrt(this->reduce(comm(), normLoc(weights)));
   }
 
 
@@ -237,7 +300,7 @@ public:
 
   /// \brief *this := a
   /// Assign (deep copy) a into mv.
-  CompoundField& operator=( const CompoundField& a ) {
+  CompoundField& operator=(const CompoundField& a) {
 
     vfield_ = a.vfield_;
     sfield_ = a.sfield_;
@@ -246,22 +309,22 @@ public:
   }
 
   /// \brief Replace the vectors with a random vectors.
-  void random( const bool useSeed = false, const int seed = 1 ) {
+  void random(const bool useSeed = false, const int seed=1) {
     vfield_.random();
     sfield_.random();
   }
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar alpha=Teuchos::ScalarTraits<Scalar>::zero(), const B wB=B::Y ) {
-    vfield_.init(alpha,wB);
-    sfield_.init(alpha,wB);
+  void init(const ST alpha=Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y) {
+    vfield_.init(alpha, wB);
+    sfield_.init(alpha, wB);
   }
 
 
-  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
-    vfield_.extrapolateBC( trans );
-    sfield_.extrapolateBC( trans );
+  void extrapolateBC(const Belos::ETrans trans=Belos::NOTRANS) {
+    vfield_.extrapolateBC(trans);
+    sfield_.extrapolateBC(trans);
   }
 
   void level() const {
@@ -269,25 +332,28 @@ public:
     sfield_.level();
   }
 
-
+  void changed() {
+    vfield_.changed();
+    sfield_.changed();
+  }
 
 
   /// \}
 
   /// Print the vector.  To be used for debugging only.
-  void print( std::ostream& out=std::cout ) const {
-    vfield_.print( out );
-    sfield_.print( out );
+  void print(std::ostream& out=std::cout) const {
+    vfield_.print(out);
+    sfield_.print(out);
   }
 
 
-  void write( const int count=0, const bool restart=false ) const {
+  void write(const int count=0, const bool restart=false) const {
     vfield_.write(count, restart);
     sfield_.write(count, restart);
   }
 
 
-  void read( const int count=0 ) {
+  void read(const int count=0) {
     vfield_.read(count);
     sfield_.read(count);
   }

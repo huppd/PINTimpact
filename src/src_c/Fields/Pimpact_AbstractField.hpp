@@ -25,7 +25,7 @@ public:
 
   static const int dimension = SpaceT::dimension;
 
-  AbstractField( const Teuchos::RCP<const SpaceT>& space ):space_(space) {};
+  AbstractField(const Teuchos::RCP<const SpaceT>& space):space_(space) {};
 
 protected:
 
@@ -35,10 +35,10 @@ protected:
 
   /// \note openMPI is picky her with const references :(
   /// \note think about making pubplic
-  constexpr ST reduce( const MPI_Comm& comm, ST normLocal, const MPI_Op& op=MPI_SUM )  {
+  constexpr ST reduce(const MPI_Comm& comm, ST normLocal, const MPI_Op& op=MPI_SUM)  {
 
     ST normGlob;
-    MPI_Allreduce( &normLocal, &normGlob, 1, MPI_REAL8, op, comm );
+    MPI_Allreduce(&normLocal, &normGlob, 1, MPI_REAL8, op, comm);
     return normGlob;
   }
 

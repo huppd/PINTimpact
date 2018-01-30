@@ -47,44 +47,61 @@ public:
 
   using SpaceT = typename Field::SpaceT;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+protected:
 
-  using FieldT = Pimpact::TimeField<Field>;
+  using ST = typename SpaceT::Scalar;
+  using OT = typename SpaceT::Ordinal;
 
-  using ScalarArray = Scalar*;
+  using ScalarArray = ST*;
 
   using AF = AbstractField<SpaceT>;
 
-protected:
+  using FieldT = Pimpact::TimeField<Field>;
 
-  Teuchos::Array< Teuchos::RCP<Field> > mfs_;
+  const Owning owning_;
 
-  ScalarArray array_;
+  Teuchos::Array<Teuchos::RCP<Field> > mfs_;
+
+  ScalarArray s_;
 
   mutable bool exchangedState_;
 
+  void allocate() {
+
+    OT n = getStorageSize();
+    setStoragePtr(new ST[n]);
+    std::uninitialized_fill_n(s_, n , 0.);
+  }
+
 public:
 
-  TimeField( Teuchos::RCP<const SpaceT> space, F dummy=F::S ):
-    AF( space ), exchangedState_(true) {
+  constexpr OT getStorageSize() {
 
-    Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+    OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+    OT nx = at(0).getStorageSize();
+    return nx*nt;
+  }
 
-    mfs_ = Teuchos::Array< Teuchos::RCP<Field> >( nt );
+  void setStoragePtr(ST* array) {
+    OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+    OT nx = at(0).getStorageSize();
+    for(int i=0; i<nt; ++i)
+      at(i).setStoragePtr(s_+i*nx);
+  }
 
-    for( int i=0; i<nt; ++i )
-      mfs_[i] = Teuchos::rcp( new Field( space, Owning::N ) );
+  TimeField(Teuchos::RCP<const SpaceT> space, const Owning owning=Owning::Y):
+    AF(space),
+    owning_(owning),
+    exchangedState_(true) {
 
-    Ordinal nx = at(0).getStorageSize();
+    OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-    array_ = new Scalar[nx*nt];
+    mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
 
-    for( int i=0; i<nx*nt; ++i )
-      array_[i] = 0.;
+    for(int i=0; i<nt; ++i)
+      mfs_[i] = Teuchos::rcp(new Field(space, Owning::N));
 
-    for( int i=0; i<nt; ++i )
-      at(i).setStoragePtr( array_+i*nx );
+    if(owning_==Owning::Y) allocate();
   }
 
 
@@ -94,54 +111,55 @@ public:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param field
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
-  TimeField( const TimeField& field, const ECopy copyType=ECopy::Deep ):
-    AF( field.space() ),
-    exchangedState_( field.exchangedState_ ) {
+  TimeField(const TimeField& field, const ECopy copyType=ECopy::Deep):
+    AF(field.space()),
+    owning_(field.owning_),
+    exchangedState_(field.exchangedState_) {
 
-    Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+    OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
     mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
 
-    for( int i=0; i<nt; ++i )
-      mfs_[i] = Teuchos::rcp( new Field( space(), Owning::N ) );
+    for(int i=0; i<nt; ++i)
+      mfs_[i] = Teuchos::rcp(new Field(space(), Owning::N));
 
-    Ordinal nx = mfs_[0]->getStorageSize();
-
-    array_ = new Scalar[nx*nt];
-
-    for( int i=0; i<nt; ++i )
-      at(i).setStoragePtr( array_+i*nx );
-
-    switch( copyType ) {
-    case( ECopy::Deep ) : {
-      for( int i=0; i<nt; ++i )
-        at(i) = field(i);
-      break;
-    }
-    case( ECopy::Shallow ) : {
-      for( int i=0; i<nt*nx; ++i )
-        array_[i] = 0.;
-      exchangedState_ = true;
-      break;
-    }
+    if(owning_==Owning::Y) {
+      allocate();
+      switch(copyType) {
+        case ECopy::Shallow:
+          break;
+        case ECopy::Deep:
+          *this = field;
+          break;
+      }
     }
   }
 
 
   ~TimeField() {
-    delete[] array_;
+    if(owning_==Owning::Y) delete[] s_;
   }
 
 
   /// \brief Create a new \c TimeField with
-  Teuchos::RCP< FieldT > clone( const ECopy ctype = ECopy::Deep ) const {
-    Teuchos::RCP< FieldT > mv_ = Teuchos::rcp( new FieldT(*this, ctype) );
-    return mv_;
+  Teuchos::RCP<FieldT> clone(const ECopy ctype = ECopy::Deep) const {
+
+    Teuchos::RCP<FieldT> mv = Teuchos::rcp(new FieldT(space()));
+
+    switch(ctype) {
+      case ECopy::Shallow:
+        break;
+      case ECopy::Deep:
+        *mv = *this;
+        break;
+    }
+
+    return mv;
   }
 
 
   /// \brief returns the length of Field.
-  constexpr Ordinal getLength() {
+  constexpr OT getLength() {
     return space()->nGlo(3)*at(0).getLength();
   }
 
@@ -153,10 +171,10 @@ public:
 
 
   /// \brief <tt>mv := alpha*a + beta*b</tt>
-  void add( Scalar alpha, const FieldT& a, Scalar beta, const FieldT& b, const B wb=B::Y ) {
+  void add(ST alpha, const FieldT& a, ST beta, const FieldT& b, const B wb=B::Y) {
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      at(i).add( alpha, a(i), beta, b(i), wb );
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+      at(i).add(alpha, a(i), beta, b(i), wb);
     changed();
   }
 
@@ -167,10 +185,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs( const FieldT& y) {
+  void abs(const FieldT& y) {
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      at(i).abs( y(i) );
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+      at(i).abs(y(i));
     changed();
   }
 
@@ -180,10 +198,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const FieldT& y) {
+  void reciprocal(const FieldT& y) {
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      at(i).reciprocal( y(i) );
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+      at(i).reciprocal(y(i));
     changed();
   }
 
@@ -192,10 +210,10 @@ public:
   ///
   /// Here x represents on \c Field, and we update it as
   /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
-  void scale( const Scalar alpha, const B wB=B::Y ) {
+  void scale(const ST alpha, const B wB=B::Y) {
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      at(i).scale( alpha, wB );
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+      at(i).scale(alpha, wB);
     changed();
   }
 
@@ -205,9 +223,9 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale( const FieldT& y) {
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      at(i).scale( y(i) );
+  void scale(const FieldT& y) {
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+      at(i).scale(y(i));
     changed();
   }
 
@@ -215,47 +233,47 @@ public:
 
 
   /// \brief Compute the inner product for the \c TimeField considering it as one Vector.
-  constexpr Scalar dotLoc( const FieldT& A ) const {
+  constexpr ST dotLoc(const FieldT& A) const {
 
-    Scalar b = 0.;
+    ST b = 0.;
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      b+= at(i).dotLoc( A(i) );
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+      b+= at(i).dotLoc(A(i));
 
     return b;
   }
 
   /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-  constexpr Scalar dot( const FieldT& y ) const {
+  constexpr ST dot(const FieldT& y) const {
 
-    return this->reduce( comm(), dotLoc( y ) );
+    return this->reduce(comm(), dotLoc(y));
   }
 
 
   /// \brief Compute the norm for the \c TimeField as it is considered as one Vector .
-  constexpr Scalar normLoc( const ENorm type=ENorm::Two, const B bcYes=B::Y  ) const {
+  constexpr ST normLoc(const ENorm type=ENorm::Two, const B bcYes=B::Y) const {
 
-    Scalar normvec = 0.;
+    ST normvec = 0.;
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
       normvec =
-        ( (ENorm::Inf==type)?
-          std::max( at(i).normLoc(type, bcYes), normvec ) :
-          (normvec + at(i).normLoc(type, bcYes) ) );
+        ((ENorm::Inf==type)?
+          std::max(at(i).normLoc(type, bcYes), normvec) :
+          (normvec + at(i).normLoc(type, bcYes)));
 
     return normvec;
   }
 
 /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm/
-  constexpr Scalar norm( const ENorm type=ENorm::Two, const B bcYes=B::Y  ) const {
+  constexpr ST norm(const ENorm type=ENorm::Two, const B bcYes=B::Y) const {
 
-    Scalar normvec = this->reduce( comm(), normLoc( type, bcYes ),
-        (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
+    ST normvec = this->reduce(comm(), normLoc(type, bcYes),
+        (ENorm::Inf==type)?MPI_MAX:MPI_SUM);
 
-    normvec = ( (ENorm::Two==type||ENorm::L2==type) ?
+    normvec = ((ENorm::Two==type||ENorm::L2==type) ?
                 std::sqrt(normvec) :
-                normvec );
+                normvec);
 
     return normvec;
   }
@@ -266,12 +284,12 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const FieldT& weights ) const {
+  constexpr ST normLoc(const FieldT& weights) const {
 
-    Scalar nor = Teuchos::ScalarTraits<Scalar>::zero();
+    ST nor = Teuchos::ScalarTraits<ST>::zero();
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      nor+= at(i).norm( weights(i) );
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+      nor+= at(i).norm(weights(i));
 
     return nor;
   }
@@ -282,17 +300,17 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights ) const {
-    return std::sqrt( this->reduce( comm(), normLoc( weights ) ) );
+  constexpr ST norm(const FieldT& weights) const {
+    return std::sqrt(this->reduce(comm(), normLoc(weights)));
   }
 
 
   /// \brief *this := a.
   ///
   /// assign (deep copy) A into mv.
-  TimeField& operator=( const TimeField& a ) {
+  TimeField& operator=(const TimeField& a) {
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
       at(i) = a(i);
     changed();
 
@@ -301,52 +319,52 @@ public:
 
 
   /// \brief Replace the vectors with a random vectors.
-  void random( bool useSeed=false, const B bcYes=B::Y, int seed=1 ) {
+  void random(bool useSeed=false, const B bcYes=B::Y, int seed=1) {
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
       at(i).random(useSeed, bcYes, seed);
     changed();
   }
 
 
   /// \brief \f[ *this = \alpha \f]
-  void init( const Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B wB=B::Y ) {
+  void init(const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y) {
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
       at(i).init(alpha,wB);
     changed();
   }
 
-  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
+  void extrapolateBC(const Belos::ETrans trans=Belos::NOTRANS) {
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      at(i).extrapolateBC( trans );
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+      at(i).extrapolateBC(trans);
     changed();
   }
 
   void level() const {
 
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
       at(i).level();
     changed();
   }
 
 
   /// \param os
-  void print( std::ostream& os=std::cout ) const {
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-      at(i).print( os );
+  void print(std::ostream& os=std::cout) const {
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+      at(i).print(os);
   }
 
 
 
-  void write( int count=0, const bool restart=false ) const {
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
+  void write(int count=0, const bool restart=false) const {
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
       at(i).write(count++ + space()->getShift(3), restart);
   }
 
-  void read( int count=0 ) {
-    for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
+  void read(int count=0) {
+    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
       at(i).read(count++ + space()->getShift(3));
   }
 
@@ -367,11 +385,11 @@ public:
   /// \note shoud be constant but weirdly then Iter becomes const iter and can't be converted to int
   void exchange() const {
 
-    if( !exchangedState_ ) {
-      if( space()->np(3)>1 ) {
+    if(!exchangedState_) {
+      if(space()->np(3)>1) {
 
-        int transL = std::abs( space()->bl(3) );
-        int transU = std::abs( space()->bu(3) );
+        int transL = std::abs(space()->bl(3));
+        int transU = std::abs(space()->bu(3));
 
         // std::cout << "transL: " <<  transL << "\n";
         // std::cout << "transU: " <<  transU << "\n";
@@ -385,36 +403,36 @@ public:
         MPI_Status statusL;
         MPI_Status statusU;
 
-        Ordinal lengthL = transL * at(0).getStorageSize();
-        Ordinal lengthU = transU * at(0).getStorageSize();
+        OT lengthL = transL * at(0).getStorageSize();
+        OT lengthU = transU * at(0).getStorageSize();
 
-        Scalar* ghostUR = at( space()->si(F::S,3)-transU).getRawPtr();
-        Scalar* ghostLR = at( space()->ei(F::S,3)  +transL).getRawPtr();
+        ST* ghostUR = at(space()->si(F::S,3)-transU).getRawPtr();
+        ST* ghostLR = at(space()->ei(F::S,3)  +transL).getRawPtr();
 
-        Scalar* ghostUS = at(space()->ei(F::S,3)  ).getRawPtr();
-        Scalar* ghostLS = at(space()->si(F::S,3)).getRawPtr();
+        ST* ghostUS = at(space()->ei(F::S,3)).getRawPtr();
+        ST* ghostLS = at(space()->si(F::S,3)).getRawPtr();
 
-        if( transL>0 ) MPI_Irecv( ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
-        if( transU>0 ) MPI_Irecv( ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
+        if(transL>0) MPI_Irecv(ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
+        if(transU>0) MPI_Irecv(ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
 
-        if( transL>0 ) MPI_Send ( ghostUS, lengthL, MPI_REAL8, rankU, 1, comm() );
-        if( transU>0 ) MPI_Send ( ghostLS, lengthU, MPI_REAL8, rankL, 2, comm() );
+        if(transL>0) MPI_Send (ghostUS, lengthL, MPI_REAL8, rankU, 1, comm());
+        if(transU>0) MPI_Send (ghostLS, lengthU, MPI_REAL8, rankL, 2, comm());
 
-        if( transL>0 ) MPI_Wait( &reqL, &statusL );
-        if( transU>0 ) MPI_Wait( &reqU, &statusU );
+        if(transL>0) MPI_Wait(&reqL, &statusL);
+        if(transU>0) MPI_Wait(&reqU, &statusU);
 
         // depends on if field from sender was exchanged, so to be sure
-        at( 0                    ).changed();
-        at( space()->ei(F::S,3) ).changed();
+        at(0                  ).changed();
+        at(space()->ei(F::S,3)).changed();
 
       } else {
-        if( std::abs( space()->bl(3) )>0 ) {
-          *mfs_[ space()->si(F::S,3)-1 ] = at( space()->ei(F::S,3) );
-          at( space()->si(F::S,3)-1 ).changed();
+        if(std::abs(space()->bl(3))>0) {
+          *mfs_[ space()->si(F::S,3)-1 ] = at(space()->ei(F::S,3));
+          at(space()->si(F::S,3)-1).changed();
         }
-        if( std::abs( space()->bu(3) )>0 ) {
-          *mfs_[ space()->ei(F::S,3)+1 ] = at( space()->si(F::S,3) );
-          at( space()->ei(F::S,3)+1 ).changed();
+        if(std::abs(space()->bu(3))>0) {
+          *mfs_[ space()->ei(F::S,3)+1 ] = at(space()->si(F::S,3));
+          at(space()->ei(F::S,3)+1).changed();
         }
       }
     }
@@ -423,28 +441,28 @@ public:
 
 
 protected:
-  Field& at( const int i ) {
+  Field& at(const int i) {
     return *mfs_[i];
   }
-  constexpr const Field& at( const int i ) {
+  constexpr const Field& at(const int i) {
     return *mfs_[i];
   }
 
 public:
 
-  Field& operator()( const int i ) {
+  Field& operator()(const int i) {
     return at(i);
   }
-  constexpr const Field& operator()( const int i ) {
+  constexpr const Field& operator()(const int i) {
     return at(i);
   }
 
   constexpr ScalarArray getRawPtr() {
-    return array_;
+    return s_;
   }
 
-  constexpr const Scalar* getConstRawPtr() const {
-    return array_;
+  constexpr const ST* getConstRawPtr() const {
+    return s_;
   }
 
 }; // end of class TimeField
@@ -456,9 +474,9 @@ public:
 /// \deprecated
 template<class FieldT, class SpaceT>
 Teuchos::RCP< TimeField<FieldT> >
-createTimeField( const Teuchos::RCP<const SpaceT>& space ) {
+createTimeField(const Teuchos::RCP<const SpaceT>& space) {
 
-  return Teuchos::rcp( new TimeField<FieldT>( space ) );
+  return Teuchos::rcp(new TimeField<FieldT>(space));
 }
 
 
@@ -472,7 +490,7 @@ initVectorTimeField(
   typename SpaceT::Scalar xm=0.5,
   typename SpaceT::Scalar ym=0.5,
   typename SpaceT::Scalar rad=0.1,
-  typename SpaceT::Scalar amp=0.25 ) {
+  typename SpaceT::Scalar amp=0.25) {
 
   using S = typename SpaceT::Scalar;
   //using O = typename SpaceT::Ordinal;
@@ -485,49 +503,49 @@ initVectorTimeField(
   S offset = space->getShift(3) - space->si(F::S,3);
 
   bool notImplemented = true;
-  TEUCHOS_TEST_FOR_EXCEPT( notImplemented );
-  //for( O i=space->si(F::S,3); i<=space->ei(F::S,3); ++i )
-  //switch( flowType ) {
+  TEUCHOS_TEST_FOR_EXCEPT(notImplemented);
+  //for(O i=space->si(F::S,3); i<=space->ei(F::S,3); ++i)
+  //switch(flowType) {
   //case Zero2DFlow:
-  //field(i)->initField( ZeroFlow );
+  //field(i)->initField(ZeroFlow);
   //break;
   //case Const2DFlow:
-  //field(i)->initField( ConstFlow, xm, ym, rad );
+  //field(i)->initField(ConstFlow, xm, ym, rad);
   //break;
   //case Poiseuille_inX:
-  //field(i)->initField( PoiseuilleFlow2D_inX );
+  //field(i)->initField(PoiseuilleFlow2D_inX);
   //break;
   //case Poiseuille_inY:
-  //field(i)->initField( PoiseuilleFlow2D_inY );
+  //field(i)->initField(PoiseuilleFlow2D_inY);
   //break;
   //case Streaming2DFlow: {
-  //S ampt = std::sin( 2.*pi*((F::S)i+offset)/nt );
-  //field(i)->initField( Streaming2D, ampt );
+  //S ampt = std::sin(2.*pi*((F::S)i+offset)/nt);
+  //field(i)->initField(Streaming2D, ampt);
   //break;
   //}
   //case OscilatingDisc2D: {
-  ////			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((F::S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX(  F::S, ECoord::T )[i] << "\n";
-  //S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( F::S, ECoord::T )[i] );
+  ////			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((F::S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX(F::S, ECoord::T)[i] << "\n";
+  //S ymt = ym+amp*std::sin(space->getCoordinatesLocal()->getX(F::S, ECoord::T)[i]);
   //S xmt = xm;
-  //field(i)->initField( Disc2D, xmt, ymt, rad );
+  //field(i)->initField(Disc2D, xmt, ymt, rad);
   //break;
   //}
   //case OscilatingDisc2DVel: {
-  //S yvelt = amp*std::cos( 2.*pi*((F::S)i+offset)/nt );
+  //S yvelt = amp*std::cos(2.*pi*((F::S)i+offset)/nt);
   //S xvelt = 0;
-  //field(i)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
+  //field(i)->init(Teuchos::tuple(xvelt, yvelt, 0.));
   //break;
   //}
   //case ConstVel_inX:{
-  //field(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( F::S, ECoord::T )[i]), 0., 0.) ); // here xm = p
+  //field(i)->init(Teuchos::tuple(-2*xm*std::cos(space->getCoordinatesLocal()->getX(F::S, ECoord::T)[i]), 0., 0.)); // here xm = p
   //break;
   //}
   //case Pulsatile_inX: {
-  ////field(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( F::S, ECoord::T )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
+  ////field(i)->initField(Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX(F::S, ECoord::T)[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
   //break;
   //}
   //default:
-  //field(i)->initField( ZeroFlow );
+  //field(i)->initField(ZeroFlow);
   //break;
   //}
 

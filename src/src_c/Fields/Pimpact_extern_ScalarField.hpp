@@ -35,7 +35,7 @@ void write_hdf5_2D(
     const double* const y2p,
     //        const double* const y3p,
     const double& Re,
-    const double& alpha2 );
+    const double& alpha2);
 
 
 void write_hdf_3D(
@@ -87,7 +87,7 @@ void read_hdf(
     const int& vel_dir,
     const int& filecount,
     const int& namelen,
-    const double* const phi );
+    const double* const phi);
 
 
 void F_exchange(
@@ -105,7 +105,7 @@ void F_exchange(
     const int* const SS,
     const int* const NN,
     const int& dir, const int& vel_dir,
-    double* const phi );
+    double* const phi);
 
 } // end of extern 'C'
 

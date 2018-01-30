@@ -46,51 +46,133 @@ protected:
   using ST = typename SpaceT::Scalar;
   using OT = typename SpaceT::Ordinal;
 
-
   using FieldT = Pimpact::MultiField<InnerFieldT>;
 
   using AF = AbstractField<SpaceT>;
 
+  const Owning owning_;
+
   Teuchos::Array<Teuchos::RCP<InnerFieldT> > mfs_;
+
+  std::vector<ST*> s_;
+
+  void allocate() {
+
+    OT n = getStorageSize();
+    setStoragePtr(new ST[n]);
+    std::uninitialized_fill_n(s_[0], n , 0.);
+  }
 
 public:
 
-  /// \brief constructor taking a \c FieldT constructing multiple shallow copys.
-  /// \note maybe hide and make it private
-  MultiField( const InnerFieldT& field, const int numvecs, const ECopy ctyp=ECopy::Shallow ):
-    AF( field.space() ), mfs_(numvecs) {
-    for( int i=0; i<numvecs; ++i )
-      mfs_[i] = field.clone(ctyp);
+  constexpr OT getStorageSize() {
+
+    OT n = getNumberVecs();
+    OT nx = mfs_[0]->getStorageSize();
+    return nx*n;
+  }
+
+  void setStoragePtr(ST* array) {
+
+    OT n = getNumberVecs();
+    OT nx = mfs_[0]->getStorageSize();
+    for(int i=0; i<n; ++i) {
+      s_[i] = array + i*nx;
+      mfs_[i]->setStoragePtr(s_[i]);
+    }
   }
 
 
   /// \brief cheap constructor from one InnerFieldT.
   ///
   /// creates simple wrapper from field(no coppying).
-  MultiField( const Teuchos::RCP<InnerFieldT>& field ):
-    AF( field->space() ), mfs_(1) {
-    mfs_[0] = field;
+  MultiField(const Teuchos::RCP<InnerFieldT>& field):
+    AF(field->space()),
+    owning_(Owning::N),
+    mfs_(1, Teuchos::null),
+    s_(1) {
+
+      mfs_[0] = field;
+      s_[0] = field->getRawPtr();
+    }
+
+
+  /// \note dangerous to use, if not Owning s_ has to be set
+  MultiField(const FieldT& mv, const ECopy ctype):
+    AF(mv.space()),
+    owning_(mv.owning_),
+    mfs_(mv.getNumberVecs()),
+    s_(mv.getNumberVecs()){
+
+    for(int i=0; i<getNumberVecs(); ++i)
+      mfs_[i] = Teuchos::rcp(new InnerFieldT(space(), Owning::N));
+
+    if(owning_==Owning::Y) {
+      allocate();
+      switch(ctype) {
+        case ECopy::Shallow:
+          break;
+        case ECopy::Deep:
+          *this = mv;
+          break;
+      }
+    }
   }
-
-
-  MultiField( const FieldT& mv, const ECopy ctype ):
-    AF( mv.space() ), mfs_( mv.getNumberVecs() ) {
-
-    for( int i=0; i<getNumberVecs(); ++i )
-      mfs_[i] = mv.mfs_[i]->clone(ctype);
-  }
-
 
   /// \brief  constructor, creates \c numvecs  empty fields
   ///
   /// \param space
   /// \param numvecs
   /// \return
-  MultiField( const Teuchos::RCP<const SpaceT>& space, const int numvecs=1 ):
-    AF( space ), mfs_(numvecs) {
+  /// \note danger if Owning::N, the s_ is no set 
+  MultiField(const Teuchos::RCP<const SpaceT>& space, const Owning owning):
+    AF(space),
+    owning_(owning),
+    mfs_(1),
+    s_(1) {
 
-    for( int i=0; i<numvecs; ++i )
-      mfs_[i] = create<InnerFieldT>( space );
+    for(int i=0; i<1; ++i)
+      mfs_[i] = Teuchos::rcp(new InnerFieldT(space, Owning::N));
+
+    if(owning_==Owning::Y)
+      allocate();
+  }
+
+  /// \brief  constructor, creates \c numvecs  empty fields
+  ///
+  /// \param space
+  /// \param numvecs
+  /// \return
+  /// \note danger if Owning::N, the s_ is no set 
+  MultiField(const Teuchos::RCP<const SpaceT>& space, const int numvecs=1,
+      const Owning owning=Owning::Y):
+    AF(space),
+    owning_(owning),
+    mfs_(numvecs),
+    s_(numvecs) {
+
+    for(int i=0; i<numvecs; ++i)
+      mfs_[i] = Teuchos::rcp(new InnerFieldT(space, Owning::N));
+
+    if(owning_==Owning::Y)
+      allocate();
+  }
+
+
+  ~MultiField() {
+    if(owning_==Owning::Y) delete[] s_[0];
+  }
+
+  /// \brief Create a new \c MultiField with \c numvecs columns.
+  ///
+  /// The returned Pimpact::MultiField has the same (distribution over one or
+  /// more parallel processes) Its entries are not initialized and have undefined
+  /// values.
+  Teuchos::RCP<MultiField> clone(const int numvecs) const {
+
+    Teuchos::RCP<MultiField> mv = Teuchos::rcp(new MultiField(space(), numvecs));
+
+    return mv;
   }
 
 
@@ -99,23 +181,25 @@ public:
   /// The returned Pimpact::MultiField has the same (distribution over one or
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
-  Teuchos::RCP< FieldT > clone( const int numvecs ) const {
-    return Teuchos::rcp( new FieldT( *mfs_[0], numvecs ) );
-  }
+  Teuchos::RCP<MultiField> clone(const ECopy ctype = ECopy::Deep) const {
 
+    Teuchos::RCP<MultiField> mv = Teuchos::rcp(new MultiField(space(), getNumberVecs()));
 
-  /// \brief Create a new \c MultiField with \c numvecs columns.
-  ///
-  /// The returned Pimpact::MultiField has the same (distribution over one or
-  /// more parallel processes) Its entries are not initialized and have undefined
-  /// values.
-  Teuchos::RCP< FieldT > clone( const ECopy ctype = ECopy::Deep ) const {
-    return Teuchos::rcp( new FieldT(*this,ctype) );
+    switch(ctype) {
+    case ECopy::Shallow:
+      break;
+    case ECopy::Deep:
+      *mv = *this;
+      break;
+    }
+
+    return mv;
   }
 
 
   /// \return deep copy of \c MultiField
-  Teuchos::RCP<FieldT> CloneCopy() const {
+  /// \note not needed
+  Teuchos::RCP<MultiField> CloneCopy() const {
     return clone();
   }
 
@@ -124,10 +208,12 @@ public:
   ///
   /// \param index
   /// \return
-  Teuchos::RCP<FieldT> CloneCopy( const std::vector<int>& index ) const {
-    Teuchos::RCP<FieldT> mv_ = Teuchos::rcp( new FieldT( space(), index.size() ) );
-    for( unsigned int i=0; i<index.size(); ++i ) {
-      mv_->mfs_[i] = mfs_[ index[i] ]->clone( ECopy::Deep );
+  Teuchos::RCP<MultiField> CloneCopy(const std::vector<int>& index) const {
+
+    Teuchos::RCP<MultiField> mv_ = Teuchos::rcp(new MultiField(space(), index.size()));
+
+    for(unsigned int i=0; i<index.size(); ++i) {
+      (*mv_->mfs_[i]) = (*mfs_[index[i]]);
     }
     return mv_;
   }
@@ -136,53 +222,78 @@ public:
   /// deep copy of \c index fields, the new \c MultiFields stores \c index.size()
   /// \param index here index means an interval
   /// \return
-  Teuchos::RCP<FieldT> CloneCopy( const Teuchos::Range1D& index) const {
-    Teuchos::RCP<FieldT> mv_ = Teuchos::rcp( new FieldT(space(), index.size()) );
+  Teuchos::RCP<MultiField> CloneCopy(const Teuchos::Range1D& range) const {
+
+    Teuchos::RCP<MultiField> mv_ = Teuchos::rcp(new MultiField(space(), range.size()));
+
     int j = 0;
-    for( int i=index.lbound(); i<=index.ubound(); ++i ) {
-      mv_->mfs_[j] = mfs_[i]->clone( ECopy::Deep );
+    for(int i=range.lbound(); i<=range.ubound(); ++i) {
+      (*mv_->mfs_[j]) = (*mfs_[i]);
       ++j;
     }
+
     return mv_;
   }
 
 
   /// \param index
   /// \return nonConst View
-  Teuchos::RCP<FieldT> CloneViewNonConst( const std::vector<int>& index) {
-    Teuchos::RCP<FieldT> mv_ = Teuchos::rcp( new FieldT( space(), index.size() ) );
-    for( unsigned int i=0; i<index.size(); ++i ) {
-      mv_->mfs_[i] =  mfs_[ index[i] ];
+  Teuchos::RCP<MultiField> CloneViewNonConst(const std::vector<int>& index) {
+
+    Teuchos::RCP<MultiField> mv_ =
+      Teuchos::rcp(new MultiField(space(), index.size(), Owning::N));
+
+    for(unsigned int i=0; i<index.size(); ++i) {
+      mv_->mfs_[i] = mfs_[index[i]];
+      mv_->s_[i] = s_[index[i]];
     }
+
     return mv_;
   }
 
 
-  Teuchos::RCP<FieldT> CloneViewNonConst( const Teuchos::Range1D& index ) {
-    Teuchos::RCP<FieldT> mv_ = Teuchos::rcp( new FieldT( space(), index.size()) );
+  Teuchos::RCP<MultiField> CloneViewNonConst(const Teuchos::Range1D& range) {
+
+    Teuchos::RCP<MultiField> mv_ =
+      Teuchos::rcp(new MultiField(space(), range.size(), Owning::N));
+
     int j=0;
-    for( int i=index.lbound(); i<=index.ubound(); ++i ) {
-      mv_->mfs_[j++] =  mfs_[i];
+    for(int i=range.lbound(); i<=range.ubound(); ++i) {
+      mv_->mfs_[j] = mfs_[i];
+      mv_->s_[j] = s_[i];
+      ++j;
     }
+
     return mv_;
   }
 
 
-  Teuchos::RCP<const FieldT > CloneView( const std::vector<int>& index ) const {
-    Teuchos::RCP<FieldT> mv_ = Teuchos::rcp( new FieldT( space(), index.size()) );
-    for( unsigned int i=0; i<index.size(); ++i ) {
-      mv_->mfs_[i] =  mfs_[ index[i] ];
+  Teuchos::RCP<const MultiField> CloneView(const std::vector<int>& index) const {
+
+    Teuchos::RCP<MultiField> mv_ =
+      Teuchos::rcp(new MultiField(space(), index.size(), Owning::N));
+
+    for(unsigned int i=0; i<index.size(); ++i) {
+      mv_->mfs_[i] = mfs_[index[i]];
+      mv_->s_[i] = s_[index[i]];
     }
+
     return mv_;
   }
 
 
-  Teuchos::RCP<const FieldT > CloneView( const Teuchos::Range1D& index ) const {
-    Teuchos::RCP<FieldT> mv_ = Teuchos::rcp( new FieldT( space(), index.size()) );
+  Teuchos::RCP<const MultiField> CloneView(const Teuchos::Range1D& range) const {
+
+    Teuchos::RCP<MultiField> mv_ =
+      Teuchos::rcp(new MultiField(space(), range.size(), Owning::N));
+
     int j=0;
-    for( int i=index.lbound(); i<=index.ubound(); ++i ) {
-      mv_->mfs_[j++] =  mfs_[i];
+    for(int i=range.lbound(); i<=range.ubound(); ++i) {
+      mv_->mfs_[j] = mfs_[i];
+      mv_->s_[j] = s_[i];
+      ++j;
     }
+
     return mv_;
   }
 
@@ -210,11 +321,15 @@ public:
   /// \{
 
   /// \brief addes new field at end
-  void push_back( const Teuchos::RCP<InnerFieldT>& field=Teuchos::null ) {
-    if( Teuchos::is_null(field) )
-      mfs_.push_back( mfs_.back()->clone(ECopy::Shallow) );
-    else
-      mfs_.push_back( field );
+  void push_back(const Teuchos::RCP<InnerFieldT>& field=Teuchos::null) {
+    if(Teuchos::is_null(field)) {
+      mfs_.push_back(mfs_.back()->clone(ECopy::Shallow));
+      s_.push_back(mfs_.back()->getRawPtr());
+    }
+    else {
+      mfs_.push_back(field);
+      s_.push_back(mfs_.back()->getRawPtr());
+    }
   }
 
 
@@ -225,29 +340,33 @@ public:
   /// \param a Vector
   /// \param b Matrix
   /// \param beta
-  void TimesMatAdd( const ST alpha, const FieldT& a,
-                    const Teuchos::SerialDenseMatrix<int,ST>& b,
-                    const ST beta ) {
+  void TimesMatAdd(const ST alpha, const FieldT& a,
+                   const Teuchos::SerialDenseMatrix<int,ST>& b,
+                   const ST beta) {
 
     int m1 = a.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
     int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
 
-    //assert( m1==m2 ); // not necessary
+    OT nx = mfs_[0]->getStorageSize();
 
-    for( int i=0; i<m2; ++i ) {
-      mfs_[i]->add( beta, *mfs_[i], alpha*b(0,i), *a.mfs_[0] );
-      for( int j=1; j<m1; ++j ) {
-        mfs_[i]->add( 1., *mfs_[i], alpha*b(j,i), *a.mfs_[j] );
+    for(int i=0; i<m2; ++i) {
+      for(OT k=0; k<nx; ++k) {
+        ST temp = 0.;
+        for(int j=0; j<m1; ++j)
+          temp += alpha*b(j,i)*a.s_[j][k] ;
+        s_[i][k] = s_[i][k]*beta + temp;
       }
+      mfs_[i]->changed();
     }
   }
 
 
 
   /// \brief <tt>mv := alpha*a + beta*b</tt>
-  void add( ST alpha, const FieldT& a, ST beta, const FieldT& b, const B wb=B::Y ) {
-    for( int i=0; i<getNumberVecs(); ++i )
-      mfs_[i]->add( alpha, *a.mfs_[i], beta, *b.mfs_[i], wb );
+  void add(ST alpha, const FieldT& a, ST beta, const FieldT& b, const B wb=B::Y) {
+
+    for(int i=0; i<getNumberVecs(); ++i)
+      mfs_[i]->add(alpha, *a.mfs_[i], beta, *b.mfs_[i], wb);
   }
 
 
@@ -257,9 +376,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs( const FieldT& y) {
-    for( int i=0; i<getNumberVecs(); ++i )
-      mfs_[i]->abs( *y.mfs_[i] );
+  void abs(const FieldT& y) {
+
+    for(int i=0; i<getNumberVecs(); ++i)
+      mfs_[i]->abs(*y.mfs_[i]);
   }
 
 
@@ -268,9 +388,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const FieldT& y) {
-    for( int i=0; i<getNumberVecs(); ++i )
-      mfs_[i]->reciprocal( *y.mfs_[i] );
+  void reciprocal(const FieldT& y) {
+
+    for(int i=0; i<getNumberVecs(); ++i)
+      mfs_[i]->reciprocal(*y.mfs_[i]);
   }
 
 
@@ -278,8 +399,9 @@ public:
   ///
   /// Here x represents on \c Field, and we update it as
   /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
-  void scale( const ST alpha ) {
-    for( int i=0; i<getNumberVecs(); ++i )
+  void scale(const ST alpha) {
+
+    for(int i=0; i<getNumberVecs(); ++i)
       mfs_[i]->scale(alpha);
   }
 
@@ -289,9 +411,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale( const FieldT& a) {
-    for( int i=0; i<getNumberVecs(); ++i )
-      mfs_[i]->scale( *a.mfs_[i] );
+  void scale(const FieldT& a) {
+
+    for(int i=0; i<getNumberVecs(); ++i)
+      mfs_[i]->scale(*a.mfs_[i]);
   }
 
 
@@ -299,12 +422,12 @@ public:
   ///
   /// Here x_j represents the j'th field, and we update it as
   /// \f[ x_j[i] = \alpha_j x_j[i] \quad \mbox{for } i=1,\dots,n \f]
-  void scale( const std::vector<ST>& alphas ) {
+  void scale(const std::vector<ST>& alphas) {
 
-    assert( alphas.size()==getNumberVecs() );
+    assert(alphas.size()==getNumberVecs());
 
-    for( unsigned int i=0; i<alphas.size(); ++i )
-      mfs_[i]->scale( alphas[i] );
+    for(unsigned int i=0; i<alphas.size(); ++i)
+      mfs_[i]->scale(alphas[i]);
   }
 
 
@@ -312,85 +435,96 @@ public:
   /// \param alpha
   /// \param A
   /// \param C
-  /// \todo make dot local and reduce over C (cf dot)
-  void Trans( const ST alpha, const FieldT& A,
-              Teuchos::SerialDenseMatrix<int,ST>& C) const {
+  /// \note copying "twice" only necessary if there is a stride in C
+  void Trans(const ST alpha, const FieldT& A,
+             Teuchos::SerialDenseMatrix<int, ST>& C) const {
 
     const int n1 = getNumberVecs();
     const int n2 = A.getNumberVecs();
 
-    assert( n1==C.numRows() );
-    assert( n2==C.numCols() );
+    Teuchos::SerialDenseMatrix<int, ST> Cloc(n1, n2, true);
+    Teuchos::SerialDenseMatrix<int, ST> Cglo(n1, n2, true);
 
-    for( int i=0; i<n1; ++i )
-      for( int j=0; j<n2; ++j )
-        C(i,j) = alpha*mfs_[i]->dot( *A.mfs_[j] );
+    assert(n1==C.numRows());
+    assert(n2==C.numCols());
+
+    for(int i=0; i<n1; ++i)
+      for(int j=0; j<n2; ++j)
+        Cloc(i, j) = alpha*mfs_[i]->dotLoc(*A.mfs_[j]);
+
+    MPI_Allreduce(Cloc.values(), Cglo.values(), n1*n2, MPI_REAL8, MPI_SUM, comm());
+
+    for(int i=0; i<n1; ++i)
+      for(int j=0; j<n2; ++j)
+        C(i, j) = Cglo(i, j);
   }
 
 
   /// \}
 
   /// For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
-  void dot( const FieldT& A, std::vector<ST>& dots) const {
+  void dot(const FieldT& A, std::vector<ST>& dots) const {
 
     const int n = getNumberVecs();
     ST* temp = new ST[n];
 
-    for( int i=0; i<n; ++i )
-      temp[i] = A.mfs_[i]->dotLoc( *mfs_[i] );
+    for(int i=0; i<n; ++i)
+      temp[i] = A.mfs_[i]->dotLoc(*mfs_[i]);
 
-    MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, comm() );
+    MPI_Allreduce(temp, dots.data(), n, MPI_REAL8, MPI_SUM, comm());
     delete[] temp;
   }
 
 
   /// \brief Compute the inner product for the \c MultiField considering it as one Vector.
-  constexpr ST dotLoc( const FieldT& A ) {
+  constexpr ST dotLoc(const FieldT& A) {
     int n = getNumberVecs();
 
     ST b = 0.;
 
-    for( int i=0; i<n; ++i )
-      b+= mfs_[i]->dotLoc( *A.mfs_[i] );
+    for(int i=0; i<n; ++i)
+      b+= mfs_[i]->dotLoc(*A.mfs_[i]);
 
     return b;
   }
 
-  /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-  constexpr ST dot( const FieldT& y ) {
-    return this->reduce( comm(), dotLoc( y ) );
+  /// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this,
+  /// i.e.\f$b = y^H this\f$.
+  constexpr ST dot(const FieldT& y) {
+
+    return this->reduce(comm(), dotLoc(y));
   }
 
   /// \brief Compute the norm of each individual vector.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  void norm( std::vector<typename Teuchos::ScalarTraits<ST>::magnitudeType> &normvec,
-      const ENorm type=ENorm::Two ) const {
+  void norm(std::vector<typename Teuchos::ScalarTraits<ST>::magnitudeType> &normvec,
+      const ENorm type=ENorm::Two) const {
 
     const int n = getNumberVecs();
     ST* temp = new ST[n];
 
-    for( int i=0; i<n; ++i )
+    for(int i=0; i<n; ++i)
       temp[i] = mfs_[i]->normLoc(type);
 
-    switch( type ) {
+    switch(type) {
       case ENorm::One: {
-        MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
+        MPI_Allreduce(temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm());
         break;
       }
       case ENorm::Two: {
-        MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
-        for( int i=0; i<n; ++i )
-          normvec[i] = std::sqrt( normvec[i] );
+        MPI_Allreduce(temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm());
+        for(int i=0; i<n; ++i)
+          normvec[i] = std::sqrt(normvec[i]);
         break;
       }
       case ENorm::Inf: {
-        MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, comm() );
+        MPI_Allreduce(temp, normvec.data(), n, MPI_REAL8, MPI_MAX, comm());
         break;
       }
       case ENorm::L2: {
-        MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
-        for( int i=0; i<n; ++i )
-          normvec[i] = std::sqrt( normvec[i] );
+        MPI_Allreduce(temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm());
+        for(int i=0; i<n; ++i)
+          normvec[i] = std::sqrt(normvec[i]);
         break;
       }
     }
@@ -399,14 +533,14 @@ public:
 
 
   /// \brief Compute the norm for the \c MultiField as it is considered as one Vector .
-  constexpr ST normLoc(  ENorm type = ENorm::Two ) {
+  constexpr ST normLoc(ENorm type = ENorm::Two) {
 
     ST normvec = 0.;
 
-    for( int i=0; i<getNumberVecs(); ++i )
+    for(int i=0; i<getNumberVecs(); ++i)
       normvec =
         (ENorm::Inf==type)?
-        (std::max( mfs_[i]->normLoc(type), normvec )):
+        (std::max(mfs_[i]->normLoc(type), normvec)):
         (normvec+mfs_[i]->normLoc(type));
 
     return normvec;
@@ -414,12 +548,12 @@ public:
 
 /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr ST norm( ENorm type = ENorm::Two ) {
+  constexpr ST norm(ENorm type = ENorm::Two) {
 
     ST normvec = this->reduce(
                    comm(),
-                   normLoc( type ),
-                   (ENorm::Inf==type)?MPI_MAX:MPI_SUM );
+                   normLoc(type),
+                   (ENorm::Inf==type)?MPI_MAX:MPI_SUM);
 
     normvec =
       (ENorm::Two==type || ENorm::L2==type) ?
@@ -435,12 +569,12 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr ST normLoc( const FieldT& weights ) {
+  constexpr ST normLoc(const FieldT& weights) {
 
     ST nor = Teuchos::ScalarTraits<ST>::zero();
 
-    for( int i=0; i<getNumberVecs(); ++i )
-      nor += mfs_[i]->normLoc( *weights.mfs_[i] );
+    for(int i=0; i<getNumberVecs(); ++i)
+      nor += mfs_[i]->normLoc(*weights.mfs_[i]);
 
     return nor;
   }
@@ -452,83 +586,89 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr ST norm( const FieldT& weights ) {
-    return std::sqrt( this->reduce( comm(), normLoc( weights ) ) );
+  constexpr ST norm(const FieldT& weights) {
+    return std::sqrt(this->reduce(comm(), normLoc(weights)));
   }
 
 
   /// \test this
   /// \param A
   /// \param index
-  void SetBlock( const FieldT& A, const std::vector<int>& index ) {
+  void SetBlock(const FieldT& A, const std::vector<int>& index) {
+
     const int n = index.size();
-    for( int i=0; i<n; ++i )
+    for(int i=0; i<n; ++i)
       *mfs_[index[i]] = *A.mfs_[i];
   }
 
   /// \param A
   /// \param index
-  void SetBlock( const FieldT& A, const Teuchos::Range1D& index) {
-    for( int i=index.lbound(); i<=index.ubound(); ++i )
+  void SetBlock(const FieldT& A, const Teuchos::Range1D& index) {
+
+    for(int i=index.lbound(); i<=index.ubound(); ++i)
       *mfs_[i] = *A.mfs_[i-index.lbound()];
   }
 
   /// \brief *this := a.
   ///
   /// assign (deep copy) a into *this.
-  MultiField& operator=( const MultiField& a ) {
+  MultiField& operator=(const MultiField& a) {
 
     const int n = getNumberVecs();
-    for( int i=0; i<n; ++i )
+    for(int i=0; i<n; ++i)
       *mfs_[i] = *a.mfs_[i];
 
     return *this;
   }
 
   /// \brief Replace the vectors with a random vectors.
-  void random( const bool useSeed = false, const int seed = 1) {
+  void random(const bool useSeed = false, const int seed = 1) {
+
     const int n = getNumberVecs();
-    for( int i=0; i<n; ++i )
+    for(int i=0; i<n; ++i)
       mfs_[i]->random();
   }
 
   /// \brief \f[ *this = \alpha \f]
-  void init( const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y ) {
+  void init(const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y) {
+
     const int n = getNumberVecs();
-    for( int i=0; i<n; ++i )
-      mfs_[i]->init(alpha,wB);
+    for(int i=0; i<n; ++i)
+      mfs_[i]->init(alpha, wB);
   }
 
-  void extrapolateBC( const Belos::ETrans trans=Belos::NOTRANS ) {
+  void extrapolateBC(const Belos::ETrans trans=Belos::NOTRANS) {
+    
     const int n = getNumberVecs();
-    for( int i=0; i<n; ++i )
-      mfs_[i]->extrapolateBC( trans );
+    for(int i=0; i<n; ++i)
+      mfs_[i]->extrapolateBC(trans);
   }
 
   void level() const {
+
     const int n = getNumberVecs();
-    for( int i=0; i<n; ++i )
+    for(int i=0; i<n; ++i)
       mfs_[i]->level();
   }
 
   /// \param out out stream
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
     const int n = getNumberVecs();
-    for( int i=0; i<n; ++i )
-      mfs_[i]->print( out );
+    for(int i=0; i<n; ++i)
+      mfs_[i]->print(out);
   }
 
 
-  void write( const int count=0, const bool restart=false ) const {
+  void write(const int count=0, const bool restart=false) const {
     const int n = getNumberVecs();
-    for( int i=0; i<n; ++i )
+    for(int i=0; i<n; ++i)
       mfs_[i]->write(count + i, restart);
   }
 
 
-  void read( const int count=0 ) {
+  void read(const int count=0) {
     const int n = getNumberVecs();
-    for( int i=0; i<n; ++i )
+    for(int i=0; i<n; ++i)
       mfs_[i]->read(count + i);
   }
 
@@ -536,10 +676,11 @@ public:
   /// \name Attribute methods
   /// @{
 
-  InnerFieldT& getField( const int i ) {
+  InnerFieldT& getField(const int i) {
     return *mfs_[i];
   }
-  constexpr const InnerFieldT& getField( const int i ) {
+
+  constexpr const InnerFieldT& getField(const int i) {
     return *mfs_[i];
   }
 
@@ -562,11 +703,11 @@ public:
 /// simple wrapper.
 /// \relates MultiField
 ///
-/// \todo make field reference + const cast( think of giving to flavours
+/// \todo make field reference + const cast(think of giving to flavours
 template<class FieldT>
-Teuchos::RCP< MultiField<FieldT> > wrapMultiField( const Teuchos::RCP<FieldT>& field ) {
+Teuchos::RCP<MultiField<FieldT> > wrapMultiField(const Teuchos::RCP<FieldT>& field) {
 
-  return Teuchos::rcp( new MultiField<FieldT>( field ) );
+  return Teuchos::rcp(new MultiField<FieldT>(field));
 }
 
 
