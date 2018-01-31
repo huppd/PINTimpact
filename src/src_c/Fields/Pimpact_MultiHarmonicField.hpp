@@ -74,7 +74,7 @@ public:
 
     return (global_==Global::Y)?
       ((1 + 2*space()->nGlo(3))*field0_.getStorageSize()):
-      ((1 + 2*(space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) +
+      ((1 + 2*(space()->ei(F::U, 3) - std::max(space()->si(F::U, 3), 1) +
                   1))*field0_.getStorageSize());
   }
 
@@ -97,7 +97,7 @@ public:
 
     } else {
 
-      for(OT i=0; i<=space()->ei(F::U, 3) - std::max(space()->si(F::U,3), 1); ++i)
+      for(OT i=0; i<=space()->ei(F::U, 3) - std::max(space()->si(F::U, 3), 1); ++i)
         fields_[i]->setStoragePtr(s_ + nx + 2*nx*i);
     }
   }
@@ -123,7 +123,7 @@ public:
       for(OT i=0; i<space->nGlo(3); ++i)
         fields_[i] = Teuchos::rcp(new ModeField<IFT>(space, Owning::N));
     } else {
-      for(OT i=0; i<space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1; ++i)
+      for(OT i=0; i<space()->ei(F::U, 3) - std::max(space()->si(F::U, 3), 1) + 1; ++i)
         fields_[i] = Teuchos::rcp(new ModeField<IFT>(space, Owning::N));
     }
 
@@ -148,8 +148,8 @@ public:
       for(OT i=1; i<=space()->nGlo(3); ++i)
         fields_[i-1] = Teuchos::rcp(new ModeField<IFT>(vF.getField(i), copyType));
     } else {
-      for(OT i=0; i<space()->ei(F::U,3) - std::max(space()->si(F::U,3),1) + 1; ++i)
-        fields_[i] = Teuchos::rcp(new ModeField<IFT>(vF.getField(i+std::max(space()->si(F::U,3),1)), copyType));
+      for(OT i=0; i<space()->ei(F::U, 3) - std::max(space()->si(F::U, 3), 1) + 1; ++i)
+        fields_[i] = Teuchos::rcp(new ModeField<IFT>(vF.getField(i+std::max(space()->si(F::U, 3), 1)), copyType));
     }
 
     if(owning_==Owning::Y) {
@@ -190,8 +190,8 @@ public:
 protected:
 
   constexpr OT index(const OT i) {
-    return i - 1 + ((global_==Global::Y||0==space()->si(F::U,3))?
-             0: (-space()->si(F::U,3)+1));
+    return i - 1 + ((global_==Global::Y||0==space()->si(F::U, 3))?
+             0: (-space()->si(F::U, 3)+1));
   };
 
 public:
@@ -264,10 +264,10 @@ public:
   /// \todo add test for consistent VectorSpaces in debug mode
   void add(const ST alpha, const FieldT& a, const ST beta, const FieldT& b, const B wb=B::Y) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.add(alpha, a.get0Field(), beta, b.get0Field(), wb);
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).add(alpha, a.getField(i), beta, b.getField(i), wb);
 
     changed();
@@ -278,14 +278,14 @@ public:
   /// vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void abs(const FieldT& y) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.abs(y.get0Field());
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).abs(y.getField(i));
 
     changed();
@@ -295,14 +295,14 @@ public:
   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1, \dots, n  \f]
   /// \return Reference to this object
   void reciprocal(const FieldT& y) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.reciprocal(y.get0Field());
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).reciprocal(y.getField(i));
 
     changed();
@@ -312,10 +312,10 @@ public:
   /// \brief Scale each element of the vectors in \c this with \c alpha.
   void scale(const ST alpha, const B wB=B::Y) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.scale(alpha, wB);
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).scale(alpha, wB);
 
     changed();
@@ -325,14 +325,14 @@ public:
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void scale(const FieldT& a) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.scale(a.get0Field());
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).scale(a.getField(i));
 
     changed();
@@ -349,9 +349,9 @@ public:
 
     ST b = 0.;
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       b += 2.*get0Field().dotLoc(a.get0Field());
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       b += getField(i).dotLoc(a.getField(i));
 
     return b;
@@ -369,13 +369,13 @@ public:
 
     ST normvec = 0.;
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       normvec =
         (ENorm::Inf==type)?
         std::max(get0Field().normLoc(type), normvec):
         (2.*get0Field().normLoc(type));
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       normvec =
         (ENorm::Inf==type)?
         std::max(getField(i).normLoc(type), normvec):
@@ -409,10 +409,10 @@ public:
 
     ST normvec= Teuchos::ScalarTraits<ST>::zero();
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       normvec += get0Field().normLoc(weights.get0Field());
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       normvec += getField(i).normLoc(weights.getField(i));
 
     return normvec;
@@ -447,10 +447,10 @@ public:
     }
     else {
 
-      if(0==space()->si(F::U,3))
+      if(0==space()->si(F::U, 3))
         field0_ = a.get0Field();
 
-      for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+      for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
         getField(i) = a.getField(i);
 
       changed();
@@ -463,10 +463,10 @@ public:
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed=false, const B bcYes=B::Y, int seed=1) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.random(useSeed, bcYes, seed);
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).random(useSeed, bcYes, seed);
 
     changed();
@@ -476,10 +476,10 @@ public:
   /// \brief Replace each element of the vector  with \c alpha.
   void init(const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.init(alpha, wB);
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).init(alpha, wB);
 
     changed();
@@ -489,10 +489,10 @@ public:
   ///  \brief initializes including boundaries to zero
   void initField(Teuchos::ParameterList& para, const Add add=Add::N) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.initField(para.sublist("0 mode"), add);
 
-    if(space()->si(F::U,3)<=1 && 1<=space()->ei(F::U,3)) {
+    if(space()->si(F::U, 3)<=1 && 1<=space()->ei(F::U, 3)) {
       getCField(1).initField(para.sublist("cos mode"), add);
       getSField(1).initField(para.sublist("sin mode"), add);
     }
@@ -502,10 +502,10 @@ public:
 
   void extrapolateBC(const Belos::ETrans trans=Belos::NOTRANS) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.extrapolateBC(trans);
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).extrapolateBC(trans);
 
     changed();
@@ -513,10 +513,10 @@ public:
 
   void level() const {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.level();
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).level();
 
     changed();
@@ -527,10 +527,10 @@ public:
   /// Print the vector.  To be used for debugging only.
   void print(std::ostream& os=std::cout) const {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       get0Field().print(os);
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).print(os);
   }
 
@@ -562,10 +562,10 @@ public:
 
   void write(const int count=0, const bool restart=false) const {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       get0Field().write(count, restart);
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i) {
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
       getCField(i).write(count+2*i-1, restart);
       getSField(i).write(count+2*i, restart);
     }
@@ -574,15 +574,15 @@ public:
 
   void read(const int count=0, OT nf_restart=-1) {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       get0Field().read(count);
 
     if(-1==nf_restart)
-      nf_restart = space()->ei(F::U,3);
-    else if(nf_restart>space()->ei(F::U,3)) 
-      nf_restart = space()->ei(F::U,3);
+      nf_restart = space()->ei(F::U, 3);
+    else if(nf_restart>space()->ei(F::U, 3)) 
+      nf_restart = space()->ei(F::U, 3);
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=nf_restart; ++i) {
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=nf_restart; ++i) {
       getCField(i).read(count+2*i-1);
       getSField(i).read(count+2*i);
     }
@@ -598,10 +598,10 @@ public:
   void changed() const {
     exchangedState_ = false;
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       field0_.changed();
 
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
       getField(i).changed();
   }
 
@@ -614,10 +614,10 @@ public:
     if(exchangedState_==false) {
 
       // exchange spatial
-      if(0==space()->si(F::U,3))
+      if(0==space()->si(F::U, 3))
         field0_.exchange();
 
-      for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+      for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
         getField(i).exchange();
 
       // mpi stuff
@@ -625,9 +625,9 @@ public:
 
       // --- sendcount ---
       int sendcount = 0;
-      if(0==space()->si(F::U,3))
+      if(0==space()->si(F::U, 3))
         sendcount += nx;
-      for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i)
+      for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
         sendcount += 2*nx;
 
       // --- recvcount, displacement ---
@@ -651,9 +651,9 @@ public:
         else
           displs[rank] = displs[rank-1] + recvcounts[rank-1];
 //				if(0==space()->rankST())
-//					std::cout << "\trank: " << rank
-//						<< "\trecevcount: " << recvcounts[rank]
-//						<< "\tdispl: " << displs[rank] << "\n";
+//					std::cout <<"\trank: " <<rank
+//						<<"\trecevcount: " <<recvcounts[rank]
+//						<<"\tdispl: " <<displs[rank] <<"\n";
       }
 
       // exchange modes
@@ -672,13 +672,13 @@ public:
       delete[] displs;
 
       // set non owning spatial block as exchanged
-      if(0!=space()->si(F::U,3))
+      if(0!=space()->si(F::U, 3))
         get0Field().setExchanged();
 
-      for(OT i=1; i<space()->si(F::U,3); ++i)
+      for(OT i=1; i<space()->si(F::U, 3); ++i)
         getField(i).setExchanged();
 
-      for(OT i=space()->ei(F::U,3)+1; i<=space()->nGlo(3); ++i)
+      for(OT i=space()->ei(F::U, 3)+1; i<=space()->nGlo(3); ++i)
         getField(i).setExchanged();
     }
   }
@@ -694,10 +694,10 @@ public:
 /// \relates MultiHarmonicField
 /// \param space scalar Vector Space to which returned vector belongs
 template<class FieldT>
-Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
+Teuchos::RCP<MultiHarmonicField<FieldT > > createMultiHarmonic(
   const Teuchos::RCP<const typename FieldT::SpaceT >& space) {
 
-  return create< MultiHarmonicField<FieldT> >(space);
+  return create<MultiHarmonicField<FieldT> >(space);
 }
 
 
@@ -708,7 +708,7 @@ Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
 /// \param space scalar Vector Space to which returned vector belongs
 /// \param global
 template<class FieldT>
-Teuchos::RCP< MultiHarmonicField<FieldT> > createMultiHarmonic(
+Teuchos::RCP<MultiHarmonicField<FieldT> > createMultiHarmonic(
   const Teuchos::RCP<const typename FieldT::SpaceT >& space, const typename MultiHarmonicField<FieldT>::Global global) {
 
   return Teuchos::rcp(new  MultiHarmonicField<FieldT>(space, global));

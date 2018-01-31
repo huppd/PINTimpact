@@ -35,29 +35,29 @@ protected:
 
 public:
 
-  MultiOpWrap( const Teuchos::RCP<const SpaceT>& space ):
-    op_( Teuchos::rcp( new OperatorT(space) ) ) {}
+  MultiOpWrap(const Teuchos::RCP<const SpaceT>& space):
+    op_(Teuchos::rcp(new OperatorT(space))) {}
 
-  MultiOpWrap( const Teuchos::RCP<OperatorT>& op ):op_(op) {}
+  MultiOpWrap(const Teuchos::RCP<OperatorT>& op):op_(op) {}
 
 //	template<class IOperatorT>
-//	MultiOpWrap( const Teuchos::RCP< MultiOpWrap<IOperatorT> >& op ):
-//		op_( Teuchos::rcp( new OperatorT( op->getOperatorPtr() ) ) ) {}
+//	MultiOpWrap(const Teuchos::RCP<MultiOpWrap<IOperatorT> >& op):
+//		op_(Teuchos::rcp(new OperatorT(op->getOperatorPtr()))) {}
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+  void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
       trans=Belos::NOTRANS) const {
 
-    assert( x.getNumberVecs()==y.getNumberVecs() );
+    assert(x.getNumberVecs()==y.getNumberVecs());
 
-    for( int i=0; i<x.getNumberVecs(); ++i )
-      op_->apply( x.getField(i), y.getField(i) );
+    for(int i=0; i<x.getNumberVecs(); ++i)
+      op_->apply(x.getField(i), y.getField(i));
   }
 
 
-  void assignField( const DomainFieldT& mv ) {
+  void assignField(const DomainFieldT& mv) {
 
-    op_->assignField( mv.getField(0) );
+    op_->assignField(mv.getField(0));
   };
 
 
@@ -73,16 +73,16 @@ public:
     return op_->space();
   };
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    op_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    op_->setParameter(para);
   }
 
   const std::string getLabel() const {
     return op_->getLabel();
   };
 
-  void print( std::ostream& out=std::cout ) const {
-    op_->print( out );
+  void print(std::ostream& out=std::cout) const {
+    op_->print(out);
   }
 
 }; // end of class MultiOpWrap
@@ -90,11 +90,11 @@ public:
 
 
 /// \relates MultiOpWrap
-/// \deprecated use create<MultiOpWrap>( op ) instead
+/// \deprecated use create<MultiOpWrap>(op) instead
 template<class OperatorT>
-Teuchos::RCP< MultiOpWrap<OperatorT> > createMultiOpWrap( const Teuchos::RCP<OperatorT>& op ) {
+Teuchos::RCP<MultiOpWrap<OperatorT> > createMultiOpWrap(const Teuchos::RCP<OperatorT>& op) {
 
-  return Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) );
+  return Teuchos::rcp(new MultiOpWrap<OperatorT>(op));
 }
 
 

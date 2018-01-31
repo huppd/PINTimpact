@@ -29,7 +29,7 @@ void FD_getDiffCoeff(
   const int* const n_coeff_bound,
   const double* const xC,
   const double* const xE,
-  double* const cc );
+  double* const cc);
 
 
 } // end of namespace Pimpact

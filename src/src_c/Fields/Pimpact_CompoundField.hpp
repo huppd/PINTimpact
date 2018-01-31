@@ -70,7 +70,7 @@ public:
 
   void setStoragePtr(ST* array) {
     s_ = array;
-    vfield_.setStoragePtr(s_                           );
+    vfield_.setStoragePtr(s_);
     sfield_.setStoragePtr(s_ + vfield_.getStorageSize());
   }
 
@@ -185,7 +185,7 @@ public:
   /// vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void abs(const CompoundField& y) {
 
@@ -197,7 +197,7 @@ public:
   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1, \dots, n  \f]
   /// \return Reference to this object
   void reciprocal(const CompoundField& y) {
 
@@ -217,7 +217,7 @@ public:
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void scale(const CompoundField& a) {
 

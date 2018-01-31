@@ -39,30 +39,30 @@ public:
 
   TransferCompoundOp(
     const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF ):
-    opV_( Teuchos::rcp( new TransVT( spaceC, spaceF ) ) ),
-    opS_( Teuchos::rcp( new TransST( spaceC, spaceF ) ) ) {}
+    const Teuchos::RCP<const CSpaceT>& spaceF):
+    opV_(Teuchos::rcp(new TransVT(spaceC, spaceF))),
+    opS_(Teuchos::rcp(new TransST(spaceC, spaceF))) {}
 
   TransferCompoundOp(
     const Teuchos::RCP<const FSpaceT>& spaceC,
     const Teuchos::RCP<const CSpaceT>& spaceF,
-    const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
-    opV_( Teuchos::rcp( new TransVT( spaceC, spaceF ) ) ),
-    opS_( Teuchos::rcp( new TransST( spaceC, spaceF ) ) ) {}
+    const Teuchos::Tuple<int, SpaceT::dimension>& nb):
+    opV_(Teuchos::rcp(new TransVT(spaceC, spaceF))),
+    opS_(Teuchos::rcp(new TransST(spaceC, spaceF))) {}
 
 
   template<class DT, class RT>
-  void apply( const DT& x, RT& y ) const {
+  void apply(const DT& x, RT& y) const {
 
-    opV_->apply( x.getVField(), y.getVField() );
-    opS_->apply( x.getSField(), y.getSField() );
+    opV_->apply(x.getVField(), y.getVField());
+    opS_->apply(x.getSField(), y.getSField());
   }
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
 
-    out << "=== TransferCompoundOP ===\n";
-    opV_->print( out );
-    opS_->print( out );
+    out <<"=== TransferCompoundOP ===\n";
+    opV_->print(out);
+    opS_->print(out);
   }
 
 }; // end of class TransferCompoundOp

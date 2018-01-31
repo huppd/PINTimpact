@@ -52,7 +52,7 @@ extern "C" {
     const double* const veln,
     const double* const pn,
     double* const r_vel,
-    double* const r_p );
+    double* const r_p);
 }
 
 
@@ -66,8 +66,8 @@ public:
 
   using SpaceT = ST;
 
-  using DomainFieldT = CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >;
-  using RangeFieldT = CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >;
+  using DomainFieldT = CompoundField<TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >;
+  using RangeFieldT = CompoundField<TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >;
 
 protected:
 
@@ -92,19 +92,19 @@ protected:
 
 public:
 
-  TimeNSOp( const Teuchos::RCP<const SpaceT>& space ):
-    windU_( create< TimeField< VectorField<ST> > >( space) ),
-    windV_( create< TimeField< VectorField<ST> > >( space) ),
-    windW_( create< TimeField< VectorField<ST> > >( space) ),
-    interpolateS2V_( create<InterpolateS2V>(space) ),
-    interpolateV2S_( createInterpolateV2S( space ) ),
-    conv_( create< ConvectionSOp<ST> >(space) ),
-    helm_( create< HelmholtzOp<ST>   >(space) ),
-    grad_( create< GradOp<ST>        >(space) ),
-    div_ ( create< DivOp<ST>         >(space) ) {};
+  TimeNSOp(const Teuchos::RCP<const SpaceT>& space):
+    windU_(create<TimeField<VectorField<ST> > >(space)),
+    windV_(create<TimeField<VectorField<ST> > >(space)),
+    windW_(create<TimeField<VectorField<ST> > >(space)),
+    interpolateS2V_(create<InterpolateS2V>(space)),
+    interpolateV2S_(createInterpolateV2S(space)),
+    conv_(create<ConvectionSOp<ST> >(space)),
+    helm_(create<HelmholtzOp<ST>   >(space)),
+    grad_(create<GradOp<ST>        >(space)),
+    div_ (create<DivOp<ST>         >(space)) {};
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
     Scalar pi = 4.*std::atan(1.);
     Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;
@@ -118,7 +118,7 @@ public:
 
     xu.exchange();
 
-    for( Ordinal i=space()->si(F::S,3)-1; i<space()->ei(F::S,3); ++i ) {
+    for(Ordinal i=space()->si(F::S, 3)-1; i<space()->ei(F::S, 3); ++i) {
       xu(i).exchange();
       xp(i).exchange();
     }
@@ -144,24 +144,24 @@ public:
       space()->eInd(F::V),
       space()->sInd(F::W),
       space()->eInd(F::W),
-      conv_->getCD(X,F::U),
-      conv_->getCD(Y,F::V),
-      conv_->getCD(Z,F::W),
-      conv_->getCU(X,F::U),
-      conv_->getCU(Y,F::V),
-      conv_->getCU(Z,F::W),
-      conv_->getCD(X,F::S),
-      conv_->getCD(Y,F::S),
-      conv_->getCD(Z,F::S),
-      conv_->getCU(X,F::S),
-      conv_->getCU(Y,F::S),
-      conv_->getCU(Z,F::S),
-      helm_->getC(X,F::S),
-      helm_->getC(Y,F::S),
-      helm_->getC(Z,F::S),
-      helm_->getC(X,F::U),
-      helm_->getC(Y,F::V),
-      helm_->getC(Z,F::W),
+      conv_->getCD(X, F::U),
+      conv_->getCD(Y, F::V),
+      conv_->getCD(Z, F::W),
+      conv_->getCU(X, F::U),
+      conv_->getCU(Y, F::V),
+      conv_->getCU(Z, F::W),
+      conv_->getCD(X, F::S),
+      conv_->getCD(Y, F::S),
+      conv_->getCD(Z, F::S),
+      conv_->getCU(X, F::S),
+      conv_->getCU(Y, F::S),
+      conv_->getCU(Z, F::S),
+      helm_->getC(X, F::S),
+      helm_->getC(Y, F::S),
+      helm_->getC(Z, F::S),
+      helm_->getC(X, F::U),
+      helm_->getC(Y, F::V),
+      helm_->getC(Z, F::W),
       div_->getC(X),
       div_->getC(Y),
       div_->getC(Z),
@@ -176,9 +176,9 @@ public:
       xu.getConstRawPtr(),
       xp.getConstRawPtr(),
       yu.getRawPtr(),
-      yp.getRawPtr() );
+      yp.getRawPtr());
 
-    for( Ordinal i=space()->si(F::S,3)-1; i<space()->ei(F::S,3); ++i ) {
+    for(Ordinal i=space()->si(F::S, 3)-1; i<space()->ei(F::S, 3); ++i) {
       yu(i).changed();
       yp(i).changed();
     }
@@ -189,41 +189,41 @@ public:
   }
 
 
-  void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
-    apply( x, res );
-    res.add( 1., b, -1., res );
+  void computeResidual(const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res) const {
+    apply(x, res);
+    res.add(1., b, -1., res);
   }
 
-  void assignField( const DomainFieldT& cmv ) {
+  void assignField(const DomainFieldT& cmv) {
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
     auto& mv = cmv.getVField();
 
-    ScalarField<ST> temp( space() );
+    ScalarField<ST> temp(space());
 
     mv.exchange();
 
-    for( Ordinal it=0; it<nt; ++it ) {
+    for(Ordinal it=0; it<nt; ++it) {
 
-      interpolateV2S_->apply( mv(it)(F::U), temp );
-      for( F j=F::U; j<SpaceT::sdim; ++j ) {
-        interpolateS2V_->apply( temp, windU_->operator()(it)(j) );
+      interpolateV2S_->apply(mv(it)(F::U), temp);
+      for(F j=F::U; j<SpaceT::sdim; ++j) {
+        interpolateS2V_->apply(temp, windU_->operator()(it)(j));
       }
-      interpolateV2S_->apply( mv(it)(F::V), temp );
-      for( F j=F::U; j<SpaceT::sdim; ++j ) {
-        interpolateS2V_->apply( temp, windV_->operator()(it)(j) );
+      interpolateV2S_->apply(mv(it)(F::V), temp);
+      for(F j=F::U; j<SpaceT::sdim; ++j) {
+        interpolateS2V_->apply(temp, windV_->operator()(it)(j));
       }
-      if( 3==SpaceT::sdim ) {
-        interpolateV2S_->apply( mv(it)(F::W), temp );
-        for( F j=F::U; j<SpaceT::sdim; ++j ) {
-          interpolateS2V_->apply( temp, windW_->operator()(it)(j) );
+      if(3==SpaceT::sdim) {
+        interpolateV2S_->apply(mv(it)(F::W), temp);
+        for(F j=F::U; j<SpaceT::sdim; ++j) {
+          interpolateS2V_->apply(temp, windW_->operator()(it)(j));
         }
       }
     }
     windU_->changed();
     windV_->changed();
-    if( 3==SpaceT::sdim )
+    if(3==SpaceT::sdim)
       windW_->changed();
 
   };
@@ -232,7 +232,7 @@ public:
     return conv_->space();
   };
 
-  void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+  void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
 
   bool hasApplyTranspose() const {
     return false;
@@ -251,20 +251,20 @@ public:
     return conv_;
   }
 
-  Teuchos::RCP< TimeField<VectorField<ST> > > getWindU_() const {
+  Teuchos::RCP<TimeField<VectorField<ST> > > getWindU_() const {
     return windU_;
   }
-  Teuchos::RCP< TimeField<VectorField<ST> > > getWindV_() const {
+  Teuchos::RCP<TimeField<VectorField<ST> > > getWindV_() const {
     return windV_;
   }
-  Teuchos::RCP< TimeField<VectorField<ST> > > getWindW_() const {
+  Teuchos::RCP<TimeField<VectorField<ST> > > getWindW_() const {
     return windW_;
   }
 
 
 
-  void print( std::ostream& out=std::cout ) const {
-    out << getLabel() << ":\n";
+  void print(std::ostream& out=std::cout) const {
+    out <<getLabel() <<":\n";
   }
 
   const std::string getLabel() const {

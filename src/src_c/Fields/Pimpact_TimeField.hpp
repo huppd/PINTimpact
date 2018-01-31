@@ -38,7 +38,7 @@ namespace Pimpact {
 template<class Field>
 class TimeField : private AbstractField<typename Field::SpaceT> {
 
-  template<class Op,bool CNY>
+  template<class Op, bool CNY>
   friend class TimeOpWrap;
   template<class SpaceTT>
   friend class DtTimeOp;
@@ -96,7 +96,7 @@ public:
 
     OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-    mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
+    mfs_ = Teuchos::Array<Teuchos::RCP<Field> >(nt);
 
     for(int i=0; i<nt; ++i)
       mfs_[i] = Teuchos::rcp(new Field(space, Owning::N));
@@ -118,7 +118,7 @@ public:
 
     OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-    mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
+    mfs_ = Teuchos::Array<Teuchos::RCP<Field> >(nt);
 
     for(int i=0; i<nt; ++i)
       mfs_[i] = Teuchos::rcp(new Field(space(), Owning::N));
@@ -173,7 +173,7 @@ public:
   /// \brief <tt>mv := alpha*a + beta*b</tt>
   void add(ST alpha, const FieldT& a, ST beta, const FieldT& b, const B wb=B::Y) {
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).add(alpha, a(i), beta, b(i), wb);
     changed();
   }
@@ -183,11 +183,11 @@ public:
   /// vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void abs(const FieldT& y) {
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).abs(y(i));
     changed();
   }
@@ -196,11 +196,11 @@ public:
   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1, \dots, n  \f]
   /// \return Reference to this object
   void reciprocal(const FieldT& y) {
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).reciprocal(y(i));
     changed();
   }
@@ -209,10 +209,10 @@ public:
   /// \brief Scale each element of every \c Field by \c gamma.
   ///
   /// Here x represents on \c Field, and we update it as
-  /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1, \dots, n \f]
   void scale(const ST alpha, const B wB=B::Y) {
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).scale(alpha, wB);
     changed();
   }
@@ -221,10 +221,10 @@ public:
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void scale(const FieldT& y) {
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).scale(y(i));
     changed();
   }
@@ -237,7 +237,7 @@ public:
 
     ST b = 0.;
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       b+= at(i).dotLoc(A(i));
 
     return b;
@@ -255,7 +255,7 @@ public:
 
     ST normvec = 0.;
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       normvec =
         ((ENorm::Inf==type)?
           std::max(at(i).normLoc(type, bcYes), normvec) :
@@ -288,7 +288,7 @@ public:
 
     ST nor = Teuchos::ScalarTraits<ST>::zero();
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       nor+= at(i).norm(weights(i));
 
     return nor;
@@ -310,7 +310,7 @@ public:
   /// assign (deep copy) A into mv.
   TimeField& operator=(const TimeField& a) {
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i) = a(i);
     changed();
 
@@ -321,7 +321,7 @@ public:
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed=false, const B bcYes=B::Y, int seed=1) {
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).random(useSeed, bcYes, seed);
     changed();
   }
@@ -330,21 +330,21 @@ public:
   /// \brief \f[ *this = \alpha \f]
   void init(const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y) {
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
-      at(i).init(alpha,wB);
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
+      at(i).init(alpha, wB);
     changed();
   }
 
   void extrapolateBC(const Belos::ETrans trans=Belos::NOTRANS) {
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).extrapolateBC(trans);
     changed();
   }
 
   void level() const {
 
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).level();
     changed();
   }
@@ -352,19 +352,19 @@ public:
 
   /// \param os
   void print(std::ostream& os=std::cout) const {
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).print(os);
   }
 
 
 
   void write(int count=0, const bool restart=false) const {
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).write(count++ + space()->getShift(3), restart);
   }
 
   void read(int count=0) {
-    for(OT i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i)
+    for(OT i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
       at(i).read(count++ + space()->getShift(3));
   }
 
@@ -391,8 +391,8 @@ public:
         int transL = std::abs(space()->bl(3));
         int transU = std::abs(space()->bu(3));
 
-        // std::cout << "transL: " <<  transL << "\n";
-        // std::cout << "transU: " <<  transU << "\n";
+        // std::cout <<"transL: " << transL <<"\n";
+        // std::cout <<"transU: " << transU <<"\n";
 
         int rankU = space()->getProcGrid()->getRankU(3);
         int rankL = space()->getProcGrid()->getRankL(3);
@@ -406,11 +406,11 @@ public:
         OT lengthL = transL * at(0).getStorageSize();
         OT lengthU = transU * at(0).getStorageSize();
 
-        ST* ghostUR = at(space()->si(F::S,3)-transU).getRawPtr();
-        ST* ghostLR = at(space()->ei(F::S,3)  +transL).getRawPtr();
+        ST* ghostUR = at(space()->si(F::S, 3)-transU).getRawPtr();
+        ST* ghostLR = at(space()->ei(F::S, 3)  +transL).getRawPtr();
 
-        ST* ghostUS = at(space()->ei(F::S,3)).getRawPtr();
-        ST* ghostLS = at(space()->si(F::S,3)).getRawPtr();
+        ST* ghostUS = at(space()->ei(F::S, 3)).getRawPtr();
+        ST* ghostLS = at(space()->si(F::S, 3)).getRawPtr();
 
         if(transL>0) MPI_Irecv(ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
         if(transU>0) MPI_Irecv(ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
@@ -422,17 +422,17 @@ public:
         if(transU>0) MPI_Wait(&reqU, &statusU);
 
         // depends on if field from sender was exchanged, so to be sure
-        at(0                  ).changed();
-        at(space()->ei(F::S,3)).changed();
+        at(0).changed();
+        at(space()->ei(F::S, 3)).changed();
 
       } else {
         if(std::abs(space()->bl(3))>0) {
-          *mfs_[ space()->si(F::S,3)-1 ] = at(space()->ei(F::S,3));
-          at(space()->si(F::S,3)-1).changed();
+          *mfs_[ space()->si(F::S, 3)-1 ] = at(space()->ei(F::S, 3));
+          at(space()->si(F::S, 3)-1).changed();
         }
         if(std::abs(space()->bu(3))>0) {
-          *mfs_[ space()->ei(F::S,3)+1 ] = at(space()->si(F::S,3));
-          at(space()->ei(F::S,3)+1).changed();
+          *mfs_[ space()->ei(F::S, 3)+1 ] = at(space()->si(F::S, 3));
+          at(space()->ei(F::S, 3)+1).changed();
         }
       }
     }
@@ -473,7 +473,7 @@ public:
 /// \relates TimeField
 /// \deprecated
 template<class FieldT, class SpaceT>
-Teuchos::RCP< TimeField<FieldT> >
+Teuchos::RCP<TimeField<FieldT> >
 createTimeField(const Teuchos::RCP<const SpaceT>& space) {
 
   return Teuchos::rcp(new TimeField<FieldT>(space));
@@ -500,11 +500,11 @@ initVectorTimeField(
   S pi = 4.*std::atan(1.);
 
   S nt = space->nGlo(3);
-  S offset = space->getShift(3) - space->si(F::S,3);
+  S offset = space->getShift(3) - space->si(F::S, 3);
 
   bool notImplemented = true;
   TEUCHOS_TEST_FOR_EXCEPT(notImplemented);
-  //for(O i=space->si(F::S,3); i<=space->ei(F::S,3); ++i)
+  //for(O i=space->si(F::S, 3); i<=space->ei(F::S, 3); ++i)
   //switch(flowType) {
   //case Zero2DFlow:
   //field(i)->initField(ZeroFlow);
@@ -524,7 +524,7 @@ initVectorTimeField(
   //break;
   //}
   //case OscilatingDisc2D: {
-  ////			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((F::S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX(F::S, ECoord::T)[i] << "\n";
+  ////			std::cout <<"\ti: " <<i <<"\tt: " <<2.*pi*((F::S)i+offset)/nt <<"\tt: " <<space->getCoordinatesLocal()->getX(F::S, ECoord::T)[i] <<"\n";
   //S ymt = ym+amp*std::sin(space->getCoordinatesLocal()->getX(F::S, ECoord::T)[i]);
   //S xmt = xm;
   //field(i)->initField(Disc2D, xmt, ymt, rad);
@@ -541,7 +541,7 @@ initVectorTimeField(
   //break;
   //}
   //case Pulsatile_inX: {
-  ////field(i)->initField(Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX(F::S, ECoord::T)[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
+  ////field(i)->initField(Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX(F::S, ECoord::T)[i], ym, rad); // the arguments are (xmt, i, ymt, rad) --> (re, t, px, alpha)
   //break;
   //}
   //default:

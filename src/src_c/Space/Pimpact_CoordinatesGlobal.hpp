@@ -37,12 +37,12 @@ namespace Pimpact {
 ///          automatically derived from global grid
 ///        - dy3p = dy3w = 1. for 2D (may simplify programming)
 ///        - ensure that for all i
-///             y1p(i) < y1p(i+1)
-///             y1u(i) < y1u(i+1)
-///             y1p(i) < y1u(i) < y1p(i+1)
+///             y1p(i) <y1p(i+1)
+///             y1u(i) <y1u(i+1)
+///             y1p(i) <y1u(i) <y1p(i+1)
 ///                etc.
 ///        - code is tested only for
-///             y1p(1 ) = 0.
+///             y1p(1) = 0.
 ///             y1p(M1) = L1
 ///                etc.
 ///
@@ -52,29 +52,29 @@ namespace Pimpact {
 template<class ScalarT, class OrdinalT, int dim>
 class CoordinatesGlobal {
 
-  template<class ST,class OT, int sdT,int dT>
-  friend Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> > createCoordinatesGlobal(
-    const Teuchos::RCP<const GridSizeGlobal<OT,sdT> >& gridSize,
-    const Teuchos::RCP<const DomainSize<ST,sdT> >& domainSize,
-    const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 >& gridStretching );
+  template<class ST, class OT, int sdT, int dT>
+  friend Teuchos::RCP<const CoordinatesGlobal<ST, OT, dT> > createCoordinatesGlobal(
+    const Teuchos::RCP<const GridSizeGlobal<OT, sdT> >& gridSize,
+    const Teuchos::RCP<const DomainSize<ST, sdT> >& domainSize,
+    const Teuchos::Tuple<Teuchos::RCP<Teuchos::ParameterList>, 3 >& gridStretching);
 
-  template<class ST,class OT,int sdT,int dT>
-  friend Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> > createCoordinatesGlobal(
-    const Teuchos::RCP<const GridSizeGlobal<OT,sdT> >& gridSize,
-    const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> >& coordinates );
+  template<class ST, class OT, int sdT, int dT>
+  friend Teuchos::RCP<const CoordinatesGlobal<ST, OT, dT> > createCoordinatesGlobal(
+    const Teuchos::RCP<const GridSizeGlobal<OT, sdT> >& gridSize,
+    const Teuchos::RCP<const CoordinatesGlobal<ST, OT, dT> >& coordinates);
 
 protected:
 
-  using AS = Array<ScalarT,OrdinalT,1>;
-  using AV = Array<ScalarT,OrdinalT,0>;
+  using AS = Array<ScalarT, OrdinalT, 1>;
+  using AV = Array<ScalarT, OrdinalT, 0>;
 
-  using TAS = const Teuchos::Tuple< AS, dim >;
-  using TAV = const Teuchos::Tuple< AV, dim >;
+  using TAS = const Teuchos::Tuple<AS, dim >;
+  using TAV = const Teuchos::Tuple<AV, dim >;
 
   TAS xS_;
   TAV xV_;
 
-  Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 > stretchPara_;
+  Teuchos::Tuple<Teuchos::RCP<Teuchos::ParameterList>, 3 > stretchPara_;
 
   /// \name coordinate stretchings
   /// @{
@@ -88,14 +88,14 @@ protected:
   /// \param[in] M
   /// \param[in] x0
   /// \param[out] x
-  void coord_equi( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, ScalarT& x ) {
-    x  = i*L/( M-1. ) - x0;
+  void coord_equi(const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, ScalarT& x) {
+    x  = i*L/(M-1.) - x0;
   }
 
 
   /// \brief coordinate stretching for parabolas
   ///
-  /// \f[ \mathrm{ x[i] = L\left( \frac{ i^2 }{ (M-1)^2 } + 2\alpha \frac{i}{M-1}  \right)\frac{1}{1+2\alpha)} - x0 } \f]
+  /// \f[ \mathrm{ x[i] = L\left(\frac{ i^2 }{ (M-1)^2 } + 2\alpha \frac{i}{M-1}  \right)\frac{1}{1+2\alpha)} - x0 } \f]
   ///
   /// \param[in] i index
   /// \param[in] L length of domain
@@ -103,14 +103,14 @@ protected:
   /// \param[in] x0 origin
   /// \param[in] alpha parameter for parabola alpha=0 very parabolic alpha>>0 equidistant
   /// \param[out] x coordinate
-  void coord_parab( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, const ScalarT alpha, ScalarT& x ) {
-    x  = L*( std::pow(i,2)/std::pow(M-1.,2) + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
+  void coord_parab(const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, const ScalarT alpha, ScalarT& x) {
+    x  = L*(std::pow(i, 2)/std::pow(M-1., 2) + 2.*alpha*i/(M-1.))/(1.+2.*alpha) - x0;
   }
 
 
   /// \brief coordinate stretching for parabolas at the end
   ///
-  /// \f[ \mathrm{ x[i] = L\left( \frac{ i^2 }{ (M-1)^2 } + 2\alpha \frac{i}{M-1}  \right)\frac{1}{1+2\alpha)} - x0 } \f]
+  /// \f[ \mathrm{ x[i] = L\left(\frac{ i^2 }{ (M-1)^2 } + 2\alpha \frac{i}{M-1}  \right)\frac{1}{1+2\alpha)} - x0 } \f]
   ///
   /// \param[in] i index
   /// \param[in] L length of domain
@@ -118,8 +118,8 @@ protected:
   /// \param[in] x0 origin
   /// \param[in] alpha parameter for parabola alpha=0 very parabolic alpha>>0 equidistant
   /// \param[out] x coordinate
-  void coord_parab_end( const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, const ScalarT alpha, ScalarT& x ) {
-    x  = L*( -std::pow(i-M+1,2)/std::pow(M-1.,2) + 1. + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
+  void coord_parab_end(const ScalarT i, const ScalarT L, const ScalarT M, const ScalarT x0, const ScalarT alpha, ScalarT& x) {
+    x  = L*(-std::pow(i-M+1, 2)/std::pow(M-1., 2) + 1. + 2.*alpha*i/(M-1.))/(1.+2.*alpha) - x0;
   }
 
 
@@ -155,52 +155,52 @@ protected:
     const ScalarT iMU,
     const ScalarT i0L,
     const ScalarT i0U,
-    ScalarT& x ) {
+    ScalarT& x) {
 
     ScalarT wL;
     ScalarT wU;
     ScalarT xL;
     ScalarT xU;
 
-    ScalarT pi = 4.*std::atan( 1. );
+    ScalarT pi = 4.*std::atan(1.);
 
     //--- parameters for grid stretching
-    if( iML<=1. ) {
+    if(iML<=1.) {
       wL = 0.;
       xL = 0.;
     } else {
-      wL = pi/( 2.*( iML + i0L - 1. ) );
-      xL = std::cos( wL*i0L )/wL;
+      wL = pi/(2.*(iML + i0L - 1.));
+      xL = std::cos(wL*i0L)/wL;
     }
 
-    if( iMU>=M ) {
+    if(iMU>=M) {
       wU = 0.;
       xU = 0.;
     } else {
-      wU = pi/( 2.*( M - iMU + i0U ) );
-      xU = std::cos( wU*i0U )/wU;
+      wU = pi/(2.*(M - iMU + i0U));
+      xU = std::cos(wU*i0U)/wU;
     }
 
     //--- coordinates in the physical space
-    if( i<iML && wL!= 0. ) {
-      if( (i + i0L - 1.) < 0. )
+    if(i<iML && wL!= 0.) {
+      if((i + i0L - 1.) <0.)
         // mirroring of the function
-        x = - xL + std::cos( wL*( i + i0L - 1. ) )/wL;
+        x = - xL + std::cos(wL*(i + i0L - 1.))/wL;
       else
-        x =   xL - std::cos( wL*( i + i0L - 1. ) )/wL;
-    } else if( i>iMU && wU!=0. ) {
-      if( (M - i + i0U) < 0. )
+        x =   xL - std::cos(wL*(i + i0L - 1.))/wL;
+    } else if(i>iMU && wU!=0.) {
+      if((M - i + i0U) <0.)
         // mirroring of the function
-        x = ( 2. - std::cos( wU*( i - i0U - M ) ) )/wU;
+        x = (2. - std::cos(wU*(i - i0U - M)))/wU;
       else
-        x =  std::cos( wU*( i - i0U - M ) )/wU;
+        x =  std::cos(wU*(i - i0U - M))/wU;
       x = x + xL - iML + iMU;
     } else
       x = i + xL - iML;
 
 
     //--- Normalization
-    x *= L/( xL + xU - iML + iMU );
+    x *= L/(xL + xU - iML + iMU);
     x -= x0;
   }
 
@@ -212,18 +212,18 @@ protected:
   /// from name
   /// \param[in] name input name
   /// \return according int number
-  int string2int( const std::string& name ) {
+  int string2int(const std::string& name) {
     std::string lcName = name;
     std::transform(lcName.begin(), lcName.end(), lcName.begin(), ::tolower);
-    if( "none" == lcName ) return 0;
-    else if( "parabola" == lcName ) return 1;
-    else if( "parab" == lcName ) return 1;
-    else if( "para" == lcName ) return 1;
-    else if( "para end" == lcName ) return 3;
-    else if( "cos" == lcName ) return 2;
+    if("none" == lcName) return 0;
+    else if("parabola" == lcName) return 1;
+    else if("parab" == lcName) return 1;
+    else if("para" == lcName) return 1;
+    else if("para end" == lcName) return 3;
+    else if("cos" == lcName) return 2;
     else {
       const bool& Stertch_Type_not_known = true;
-      TEUCHOS_TEST_FOR_EXCEPT( Stertch_Type_not_known );
+      TEUCHOS_TEST_FOR_EXCEPT(Stertch_Type_not_known);
     }
     return 0;
   }
@@ -237,34 +237,34 @@ protected:
   /// \param[in] stretchPara
   template<int sd>
   CoordinatesGlobal(
-    const Teuchos::RCP<const GridSizeGlobal<OrdinalT,sd> >& gridSize,
-    const Teuchos::RCP<const DomainSize<ScalarT,sd> >& domainSize,
-    const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 >& stretchPara ):
+    const Teuchos::RCP<const GridSizeGlobal<OrdinalT, sd> >& gridSize,
+    const Teuchos::RCP<const DomainSize<ScalarT, sd> >& domainSize,
+    const Teuchos::Tuple<Teuchos::RCP<Teuchos::ParameterList>, 3 >& stretchPara):
     stretchPara_(stretchPara) {
 
-    for( int dir=0; dir<dim; ++dir ) {
+    for(int dir=0; dir<dim; ++dir) {
 
       OrdinalT M = std::max(gridSize->get(dir), 1); // max need in the case of nf=0
       ScalarT Ms = std::max(M, 1);
 
-      xS_ [dir] = AS( M );
-      xV_ [dir] = AV( M );
+      xS_ [dir] = AS(M);
+      xV_ [dir] = AV(M);
 
-      if( dir<3 ) {
+      if(dir<3) {
 
         ScalarT L  = domainSize->getSize(dir);
         ScalarT x0 = domainSize->getOrigin(dir);
 
-        int stretchType = string2int( stretchPara_[dir]->get<std::string>( "Stretch Type", "none" ) );
-        for( OrdinalT i=1; i<=M; ++i ) {
+        int stretchType = string2int(stretchPara_[dir]->get<std::string>("Stretch Type", "none"));
+        for(OrdinalT i=1; i<=M; ++i) {
           ScalarT is = i-1;
 
-          switch( stretchType ) {
+          switch(stretchType) {
           case 0:
-            coord_equi( is, L, Ms, x0, xS_[dir][i] );
+            coord_equi(is, L, Ms, x0, xS_[dir][i]);
             break;
           case 1:
-            coord_parab( is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xS_[dir][i] );
+            coord_parab(is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>("alpha", 0.5), xS_[dir][i]);
             break;
           case 2:
             coord_cos(
@@ -272,28 +272,28 @@ protected:
               L,
               Ms,
               x0,
-              stretchPara_[dir]->get<ScalarT>( "N metr L", 1. ),
-              stretchPara_[dir]->get<ScalarT>( "N metr U", M  ),
-              stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
-              stretchPara_[dir]->get<ScalarT>( "x0 U", 0. ),
-              xS_[dir][i] );
+              stretchPara_[dir]->get<ScalarT>("N metr L", 1.),
+              stretchPara_[dir]->get<ScalarT>("N metr U", M ),
+              stretchPara_[dir]->get<ScalarT>("x0 L", 0.),
+              stretchPara_[dir]->get<ScalarT>("x0 U", 0.),
+              xS_[dir][i]);
             break;
           case 3:
-            coord_parab_end( is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xS_[dir][i] );
+            coord_parab_end(is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>("alpha", 0.5), xS_[dir][i]);
             break;
           default:
-            coord_equi( is, L, Ms, x0, xS_[dir][i] );
+            coord_equi(is, L, Ms, x0, xS_[dir][i]);
             break;
           }
         }
-        for( OrdinalT i=0; i<=M; ++i ) {
+        for(OrdinalT i=0; i<=M; ++i) {
           ScalarT is = static_cast<ScalarT>(i) - 0.5;
-          switch( stretchType ) {
+          switch(stretchType) {
           case 0:
-            coord_equi( is, L, Ms, x0, xV_[dir][i] );
+            coord_equi(is, L, Ms, x0, xV_[dir][i]);
             break;
           case 1:
-            coord_parab( is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xV_[dir][i] );
+            coord_parab(is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>("alpha", 0.5), xV_[dir][i]);
             break;
           case 2:
             coord_cos(
@@ -301,33 +301,33 @@ protected:
               L,
               Ms,
               x0,
-              stretchPara_[dir]->get<ScalarT>( "N metr L", 1. ),
-              stretchPara_[dir]->get<ScalarT>( "N metr U", M  ),
-              stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
-              stretchPara_[dir]->get<ScalarT>( "x0 U", 0.  ),
-              xV_[dir][i] );
+              stretchPara_[dir]->get<ScalarT>("N metr L", 1.),
+              stretchPara_[dir]->get<ScalarT>("N metr U", M ),
+              stretchPara_[dir]->get<ScalarT>("x0 L", 0.),
+              stretchPara_[dir]->get<ScalarT>("x0 U", 0. ),
+              xV_[dir][i]);
             break;
           case 3:
-            coord_parab_end( is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xV_[dir][i] );
+            coord_parab_end(is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>("alpha", 0.5), xV_[dir][i]);
             break;
           default:
-            coord_equi( is, L, Ms, x0, xV_[dir][i] );
+            coord_equi(is, L, Ms, x0, xV_[dir][i]);
             break;
           }
         }
-      } else if( 3==dir ) {
+      } else if(3==dir) {
         // in time direction no stretching is considered as long as
         // time-periodic problems are considered equidistant should be best
 
         ScalarT pi2 = 8.*std::atan(1.);
 
-        for( OrdinalT i=1; i<=M; ++i ) {
+        for(OrdinalT i=1; i<=M; ++i) {
           ScalarT is = i-1;
-          xS_ [dir][i] = is*pi2/( Ms );
+          xS_ [dir][i] = is*pi2/(Ms);
         }
-        for( OrdinalT i=0; i<=M; ++i ) {
+        for(OrdinalT i=0; i<=M; ++i) {
           ScalarT is = static_cast<ScalarT>(i) - 0.5;
-          xV_ [dir][i] = is*pi2/( Ms-1. );
+          xV_ [dir][i] = is*pi2/(Ms-1.);
         }
       }
     }
@@ -340,36 +340,36 @@ protected:
   /// \param[in] coordinatesF
   template<int sd>
   CoordinatesGlobal(
-    const Teuchos::RCP<const GridSizeGlobal<OrdinalT,sd> >& gridSizeC,
-    const Teuchos::RCP<const CoordinatesGlobal<ScalarT,OrdinalT,dim> >& coordinatesF ) {
+    const Teuchos::RCP<const GridSizeGlobal<OrdinalT, sd> >& gridSizeC,
+    const Teuchos::RCP<const CoordinatesGlobal<ScalarT, OrdinalT, dim> >& coordinatesF) {
 
-    for( int dir=0; dir<dim; ++dir ) {
+    for(int dir=0; dir<dim; ++dir) {
 
       OrdinalT Mc = std::max(gridSizeC->get(dir), 1);
       OrdinalT Mf = coordinatesF->xS_[dir].NN();
 
-      if( Mc==Mf ) {
+      if(Mc==Mf) {
         xS_[dir] = coordinatesF->xS_[dir];
         xV_[dir] = coordinatesF->xV_[dir];
       } else {
 
-        xS_[dir] = AS( Mc );
-        xV_[dir] = AV( Mc );
+        xS_[dir] = AS(Mc);
+        xV_[dir] = AV(Mc);
 
         OrdinalT d = 1;
 
-        if( dir<3 ) {
-          if( Mc>1 ) // shouldn't be necessary when strategy makes its job correct. maybe throw exception
-            d = ( Mf - 1 )/( Mc - 1);
+        if(dir<3) {
+          if(Mc>1) // shouldn't be necessary when strategy makes its job correct. maybe throw exception
+            d = (Mf - 1)/(Mc - 1);
         } else {
-          if( Mc>0 ) // shouldn't be necessary when strategy makes its job correct. maybe throw exception
+          if(Mc>0) // shouldn't be necessary when strategy makes its job correct. maybe throw exception
             d = Mf / Mc;
         }
 
-        for( OrdinalT j=1; j<=Mc; ++j )
+        for(OrdinalT j=1; j<=Mc; ++j)
           xS_[dir][j] = coordinatesF->xS_[dir][(j-1)*d+1];
 
-        for( OrdinalT j=1; j<Mc; ++j )
+        for(OrdinalT j=1; j<Mc; ++j)
           xV_[dir][j] = coordinatesF->xS_[dir][j*d];
 
         // otherwise restriction of the boundary is wrong
@@ -383,14 +383,14 @@ protected:
         //xV_[dir][Mc] = (1.+alpha)*xS_[dir][Mc]-alpha*xV_[dir][Mc-1];
         {
           //ScalarT is = static_cast<ScalarT>(i) - 0.5;
-          //switch( stretchType ) {
+          //switch(stretchType) {
           //case 0:
-          //coord_equi( -0.5,   L, Mc, x0, xV_[dir][0] );
-          //coord_equi( Mc-0.5, L, Mc, x0, xV_[dir][Mc] );
+          //coord_equi(-0.5,   L, Mc, x0, xV_[dir][0]);
+          //coord_equi(Mc-0.5, L, Mc, x0, xV_[dir][Mc]);
           //break;
           //case 1:
-          //coord_parab( -0.5,   L, Mc, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xV_[dir][0] );
-          //coord_parab( Mc-0.5, L, Mc, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xV_[dir][Mc] );
+          //coord_parab(-0.5,   L, Mc, x0, stretchPara_[dir]->get<ScalarT>("alpha", 0.5), xV_[dir][0]);
+          //coord_parab(Mc-0.5, L, Mc, x0, stretchPara_[dir]->get<ScalarT>("alpha", 0.5), xV_[dir][Mc]);
           //break;
           //case 2:
           //coord_cos(
@@ -398,25 +398,25 @@ protected:
           //L,
           //Mc,
           //x0,
-          //stretchPara_[dir]->get<ScalarT>( "N metr L", 1. ),
-          //stretchPara_[dir]->get<ScalarT>( "N metr U", M  ),
-          //stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
-          //stretchPara_[dir]->get<ScalarT>( "x0 U", 0.  ),
-          //xV_[dir][0] );
+          //stretchPara_[dir]->get<ScalarT>("N metr L", 1.),
+          //stretchPara_[dir]->get<ScalarT>("N metr U", M ),
+          //stretchPara_[dir]->get<ScalarT>("x0 L", 0.),
+          //stretchPara_[dir]->get<ScalarT>("x0 U", 0. ),
+          //xV_[dir][0]);
           //coord_cos(
           //Mc+0.5,
           //L,
           //Mc,
           //x0,
-          //stretchPara_[dir]->get<ScalarT>( "N metr L", 1. ),
-          //stretchPara_[dir]->get<ScalarT>( "N metr U", M  ),
-          //stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
-          //stretchPara_[dir]->get<ScalarT>( "x0 U", 0.  ),
-          //xV_[dir][0] );
+          //stretchPara_[dir]->get<ScalarT>("N metr L", 1.),
+          //stretchPara_[dir]->get<ScalarT>("N metr U", M ),
+          //stretchPara_[dir]->get<ScalarT>("x0 L", 0.),
+          //stretchPara_[dir]->get<ScalarT>("x0 U", 0. ),
+          //xV_[dir][0]);
           //break;
           //default:
-          //coord_equi( -0,5,   L, Mc, x0, xV_[dir][0] );
-          //coord_equi( MC-0.5, L, Mc, x0, xV_[dir][Mc] );
+          //coord_equi(-0, 5,   L, Mc, x0, xV_[dir][0]);
+          //coord_equi(MC-0.5, L, Mc, x0, xV_[dir][Mc]);
           //break;
           //}
         }
@@ -429,37 +429,37 @@ public:
   /// \name getter
   /// @{
 
-  constexpr const ScalarT* getX( const F ftype, const int dir ) {
-    return ( F::S==ftype || dir!=ftype )?
+  constexpr const ScalarT* getX(const F ftype, const int dir) {
+    return (F::S==ftype || dir!=ftype)?
       xS_[dir].get() : xV_[dir].get();
   }
 
-  constexpr const ScalarT operator()( const F ftype, const int dir, const OrdinalT i) {
-    return ( F::S==ftype || dir!=ftype )?
+  constexpr const ScalarT operator()(const F ftype, const int dir, const OrdinalT i) {
+    return (F::S==ftype || dir!=ftype)?
       xS_[dir][i] : xV_[dir][i];
   }
 
-  constexpr const ScalarT getX( const F ftype, const int dir, const OrdinalT i) {
-    return ( F::S==ftype || dir!=ftype )?
+  constexpr const ScalarT getX(const F ftype, const int dir, const OrdinalT i) {
+    return (F::S==ftype || dir!=ftype)?
       xS_[dir][i] : xV_[dir][i];
   }
 
-  constexpr const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& getStretchParameter() const {
+  constexpr const Teuchos::Tuple<Teuchos::RCP<Teuchos::ParameterList> , 3>& getStretchParameter() const {
     return stretchPara_;
   }
 
   ///  @}
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
 
-    for( int i=0; i<dim; ++i ) {
-      out << "Global coordinates of scalars in dir: " << static_cast<ECoord>(i) << "\n";
-      xS_[i].print( out );
+    for(int i=0; i<dim; ++i) {
+      out <<"Global coordinates of scalars in dir: " <<static_cast<ECoord>(i) <<"\n";
+      xS_[i].print(out);
     }
 
-    for( int i=0; i<dim; ++i ) {
-      out << "Global coordinates of velocity in dir: " << static_cast<ECoord>(i) << "\n";
-      xV_[i].print( out );
+    for(int i=0; i<dim; ++i) {
+      out <<"Global coordinates of velocity in dir: " <<static_cast<ECoord>(i) <<"\n";
+      xV_[i].print(out);
     }
   };
 
@@ -480,17 +480,17 @@ public:
 ///
 /// \return
 template<class ST, class OT, int sd, int d>
-Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >
+Teuchos::RCP<const CoordinatesGlobal<ST, OT, d> >
 createCoordinatesGlobal(
-  const Teuchos::RCP<const GridSizeGlobal<OT,sd> >& gridSize,
-  const Teuchos::RCP<const DomainSize<ST,sd> >& domainSize,
-  const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& gridStretching ) {
+  const Teuchos::RCP<const GridSizeGlobal<OT, sd> >& gridSize,
+  const Teuchos::RCP<const DomainSize<ST, sd> >& domainSize,
+  const Teuchos::Tuple<Teuchos::RCP<Teuchos::ParameterList> , 3>& gridStretching) {
 
   return Teuchos::rcp(
-      new CoordinatesGlobal<ST,OT,d>(
+      new CoordinatesGlobal<ST, OT, d>(
         gridSize,
         domainSize,
-        gridStretching ) );
+        gridStretching));
 }
 
 
@@ -505,12 +505,12 @@ createCoordinatesGlobal(
 ///
 /// \return
 template<class ST, class OT, int sd, int d>
-Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >
+Teuchos::RCP<const CoordinatesGlobal<ST, OT, d> >
 createCoordinatesGlobal(
-    const Teuchos::RCP<const GridSizeGlobal<OT,sd> >& gridSize,
-    const Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >& coordinates ) {
+    const Teuchos::RCP<const GridSizeGlobal<OT, sd> >& gridSize,
+    const Teuchos::RCP<const CoordinatesGlobal<ST, OT, d> >& coordinates) {
 
-  return Teuchos::rcp( new CoordinatesGlobal<ST,OT,d>( gridSize, coordinates ));
+  return Teuchos::rcp(new CoordinatesGlobal<ST, OT, d>(gridSize, coordinates));
 }
 
 

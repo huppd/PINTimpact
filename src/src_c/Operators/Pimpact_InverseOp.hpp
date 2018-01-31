@@ -27,7 +27,7 @@ namespace Pimpact {
 ///
 /// \todo merge with Prec...
 /// \ingroup Operator
-template< class OpT, template<class> class  ProjectorT=EmptyProjector >
+template<class OpT, template<class> class  ProjectorT=EmptyProjector >
 class InverseOp {
 
 public:
@@ -57,8 +57,8 @@ protected:
 
   std::string solverName_;
 
-  Teuchos::RCP< Teuchos::ParameterList > solverParameter_;
-  Teuchos::RCP< Belos::LinearProblem<ST, MF, MOpT> > problem_;
+  Teuchos::RCP<Teuchos::ParameterList > solverParameter_;
+  Teuchos::RCP<Belos::LinearProblem<ST, MF, MOpT> > problem_;
 
   Teuchos::RCP<const ProjectorT<OpT> > projector_;
 
@@ -74,8 +74,8 @@ public:
     relTol_(1.),
     solverName_("GMRES"),
     solverParameter_(
-        createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp(new Teuchos::oblackholestream), 200)),
-    problem_(Teuchos::rcp(new Belos::LinearProblem<ST,MF,MOpT> ())) {}
+        createLinSolverParameter("GMRES", 1.e-1, -1, Teuchos::rcp(new Teuchos::oblackholestream), 200)),
+    problem_(Teuchos::rcp(new Belos::LinearProblem<ST, MF, MOpT> ())) {}
 
 
   InverseOp(const Teuchos::RCP<OpT>& op):
@@ -89,7 +89,7 @@ public:
         createLinSolverParameter("GMRES", 1.e-1, -1, Teuchos::rcp(new Teuchos::oblackholestream), 10)),
     problem_(
       Teuchos::rcp(
-        new Belos::LinearProblem<ST,MF,MOpT>(
+        new Belos::LinearProblem<ST, MF, MOpT>(
           createMultiOperatorBase(op),
           Teuchos::null,
           Teuchos::null))) {
@@ -109,7 +109,7 @@ public:
     solverName_(pl->get<std::string>("Solver name", "GMRES")),
     solverParameter_(Teuchos::sublist(pl, "Solver")),
     problem_(
-      Teuchos::rcp(new Belos::LinearProblem<ST,MF,MOpT>(
+      Teuchos::rcp(new Belos::LinearProblem<ST, MF, MOpT>(
                       createMultiOperatorBase(op),
                       Teuchos::null,
                       Teuchos::null))) {
@@ -143,9 +143,9 @@ private:
     }
 
     problem_->setProblem(x, rhs);
-    Belos::SolverFactory<ST,MF,MOpT> factory;
+    Belos::SolverFactory<ST, MF, MOpT> factory;
 
-    Teuchos::RCP< Belos::SolverManager<ST,MF,MOpT> > solver =
+    Teuchos::RCP<Belos::SolverManager<ST, MF, MOpT> > solver =
       factory.create(solverName_, solverParameter_);
 
     solver->setProblem(problem_);
@@ -154,7 +154,7 @@ private:
     if(debug_) {
       x->write();
       rhs->write(100);
-      std::cout << getLabel() << ": succes? " << succes << "\n";
+      std::cout <<getLabel() <<": succes? " <<succes <<"\n";
       assert(Belos::ReturnType::Converged==succes);
     }
 
@@ -231,7 +231,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out << "Inverse:\n";
+    out <<"Inverse:\n";
     problem_->getOperator()->print(out);
   }
 
@@ -242,7 +242,7 @@ public:
 
 /// \relates InverseOp
 template<class OpT>
-Teuchos::RCP< InverseOp<OpT> >
+Teuchos::RCP<InverseOp<OpT> >
 createInverseOp(
   const Teuchos::RCP<OpT>& op,
   const Teuchos::RCP<Teuchos::ParameterList>& pl) {
@@ -253,13 +253,13 @@ createInverseOp(
 
 
 /// \relates InverseOp
-template< template<class> class  ProjectorT, class OpT  >
-Teuchos::RCP< InverseOp<OpT,ProjectorT> >
+template<template<class> class  ProjectorT, class OpT  >
+Teuchos::RCP<InverseOp<OpT, ProjectorT> >
 createInverseOp(
   const Teuchos::RCP<OpT>& op,
   const Teuchos::RCP<Teuchos::ParameterList>& pl) {
 
-  return Teuchos::rcp(new InverseOp<OpT,ProjectorT>(op, pl));
+  return Teuchos::rcp(new InverseOp<OpT, ProjectorT>(op, pl));
 }
 
 

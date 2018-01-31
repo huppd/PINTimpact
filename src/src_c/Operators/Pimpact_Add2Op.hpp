@@ -21,7 +21,7 @@ namespace Pimpact {
 /// Both operators are applied and the result is added.
 /// the \c DomainFieldT  \c RangeFieldT has to be equal for both \c OP1 \c OP2.
 /// \ingroup Operator
-template< class OP1, class OP2 >
+template<class OP1, class OP2 >
 class Add2Op {
 
 public:
@@ -40,33 +40,33 @@ public:
 
   Add2Op(
     const Teuchos::RCP<OP1>& op1,
-    const Teuchos::RCP<OP2>& op2 ):
+    const Teuchos::RCP<OP2>& op2):
     op1_(op1),
     op2_(op2) {};
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
-      trans=Belos::NOTRANS ) const {
+      trans=Belos::NOTRANS) const {
 
-    typename OP1::RangeFieldT temp( space() );
+    typename OP1::RangeFieldT temp(space());
 
-    op1_->apply( x, temp );
-    op2_->apply( x, y );
-    y.add( 1., temp, 1., y );
+    op1_->apply(x, temp);
+    op2_->apply(x, y);
+    y.add(1., temp, 1., y);
   }
 
-  void assignField( const DomainFieldT& mv ) {
-    op1_->assignField( mv );
-    op2_->assignField( mv );
+  void assignField(const DomainFieldT& mv) {
+    op1_->assignField(mv);
+    op2_->assignField(mv);
   };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
     return op1_->space();
   };
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    op1_->setParameter( para );
-    op2_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    op1_->setParameter(para);
+    op2_->setParameter(para);
   }
 
   bool hasApplyTranspose() const {
@@ -77,10 +77,10 @@ public:
     return op1_->getLabel() + std::string(" + ") + op2_->getLabel();
   };
 
-  void print( std::ostream& out=std::cout ) const {
-    out << getLabel() << ":\n";
-    op1_->print( out );
-    op2_->print( out );
+  void print(std::ostream& out=std::cout) const {
+    out <<getLabel() <<":\n";
+    op1_->print(out);
+    op2_->print(out);
   }
 
 }; // end of class Add2Op
@@ -88,11 +88,11 @@ public:
 
 /// \relates Add2Op
 template<class OP1, class OP2 >
-Teuchos::RCP< Add2Op<OP1, OP2> > createAdd2Op(
+Teuchos::RCP<Add2Op<OP1, OP2> > createAdd2Op(
     const Teuchos::RCP<OP1>& op1,
-    const Teuchos::RCP<OP2>& op2 ) {
+    const Teuchos::RCP<OP2>& op2) {
 
-  return Teuchos::rcp( new Add2Op<OP1,OP2>(op1,op2) );
+  return Teuchos::rcp(new Add2Op<OP1, OP2>(op1, op2));
 }
 
 

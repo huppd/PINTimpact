@@ -70,7 +70,7 @@ public:
 
   void setStoragePtr(ST* array) {
     s_ = array;
-    fieldc_.setStoragePtr(s_                           );
+    fieldc_.setStoragePtr(s_);
     fields_.setStoragePtr(s_ + fieldc_.getStorageSize());
   }
 
@@ -178,7 +178,7 @@ public:
   /// vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void abs(const ModeField& y) {
 
@@ -190,7 +190,7 @@ public:
   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1, \dots, n  \f]
   /// \return Reference to this object
   void reciprocal(const ModeField& y) {
 
@@ -210,7 +210,7 @@ public:
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void scale(const ModeField& a) {
 
@@ -310,8 +310,8 @@ public:
   /// \brief Replace each element of the vector  with \c alpha.
   void init(const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y) {
 
-    fieldc_.init(alpha,wB);
-    fields_.init(alpha,wB);
+    fieldc_.init(alpha, wB);
+    fields_.init(alpha, wB);
   }
 
   void extrapolateBC(const Belos::ETrans trans=Belos::NOTRANS) {

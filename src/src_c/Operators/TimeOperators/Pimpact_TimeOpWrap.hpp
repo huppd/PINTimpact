@@ -37,37 +37,37 @@ protected:
 
 public:
 
-  TimeOpWrap( const Teuchos::RCP<const SpaceT>& space ):
-    op_( create<OperatorT>(space) ) {};
+  TimeOpWrap(const Teuchos::RCP<const SpaceT>& space):
+    op_(create<OperatorT>(space)) {};
 
-  TimeOpWrap( const Teuchos::RCP<OperatorT>& op ): op_(op) {};
+  TimeOpWrap(const Teuchos::RCP<OperatorT>& op): op_(op) {};
 
   /// \brief default apply
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N) const {
 
-    if( true==CNyes ) {
+    if(true==CNyes) {
 
-      typename OperatorT::RangeFieldT temp( space() );
+      typename OperatorT::RangeFieldT temp(space());
 
       x.exchange();
-      for( int i=0; i <=space()->ei(F::S,3); ++i ) {
+      for(int i=0; i <=space()->ei(F::S, 3); ++i) {
 
-        op_->apply( x(i), temp );
+        op_->apply(x(i), temp);
 
-        if( i>=space()->si(F::S,3) )
-          y(i).add( 1., y(i), 0.5, temp );
+        if(i>=space()->si(F::S, 3))
+          y(i).add(1., y(i), 0.5, temp);
 
-        if( i+1<=space()->ei(F::S,3) )
-          y(i+1).add( 0., y(i+1), 0.5, temp );
+        if(i+1<=space()->ei(F::S, 3))
+          y(i+1).add(0., y(i+1), 0.5, temp);
       }
     } else {
-      for( Ordinal i=space()->si(F::S,3); i<=space()->ei(F::S,3); ++i )
-        op_->apply( x(i) , y(i), add );
+      for(Ordinal i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
+        op_->apply(x(i) , y(i), add);
     }
     y.changed();
   }
 
-  void assignField( const DomainFieldT& mv ) {};
+  void assignField(const DomainFieldT& mv) {};
 
   bool hasApplyTranspose() const {
     return op_->hasApplyTranspose();
@@ -80,11 +80,11 @@ public:
   Teuchos::RCP<OperatorT> getOperatorPtr() {
     return op_;
   }
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    op_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    op_->setParameter(para);
   }
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
     op_->print(out);
   }
 
@@ -97,11 +97,11 @@ public:
 
 
 /// \relates TimeOpWrap
-template< class OpT, bool CNY=false >
-Teuchos::RCP< TimeOpWrap<OpT,CNY> > createTimeOpWrap(
-  const Teuchos::RCP<OpT>& op ) {
+template<class OpT, bool CNY=false >
+Teuchos::RCP<TimeOpWrap<OpT, CNY> > createTimeOpWrap(
+  const Teuchos::RCP<OpT>& op) {
 
-  return Teuchos::rcp( new TimeOpWrap<OpT,CNY>( op ) );
+  return Teuchos::rcp(new TimeOpWrap<OpT, CNY>(op));
 }
 
 

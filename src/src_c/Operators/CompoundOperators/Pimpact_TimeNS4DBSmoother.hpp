@@ -65,7 +65,7 @@ extern "C" void OP_TimeNS4DBSmoother(
   const double* const rhs_p,
   double* const vel,
   double* const p,
-  const int&    direction_flag  );
+  const int&    direction_flag);
 
 
 /// \ingroup CompoundOperator
@@ -96,11 +96,11 @@ protected:
 public:
 
   /// \note todo constructor from space
-  TimeNS4DBSmoother( const Teuchos::RCP<const OperatorT>& op, Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
-    op_( op ),
-    numIters_( pl->get<int>("numIters",4) )	{};
+  TimeNS4DBSmoother(const Teuchos::RCP<const OperatorT>& op, Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
+    op_(op),
+    numIters_(pl->get<int>("numIters", 4))	{};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
     Scalar pi = 4.*std::atan(1.);
     Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;
@@ -109,7 +109,7 @@ public:
 
     int direction_flag = 0;
 
-    for( int iters=0; iters<numIters_; ++iters ) {
+    for(int iters=0; iters<numIters_; ++iters) {
 
       // this is for alternating directions
       direction_flag++;
@@ -122,7 +122,7 @@ public:
       xu.exchange();
       //		xp->exchange();
 
-      for( Ordinal i=space()->si(F::S,3); i<space()->ei(F::S,3); ++i ) {
+      for(Ordinal i=space()->si(F::S, 3); i<space()->ei(F::S, 3); ++i) {
         xu(i-1).exchange();
         xu(i).exchange();
         xp(i).exchange();
@@ -149,24 +149,24 @@ public:
         space()->eInd(F::V),
         space()->sInd(F::W),
         space()->eInd(F::W),
-        op_->getConvOp()->getCD(X,F::U),
-        op_->getConvOp()->getCD(Y,F::V),
-        op_->getConvOp()->getCD(Z,F::W),
-        op_->getConvOp()->getCU(X,F::U),
-        op_->getConvOp()->getCU(Y,F::V),
-        op_->getConvOp()->getCU(Z,F::W),
-        op_->getConvOp()->getCD(X,F::S),
-        op_->getConvOp()->getCD(Y,F::S),
-        op_->getConvOp()->getCD(Z,F::S),
-        op_->getConvOp()->getCU(X,F::S),
-        op_->getConvOp()->getCU(Y,F::S),
-        op_->getConvOp()->getCU(Z,F::S),
-        op_->getHelmholtzOp()->getC(X,F::S),
-        op_->getHelmholtzOp()->getC(Y,F::S),
-        op_->getHelmholtzOp()->getC(Z,F::S),
-        op_->getHelmholtzOp()->getC(X,F::U),
-        op_->getHelmholtzOp()->getC(Y,F::V),
-        op_->getHelmholtzOp()->getC(Z,F::W),
+        op_->getConvOp()->getCD(X, F::U),
+        op_->getConvOp()->getCD(Y, F::V),
+        op_->getConvOp()->getCD(Z, F::W),
+        op_->getConvOp()->getCU(X, F::U),
+        op_->getConvOp()->getCU(Y, F::V),
+        op_->getConvOp()->getCU(Z, F::W),
+        op_->getConvOp()->getCD(X, F::S),
+        op_->getConvOp()->getCD(Y, F::S),
+        op_->getConvOp()->getCD(Z, F::S),
+        op_->getConvOp()->getCU(X, F::S),
+        op_->getConvOp()->getCU(Y, F::S),
+        op_->getConvOp()->getCU(Z, F::S),
+        op_->getHelmholtzOp()->getC(X, F::S),
+        op_->getHelmholtzOp()->getC(Y, F::S),
+        op_->getHelmholtzOp()->getC(Z, F::S),
+        op_->getHelmholtzOp()->getC(X, F::U),
+        op_->getHelmholtzOp()->getC(Y, F::V),
+        op_->getHelmholtzOp()->getC(Z, F::W),
         op_->getDivOp()->getC(X),
         op_->getDivOp()->getC(Y),
         op_->getDivOp()->getC(Z),
@@ -184,7 +184,7 @@ public:
         yp.getRawPtr(),
         direction_flag);
 
-      for( Ordinal i=space()->si(F::S,3); i<space()->ei(F::S,3); ++i ) {
+      for(Ordinal i=space()->si(F::S, 3); i<space()->ei(F::S, 3); ++i) {
         yu(i).changed();
         yp(i).changed();
       }
@@ -194,13 +194,13 @@ public:
     }
   }
 
-  void assignField( const DomainFieldT& mv ) { };
+  void assignField(const DomainFieldT& mv) { };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
     return op_->space();
   };
 
-  void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+  void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
 
   bool hasApplyTranspose() const {
     return false;

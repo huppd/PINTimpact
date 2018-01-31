@@ -40,22 +40,22 @@ public:
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
-  using StencS = Stencil< Scalar, Ordinal, 1, -1, 1 >;
-  using StencV = Stencil< Scalar, Ordinal, 0,  0, 1 >;
+  using StencS = Stencil<Scalar, Ordinal, 1, -1, 1 >;
+  using StencV = Stencil<Scalar, Ordinal, 0,  0, 1 >;
 
 protected:
 
-  Teuchos::Tuple<StencS,3> cRS_;
-  Teuchos::Tuple<StencV,3> cRV_;
+  Teuchos::Tuple<StencS, 3> cRS_;
+  Teuchos::Tuple<StencV, 3> cRV_;
 
-  Ordinal getIF( const int dir, const Ordinal ii ) const {
+  Ordinal getIF(const int dir, const Ordinal ii) const {
 
-    Ordinal i=this->dd_[dir]*( ii-1 ) + 1;
+    Ordinal i=this->dd_[dir]*(ii-1) + 1;
 
-    if( 0<spaceF()->getBCLocal()->getBCL(dir) )
-      i = std::max( 0, i );
-    if( 0<spaceF()->getBCLocal()->getBCU(dir) )
-      i = std::min( spaceF()->ei(F::S,dir)-1, i );
+    if(0<spaceF()->getBCLocal()->getBCL(dir))
+      i = std::max(0, i);
+    if(0<spaceF()->getBCLocal()->getBCU(dir))
+      i = std::min(spaceF()->ei(F::S, dir)-1, i);
     return i;
   }
 
@@ -63,11 +63,11 @@ protected:
   void initVF() {
 
     // ------------------------- CRS, CRV
-    for( int dir=0; dir<3; ++dir ) {
+    for(int dir=0; dir<3; ++dir) {
 
       const Ordinal iimax = this->iimax_[dir];
 
-      cRS_[dir] = StencS( iimax );
+      cRS_[dir] = StencS(iimax);
 
       MG_getCRVS(
         this->iimax_[dir],
@@ -81,11 +81,11 @@ protected:
         spaceF()->getGridSizeLocal()->get(dir),
         spaceF()->bl(dir),
         spaceF()->bu(dir),
-        spaceF()->getCoordinatesLocal()->getX( F::S, dir ),
-        cRS_[dir].get() );
+        spaceF()->getCoordinatesLocal()->getX(F::S, dir),
+        cRS_[dir].get());
 
 
-      cRV_[dir] = StencV( iimax );
+      cRV_[dir] = StencV(iimax);
 
       const auto& xf = spaceF()->getCoordinatesLocal()->getV(dir);
       const auto& xs = spaceF()->getCoordinatesLocal()->getS(dir);
@@ -99,35 +99,35 @@ protected:
       //                  xc(ii)
       //
       // coarse
-      for( Ordinal ii=0; ii<=iimax; ++ii ) {
+      for(Ordinal ii=0; ii<=iimax; ++ii) {
 
-        Ordinal i = getIF( dir, ii );
+        Ordinal i = getIF(dir, ii);
 
         Scalar dx12 = xf[i+1] - xf[i];
 
-        cRV_[dir](ii,0) = ( xf[i+1]-xs[i+1] )/dx12;
-        cRV_[dir](ii,1) = ( xs[i+1]-xf[i ] )/dx12;
+        cRV_[dir](ii, 0) = (xf[i+1]-xs[i+1])/dx12;
+        cRV_[dir](ii, 1) = (xs[i+1]-xf[i ])/dx12;
       }
 
       // Dirichlet boundary conditions
-      if( 0<spaceF()->getBCLocal()->getBCL(dir) ) {
-        cRV_[dir](0,0) = 1.;
-        cRV_[dir](0,1) = 0.;
+      if(0<spaceF()->getBCLocal()->getBCL(dir)) {
+        cRV_[dir](0, 0) = 1.;
+        cRV_[dir](0, 1) = 0.;
       }
-      if( 0<spaceF()->getBCLocal()->getBCU(dir) ) {
-        cRV_[dir](iimax,0) = 0.;
-        cRV_[dir](iimax,1) = 1.;
+      if(0<spaceF()->getBCLocal()->getBCU(dir)) {
+        cRV_[dir](iimax, 0) = 0.;
+        cRV_[dir](iimax, 1) = 1.;
       }
 
       // symmetric boundary conditions
-      if( BC::Symmetry==spaceC()->getBCLocal()->getBCL(dir) ) {
-        cRV_[dir](0,0) = 0.;
-        cRV_[dir](0,1) = 0.;
+      if(BC::Symmetry==spaceC()->getBCLocal()->getBCL(dir)) {
+        cRV_[dir](0, 0) = 0.;
+        cRV_[dir](0, 1) = 0.;
       }
 
-      if( BC::Symmetry==spaceC()->getBCLocal()->getBCU(dir) ) {
-        cRV_[dir](iimax,0) = 0.;
-        cRV_[dir](iimax,1) = 0.;
+      if(BC::Symmetry==spaceC()->getBCLocal()->getBCU(dir)) {
+        cRV_[dir](iimax, 0) = 0.;
+        cRV_[dir](iimax, 1) = 0.;
       }
     }
   }
@@ -136,8 +136,8 @@ public:
 
   RestrictionVFOp(
     const Teuchos::RCP<const SpaceT>& spaceF,
-    const Teuchos::RCP<const SpaceT>& spaceC ):
-    RestrictionBaseOp<ST>( spaceF, spaceC ) {
+    const Teuchos::RCP<const SpaceT>& spaceC):
+    RestrictionBaseOp<ST>(spaceF, spaceC) {
 
     initVF();
   }
@@ -146,157 +146,157 @@ public:
   RestrictionVFOp(
     const Teuchos::RCP<const SpaceT>& spaceF,
     const Teuchos::RCP<const SpaceT>& spaceC,
-    const Teuchos::Tuple<int,dimension>& np ):
-    RestrictionBaseOp<ST>( spaceF, spaceC, np ) {
+    const Teuchos::Tuple<int, dimension>& np):
+    RestrictionBaseOp<ST>(spaceF, spaceC, np) {
 
     initVF();
   }
 
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    assert( x.getType()==y.getType() );
-    assert( x.getType()!=F::S );
+    assert(x.getType()==y.getType());
+    assert(x.getType()!=F::S);
 
     F fType  = x.getType();
-    x.exchange( );
+    x.exchange();
 
-    switch( fType ) {
-      case( F::U ) : {
-        if( 2==ST::sdim ) {
-          for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+    switch(fType) {
+      case(F::U) : {
+        if(2==ST::sdim) {
+          for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
             Ordinal k = kk;
-            for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-              Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
-              for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-                Ordinal i = getIF(X,ii);
+            for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+              Ordinal j = this->dd_[Y]*(jj - 1) + 1;
+              for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+                Ordinal i = getIF(X, ii);
 
-                y(ii,jj,kk) = 0.;
+                y(ii, jj, kk) = 0.;
 
-                for( int jjj=-1; jjj<=1; ++jjj )
-                  for( int iii=0; iii<=1; ++iii )
-                    y(ii,jj,kk) +=
-                      cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*x(i+iii,j+jjj,k) ;
+                for(int jjj=-1; jjj<=1; ++jjj)
+                  for(int iii=0; iii<=1; ++iii)
+                    y(ii, jj, kk) +=
+                      cRV_[X](ii, iii)*cRS_[Y](jj, jjj)*x(i+iii, j+jjj, k) ;
               }
             }
           }
         } else {
-          for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
-            Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
-            for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-              Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
-              for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-                Ordinal i = getIF(X,ii);
+          for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
+            Ordinal k = this->dd_[Z]* (kk - 1) + 1;
+            for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+              Ordinal j = this->dd_[Y]*(jj - 1) + 1;
+              for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+                Ordinal i = getIF(X, ii);
 
-                y(ii,jj,kk) = 0.;
+                y(ii, jj, kk) = 0.;
 
-                for( int kkk=-1; kkk<=1; ++kkk )
-                  for( int jjj=-1; jjj<=1; ++jjj )
-                    for( int iii=0; iii<=1; ++iii )
-                      y(ii,jj,kk) +=
-                        cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
+                for(int kkk=-1; kkk<=1; ++kkk)
+                  for(int jjj=-1; jjj<=1; ++jjj)
+                    for(int iii=0; iii<=1; ++iii)
+                      y(ii, jj, kk) +=
+                        cRV_[X](ii, iii)*cRS_[Y](jj, jjj)*cRS_[Z](kk, kkk)*x(i+iii, j+jjj, k+kkk) ;
               }
             }
           }
         }
         break;
       }
-      case( F::V ) : {
+      case(F::V) : {
 
-        if( 2==ST::sdim ) {
-          for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
+        if(2==ST::sdim) {
+          for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
             Ordinal k = kk;
-            for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-              Ordinal j = getIF(Y,jj);
-              for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-                Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
+            for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+              Ordinal j = getIF(Y, jj);
+              for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+                Ordinal i = this->dd_[X]*(ii - 1) + 1;
 
-                y(ii,jj,kk) = 0.;
+                y(ii, jj, kk) = 0.;
 
-                for( int jjj=0; jjj<=1; ++jjj )
-                  for( int iii=-1; iii<=1; ++iii )
-                    y(ii,jj,kk) +=
-                      cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*x(i+iii,j+jjj,k) ;
+                for(int jjj=0; jjj<=1; ++jjj)
+                  for(int iii=-1; iii<=1; ++iii)
+                    y(ii, jj, kk) +=
+                      cRS_[X](ii, iii)*cRV_[Y](jj, jjj)*x(i+iii, j+jjj, k) ;
               }
             }
           }
         } else {
-          for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
-            Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
-            for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-              Ordinal j = getIF(Y,jj);
-              for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-                Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
+          for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
+            Ordinal k = this->dd_[Z]* (kk - 1) + 1;
+            for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+              Ordinal j = getIF(Y, jj);
+              for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+                Ordinal i = this->dd_[X]*(ii - 1) + 1;
 
-                y(ii,jj,kk) = 0.;
+                y(ii, jj, kk) = 0.;
 
-                for( int kkk=-1; kkk<=1; ++kkk )
-                  for( int jjj=0; jjj<=1; ++jjj )
-                    for( int iii=-1; iii<=1; ++iii )
-                      y(ii,jj,kk) +=
-                        cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
+                for(int kkk=-1; kkk<=1; ++kkk)
+                  for(int jjj=0; jjj<=1; ++jjj)
+                    for(int iii=-1; iii<=1; ++iii)
+                      y(ii, jj, kk) +=
+                        cRS_[X](ii, iii)*cRV_[Y](jj, jjj)*cRS_[Z](kk, kkk)*x(i+iii, j+jjj, k+kkk) ;
               }
             }
           }
         }
         break;
       }
-      case( F::W ) : {
+      case(F::W) : {
 
-        for( Ordinal kk=spaceC()->si(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
-          Ordinal k = getIF(Z,kk);
-          for( Ordinal jj=spaceC()->si(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-            Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
-            for( Ordinal ii=spaceC()->si(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-              Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
+        for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
+          Ordinal k = getIF(Z, kk);
+          for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+            Ordinal j = this->dd_[Y]*(jj - 1) + 1;
+            for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+              Ordinal i = this->dd_[X]*(ii - 1) + 1;
 
-              y(ii,jj,kk) = 0.;
+              y(ii, jj, kk) = 0.;
 
-              for( int kkk=0; kkk<=1; ++kkk )
-                for( int jjj=-1; jjj<=1; ++jjj )
-                  for( int iii=-1; iii<=1; ++iii )
-                    y(ii,jj,kk) +=
-                      cRS_[X](ii,iii)*cRS_[Y](jj,jjj)*cRV_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
+              for(int kkk=0; kkk<=1; ++kkk)
+                for(int jjj=-1; jjj<=1; ++jjj)
+                  for(int iii=-1; iii<=1; ++iii)
+                    y(ii, jj, kk) +=
+                      cRS_[X](ii, iii)*cRS_[Y](jj, jjj)*cRV_[Z](kk, kkk)*x(i+iii, j+jjj, k+kkk) ;
             }
           }
         }
         break;
       }
-      case( F::S ) : {
+      case(F::S) : {
         // todo: throw exception
         break;
       }
     }
 
-    this->gather( y.getRawPtr() );
+    this->gather(y.getRawPtr());
 
     y.changed();
   }
 
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
 
-    out << "=== Restriction OP ===\n";
-    out << "nGather:\t" << this->nGather_ << "\n";
-    out << "rankc2:\t" << this->rankc2_ << "\n";
-    out << "comm2:\t" << this->comm2_ << "\n";
+    out <<"=== Restriction OP ===\n";
+    out <<"nGather:\t" <<this->nGather_ <<"\n";
+    out <<"rankc2:\t" <<this->rankc2_ <<"\n";
+    out <<"comm2:\t" <<this->comm2_ <<"\n";
 
-    out << " --- scalar stencil: ---";
-    for( int j=0; j<3; ++j ) {
-      out << "\ndir: " << j << "\n";
-      cRS_[j].print( out );
+    out <<" --- scalar stencil: ---";
+    for(int j=0; j<3; ++j) {
+      out <<"\ndir: " <<j <<"\n";
+      cRS_[j].print(out);
     }
 
-    out << " --- velocity stencil: ---";
-    for( int j=0; j<3; ++j ) {
-      out << "\ndir: " << j << "\n";
-      cRV_[j].print( out );
+    out <<" --- velocity stencil: ---";
+    for(int j=0; j<3; ++j) {
+      out <<"\ndir: " <<j <<"\n";
+      cRV_[j].print(out);
     }
   }
 
 
-  Teuchos::Tuple<Ordinal,dimension> getDD() const {
+  Teuchos::Tuple<Ordinal, dimension> getDD() const {
     return this->dd_;
   };
 

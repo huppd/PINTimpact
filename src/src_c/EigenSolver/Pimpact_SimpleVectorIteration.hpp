@@ -37,31 +37,31 @@ public:
 
   SimpleVectorIteration(
     const Teuchos::RCP<const OperatorT>& op,
-    const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ) {
+    const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList()) {
 
-    Teuchos::RCP<DomainFieldT> x = create<DomainFieldT>( op->space() );
-    Teuchos::RCP<RangeFieldT>  r = create<RangeFieldT>( op->space() );
+    Teuchos::RCP<DomainFieldT> x = create<DomainFieldT>(op->space());
+    Teuchos::RCP<RangeFieldT>  r = create<RangeFieldT>(op->space());
 
     x->random();
 
-    int numIters = pl->get<int>( "numIters", 200 );
-    ScalarT tol = pl->get<ScalarT>( "tol", 1.e-3 );
+    int numIters = pl->get<int>("numIters", 200);
+    ScalarT tol = pl->get<ScalarT>("tol", 1.e-3);
 
     ScalarT lamp = 0.;
-    for( int i=0; i<numIters; ++i ) {
-      op->apply( *x, *r );
-      ScalarT lam = r->dot( *x )/x->dot( *x );
-      r->scale( 1./r->norm() );
-      x.swap( r );
-      if( std::fabs( lamp-lam )/std::fabs(lam) < tol )
+    for(int i=0; i<numIters; ++i) {
+      op->apply(*x, *r);
+      ScalarT lam = r->dot(*x)/x->dot(*x);
+      r->scale(1./r->norm());
+      x.swap(r);
+      if(std::fabs(lamp-lam)/std::fabs(lam) <tol)
         break;
       else
         lamp=lam;
     }
-    //x->write( 999 );
+    //x->write(999);
 
-    op->apply( *x, *r );
-    lamMax_ = r->dot( *x )/x->dot( *x );
+    op->apply(*x, *r);
+    lamMax_ = r->dot(*x)/x->dot(*x);
   }
 
   ScalarT getMaxEV() const {

@@ -26,19 +26,19 @@ public:
 
   using SpaceT = SpT;
 
-  using DomainFieldT = MultiHarmonicField< VectorField<SpaceT> >;
-  using RangeFieldT = MultiHarmonicField< VectorField<SpaceT> >;
+  using DomainFieldT = MultiHarmonicField<VectorField<SpaceT> >;
+  using RangeFieldT = MultiHarmonicField<VectorField<SpaceT> >;
 
 protected:
 
   using ST = typename SpaceT::Scalar;
   using OT = typename SpaceT::Ordinal;
 
-  Teuchos::RCP< NonlinearWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
+  Teuchos::RCP<NonlinearWrap<ConvectionDiffusionSOp<SpaceT> > > op_;
 
-  Teuchos::RCP< ConvectionField<SpaceT> > wind0_;
-  Teuchos::Array< Teuchos::RCP<ConvectionField<SpaceT> > > windc_;
-  Teuchos::Array< Teuchos::RCP<ConvectionField<SpaceT> > > winds_;
+  Teuchos::RCP<ConvectionField<SpaceT> > wind0_;
+  Teuchos::Array<Teuchos::RCP<ConvectionField<SpaceT> > > windc_;
+  Teuchos::Array<Teuchos::RCP<ConvectionField<SpaceT> > > winds_;
 
   using FieldTensorT = typename ConvectionField<SpaceT>::FieldTensor;
 
@@ -68,7 +68,7 @@ public:
         Teuchos::rcp(new DomainFieldT(space(), DomainFieldT::Global::Y));
       *temp = y_ref;
       y = temp;
-      //std::cout << "assign op: y->global(): " << y->global() << "\n";
+      //std::cout <<"assign op: y->global(): " <<y->global() <<"\n";
     }
 
     y->exchange();
@@ -103,7 +103,7 @@ public:
     ST mulI;
 
     // computing zero mode of z
-    if(0==space()->si(F::U,3)) {
+    if(0==space()->si(F::U, 3)) {
 
       op_->apply(get0Wind(), y->get0Field(), z.get0Field(), 0., 1., iRe, Add::N);
 
@@ -114,9 +114,9 @@ public:
     }
 
     // computing cos mode of z
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i) {
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
 
-      op_->apply(get0Wind(), y->getCField(i), z.getCField(i), 0., 1., iRe, Add::N );
+      op_->apply(get0Wind(), y->getCField(i), z.getCField(i), 0., 1., iRe, Add::N);
       op_->apply(getCWind(i), y->get0Field(), z.getCField(i), 0., 1., 0.,  Add::Y);
 
       for(OT k=1; k+i<=Nf; ++k) { // thats fine
@@ -131,9 +131,9 @@ public:
     }
 
     // computing sin mode of y
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i) {
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
 
-      op_->apply(get0Wind(),  y->getSField(i), z.getSField(i), 0., 1., iRe, Add::N );
+      op_->apply(get0Wind(),  y->getSField(i), z.getSField(i), 0., 1., iRe, Add::N);
       op_->apply(getSWind(i), y->get0Field(),  z.getSField(i), 0., 1., 0. , Add::Y);
 
       for(OT k=1; k+i<=Nf; ++k) { // that is fine
@@ -148,7 +148,7 @@ public:
     }
 
     // rest of time
-    for(OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i) {
+    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
       if(Nf/2+1<=i && i<=Nf) {
         mulI = a2*i;
         z.getCField(i).add(1., z.getCField(i),  mulI, y->getSField(i), B::N);
@@ -162,7 +162,7 @@ public:
       for(OT l=1; l<=Nf; ++l) { // that is fine
         i = k+l;
         if(i<=Nf) { // do something here
-          if(std::max(space()->si(F::U,3),1)<=i && i<=space()->ei(F::U,3)) {
+          if(std::max(space()->si(F::U, 3), 1)<=i && i<=space()->ei(F::U, 3)) {
             op_->apply(getCWind(k), y->getCField(l), z.getCField(i), 0.,  0.5, 0., Add::Y);
             op_->apply(getSWind(k), y->getSField(l), z.getCField(i), 0., -0.5, 0., Add::Y);
 
@@ -223,16 +223,16 @@ public:
     for(OT i=0; i<=NfR; ++i)
       res += std::pow(norms[i], 2);
 
-    return std::make_pair<ST,OT>(std::sqrt(res), NfR+1);
+    return std::make_pair<ST, OT>(std::sqrt(res), NfR+1);
   }
 
 
   void applyBC(const DomainFieldT& x, RangeFieldT& y) const {
 
-    if(0==space()->si(F::U,3))
+    if(0==space()->si(F::U, 3))
       op_->getSOp()->getHelmholtzOp()->applyBC(x.get0Field(), y.get0Field());
 
-    for(typename SpaceT::OT i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i) {
+    for(typename SpaceT::OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
       op_->getSOp()->getHelmholtzOp()->applyBC(x.getCField(i), y.getCField(i));
       op_->getSOp()->getHelmholtzOp()->applyBC(x.getSField(i), y.getSField(i));
     }
@@ -254,7 +254,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out <<  getLabel() << ":\n";
+    out << getLabel() <<":\n";
     op_->print(out);
   }
 

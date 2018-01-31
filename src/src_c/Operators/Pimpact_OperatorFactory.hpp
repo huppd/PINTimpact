@@ -19,10 +19,10 @@ namespace Pimpact {
 /// \relates MultiOpWrap
 /// \relates ModeOpWrap
 template<class Op>
-Teuchos::RCP< MultiOpWrap<ModeOpWrap<Op> > >
-createMultiModeOpWrap( const Teuchos::RCP<Op>& op ) {
+Teuchos::RCP<MultiOpWrap<ModeOpWrap<Op> > >
+createMultiModeOpWrap(const Teuchos::RCP<Op>& op) {
 
-  return createMultiOpWrap( createModeOpWrap( op ) );
+  return createMultiOpWrap(createModeOpWrap(op));
 }
 
 
@@ -30,12 +30,12 @@ createMultiModeOpWrap( const Teuchos::RCP<Op>& op ) {
 /// \relates MultiOpWrap
 /// \relates OperatorBase
 template<class Op>
-Teuchos::RCP< OperatorBase< MultiField<typename Op::DomainFieldT>,MultiField<typename Op::RangeFieldT> > >
-createMultiOperatorBase( const Teuchos::RCP<Op>& op ) {
+Teuchos::RCP<OperatorBase<MultiField<typename Op::DomainFieldT>, MultiField<typename Op::RangeFieldT> > >
+createMultiOperatorBase(const Teuchos::RCP<Op>& op) {
 
-  return Teuchos::rcp_dynamic_cast< OperatorBase<MultiField<typename
-    Op::DomainFieldT>,MultiField<typename Op::RangeFieldT> > >( Teuchos::rcp( new
-          OperatorPimpl< MultiOpWrap<Op> >( createMultiOpWrap<Op>(op) ) ) );
+  return Teuchos::rcp_dynamic_cast<OperatorBase<MultiField<typename
+    Op::DomainFieldT>, MultiField<typename Op::RangeFieldT> > >(Teuchos::rcp(new
+          OperatorPimpl<MultiOpWrap<Op> >(createMultiOpWrap<Op>(op))));
 }
 
 
@@ -43,9 +43,9 @@ createMultiOperatorBase( const Teuchos::RCP<Op>& op ) {
 /// \relates MultiOpWrap
 /// \relates ModeOpWrap
 template<class MF, class Op>
-Teuchos::RCP<const OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos::RCP<Op>& op ) {
+Teuchos::RCP<const OperatorBase<MF> > createMultiModeOperatorBase(const Teuchos::RCP<Op>& op) {
 
-  return createOperatorBase( createMultiOpWrap( createModeOpWrap(op) ) );
+  return createOperatorBase(createMultiOpWrap(createModeOpWrap(op)));
 }
 
 

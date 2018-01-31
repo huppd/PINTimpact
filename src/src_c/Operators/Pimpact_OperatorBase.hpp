@@ -27,14 +27,14 @@ public:
 
   using SpaceT = typename DomainFieldT::SpaceT;
 
-  virtual void apply( const DomainField& x, RangeField& y, const Belos::ETrans
-      trans=Belos::NOTRANS ) const {} ;
+  virtual void apply(const DomainField& x, RangeField& y, const Belos::ETrans
+      trans=Belos::NOTRANS) const {} ;
 
-  virtual void assignField( const DomainField& mv ) {};
+  virtual void assignField(const DomainField& mv) {};
 
   virtual const Teuchos::RCP<const SpaceT>& space() const =0;
 
-  virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
+  virtual void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {}
 
   virtual bool hasApplyTranspose() const {
     return false;
@@ -44,7 +44,7 @@ public:
     return std::string("PImpact: ");
   };
 
-  virtual void print( std::ostream& out=std::cout ) const {  };
+  virtual void print(std::ostream& out=std::cout) const {  };
 
 }; // end of class OperatorBase
 
@@ -66,20 +66,20 @@ protected:
 
 public:
 
-  OperatorPimpl( const Teuchos::RCP<Op>& opm ):opm_(opm) {};
+  OperatorPimpl(const Teuchos::RCP<Op>& opm):opm_(opm) {};
 
   virtual ~OperatorPimpl() {
     opm_=Teuchos::null;
   };
 
-  virtual void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
-      trans=Belos::NOTRANS ) const {
+  virtual void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+      trans=Belos::NOTRANS) const {
 
-    opm_->apply( x, y, trans );
+    opm_->apply(x, y, trans);
   }
 
-  virtual void assignField( const DomainFieldT& field ) {
-    opm_->assignField( field );
+  virtual void assignField(const DomainFieldT& field) {
+    opm_->assignField(field);
   };
 
   virtual bool hasApplyTranspose() const {
@@ -90,7 +90,7 @@ public:
     return opm_->space();
   };
 
-  virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+  virtual void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
     opm_->setParameter(para);
   }
 
@@ -102,8 +102,8 @@ public:
     return opm_->getLabel();
   };
 
-  virtual void print( std::ostream& out=std::cout ) const {
-    opm_->print( out );
+  virtual void print(std::ostream& out=std::cout) const {
+    opm_->print(out);
   };
 
 }; // end of OperatorPimpl
@@ -113,11 +113,11 @@ public:
 /// \relates OperatorBase
 /// \relates OperatorPimpl
 template<class Op>
-Teuchos::RCP< OperatorBase<typename Op::DomainFieldT, typename Op::RangeFieldT> >
-createOperatorBase( const Teuchos::RCP<Op>& op ) {
+Teuchos::RCP<OperatorBase<typename Op::DomainFieldT, typename Op::RangeFieldT> >
+createOperatorBase(const Teuchos::RCP<Op>& op) {
 
-  return Teuchos::rcp_dynamic_cast< OperatorBase<typename Op::DomainFieldT, typename
-    Op::RangeFieldT> >( Teuchos::rcp( new OperatorPimpl<Op>(op) ) );
+  return Teuchos::rcp_dynamic_cast<OperatorBase<typename Op::DomainFieldT, typename
+    Op::RangeFieldT> >(Teuchos::rcp(new OperatorPimpl<Op>(op)));
 }
 
 

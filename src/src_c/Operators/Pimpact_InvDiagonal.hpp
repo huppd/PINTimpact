@@ -18,7 +18,7 @@ namespace Pimpact {
 ///
 /// the \c DomainFieldT  \c RangeFieldT is to be equal for both \c OP.
 /// \ingroup Operator
-template< class OP >
+template<class OP >
 class InvDiagonal {
 
 public:
@@ -34,25 +34,25 @@ protected:
 
 public:
 
-  InvDiagonal( const Teuchos::RCP<OP>& op ): op_(op) {};
+  InvDiagonal(const Teuchos::RCP<OP>& op): op_(op) {};
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
-      trans=Belos::NOTRANS ) const {
+      trans=Belos::NOTRANS) const {
 
-    op_->applyInvDiag( x, y );
+    op_->applyInvDiag(x, y);
   }
 
-  void assignField( const DomainFieldT& mv ) {
-    op_->assignField( mv );
+  void assignField(const DomainFieldT& mv) {
+    op_->assignField(mv);
   };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
     return op_->space();
   };
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    op_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    op_->setParameter(para);
   }
 
   bool hasApplyTranspose() const {
@@ -63,9 +63,9 @@ public:
     return op_->getLabel() + std::string("^T");
   };
 
-  void print( std::ostream& out=std::cout ) const {
-    out << getLabel() << ":\n";
-    op_->print( out );
+  void print(std::ostream& out=std::cout) const {
+    out <<getLabel() <<":\n";
+    op_->print(out);
   }
 
 }; // end of class InvDiagonal
@@ -73,10 +73,10 @@ public:
 
 /// \relates InvDiagonal
 template<class OP>
-Teuchos::RCP< InvDiagonal<OP> > createInvDiagonal(
-    const Teuchos::RCP<OP>& op ) {
+Teuchos::RCP<InvDiagonal<OP> > createInvDiagonal(
+    const Teuchos::RCP<OP>& op) {
 
-  return Teuchos::rcp( new InvDiagonal<OP>(op) );
+  return Teuchos::rcp(new InvDiagonal<OP>(op));
 }
 
 

@@ -36,28 +36,28 @@ protected:
 
 public:
 
-  MultiHarmonicOpWrap( const Teuchos::RCP<const SpaceT>& space ):
-    op_( Teuchos::rcp( new OpT(space) ) ) {};
+  MultiHarmonicOpWrap(const Teuchos::RCP<const SpaceT>& space):
+    op_(Teuchos::rcp(new OpT(space))) {};
 
-  MultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op ): op_(op) {};
+  MultiHarmonicOpWrap(const Teuchos::RCP<OpT>& op): op_(op) {};
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N) const {
 
-    if( 0==space()->si(F::U,3) )
-      op_->apply( x.get0Field(), y.get0Field(), add );
+    if(0==space()->si(F::U, 3))
+      op_->apply(x.get0Field(), y.get0Field(), add);
 
-    for( typename SpaceT::Ordinal i=std::max(space()->si(F::U,3),1); i<=space()->ei(F::U,3); ++i ) {
-      op_->apply( x.getCField(i), y.getCField(i), add );
-      op_->apply( x.getSField(i), y.getSField(i), add );
+    for(typename SpaceT::Ordinal i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
+      op_->apply(x.getCField(i), y.getCField(i), add);
+      op_->apply(x.getSField(i), y.getSField(i), add);
     }
 
     y.changed();
   };
 
 
-  void assignField( const DomainFieldT& mv ) {
-    op_->assignField( mv.get0Field() );
+  void assignField(const DomainFieldT& mv) {
+    op_->assignField(mv.get0Field());
   };
 
   bool hasApplyTranspose() const {
@@ -68,8 +68,8 @@ public:
     return op_->space();
   };
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    op_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    op_->setParameter(para);
   }
 
   Teuchos::RCP<OpT> getOperatorPtr() {
@@ -80,9 +80,9 @@ public:
     return "MH_"+op_->getLabel();
   };
 
-  void print( std::ostream& out=std::cout ) const {
-    out <<  getLabel() << ":\n";
-    op_->print( out );
+  void print(std::ostream& out=std::cout) const {
+    out << getLabel() <<":\n";
+    op_->print(out);
   }
 
 }; // end of class MultiHarmonicOpWrap
@@ -91,9 +91,9 @@ public:
 
 /// \relates MultiHarmonicOpWrap
 template<class OpT>
-Teuchos::RCP< MultiHarmonicOpWrap<OpT> >
-createMultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op) {
-  return Teuchos::rcp( new MultiHarmonicOpWrap<OpT>( op ) );
+Teuchos::RCP<MultiHarmonicOpWrap<OpT> >
+createMultiHarmonicOpWrap(const Teuchos::RCP<OpT>& op) {
+  return Teuchos::rcp(new MultiHarmonicOpWrap<OpT>(op));
 }
 
 

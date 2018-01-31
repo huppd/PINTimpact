@@ -45,7 +45,7 @@ void PI_getLocalCoordinates(
   double* const xs,
   double* const xv,
   double* const dxs,
-  double* const dxv );
+  double* const dxv);
 
 
 
@@ -65,34 +65,34 @@ void PI_getLocalCoordinates(
 template<class ScalarT, class OrdinalT, int dim, int dimNC>
 class CoordinatesLocal {
 
-  template<class ST,class OT,int sdT,int dT, int dNC>
-  friend Teuchos::RCP<const CoordinatesLocal<ST,OT,dT,dNC> > createCoordinatesLocal(
-    const Teuchos::RCP<const StencilWidths<dT,dNC> >& fieldSpace,
-    const Teuchos::RCP<const DomainSize<ST,sdT> >& domainSize,
-    const Teuchos::RCP<const GridSizeGlobal<OT,sdT> >& gridSizeGlobal,
-    const Teuchos::RCP<const GridSizeLocal<OT,sdT,dT> >& gridSizeLocal,
+  template<class ST, class OT, int sdT, int dT, int dNC>
+  friend Teuchos::RCP<const CoordinatesLocal<ST, OT, dT, dNC> > createCoordinatesLocal(
+    const Teuchos::RCP<const StencilWidths<dT, dNC> >& fieldSpace,
+    const Teuchos::RCP<const DomainSize<ST, sdT> >& domainSize,
+    const Teuchos::RCP<const GridSizeGlobal<OT, sdT> >& gridSizeGlobal,
+    const Teuchos::RCP<const GridSizeLocal<OT, sdT, dT> >& gridSizeLocal,
     const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcGlobal,
     const Teuchos::RCP<const BoundaryConditionsLocal<dT> >& bcLocal,
-    const Teuchos::RCP<const ProcGrid<OT,dT> >& procGrid,
-    const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> >& coordGlobal );
+    const Teuchos::RCP<const ProcGrid<OT, dT> >& procGrid,
+    const Teuchos::RCP<const CoordinatesGlobal<ST, OT, dT> >& coordGlobal);
 
 protected:
 
-  using SW = StencilWidths<dim,dimNC>;
+  using SW = StencilWidths<dim, dimNC>;
 
-  using DAS = Array<ScalarT,OrdinalT,1>;
-  using DAV = Array<ScalarT,OrdinalT,0>;
+  using DAS = Array<ScalarT, OrdinalT, 1>;
+  using DAV = Array<ScalarT, OrdinalT, 0>;
 
-  using TDAS = const Teuchos::Tuple< DAS, dim >;
-  using TDAV = const Teuchos::Tuple< DAV, dim >;
+  using TDAS = const Teuchos::Tuple<DAS, dim >;
+  using TDAV = const Teuchos::Tuple<DAV, dim >;
 
-  using AS = Array<ScalarT,OrdinalT,SW::BL(0)>;
-  using AV = Array<ScalarT,OrdinalT,SW::BL(0)>;
+  using AS = Array<ScalarT, OrdinalT, SW::BL(0)>;
+  using AV = Array<ScalarT, OrdinalT, SW::BL(0)>;
 
-  using TAS = const Teuchos::Tuple< AS, dim >;
-  using TAV = const Teuchos::Tuple< AV, dim >;
+  using TAS = const Teuchos::Tuple<AS, dim >;
+  using TAV = const Teuchos::Tuple<AV, dim >;
 
-  using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<ScalarT>, dim >;
+  using TO = const Teuchos::Tuple<Teuchos::ArrayRCP<ScalarT>, dim >;
 
   TAS xS_;
   TAV xV_;
@@ -100,31 +100,31 @@ protected:
   TDAS dxS_;
   TDAV dxV_;
 
-  Teuchos::RCP<const StencilWidths<dim,dimNC> > stencilWidths_;
+  Teuchos::RCP<const StencilWidths<dim, dimNC> > stencilWidths_;
 
   //template<int dimNC>
   template<int sdim>
   CoordinatesLocal(
-    const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
-    const Teuchos::RCP<const DomainSize<ScalarT,sdim> >& domainSize,
-    const Teuchos::RCP<const GridSizeGlobal<OrdinalT,sdim> >& gridSizeGlobal,
-    const Teuchos::RCP<const GridSizeLocal<OrdinalT,sdim,dim> >& gridSizeLocal,
+    const Teuchos::RCP<const StencilWidths<dim, dimNC> >& stencilWidths,
+    const Teuchos::RCP<const DomainSize<ScalarT, sdim> >& domainSize,
+    const Teuchos::RCP<const GridSizeGlobal<OrdinalT, sdim> >& gridSizeGlobal,
+    const Teuchos::RCP<const GridSizeLocal<OrdinalT, sdim, dim> >& gridSizeLocal,
     const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
     const Teuchos::RCP<const BoundaryConditionsLocal<dim> >& bcLocal,
-    const Teuchos::RCP<const ProcGrid<OrdinalT,dim> >& procGrid,
-    const Teuchos::RCP<const CoordinatesGlobal<ScalarT,OrdinalT,dim> >& coordGlobal ):
+    const Teuchos::RCP<const ProcGrid<OrdinalT, dim> >& procGrid,
+    const Teuchos::RCP<const CoordinatesGlobal<ScalarT, OrdinalT, dim> >& coordGlobal):
     stencilWidths_(stencilWidths) {
 
-    for( int i=0; i<dim; ++i ) {
+    for(int i=0; i<dim; ++i) {
 
-      xS_[i]  = AS( gridSizeLocal->get(i) + SW::BU(i) );
-      xV_[i]  = AV( gridSizeLocal->get(i) + SW::BU(i) );
-      dxS_[i] = DAS( std::max(gridSizeLocal->get(i), 1) );
-      dxV_[i] = DAV( std::max(gridSizeLocal->get(i), 1) );
+      xS_[i]  = AS(gridSizeLocal->get(i) + SW::BU(i));
+      xV_[i]  = AV(gridSizeLocal->get(i) + SW::BU(i));
+      dxS_[i] = DAS(std::max(gridSizeLocal->get(i), 1));
+      dxV_[i] = DAV(std::max(gridSizeLocal->get(i), 1));
 
-      F fi = static_cast<F>( i );
+      F fi = static_cast<F>(i);
 
-      if( i<3 )
+      if(i<3)
         PI_getLocalCoordinates(
           0,
           domainSize->getSize(i),
@@ -137,19 +137,19 @@ protected:
           bcLocal->getBCL(i),
           bcLocal->getBCU(i),
           procGrid->getIB(i),
-          coordGlobal->getX( F::S, i),
-          coordGlobal->getX( fi, i ),
+          coordGlobal->getX(F::S, i),
+          coordGlobal->getX(fi, i),
           xS_[i].get(),
           xV_[i].get(),
           dxS_[i].get(),
-          dxV_[i].get() );
-      else if( 3==i ) {
+          dxV_[i].get());
+      else if(3==i) {
         ScalarT nt = gridSizeGlobal->get(i);
         OrdinalT offset = (procGrid->getIB(i)-1)*gridSizeLocal->get(i);
         ScalarT pi2 = 8.*std::atan(1.);
-        for( OrdinalT ii = SW::BL(i); ii<=gridSizeLocal->get(i) + SW::BU(i); ++ii ) {
-          xS_[i][ii] = pi2/nt*( ii+offset -1 );
-          xV_[i][ii] = pi2/nt*( ii+offset -1 );
+        for(OrdinalT ii = SW::BL(i); ii<=gridSizeLocal->get(i) + SW::BU(i); ++ii) {
+          xS_[i][ii] = pi2/nt*(ii+offset -1);
+          xV_[i][ii] = pi2/nt*(ii+offset -1);
         }
       }
     }
@@ -160,53 +160,53 @@ public:
   /// \name getter
   /// @{
 
-  constexpr const ScalarT* operator()( const F ftype, const int dir ) {
-    return getX( ftype, dir );
+  constexpr const ScalarT* operator()(const F ftype, const int dir) {
+    return getX(ftype, dir);
   }
 
-  constexpr const ScalarT& operator()( const F ftype, const int dir, const OrdinalT& i) {
-    return getX( ftype, dir, i );
+  constexpr const ScalarT& operator()(const F ftype, const int dir, const OrdinalT& i) {
+    return getX(ftype, dir, i);
   }
 
   /// \deprecated
-  constexpr const ScalarT* getX( const F ftype, const int dir ) {
-    return ( F::S==ftype || dir!=ftype ) ?
+  constexpr const ScalarT* getX(const F ftype, const int dir) {
+    return (F::S==ftype || dir!=ftype) ?
       xS_[dir].get() : xV_[dir].get();
   }
 
   /// \deprecated
-  constexpr const ScalarT& getX( const F ftype, const int dir, const OrdinalT& i) {
-    return ( F::S==ftype || dir!=ftype )?
+  constexpr const ScalarT& getX(const F ftype, const int dir, const OrdinalT& i) {
+    return (F::S==ftype || dir!=ftype)?
       xS_[dir][i] : xV_[dir][i];
   }
 
-  constexpr const ScalarT& dx( const F ftype, const int dir, const OrdinalT& i) {
-    return ( F::S==ftype || dir!=ftype )?
+  constexpr const ScalarT& dx(const F ftype, const int dir, const OrdinalT& i) {
+    return (F::S==ftype || dir!=ftype)?
       dxS_[dir][i] : dxV_[dir][i];
   }
 
   /// \deprecated
-  constexpr const AS& getS( const int dir ) {
+  constexpr const AS& getS(const int dir) {
     return xS_[dir];
   }
 
   /// \deprecated
-  constexpr const AV& getV( const int dir ) {
+  constexpr const AV& getV(const int dir) {
     return xV_[dir];
   }
 
   ///  @}
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
 
-    for( int i=0; i<dim; ++i ) {
-      out << "Local coordinates of scalars in dir: " << static_cast<ECoord>(i) << "\n";
-      xS_[i].print( out );
+    for(int i=0; i<dim; ++i) {
+      out <<"Local coordinates of scalars in dir: " <<static_cast<ECoord>(i) <<"\n";
+      xS_[i].print(out);
     }
 
-    for( int i=0; i<dim; ++i ) {
-      out << "Local coordinates of velocity in dir: " << static_cast<ECoord>(i) << "\n";
-      xV_[i].print( out );
+    for(int i=0; i<dim; ++i) {
+      out <<"Local coordinates of velocity in dir: " <<static_cast<ECoord>(i) <<"\n";
+      xV_[i].print(out);
     }
   };
 
@@ -217,19 +217,19 @@ public:
 /// \brief create Grid coordinates Global
 /// \relates CoordinatesLocal
 template<class ST, class OT, int sd, int d, int dNC>
-Teuchos::RCP<const CoordinatesLocal<ST,OT,d,dNC> >
+Teuchos::RCP<const CoordinatesLocal<ST, OT, d, dNC> >
 createCoordinatesLocal(
-  const Teuchos::RCP<const StencilWidths<d,dNC> >& stencilWidths,
-  const Teuchos::RCP<const DomainSize<ST,sd> >& domainSize,
-  const Teuchos::RCP<const GridSizeGlobal<OT,sd> >& gridSizeGlobal,
-  const Teuchos::RCP<const GridSizeLocal<OT,sd,d> >& gridSizeLocal,
+  const Teuchos::RCP<const StencilWidths<d, dNC> >& stencilWidths,
+  const Teuchos::RCP<const DomainSize<ST, sd> >& domainSize,
+  const Teuchos::RCP<const GridSizeGlobal<OT, sd> >& gridSizeGlobal,
+  const Teuchos::RCP<const GridSizeLocal<OT, sd, d> >& gridSizeLocal,
   const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcGlobal,
   const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bcLocal,
-  const Teuchos::RCP<const ProcGrid<OT,d> >& procGrid,
-  const Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >& coordGlobal ) {
+  const Teuchos::RCP<const ProcGrid<OT, d> >& procGrid,
+  const Teuchos::RCP<const CoordinatesGlobal<ST, OT, d> >& coordGlobal) {
 
   return Teuchos::rcp(
-      new CoordinatesLocal<ST,OT,d,dNC>(
+      new CoordinatesLocal<ST, OT, d, dNC>(
         stencilWidths,
         domainSize,
         gridSizeGlobal,
@@ -237,7 +237,7 @@ createCoordinatesLocal(
         bcGlobal,
         bcLocal,
         procGrid,
-        coordGlobal ) );
+        coordGlobal));
 }
 
 

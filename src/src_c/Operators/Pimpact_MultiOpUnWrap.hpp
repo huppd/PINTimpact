@@ -35,28 +35,28 @@ protected:
 
 public:
 
-  MultiOpUnWrap( const Teuchos::RCP<MOperatorT>& op ):
+  MultiOpUnWrap(const Teuchos::RCP<MOperatorT>& op):
     op_(op) {}
 
   template<class IOperatorT>
-  MultiOpUnWrap( const Teuchos::RCP<IOperatorT>& op ):
-    op_( create<MOperatorT>(op) ) {}
+  MultiOpUnWrap(const Teuchos::RCP<IOperatorT>& op):
+    op_(create<MOperatorT>(op)) {}
 
   template<class IOperatorT>
-  MultiOpUnWrap( const Teuchos::RCP<IOperatorT>& op, Teuchos::RCP<Teuchos::ParameterList> pl ):
-    op_( Teuchos::rcp( new MOperatorT( op, pl ) ) ) {}
+  MultiOpUnWrap(const Teuchos::RCP<IOperatorT>& op, Teuchos::RCP<Teuchos::ParameterList> pl):
+    op_(Teuchos::rcp(new MOperatorT(op, pl))) {}
 
 
   /// \brief default apply
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N) const {
 
     op_->apply(
-      *wrapMultiField( Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(x)) ),
-      *wrapMultiField( Teuchos::rcpFromRef(y) ) );
+      *wrapMultiField(Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(x))),
+      *wrapMultiField(Teuchos::rcpFromRef(y)));
   }
 
-  void assignField( const DomainFieldT& mv ) {
-    op_->assignField( MultiField<DomainFieldT>( Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(mv))) );
+  void assignField(const DomainFieldT& mv) {
+    op_->assignField(MultiField<DomainFieldT>(Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(mv))));
   };
 
   bool hasApplyTranspose() const {
@@ -71,15 +71,15 @@ public:
     return op_->space();
   }
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    op_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    op_->setParameter(para);
   }
 
   const std::string getLabel() const {
     return op_->getLabel();
   };
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
     op_->print();
   }
 
@@ -89,9 +89,9 @@ public:
 
 /// \relates MultiOpUnWrap
 template<class MOperatorT>
-Teuchos::RCP< MultiOpUnWrap<MOperatorT> > createMultiOpUnWrap( const Teuchos::RCP<MOperatorT>& op ) {
+Teuchos::RCP<MultiOpUnWrap<MOperatorT> > createMultiOpUnWrap(const Teuchos::RCP<MOperatorT>& op) {
 
-  return create<MultiOpUnWrap,MOperatorT>( op );
+  return create<MultiOpUnWrap, MOperatorT>(op);
 }
 
 

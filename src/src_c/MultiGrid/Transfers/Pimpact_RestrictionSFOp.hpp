@@ -40,17 +40,17 @@ public:
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
-  using Stenc = Stencil< Scalar, Ordinal, 1, -1, 1 >;
+  using Stenc = Stencil<Scalar, Ordinal, 1, -1, 1 >;
 
 protected:
 
-  Teuchos::Tuple<Stenc,3> cRS_;
+  Teuchos::Tuple<Stenc, 3> cRS_;
 
   void initSF() {
 
-    for( int i=0; i<3; ++i ) {
+    for(int i=0; i<3; ++i) {
 
-      cRS_[i] = Stenc( this->iimax_[i] );
+      cRS_[i] = Stenc(this->iimax_[i]);
 
       MG_getCRS(
         this->iimax_[i],
@@ -64,8 +64,8 @@ protected:
         spaceF()->getGridSizeLocal()->get(i),
         spaceF()->bl(i),
         spaceF()->bu(i),
-        spaceF()->getCoordinatesLocal()->getX( F::S, i ),
-        cRS_[i].get() );
+        spaceF()->getCoordinatesLocal()->getX(F::S, i),
+        cRS_[i].get());
     }
   }
 
@@ -73,8 +73,8 @@ public:
 
   RestrictionSFOp(
     const Teuchos::RCP<const SpaceT>& spaceF,
-    const Teuchos::RCP<const SpaceT>& spaceC ):
-    RestrictionBaseOp<ST>( spaceF, spaceC ) {
+    const Teuchos::RCP<const SpaceT>& spaceC):
+    RestrictionBaseOp<ST>(spaceF, spaceC) {
 
     initSF();
   }
@@ -83,17 +83,17 @@ public:
   RestrictionSFOp(
     const Teuchos::RCP<const SpaceT>& spaceF,
     const Teuchos::RCP<const SpaceT>& spaceC,
-    const Teuchos::Tuple<int,dimension>& np ):
-    RestrictionBaseOp<ST>( spaceF, spaceC, np ) {
+    const Teuchos::Tuple<int, dimension>& np):
+    RestrictionBaseOp<ST>(spaceF, spaceC, np) {
 
     initSF();
   }
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    assert( x.getType()==y.getType() );
-    assert( x.getType()==F::S );
+    assert(x.getType()==y.getType());
+    assert(x.getType()==F::S);
 
     x.exchange();
 
@@ -112,30 +112,30 @@ public:
       cRS_[1].get(),
       cRS_[2].get(),
       x.getConstRawPtr(),
-      y.getRawPtr() );
+      y.getRawPtr());
 
-    this->gather( y.getRawPtr() );
+    this->gather(y.getRawPtr());
 
     y.changed();
   }
 
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
 
-    out << "=== Restriction OP ===\n";
-    out << "nGather:\t" << this->nGather_ << "\n";
-    out << "rankc2:\t" << this->rankc2_ << "\n";
-    out << "comm2:\t" << this->comm2_ << "\n";
+    out <<"=== Restriction OP ===\n";
+    out <<"nGather:\t" <<this->nGather_ <<"\n";
+    out <<"rankc2:\t" <<this->rankc2_ <<"\n";
+    out <<"comm2:\t" <<this->comm2_ <<"\n";
 
-    out << " --- scalar stencil: ---";
-    for( int j=0; j<3; ++j ) {
-      out << "\ndir: " << j << "\n";
-      cRS_[j].print( out );
+    out <<" --- scalar stencil: ---";
+    for(int j=0; j<3; ++j) {
+      out <<"\ndir: " <<j <<"\n";
+      cRS_[j].print(out);
     }
   }
 
 
-  Teuchos::Tuple<Ordinal,dimension> getDD() const {
+  Teuchos::Tuple<Ordinal, dimension> getDD() const {
     return this->dd_;
   };
 
@@ -154,8 +154,6 @@ public:
 
 
 } // end of namespace Pimpact
-
-
 
 
 #endif // end of #ifndef PIMPACT_RESTRICTIONSFOP_HPP

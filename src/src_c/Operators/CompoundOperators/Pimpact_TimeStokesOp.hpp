@@ -53,7 +53,7 @@ extern "C" {
     const double* const veln,
     const double* const pn,
     double* const r_vel,
-    double* const r_p );
+    double* const r_p);
 }
 
 
@@ -71,8 +71,8 @@ public:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  using DomainFieldT = CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >;
-  using RangeFieldT = CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > > ;
+  using DomainFieldT = CompoundField<TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >;
+  using RangeFieldT = CompoundField<TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > > ;
 
 
 protected:
@@ -83,12 +83,12 @@ protected:
 
 public:
 
-  TimeStokesOp( const Teuchos::RCP<const SpaceT>& space ):
-    helm_( create< HelmholtzOp<ST> >(space) ),
-    grad_( create< GradOp<ST> >(space) ),
-    div_( create< DivOp<ST> >(space) ) {};
+  TimeStokesOp(const Teuchos::RCP<const SpaceT>& space):
+    helm_(create<HelmholtzOp<ST> >(space)),
+    grad_(create<GradOp<ST> >(space)),
+    div_(create<DivOp<ST> >(space)) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
     Scalar pi = 4.*std::atan(1.);
     Scalar idt = ((Scalar)space()->nGlo(3))/2./pi;
@@ -102,7 +102,7 @@ public:
 
     xu.exchange();
 
-    for( Ordinal i=space()->si(F::S,3)-1; i<space()->ei(F::S,3); ++i ) {
+    for(Ordinal i=space()->si(F::S, 3)-1; i<space()->ei(F::S, 3); ++i) {
       //xu(i-1).exchange();
       xu(i).exchange();
       xp(i).exchange();
@@ -127,12 +127,12 @@ public:
       space()->eInd(F::V),
       space()->sInd(F::W),
       space()->eInd(F::W),
-      helm_->getC(X,F::S),
-      helm_->getC(Y,F::S),
-      helm_->getC(Z,F::S),
-      helm_->getC(X,F::U),
-      helm_->getC(Y,F::V),
-      helm_->getC(Z,F::W),
+      helm_->getC(X, F::S),
+      helm_->getC(Y, F::S),
+      helm_->getC(Z, F::S),
+      helm_->getC(X, F::U),
+      helm_->getC(Y, F::V),
+      helm_->getC(Z, F::W),
       div_->getC(X),
       div_->getC(Y),
       div_->getC(Z),
@@ -144,9 +144,9 @@ public:
       xu.getConstRawPtr(),
       xp.getConstRawPtr(),
       yu.getRawPtr(),
-      yp.getRawPtr() );
+      yp.getRawPtr());
 
-    for( Ordinal i=space()->si(F::S,3)-1; i<space()->ei(F::S,3); ++i ) {
+    for(Ordinal i=space()->si(F::S, 3)-1; i<space()->ei(F::S, 3); ++i) {
       yu(i).changed();
       yp(i).changed();
     }
@@ -155,13 +155,13 @@ public:
     yp.changed();
   }
 
-  void assignField( const DomainFieldT& mv ) { };
+  void assignField(const DomainFieldT& mv) { };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
     return helm_->space();
   };
 
-  void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+  void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
 
   bool hasApplyTranspose() const {
     return false;
@@ -183,8 +183,8 @@ public:
     return "TimeStokesOp ";
   };
 
-  void print( std::ostream& out=std::cout ) const {
-    out << getLabel() << ":\n";
+  void print(std::ostream& out=std::cout) const {
+    out <<getLabel() <<":\n";
   }
 
 }; // end of class TimeStokesOp

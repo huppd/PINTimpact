@@ -33,32 +33,32 @@ public:
 
 protected:
 
-  Teuchos::RCP< NonlinearWrap<SSmootherT> > convVWrap_;
+  Teuchos::RCP<NonlinearWrap<SSmootherT> > convVWrap_;
 
-  Teuchos::RCP< ConvectionField<SpaceT> > convField_;
+  Teuchos::RCP<ConvectionField<SpaceT> > convField_;
 
 public:
 
   NonlinearSmoother(
     const Teuchos::RCP<const ConvVOpT>& op,
-    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-    convVWrap_( create<NonlinearWrap<SSmootherT> >( create<SSmootherT>( op->getSOp(), pl ) ) ),
-    convField_( op->getConvField() ) {};
+    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList()):
+    convVWrap_(create<NonlinearWrap<SSmootherT> >(create<SSmootherT>(op->getSOp(), pl))),
+    convField_(op->getConvField()) {};
 
 
   /// NOFX should not be already assigned in Operators.
-  void assignField( const DomainFieldT& mv ) const {
+  void assignField(const DomainFieldT& mv) const {
   };
 
 
   /// \note Operator's wind has to be assigned correctly
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    convVWrap_->apply( convField_->get(), x, y );
+    convVWrap_->apply(convField_->get(), x, y);
   }
 
 
-  Teuchos::RCP< ConvectionField<SpaceT> > getConvField() const {
+  Teuchos::RCP<ConvectionField<SpaceT> > getConvField() const {
     return convField_;
   }
 
@@ -71,12 +71,12 @@ public:
     return convVWrap_->space();
   };
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    convVWrap_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    convVWrap_->setParameter(para);
   }
 
-  void print( std::ostream& out=std::cout ) const {
-    out << "--- " << getLabel() << " ---\n";
+  void print(std::ostream& out=std::cout) const {
+    out <<"--- " <<getLabel() <<" ---\n";
     convVWrap_->print(out);
   }
 

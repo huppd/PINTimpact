@@ -47,7 +47,7 @@ protected:
 
   ScalarArray s_;
 
-  const Owning owning_; /// < not template parameter
+  const Owning owning_; /// <not template parameter
 
   SF sFields_[3];
 
@@ -79,7 +79,7 @@ public:
   VectorField(const VectorField& vF, const ECopy copyType=ECopy::Deep):
     AbstractField<SpaceT>(vF.space()),
     owning_(vF.owning_),
-    sFields_{ {vF(F::U),copyType}, {vF(F::V),copyType}, {vF(F::W),copyType} } {
+    sFields_{ {vF(F::U), copyType}, {vF(F::V), copyType}, {vF(F::W), copyType} } {
 
     if(owning_==Owning::Y) {
 
@@ -157,7 +157,7 @@ public:
   /// vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void abs(const VectorField& y, const B bcYes=B::Y) {
     for(F i=F::U; i<SpaceT::sdim; ++i)
@@ -169,7 +169,7 @@ public:
   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1, \dots, n  \f]
   /// \return Reference to this object
   void reciprocal(const VectorField& y, const B bcYes=B::Y) {
     // add test for consistent VectorSpaces in debug mode
@@ -190,7 +190,7 @@ public:
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void scale(const VectorField& a, const B bcYes=B::Y) {
     // add test for consistent VectorSpaces in debug mode
@@ -229,8 +229,8 @@ public:
     for(F i=F::U; i<SpaceT::sdim; ++i)
       normvec =
         (type==ENorm::Inf)?
-        std::max(at(i).normLoc(type,bcYes), normvec):
-        (normvec+at(i).normLoc(type,bcYes));
+        std::max(at(i).normLoc(type, bcYes), normvec):
+        (normvec+at(i).normLoc(type, bcYes));
 
     return normvec;
   }
@@ -463,7 +463,7 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(1),
-            space()->getCoordinatesLocal()->getX(F::S,Y),
+            space()->getCoordinatesLocal()->getX(F::S, Y),
             space()->getDomainSize()->getRe(),     // TODO: verify
             space()->getDomainSize()->getAlpha2(), // TODO: verify
             para.get<ST>("px", 1.),          // TODO: verify
@@ -484,7 +484,7 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(0),
-            space()->getCoordinatesLocal()->getX(F::S,X),
+            space()->getCoordinatesLocal()->getX(F::S, X),
             space()->getDomainSize()->getRe(),     // TODO: verify
             space()->getDomainSize()->getAlpha2(), // TODO: verify
             para.get<ST>("px", 1.),          // TODO: verify
@@ -505,7 +505,7 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(1),
-            space()->getCoordinatesLocal()->getX(F::S,Y),
+            space()->getCoordinatesLocal()->getX(F::S, Y),
             space()->getDomainSize()->getRe(),     // TODO: verify
             space()->getDomainSize()->getAlpha2(), // TODO: verify
             para.get<ST>("px", 1.),          // TODO: verify
@@ -526,7 +526,7 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(0),
-            space()->getCoordinatesLocal()->getX(F::S,X),
+            space()->getCoordinatesLocal()->getX(F::S, X),
             space()->getDomainSize()->getRe(),     // TODO: verify
             space()->getDomainSize()->getAlpha2(), // TODO: verify
             para.get<ST>("px", 1.),          // TODO: verify
@@ -543,7 +543,7 @@ public:
 
         if(Add::N==add) at(F::U).init();
         at(F::V).initFromFunction(
-            [&amp,&om](ST x, ST y, ST z) -> ST {
+            [&amp, &om](ST x, ST y, ST z) -> ST {
             return amp*std::cos(om*x); },
             add);
         if(Add::N==add) at(F::W).init();
@@ -558,7 +558,7 @@ public:
 
         if(Add::N==add) at(F::U).init();
         at(F::V).initFromFunction(
-            [&amp,&om](ST x, ST y, ST z) -> ST {
+            [&amp, &om](ST x, ST y, ST z) -> ST {
             return amp*std::sin(om*x); },
             add);
         if(Add::N==add) at(F::W).init();
@@ -588,10 +588,10 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(),
-            space()->getCoordinatesLocal()->getX(F::S,X),
-            space()->getCoordinatesLocal()->getX(F::S,Y),
-            space()->getCoordinatesLocal()->getX(F::U,X),
-            space()->getCoordinatesLocal()->getX(F::V,Y),
+            space()->getCoordinatesLocal()->getX(F::S, X),
+            space()->getCoordinatesLocal()->getX(F::S, Y),
+            space()->getCoordinatesLocal()->getX(F::U, X),
+            space()->getCoordinatesLocal()->getX(F::V, Y),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -609,7 +609,7 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(0),
-            space()->getCoordinatesLocal()->getX(F::U,X),
+            space()->getCoordinatesLocal()->getX(F::U, X),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -627,7 +627,7 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(0),
-            space()->getCoordinatesLocal()->getX(F::U,X),
+            space()->getCoordinatesLocal()->getX(F::U, X),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -645,10 +645,10 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(),
-            space()->getCoordinatesLocal()->getX(F::S,X),
-            space()->getCoordinatesLocal()->getX(F::S,Y),
-            space()->getCoordinatesLocal()->getX(F::U,X),
-            space()->getCoordinatesLocal()->getX(F::V,Y),
+            space()->getCoordinatesLocal()->getX(F::S, X),
+            space()->getCoordinatesLocal()->getX(F::S, Y),
+            space()->getCoordinatesLocal()->getX(F::U, X),
+            space()->getCoordinatesLocal()->getX(F::V, Y),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -666,10 +666,10 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(),
-            space()->getCoordinatesLocal()->getX(F::S,X),
-            space()->getCoordinatesLocal()->getX(F::S,Y),
-            space()->getCoordinatesLocal()->getX(F::U,X),
-            space()->getCoordinatesLocal()->getX(F::V,Y),
+            space()->getCoordinatesLocal()->getX(F::S, X),
+            space()->getCoordinatesLocal()->getX(F::S, Y),
+            space()->getCoordinatesLocal()->getX(F::U, X),
+            space()->getCoordinatesLocal()->getX(F::V, Y),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -687,8 +687,8 @@ public:
             space()->sIndB(F::W),
             space()->eIndB(F::W),
             space()->getDomainSize()->getSize(),
-            space()->getCoordinatesLocal()->getX(F::U,X),
-            space()->getCoordinatesLocal()->getX(F::S,Y),
+            space()->getCoordinatesLocal()->getX(F::U, X),
+            space()->getCoordinatesLocal()->getX(F::S, Y),
             space()->getDomainSize()->getRe(),     // TODO: verify
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
@@ -706,12 +706,12 @@ public:
             space()->eIndB(F::V),
             space()->sIndB(F::W),
             space()->eIndB(F::W),
-            space()->getCoordinatesLocal()->getX(F::S,X),
-            space()->getCoordinatesLocal()->getX(F::S,Y),
-            space()->getCoordinatesLocal()->getX(F::S,Z),
-            space()->getCoordinatesLocal()->getX(F::U,X),
-            space()->getCoordinatesLocal()->getX(F::V,Y),
-            //re, om, px,sca,
+            space()->getCoordinatesLocal()->getX(F::S, X),
+            space()->getCoordinatesLocal()->getX(F::S, Y),
+            space()->getCoordinatesLocal()->getX(F::S, Z),
+            space()->getCoordinatesLocal()->getX(F::U, X),
+            space()->getCoordinatesLocal()->getX(F::V, Y),
+            //re, om, px, sca,
             para.get<ST>("center x", 1.),
             para.get<ST>("center y", 1.),
             para.get<ST>("radius", 1.),
@@ -732,8 +732,8 @@ public:
             space()->eIndB(F::V),
             space()->sIndB(F::W),
             space()->eIndB(F::W),
-            space()->getCoordinatesLocal()->getX(F::S,X),
-            space()->getCoordinatesLocal()->getX(F::S,Y),
+            space()->getCoordinatesLocal()->getX(F::S, X),
+            space()->getCoordinatesLocal()->getX(F::S, Y),
             para.get<ST>("center x", 1.),
             para.get<ST>("center y", 1.),
             para.get<ST>("omega", 1.),
@@ -747,10 +747,10 @@ public:
 
         OT nTemp = space()->gu(X) - space()->gl(X) + 1;
         //for(OT i=0; i<=space()->nLoc(X); ++i) {
-        //std::cout << "i: " << i<< " (\t";
+        //std::cout <<"i: " <<i<<" (\t";
         //for(OT ii=0; ii<nTemp; ++ii)
-        //std::cout << space()->getInterpolateV2S()->getC(X)[ i*nTemp + ii ] << ",\t";
-        //std::cout << ")\n";
+        //std::cout <<space()->getInterpolateV2S()->getC(X)[ i*nTemp + ii ] <<", \t";
+        //std::cout <<")\n";
         //}
         //ST c[6] = {
         //space()->getInterpolateV2S()->getC(X)[ nTemp + 0 ],
@@ -759,10 +759,10 @@ public:
         //space()->getInterpolateV2S()->getC(X)[ nTemp + 3 ],
         //space()->getInterpolateV2S()->getC(X)[ nTemp + 4 ],
         //space()->getInterpolateV2S()->getC(X)[ nTemp + 5 ] };
-        //std::cout << "c\n";
+        //std::cout <<"c\n";
         //for(OT ii=0; ii<nTemp; ++ii)
-        //std::cout << c[  ii ] << ",\t";
-        //std::cout << "c\n";
+        //std::cout <<c[  ii ] <<", \t";
+        //std::cout <<"c\n";
 
         VF_init_SHBF(
             //1,
@@ -781,8 +781,8 @@ public:
             space()->eIndB(F::V),
             space()->sIndB(F::W),
             space()->eIndB(F::W),
-            space()->getCoordinatesGlobal()->getX(F::S,X),
-            space()->getCoordinatesGlobal()->getX(F::U,X),
+            space()->getCoordinatesGlobal()->getX(F::S, X),
+            space()->getCoordinatesGlobal()->getX(F::U, X),
             space()->getCoordinatesLocal()->getX(F::W, Z),
             space()->getInterpolateV2S()->getC(X)+2*nTemp-1, /// \todo rm dirty hack
             space()->getDomainSize()->getRe(),
@@ -793,7 +793,7 @@ public:
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
 
-        //std::cout << "hello\n" << space()->getInterpolateV2S()->getC(X)[9] <<
+        //std::cout <<"hello\n" <<space()->getInterpolateV2S()->getC(X)[9] <<
         //"\n";
 
         break;
@@ -805,17 +805,17 @@ public:
         ST b  = para.get<ST>("b",  3.);
         ST A  = para.get<ST>("A",  0.1);
 
-        Teuchos::RCP<const DomainSize<ST,SpaceT::sdim> > domain = space()->getDomainSize();
-        Teuchos::RCP<const CoordinatesLocal<ST,OT,SpaceT::dimension,SpaceT::dimNC> > coord =
+        Teuchos::RCP<const DomainSize<ST, SpaceT::sdim> > domain = space()->getDomainSize();
+        Teuchos::RCP<const CoordinatesLocal<ST, OT, SpaceT::dimension, SpaceT::dimNC> > coord =
           space()->getCoordinatesLocal();
 
         const B bY = B::Y;
         if(0<space()->bcl(Y)) {
-          OT j=space()->si(F::U,Y,bY);
-          for(OT k=space()->si(F::U,Z,bY); k<=space()->ei(F::U,Z,bY); ++k)
-            for(OT i=space()->si(F::U,X,bY); i<=space()->ei(F::U,X,bY); ++i) {
-              ST x = coord->getX(F::U,X,i);
-              ST z = coord->getX(F::U,Z,k);
+          OT j=space()->si(F::U, Y, bY);
+          for(OT k=space()->si(F::U, Z, bY); k<=space()->ei(F::U, Z, bY); ++k)
+            for(OT i=space()->si(F::U, X, bY); i<=space()->ei(F::U, X, bY); ++i) {
+              ST x = coord->getX(F::U, X, i);
+              ST z = coord->getX(F::U, Z, k);
 
               ST u = 0.;
               if(std::fabs(x-xc)<b && std::fabs(z-zc)<b)
@@ -823,19 +823,19 @@ public:
               if(std::fabs(x-xc)<b && std::fabs(z+zc)<b)
                 u -= 0.5*A*std::sin(pi*(z+zc)/b)*(1. + std::cos(pi*(x-xc)/b));
               if(Add::Y==add)
-                at(F::U)(i,j,k) += u;
+                at(F::U)(i, j, k) += u;
               else
-                at(F::U)(i,j,k) = u;
+                at(F::U)(i, j, k) = u;
             }
         }
         at(F::U).changed();
 
         if(0<space()->bcl(Y)) {
-          OT j=space()->si(F::W,Y,bY);
-          for(OT k=space()->si(F::W,Z,bY); k<=space()->ei(F::W,Z,bY); ++k)
-            for(OT i=space()->si(F::W,X,bY); i<=space()->ei(F::W,X,bY); ++i) {
-              ST x = coord->getX(F::W,X,i);
-              ST z = coord->getX(F::W,Z,k);
+          OT j=space()->si(F::W, Y, bY);
+          for(OT k=space()->si(F::W, Z, bY); k<=space()->ei(F::W, Z, bY); ++k)
+            for(OT i=space()->si(F::W, X, bY); i<=space()->ei(F::W, X, bY); ++i) {
+              ST x = coord->getX(F::W, X, i);
+              ST z = coord->getX(F::W, Z, k);
 
               ST w = 0.;
               if(std::fabs(x-xc)<b && std::fabs(z-zc)<b)
@@ -843,9 +843,9 @@ public:
               if(std::fabs(x-xc)<b && std::fabs(z+zc)<b)
                 w += 0.5*A*std::sin(pi*(x-xc)/b)*(1. + std::cos(pi*(z+zc)/b));
               if(Add::Y==add)
-                at(F::W)(i,j,k) += w;
+                at(F::W)(i, j, k) += w;
               else
-                at(F::W)(i,j,k) = w;
+                at(F::W)(i, j, k) = w;
             }
         }
         at(F::W).changed();
@@ -942,7 +942,7 @@ public:
   void write(const int count=0, const bool restart=false) const {
 
     if(0==space()->rankS()) {
-      Teuchos::Tuple<OT,3> N;
+      Teuchos::Tuple<OT, 3> N;
       for(int i=0; i<3; ++i) {
         N[i] = space()->nGlo(i);
         if(space()->getBCGlobal()->getBCL(i)==Pimpact::BC::Periodic)
@@ -951,54 +951,54 @@ public:
       if(!restart) {
         std::ofstream xfile;
         std::ostringstream ss;
-        ss << std::setw(5) << std::setfill('0') << count;
+        ss <<std::setw(5) <<std::setfill('0') <<count;
         //        std::string fname = "v_"+ss.str();
         xfile.open("vel_"+ ss.str() +".xmf", std::ofstream::out);
-        xfile<< "<Xdmf xmlns:xi=\"http://www.w3.org/2003/XInclude\" Version=\"2.1\">\n";
-        xfile << "\t<Domain>\n";
-        xfile << "\t\t<Grid Name=\"3DRectMesh\" GridType=\"Uniform\">\n";
-        xfile << "\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\"/>\n";
-        xfile << "\t\t\t<Geometry GeometryType=\"VXVYVZ\">\n";
-        xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-        xfile << "\t\t\t\t\tDimensions=\""<< N[0] << "\"\n";
-        xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
-        xfile << "\t\t\t\t\tPrecision=\"8\"\n";
-        xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
-        xfile << "\t\t\t\t\tvelX_"<< ss.str() << ".h5:/VectorX\n";
-        xfile << "\t\t\t\t</DataItem>\n";
-        xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-        xfile << "\t\t\t\t\tDimensions=\""<< N[1] << "\"\n";
-        xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
-        xfile << "\t\t\t\t\tPrecision=\"8\"\n";
-        xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
-        xfile << "\t\t\t\t\tvelX_"<< ss.str() << ".h5:/VectorY\n";
-        xfile << "\t\t\t\t</DataItem>\n";
-        xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-        xfile << "\t\t\t\t\tDimensions=\""<< N[2] << "\"\n";
-        xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
-        xfile << "\t\t\t\t\tPrecision=\"8\"\n";
-        xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
-        xfile << "\t\t\t\t\tvelX_"<< ss.str() << ".h5:/VectorZ\n";
-        xfile << "\t\t\t\t</DataItem>\n";
-        xfile << "\t\t\t</Geometry>\n";
-        xfile << "\t\t\t<Attribute Name=\"VelX\" AttributeType=\"Scalar\" Center=\"Node\">\n";
-        xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
-        xfile << "\t\t\t\t\tvelX_"<< ss.str() << ".h5:/velX\n";
-        xfile << "\t\t\t\t</DataItem>\n";
-        xfile << "\t\t\t</Attribute>\n";
-        xfile << "\t\t\t<Attribute Name=\"VelY\" AttributeType=\"Scalar\" Center=\"Node\">\n";
-        xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
-        xfile << "\t\t\t\t\tvelY_"<< ss.str() << ".h5:/velY\n";
-        xfile << "\t\t\t\t</DataItem>\n";
-        xfile << "\t\t\t</Attribute>\n";
-        xfile << "\t\t\t<Attribute Name=\"VelZ\" AttributeType=\"Scalar\" Center=\"Node\">\n";
-        xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
-        xfile << "\t\t\t\t\tvelZ_"<< ss.str() << ".h5:/velZ\n";
-        xfile << "\t\t\t\t</DataItem>\n";
-        xfile << "\t\t\t</Attribute>\n";
-        xfile << "\t\t</Grid>\n";
-        xfile << "\t</Domain>\n";
-        xfile << "</Xdmf>\n";
+        xfile<<"<Xdmf xmlns:xi=\"http://www.w3.org/2003/XInclude\" Version=\"2.1\">\n";
+        xfile <<"\t<Domain>\n";
+        xfile <<"\t\t<Grid Name=\"3DRectMesh\" GridType=\"Uniform\">\n";
+        xfile <<"\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<<N[2] <<" " <<N[1] <<" " <<N[0] <<"\"/>\n";
+        xfile <<"\t\t\t<Geometry GeometryType=\"VXVYVZ\">\n";
+        xfile <<"\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+        xfile <<"\t\t\t\t\tDimensions=\""<<N[0] <<"\"\n";
+        xfile <<"\t\t\t\t\tNumberType=\"Float\"\n";
+        xfile <<"\t\t\t\t\tPrecision=\"8\"\n";
+        xfile <<"\t\t\t\t\tFormat=\"HDF\">\n";
+        xfile <<"\t\t\t\t\tvelX_"<<ss.str() <<".h5:/VectorX\n";
+        xfile <<"\t\t\t\t</DataItem>\n";
+        xfile <<"\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+        xfile <<"\t\t\t\t\tDimensions=\""<<N[1] <<"\"\n";
+        xfile <<"\t\t\t\t\tNumberType=\"Float\"\n";
+        xfile <<"\t\t\t\t\tPrecision=\"8\"\n";
+        xfile <<"\t\t\t\t\tFormat=\"HDF\">\n";
+        xfile <<"\t\t\t\t\tvelX_"<<ss.str() <<".h5:/VectorY\n";
+        xfile <<"\t\t\t\t</DataItem>\n";
+        xfile <<"\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+        xfile <<"\t\t\t\t\tDimensions=\""<<N[2] <<"\"\n";
+        xfile <<"\t\t\t\t\tNumberType=\"Float\"\n";
+        xfile <<"\t\t\t\t\tPrecision=\"8\"\n";
+        xfile <<"\t\t\t\t\tFormat=\"HDF\">\n";
+        xfile <<"\t\t\t\t\tvelX_"<<ss.str() <<".h5:/VectorZ\n";
+        xfile <<"\t\t\t\t</DataItem>\n";
+        xfile <<"\t\t\t</Geometry>\n";
+        xfile <<"\t\t\t<Attribute Name=\"VelX\" AttributeType=\"Scalar\" Center=\"Node\">\n";
+        xfile <<"\t\t\t\t<DataItem Dimensions=\""<<N[2] <<" " <<N[1] <<" " <<N[0] <<"\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+        xfile <<"\t\t\t\t\tvelX_"<<ss.str() <<".h5:/velX\n";
+        xfile <<"\t\t\t\t</DataItem>\n";
+        xfile <<"\t\t\t</Attribute>\n";
+        xfile <<"\t\t\t<Attribute Name=\"VelY\" AttributeType=\"Scalar\" Center=\"Node\">\n";
+        xfile <<"\t\t\t\t<DataItem Dimensions=\""<<N[2] <<" " <<N[1] <<" " <<N[0] <<"\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+        xfile <<"\t\t\t\t\tvelY_"<<ss.str() <<".h5:/velY\n";
+        xfile <<"\t\t\t\t</DataItem>\n";
+        xfile <<"\t\t\t</Attribute>\n";
+        xfile <<"\t\t\t<Attribute Name=\"VelZ\" AttributeType=\"Scalar\" Center=\"Node\">\n";
+        xfile <<"\t\t\t\t<DataItem Dimensions=\""<<N[2] <<" " <<N[1] <<" " <<N[0] <<"\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+        xfile <<"\t\t\t\t\tvelZ_"<<ss.str() <<".h5:/velZ\n";
+        xfile <<"\t\t\t\t</DataItem>\n";
+        xfile <<"\t\t\t</Attribute>\n";
+        xfile <<"\t\t</Grid>\n";
+        xfile <<"\t</Domain>\n";
+        xfile <<"</Xdmf>\n";
         xfile.close();
       }
     }

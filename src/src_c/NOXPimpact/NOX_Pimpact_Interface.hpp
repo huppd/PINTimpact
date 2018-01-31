@@ -33,7 +33,7 @@ namespace Pimpact {
 /// to the external code for residual fills.
 /// \tparam FieldT hast to be of type \c Pimpact::MultiField.
 /// \note it is assumed that op_ is getting assigned if jopInv is assigned
-template< class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::OperatorBase<FT> >
+template<class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::OperatorBase<FT> >
 class Interface {
 
 public:
@@ -56,57 +56,57 @@ public:
     Teuchos::RCP<FieldT> fu=Teuchos::null,
     Teuchos::RCP<OpT>    op=Teuchos::null,
     Teuchos::RCP<IOpT>   jop=Teuchos::null,
-    Teuchos::RCP<FieldT> resScaling=Teuchos::null ):
-    fu_( fu ),
+    Teuchos::RCP<FieldT> resScaling=Teuchos::null):
+    fu_(fu),
     op_(op),
     jopInv_(jop),
     resScaling_(resScaling) {};
 
 
   /// Compute the function, F, given the specified input vector x.
-  NOX::Abstract::Group::ReturnType computeF( const FieldT& x, FieldT& f ) {
+  NOX::Abstract::Group::ReturnType computeF(const FieldT& x, FieldT& f) {
 
-    op_->apply( x, f );
-    f.add( 1., f, -1., *fu_ );
+    op_->apply(x, f);
+    f.add(1., f, -1., *fu_);
 
     return NOX::Abstract::Group::Ok;
   }
 
 
   /// \brief Compute the Jacobian Operator, given the specified input vector x.
-  NOX::Abstract::Group::ReturnType computeJacobian( const FieldT& x ) {
+  NOX::Abstract::Group::ReturnType computeJacobian(const FieldT& x) {
 
-    jopInv_->assignField( x );
+    jopInv_->assignField(x);
     return NOX::Abstract::Group::Ok;
   }
 
 
-  NOX::Abstract::Group::ReturnType applyJacobian( const FieldT& x, FieldT& y,
-      const Belos::ETrans type=Belos::NOTRANS ) {
+  NOX::Abstract::Group::ReturnType applyJacobian(const FieldT& x, FieldT& y,
+      const Belos::ETrans type=Belos::NOTRANS) {
 
     return NOX::Abstract::Group::NotDefined;
   }
 
 
-  NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params,
-      const FieldT& x, FieldT& y ) {
+  NOX::Abstract::Group::ReturnType applyJacobianInverse(Teuchos::ParameterList &params,
+      const FieldT& x, FieldT& y) {
 
     double atol = params.get<double>("Tolerance");
-    if( atol>0. ) {
+    if(atol>0.) {
       double res = x.norm();
 
       Teuchos::RCP<Teuchos::ParameterList> para = Teuchos::parameterList("Linear Solver");
-      para->set<double>( "Convergence Tolerance", atol*res );
+      para->set<double>("Convergence Tolerance", atol*res);
 
-      jopInv_->setParameter( para );
+      jopInv_->setParameter(para);
     }
 
-    jopInv_->apply( x, y );
+    jopInv_->apply(x, y);
     return NOX::Abstract::Group::Ok;
   }
 
 
-  NOX::Abstract::Group::ReturnType applyPreconditioner( const FieldT& x, FieldT& y ) {
+  NOX::Abstract::Group::ReturnType applyPreconditioner(const FieldT& x, FieldT& y) {
     return NOX::Abstract::Group::NotDefined;
   }
 
@@ -125,13 +125,13 @@ public:
 
 /// \relates Interface
 template<class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::OperatorBase<FT> >
-Teuchos::RCP< Interface<FT,OpT,IOpT> > createInterface(
+Teuchos::RCP<Interface<FT, OpT, IOpT> > createInterface(
   Teuchos::RCP<FT> fu=Teuchos::null,
   Teuchos::RCP<OpT>  op=Teuchos::null,
   Teuchos::RCP<IOpT> jop=Teuchos::null,
   Teuchos::RCP<FT> scaleField=Teuchos::null) {
 
-  return Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop,scaleField) );
+  return Teuchos::rcp(new Interface<FT, OpT, IOpT>(fu, op, jop, scaleField));
 }
 
 

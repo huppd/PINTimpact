@@ -35,23 +35,23 @@ public:
 
   TransferTimeOp(
     const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF ):
-    opV_( Teuchos::rcp( new TransVT( spaceC, spaceF ) ) ) {}
+    const Teuchos::RCP<const CSpaceT>& spaceF):
+    opV_(Teuchos::rcp(new TransVT(spaceC, spaceF))) {}
 
 
-  template< class DT, class RT>
-  void apply( const DT& x, RT& y ) const {
+  template<class DT, class RT>
+  void apply(const DT& x, RT& y) const {
 
-    for (int i=x.space()->si(F::S,3); i<x.space()->ei(F::S,3); ++i)
-      opV_->apply( x(i), y(i) );
+    for (int i=x.space()->si(F::S, 3); i<x.space()->ei(F::S, 3); ++i)
+      opV_->apply(x(i), y(i));
 
     y.changed();
   }
 
 
-  void print( std::ostream& out=std::cout ) const {
-    out << "=== TransferTimeOP ===\n";
-    opV_->print( out );
+  void print(std::ostream& out=std::cout) const {
+    out <<"=== TransferTimeOP ===\n";
+    opV_->print(out);
   }
 
 }; // end of class TransferTime

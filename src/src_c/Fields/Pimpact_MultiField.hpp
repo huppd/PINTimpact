@@ -341,11 +341,11 @@ public:
   /// \param b Matrix
   /// \param beta
   void TimesMatAdd(const ST alpha, const FieldT& a,
-                   const Teuchos::SerialDenseMatrix<int,ST>& b,
+                   const Teuchos::SerialDenseMatrix<int, ST>& b,
                    const ST beta) {
 
-    int m1 = a.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
-    int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
+    int m1 = a.getNumberVecs(); ///<is assumed to be equal to number vecs of this and ncolumns and nrows of b
+    int m2 = getNumberVecs();   ///<is assumed to be equal to number vecs of this and ncolumns and nrows of b
 
     OT nx = mfs_[0]->getStorageSize();
 
@@ -353,7 +353,7 @@ public:
       for(OT k=0; k<nx; ++k) {
         ST temp = 0.;
         for(int j=0; j<m1; ++j)
-          temp += alpha*b(j,i)*a.s_[j][k] ;
+          temp += alpha*b(j, i)*a.s_[j][k] ;
         s_[i][k] = s_[i][k]*beta + temp;
       }
       mfs_[i]->changed();
@@ -374,7 +374,7 @@ public:
   /// vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void abs(const FieldT& y) {
 
@@ -386,7 +386,7 @@ public:
   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1, \dots, n  \f]
   /// \return Reference to this object
   void reciprocal(const FieldT& y) {
 
@@ -398,7 +398,7 @@ public:
   /// \brief Scale each element of every \c Field by \c gamma.
   ///
   /// Here x represents on \c Field, and we update it as
-  /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1, \dots, n \f]
   void scale(const ST alpha) {
 
     for(int i=0; i<getNumberVecs(); ++i)
@@ -409,7 +409,7 @@ public:
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void scale(const FieldT& a) {
 
@@ -421,7 +421,7 @@ public:
   /// \brief Scale each element of a \c Field by a \c gamma.
   ///
   /// Here x_j represents the j'th field, and we update it as
-  /// \f[ x_j[i] = \alpha_j x_j[i] \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_j[i] = \alpha_j x_j[i] \quad \mbox{for } i=1, \dots, n \f]
   void scale(const std::vector<ST>& alphas) {
 
     assert(alphas.size()==getNumberVecs());

@@ -51,13 +51,13 @@ public:
 
 
   /// \brief Create a new deep copy of multivector.
-  static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy( const Pimpact::MultiField<Field>& mv ) {
+  static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy(const Pimpact::MultiField<Field>& mv) {
     return mv.CloneCopy();
   }
 
 
   /// \brief Create a new deep copy of multivector, considering only the \c Field's of \c index.
-  static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy( const Pimpact::MultiField<Field>& mv, const std::vector<int>& index ) {
+  static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy(const Pimpact::MultiField<Field>& mv, const std::vector<int>& index) {
     return mv.CloneCopy(index);
   }
 
@@ -102,70 +102,70 @@ public:
   static Teuchos::RCP<const Pimpact::MultiField<Field> >
   CloneView(
     const Pimpact::MultiField<Field>& mv,
-    const Teuchos::Range1D& index ) {
+    const Teuchos::Range1D& index) {
     return mv.CloneView(index);
   }
 
 
   /// \brief return the number of the Vector/Field length, it is assumed that every \c Field of the multivector has the same.
-  static ptrdiff_t GetGlobalLength (const MV& mv) {
-    return static_cast<ptrdiff_t>( mv.getLength() );
+  static ptrdiff_t GetGlobalLength(const MV& mv) {
+    return static_cast<ptrdiff_t>(mv.getLength());
   }
 
 
   /// \brief return the number of the Vector/Field's.
-  static int GetNumberVecs( const Pimpact::MultiField<Field>& mv ) {
+  static int GetNumberVecs(const Pimpact::MultiField<Field>& mv) {
     return mv.getNumberVecs();
   }
 
 
-  static bool HasConstantStride( const Pimpact::MultiField<Field>& mv ) {
+  static bool HasConstantStride(const Pimpact::MultiField<Field>& mv) {
     return true;
   }
 
 
   /// \brief <tt> mv:= alpha A*B + beta mv </tt>
   static void
-  MvTimesMatAddMv( const Scalar alpha,
+  MvTimesMatAddMv(const Scalar alpha,
                    const Pimpact::MultiField<Field>& A,
-                   const Teuchos::SerialDenseMatrix<int,Scalar>& B,
+                   const Teuchos::SerialDenseMatrix<int, Scalar>& B,
                    const Scalar beta,
-                   Pimpact::MultiField<Field>& mv ) {
+                   Pimpact::MultiField<Field>& mv) {
 
-    mv.TimesMatAdd( alpha, A, B, beta );
+    mv.TimesMatAdd(alpha, A, B, beta);
   }
 
 
   /// \brief <tt>mv := alpha*A + beta*B</tt>
-  static void MvAddMv( Scalar alpha,
+  static void MvAddMv(Scalar alpha,
                        const Pimpact::MultiField<Field>& A,
                        Scalar beta,
                        const Pimpact::MultiField<Field>& B,
-                       Pimpact::MultiField<Field>& mv ) {
-    mv.add( alpha, A, beta, B );
+                       Pimpact::MultiField<Field>& mv) {
+    mv.add(alpha, A, beta, B);
   }
 
 
   /// \brief <tt>mv := alpha*mv </tt>
-  static void MvScale( Pimpact::MultiField<Field>& mv, const Scalar alpha ) {
-    mv.scale( alpha );
+  static void MvScale(Pimpact::MultiField<Field>& mv, const Scalar alpha) {
+    mv.scale(alpha);
   }
 
 
   /// \brief <tt>mv[i] := alpha[i]*mv[i] </tt>
-  static void MvScale( Pimpact::MultiField<Field>& mv, const std::vector<Scalar>& alphas ) {
-    mv.scale( alphas );
+  static void MvScale(Pimpact::MultiField<Field>& mv, const std::vector<Scalar>& alphas) {
+    mv.scale(alphas);
   }
 
 
-  /// \brief <tt>C[j,i] := dot(A[j],B[i]) </tt>
+  /// \brief <tt>C[j, i] := dot(A[j], B[i]) </tt>
   static void
-  MvTransMv (Scalar alpha,
+  MvTransMv(Scalar alpha,
              const Pimpact::MultiField<Field>& A,
              const Pimpact::MultiField<Field>& B,
-             Teuchos::SerialDenseMatrix<int,Scalar>& C) {
+             Teuchos::SerialDenseMatrix<int, Scalar>& C) {
 
-    A.Trans(alpha,B,C);
+    A.Trans(alpha, B, C);
   }
 
 
@@ -174,7 +174,7 @@ public:
     const Pimpact::MultiField<Field>& A,
     const Pimpact::MultiField<Field>& B,
     std::vector<Scalar>& dots) {
-    A.dot(B,dots);
+    A.dot(B, dots);
   }
 
 
@@ -182,19 +182,19 @@ public:
   static void MvNorm(
       const Pimpact::MultiField<Field>& mv,
       std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
-      NormType type=TwoNorm ) {
+      NormType type=TwoNorm) {
 
-    switch( type ) {
+    switch(type) {
       case OneNorm : {
-        mv.norm( normvec, Pimpact::ENorm::One );
+        mv.norm(normvec, Pimpact::ENorm::One);
         break;
       }
       case TwoNorm : {
-        mv.norm( normvec, Pimpact::ENorm::Two );
+        mv.norm(normvec, Pimpact::ENorm::Two);
         break;
       }
       case InfNorm : {
-        mv.norm( normvec, Pimpact::ENorm::Inf );
+        mv.norm(normvec, Pimpact::ENorm::Inf);
         break;
       }
     }
@@ -202,47 +202,47 @@ public:
 
 
   /// \brief <tt> mv[i]:=A[index[i]] </tt>
-  static void SetBlock( const Pimpact::MultiField<Field>& A,
+  static void SetBlock(const Pimpact::MultiField<Field>& A,
                         const std::vector<int>& index,
-                        Pimpact::MultiField<Field>& mv ) {
-    mv.SetBlock(A,index);
+                        Pimpact::MultiField<Field>& mv) {
+    mv.SetBlock(A, index);
   }
 
 
   /// \brief <tt> mv[i]:=A[i-index.lb] </tt>
   static void
-  SetBlock (const Pimpact::MultiField<Field>& A,
-            const Teuchos::Range1D& index,
-            Pimpact::MultiField<Field>& mv) {
-    mv.SetBlock(A,index);
+  SetBlock(const Pimpact::MultiField<Field>& A,
+      const Teuchos::Range1D& index,
+      Pimpact::MultiField<Field>& mv) {
+    mv.SetBlock(A, index);
   }
 
 
   /// \brief <tt> mv:=A </tt>
-  static void Assign (const Pimpact::MultiField<Field>& A,
+  static void Assign(const Pimpact::MultiField<Field>& A,
                       Pimpact::MultiField<Field>& mv) {
     mv = A;
   }
 
 
-  /// \brief make \c mv uniform random (0,1)
-  static void MvRandom( Pimpact::MultiField<Field>& mv ) {
+  /// \brief make \c mv uniform random(0, 1)
+  static void MvRandom(Pimpact::MultiField<Field>& mv) {
     mv.random();
   }
 
 
   /// \brief init \c mv:= \c alpha everywhere(inner field)
-  static void MvInit( Pimpact::MultiField<Field>& mv, Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+  static void MvInit(Pimpact::MultiField<Field>& mv, Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero()) {
     mv.init(alpha);
   }
 
   /// \brief print function(for debbuging)
-  static void MvPrint( const Pimpact::MultiField<Field>& mv, std::ostream& os ) {
-    mv.print( os );
+  static void MvPrint(const Pimpact::MultiField<Field>& mv, std::ostream& os) {
+    mv.print(os);
   }
 
 #ifdef HAVE_BELOS_TSQR
-  using tsqr_adaptor_type = Belos::details::StubTsqrAdapter< Pimpact::MultiField<Field> >;
+  using tsqr_adaptor_type = Belos::details::StubTsqrAdapter<Pimpact::MultiField<Field> >;
 #endif
 
 }; // end of class MultiVecTraits
@@ -260,26 +260,26 @@ public:
 /// \brief Partial specialization of \c Belos::OperatorTraits for \c Pimpact::OperatorBase.
 /// it has three template parameters Scalar, Field, and the inner Operator
 /// \note sadly Belos allows only Operators having the same domain and range
-template< class Scalar, class Field >
+template<class Scalar, class Field >
 class OperatorTraits<
   Scalar,
   Pimpact::MultiField<Field>,
   typename Pimpact::OperatorBase<Pimpact::MultiField<Field> > > {
 
 public:
-  /// \brief applys the inner \c Operator, such that \c Y:= \c Op( \c X)
+  /// \brief applys the inner \c Operator, such that \c Y:= \c Op(\c X)
   /// \note up to now only no NOTRANS operators can be handled
   static void
-  Apply( const Pimpact::OperatorBase<Pimpact::MultiField<Field> >& Op,
-         const Pimpact::MultiField<Field>& X,
-         Pimpact::MultiField<Field>& Y,
-         Belos::ETrans trans=NOTRANS) {
-    Op.apply( X, Y, NOTRANS);
+  Apply(const Pimpact::OperatorBase<Pimpact::MultiField<Field> >& Op,
+      const Pimpact::MultiField<Field>& X,
+      Pimpact::MultiField<Field>& Y,
+      Belos::ETrans trans=NOTRANS) {
+    Op.apply(X, Y, NOTRANS);
   }
 
   /// \param Op
   /// \return \c true if Op has a transpose implemented
-  static bool HasApplyTranspose( const Pimpact::OperatorBase<Pimpact::MultiField<Field> > & Op ) {
+  static bool HasApplyTranspose(const Pimpact::OperatorBase<Pimpact::MultiField<Field> > & Op) {
     return Op.hasApplyTranspose();
   }
 

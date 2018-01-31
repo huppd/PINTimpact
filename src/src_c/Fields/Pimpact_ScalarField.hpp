@@ -31,7 +31,7 @@ namespace Pimpact {
 /// vector for a scalar field, e.g.: pressure,
 /// \ingroup Field
 template<class SpaceType>
-class ScalarField : private AbstractField< SpaceType > {
+class ScalarField : private AbstractField<SpaceType > {
 
 public:
 
@@ -43,7 +43,7 @@ protected:
   using OT = typename SpaceT::Ordinal;
 
   using ScalarArray = ST*;
-  using State = Teuchos::Tuple<bool,3>;
+  using State = Teuchos::Tuple<bool, 3>;
 
   using SW = typename SpaceT::SW;
 
@@ -53,7 +53,7 @@ protected:
 
   State exchangedState_;
 
-  const F fType_; /// < make template parameter (default:=S)
+  const F fType_; /// <make template parameter (default:=S)
 
   const OT stride1_;
   const OT stride2_;
@@ -172,8 +172,8 @@ public:
       assert(!consistent_space);
     }
 #endif
-    Teuchos::Tuple<OT,3> da;
-    Teuchos::Tuple<OT,3> db;
+    Teuchos::Tuple<OT, 3> da;
+    Teuchos::Tuple<OT, 3> db;
 
     bool with_d_yes = false;
     for(int dir=0; dir<3; ++dir) {
@@ -184,17 +184,17 @@ public:
     }
 
     if(with_d_yes) {
-      for(OT k=space()->si(fType_,Z,wb); k<=space()->ei(fType_,Z,wb); ++k)
-        for(OT j=space()->si(fType_,Y,wb); j<=space()->ei(fType_,Y,wb); ++j)
-          for(OT i=space()->si(fType_,X,wb); i<=space()->ei(fType_,X,wb); ++i)
-            at(i,j,k) = alpha*a.at((i-1)*da[0]+1, (j-1)*da[1]+1,(k-1)*da[2]+1)
-              + beta*b.at((i-1)*db[0]+1, (j-1)*db[1]+1,(k-1)*db[2]+1);
+      for(OT k=space()->si(fType_, Z, wb); k<=space()->ei(fType_, Z, wb); ++k)
+        for(OT j=space()->si(fType_, Y, wb); j<=space()->ei(fType_, Y, wb); ++j)
+          for(OT i=space()->si(fType_, X, wb); i<=space()->ei(fType_, X, wb); ++i)
+            at(i, j, k) = alpha*a.at((i-1)*da[0]+1, (j-1)*da[1]+1, (k-1)*da[2]+1)
+              + beta*b.at((i-1)*db[0]+1, (j-1)*db[1]+1, (k-1)*db[2]+1);
     }
     else {
-      for(OT k=space()->si(fType_,Z,wb); k<=space()->ei(fType_,Z,wb); ++k)
-        for(OT j=space()->si(fType_,Y,wb); j<=space()->ei(fType_,Y,wb); ++j)
-          for(OT i=space()->si(fType_,X,wb); i<=space()->ei(fType_,X,wb); ++i)
-            at(i,j,k) = alpha*a.at(i, j, k) + beta*b.at(i, j, k);
+      for(OT k=space()->si(fType_, Z, wb); k<=space()->ei(fType_, Z, wb); ++k)
+        for(OT j=space()->si(fType_, Y, wb); j<=space()->ei(fType_, Y, wb); ++j)
+          for(OT i=space()->si(fType_, X, wb); i<=space()->ei(fType_, X, wb); ++i)
+            at(i, j, k) = alpha*a.at(i, j, k) + beta*b.at(i, j, k);
     }
 
     changed();
@@ -205,17 +205,17 @@ public:
   /// vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void abs(const ScalarField& y, const B bcYes=B::Y) {
 
     for(int dir=0; dir<3; ++dir)
       assert(space()->nLoc(dir)==y.space()->nLoc(dir));
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i)
-          at(i,j,k) = std::fabs(y.at(i,j,k));
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+          at(i, j, k) = std::fabs(y.at(i, j, k));
 
     changed();
   }
@@ -224,7 +224,7 @@ public:
   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1, \dots, n  \f]
   /// \return Reference to this object
   void reciprocal(const ScalarField& y, const B bcYes=B::Y) {
 
@@ -235,10 +235,10 @@ public:
     }
 #endif
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i)
-          at(i,j,k) = Teuchos::ScalarTraits<ST>::one()/ y.at(i,j,k);
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+          at(i, j, k) = Teuchos::ScalarTraits<ST>::one()/ y.at(i, j, k);
 
     changed();
   }
@@ -247,10 +247,10 @@ public:
   /// \brief Scale each element of the vector with \c alpha.
   void scale(const ST alpha, const B wB=B::Y) {
 
-    for(OT k=space()->si(fType_,Z,wB); k<=space()->ei(fType_,Z,wB); ++k)
-      for(OT j=space()->si(fType_,Y,wB); j<=space()->ei(fType_,Y,wB); ++j)
-        for(OT i=space()->si(fType_,X,wB); i<=space()->ei(fType_,X,wB); ++i)
-          at(i,j,k) *= alpha;
+    for(OT k=space()->si(fType_, Z, wB); k<=space()->ei(fType_, Z, wB); ++k)
+      for(OT j=space()->si(fType_, Y, wB); j<=space()->ei(fType_, Y, wB); ++j)
+        for(OT i=space()->si(fType_, X, wB); i<=space()->ei(fType_, X, wB); ++i)
+          at(i, j, k) *= alpha;
 
     changed();
   }
@@ -259,7 +259,7 @@ public:
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1, \dots, n \f]
   void scale(const ScalarField& y, const B bcYes=B::Y) {
 
 #ifndef NDEBUG
@@ -269,10 +269,10 @@ public:
     }
 #endif
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i)
-          at(i,j,k) *= y.at(i,j,k);
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+          at(i, j, k) *= y.at(i, j, k);
     changed();
   }
 
@@ -293,11 +293,11 @@ public:
     ST b = Teuchos::ScalarTraits<ST>::zero();
     //auto coord = space()->getCoordinatesLocal();
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i) {
-          //ST volume = coord->dx(fType_,X,i) * coord->dx(fType_,Y,j) * coord->dx(fType_,Z,k);
-          b += /*volume**/at(i,j,k)*y.at(i,j,k);
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i) {
+          //ST volume = coord->dx(fType_, X, i) * coord->dx(fType_, Y, j) * coord->dx(fType_, Z, k);
+          b += /*volume**/at(i, j, k)*y.at(i, j, k);
         }
 
     return b;
@@ -313,10 +313,10 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i)
-          normvec += std::fabs(at(i,j,k));
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+          normvec += std::fabs(at(i, j, k));
 
     return normvec;
   }
@@ -327,10 +327,10 @@ public:
     //return normLocL2(bcYes);
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i)
-          normvec += std::pow(at(i,j,k), 2);
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+          normvec += std::pow(at(i, j, k), 2);
 
     return normvec;
   }
@@ -340,10 +340,10 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i)
-          normvec = std::fmax(std::fabs(at(i,j,k)), normvec);
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+          normvec = std::fmax(std::fabs(at(i, j, k)), normvec);
 
     return normvec;
   }
@@ -355,11 +355,11 @@ public:
 
     auto coord = space()->getCoordinatesLocal();
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i) {
-          ST volume = coord->dx(fType_,X,i) * coord->dx(fType_,Y,j) * coord->dx(fType_,Z,k);
-          normvec += volume*std::pow(at(i,j,k), 2);
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i) {
+          ST volume = coord->dx(fType_, X, i) * coord->dx(fType_, Y, j) * coord->dx(fType_, Z, k);
+          normvec += volume*std::pow(at(i, j, k), 2);
         }
 
     return normvec;
@@ -380,7 +380,7 @@ public:
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
   constexpr ST norm(const ENorm type=ENorm::Two, const B bcYes=B::Y) {
 
-    ST normvec = this->reduce(comm(), normLoc(type,bcYes),
+    ST normvec = this->reduce(comm(), normLoc(type, bcYes),
         (ENorm::Inf==type)?MPI_MAX:MPI_SUM);
 
     normvec = (ENorm::Two==type||ENorm::L2==type) ?
@@ -404,10 +404,10 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i)
-          normvec += at(i,j,k)*at(i,j,k)*weights.at(i,j,k)*weights.at(i,j,k);
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+          normvec += at(i, j, k)*at(i, j, k)*weights.at(i, j, k)*weights.at(i, j, k);
 
     return normvec;
   }
@@ -453,16 +453,16 @@ public:
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(-0.5, 0.5);
 
-    for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-      for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-        for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i)
-          at(i,j,k) = dis(gen);
+    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+          at(i, j, k) = dis(gen);
 
     if(!space()->getProcGrid()->participating())
-      for(OT k=space()->si(fType_,Z,B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-        for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j)
-          for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i)
-            at(i,j,k) = Teuchos::ScalarTraits<ST>::zero();
+      for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+        for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
+          for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i)
+            at(i, j, k) = Teuchos::ScalarTraits<ST>::zero();
     changed();
   }
 
@@ -478,16 +478,16 @@ public:
       exchangedState_[Y] = true;
       exchangedState_[Z] = true;
     } else {
-      for(OT k=space()->si(fType_,Z,bcYes); k<=space()->ei(fType_,Z,bcYes); ++k)
-        for(OT j=space()->si(fType_,Y,bcYes); j<=space()->ei(fType_,Y,bcYes); ++j)
-          for(OT i=space()->si(fType_,X,bcYes); i<=space()->ei(fType_,X,bcYes); ++i)
-            at(i,j,k) = alpha;
+      for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
+        for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
+          for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+            at(i, j, k) = alpha;
 
       if(!space()->getProcGrid()->participating())
-        for(OT k=space()->si(fType_,Z,B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-          for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j)
-            for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i)
-              at(i,j,k) = Teuchos::ScalarTraits<ST>::zero();
+        for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i)
+              at(i, j, k) = Teuchos::ScalarTraits<ST>::zero();
       changed();
     }
   }
@@ -525,28 +525,28 @@ public:
 
   /// \brief initializes field from a lambda function
   ///
-  /// \tparam Functor need a to have an Operator (x,y,z)->u
-  /// \param func  note that x,y,z, should be defined between 0 and one the scaling happens here
+  /// \tparam Functor need a to have an Operator (x, y, z)->u
+  /// \param func  note that x, y, z, should be defined between 0 and one the scaling happens here
   template<typename Functor>
   void initFromFunction(Functor&& func, const Add add=Add::N) {
 
-    Teuchos::RCP<const CoordinatesLocal<ST,OT,SpaceT::dimension,SpaceT::dimNC> > coord =
+    Teuchos::RCP<const CoordinatesLocal<ST, OT, SpaceT::dimension, SpaceT::dimNC> > coord =
       space()->getCoordinatesLocal();
-    Teuchos::RCP<const DomainSize<ST,SpaceT::sdim> > domain = space()->getDomainSize();
+    Teuchos::RCP<const DomainSize<ST, SpaceT::sdim> > domain = space()->getDomainSize();
 
     const B bY = B::Y;
 
-    for(OT k=space()->si(fType_,Z,bY); k<=space()->ei(fType_,Z,bY); ++k)
-      for(OT j=space()->si(fType_,Y,bY); j<=space()->ei(fType_,Y,bY); ++j)
-        for(OT i=space()->si(fType_,X,bY); i<=space()->ei(fType_,X,bY); ++i) {
+    for(OT k=space()->si(fType_, Z, bY); k<=space()->ei(fType_, Z, bY); ++k)
+      for(OT j=space()->si(fType_, Y, bY); j<=space()->ei(fType_, Y, bY); ++j)
+        for(OT i=space()->si(fType_, X, bY); i<=space()->ei(fType_, X, bY); ++i) {
           ST val = func(
-                (coord->getX(fType_,X,i)-domain->getOrigin(X))/domain->getSize(X),
-                (coord->getX(fType_,Y,j)-domain->getOrigin(Y))/domain->getSize(Y),
-                (coord->getX(fType_,Z,k)-domain->getOrigin(Z))/domain->getSize(Z));
+                (coord->getX(fType_, X, i)-domain->getOrigin(X))/domain->getSize(X),
+                (coord->getX(fType_, Y, j)-domain->getOrigin(Y))/domain->getSize(Y),
+                (coord->getX(fType_, Z, k)-domain->getOrigin(Z))/domain->getSize(Z));
           if(Add::Y==add)
-            at(i,j,k) += val;
+            at(i, j, k) += val;
           else
-            at(i,j,k) = val;
+            at(i, j, k) = val;
         }
     changed();
   }
@@ -615,10 +615,10 @@ public:
           para.get<ST>("sig_z", 0.2)
         };
 
-        Teuchos::RCP<const DomainSize<ST,SpaceT::sdim> > domain = space()->getDomainSize();
+        Teuchos::RCP<const DomainSize<ST, SpaceT::sdim> > domain = space()->getDomainSize();
 
         initFromFunction(
-            [&xc,&amp,&sig,&domain] (ST x_, ST y_, ST z_)->ST {
+            [&xc, &amp, &sig, &domain] (ST x_, ST y_, ST z_)->ST {
 
             ST x = x_*domain->getSize(X) + domain->getOrigin(X);
             ST y = y_*domain->getSize(Y) + domain->getOrigin(Y);
@@ -679,12 +679,12 @@ public:
         ST xc[3] = { 0.5, 0.5, 0.5 };
         ST amp = alpha;
         ST sig[3] = { 0.2, 0.2, 0.2 };
-        initFromFunction([&xc,&amp,&sig] (ST x, ST y, ST z)->ST {
+        initFromFunction([&xc, &amp, &sig] (ST x, ST y, ST z)->ST {
             return amp*std::exp(
               -std::pow((x-xc[0])/sig[0], 2)
               -std::pow((x-xc[1])/sig[1], 2)
               -std::pow((x-xc[2])/sig[2], 2)); }
-           );
+            );
         break;
       }
     }
@@ -706,7 +706,7 @@ public:
     case(Belos::NOTRANS): {
       switch(fType_) {
       case(F::U):  {
-        using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
+        using StencD = Stencil<ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
         StencD c_(space()->nLoc(X));
 
@@ -732,39 +732,39 @@ public:
             space()->getCoordinatesLocal()->getX(F::S, X),
             c_.get());
 
-        if(0 < space()->bcl(X)) {
-          OT i = space()->si(fType_,X,B::Y);
-          for(OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-            for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j) {
-              at(i,j,k) = 0.;
+        if(0 <space()->bcl(X)) {
+          OT i = space()->si(fType_, X, B::Y);
+          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+            for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j) {
+              at(i, j, k) = 0.;
               if(BC::Dirichlet==space()->bcl(X)) {
                 for(OT ii=0; ii<=SW::DU(X); ++ii)
-                  at(i,j,k) -= at(1+ii,j,k)*space()->getInterpolateV2S()->getC(X,1,ii)/space()->getInterpolateV2S()->getC(X,1,-1);
+                  at(i, j, k) -= at(1+ii, j, k)*space()->getInterpolateV2S()->getC(X, 1, ii)/space()->getInterpolateV2S()->getC(X, 1, -1);
               } else if(BC::Neumann==space()->bcl(X)) {
                 for(OT ii=0; ii<=SW::DU(X); ++ii)
-                  at(i,j,k) -= at(1+ii,j,k)*c_(1,ii)/c_(1,-1);
+                  at(i, j, k) -= at(1+ii, j, k)*c_(1, ii)/c_(1, -1);
               }
             }
         }
-        if(0 < space()->bcu(X)) {
+        if(0 <space()->bcu(X)) {
 
-          OT i = space()->ei(fType_,X,B::Y);
-          for(OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-            for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j) {
-              at(i,j,k) = 0.;
+          OT i = space()->ei(fType_, X, B::Y);
+          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+            for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j) {
+              at(i, j, k) = 0.;
               if(BC::Dirichlet==space()->bcu(X)) {
                 for(OT ii=SW::DL(X); ii<=-1; ++ii)
-                  at(i,j,k) -= space()->getInterpolateV2S()->getC(X,i,ii)*at(i+ii,j,k)/space()->getInterpolateV2S()->getC(X,i,0);
+                  at(i, j, k) -= space()->getInterpolateV2S()->getC(X, i, ii)*at(i+ii, j, k)/space()->getInterpolateV2S()->getC(X, i, 0);
               } else if(BC::Neumann==space()->bcu(X)) {
                 for(OT ii=SW::DL(X); ii<=-1; ++ii)
-                  at(i,j,k) -= c_(i,ii)*at(i+ii,j,k)/c_(i,0);
+                  at(i, j, k) -= c_(i, ii)*at(i+ii, j, k)/c_(i, 0);
               }
             }
         }
         break;
       }
       case(F::V) : {
-        using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
+        using StencD = Stencil<ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
         StencD c_(space()->nLoc(Y));
 
@@ -790,38 +790,38 @@ public:
             space()->getCoordinatesLocal()->getX(F::S, Y),
             c_.get());
 
-        if(0 < space()->bcl(Y)) {
-          OT j = space()->si(fType_,Y,B::Y);
-          for(OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-            for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i) {
-              at(i,j,k) = 0.;
+        if(0 <space()->bcl(Y)) {
+          OT j = space()->si(fType_, Y, B::Y);
+          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+              at(i, j, k) = 0.;
               if(BC::Dirichlet==space()->bcl(Y)) {
                 for(OT jj=0; jj<=SW::DU(Y); ++jj)
-                  at(i,j,k) -= at(i,1+jj,k)*space()->getInterpolateV2S()->getC(Y,1,jj)/space()->getInterpolateV2S()->getC(Y,1,-1);
+                  at(i, j, k) -= at(i, 1+jj, k)*space()->getInterpolateV2S()->getC(Y, 1, jj)/space()->getInterpolateV2S()->getC(Y, 1, -1);
               } else if(BC::Neumann==space()->bcl(Y)) {
                 for(OT jj=0; jj<=SW::DU(Y); ++jj)
-                  at(i,j,k) -= at(i,1+jj,k)*c_(1,jj)/c_(1,-1);
+                  at(i, j, k) -= at(i, 1+jj, k)*c_(1, jj)/c_(1, -1);
               }
             }
         }
-        if(0 < space()->bcu(Y)) {
-          OT j = space()->ei(fType_,Y,B::Y);
-          for(OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-            for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i) {
-              at(i,j,k) = 0.;
+        if(0 <space()->bcu(Y)) {
+          OT j = space()->ei(fType_, Y, B::Y);
+          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+              at(i, j, k) = 0.;
               if(BC::Dirichlet==space()->bcu(Y)) {
                 for(OT jj=SW::DL(Y); jj<=-1; ++jj)
-                  at(i,j,k) -= space()->getInterpolateV2S()->getC(Y,j,jj)*at(i,j+jj,k)/space()->getInterpolateV2S()->getC(Y,j,0);
+                  at(i, j, k) -= space()->getInterpolateV2S()->getC(Y, j, jj)*at(i, j+jj, k)/space()->getInterpolateV2S()->getC(Y, j, 0);
               } else if(BC::Neumann==space()->bcu(Y)) {
                 for(OT jj=SW::DL(Y); jj<=-1; ++jj)
-                  at(i,j,k) -= c_(j,jj)*at(i,j+jj,k)/c_(j,0);
+                  at(i, j, k) -= c_(j, jj)*at(i, j+jj, k)/c_(j, 0);
               }
             }
         }
         break;
       }
       case(F::W) : {
-        using StencD = Stencil< ST, OT, 0, SW::DL(0), SW::DU(0) >;
+        using StencD = Stencil<ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
         StencD c_(space()->nLoc(Z));
 
@@ -848,30 +848,30 @@ public:
             c_.get());
 
         if(space()->bcl(Z) > 0) {
-          OT k = space()->si(fType_,Z,B::Y);
-          for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j)
-            for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i) {
-              at(i,j,k) = 0.;
+          OT k = space()->si(fType_, Z, B::Y);
+          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+              at(i, j, k) = 0.;
               if(BC::Dirichlet==space()->bcl(Z)) {
                 for(OT kk=0; kk<=SW::DU(Z); ++kk)
-                  at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,1,kk)*at(i,j,1+kk)/space()->getInterpolateV2S()->getC(Z,1,-1);
+                  at(i, j, k) -= space()->getInterpolateV2S()->getC(Z, 1, kk)*at(i, j, 1+kk)/space()->getInterpolateV2S()->getC(Z, 1, -1);
               } else if(BC::Neumann==space()->bcl(Z)) {
                 for(OT kk=0; kk<=SW::DU(Z); ++kk)
-                  at(i,j,k) -= c_(1,kk)*at(i,j,1+kk)/c_(1,-1);
+                  at(i, j, k) -= c_(1, kk)*at(i, j, 1+kk)/c_(1, -1);
               }
             }
         }
         if(space()->bcu(Z) > 0) {
-          OT k = space()->ei(fType_,Z,B::Y);
-          for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j)
-            for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i) {
-              at(i,j,k) = 0.;
+          OT k = space()->ei(fType_, Z, B::Y);
+          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+              at(i, j, k) = 0.;
               if(BC::Dirichlet==space()->bcu(Z)) {
                 for(OT kk=SW::DL(Z); kk<=-1; ++kk)
-                  at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,k,kk)*at(i,j,k+kk)/space()->getInterpolateV2S()->getC(Z,k,0);
+                  at(i, j, k) -= space()->getInterpolateV2S()->getC(Z, k, kk)*at(i, j, k+kk)/space()->getInterpolateV2S()->getC(Z, k, 0);
               } else if(BC::Neumann==space()->bcu(Z)) {
                 for(OT kk=SW::DL(Z); kk<=-1; ++kk)
-                  at(i,j,k) -= c_(k,kk)*at(i,j,k+kk)/c_(k,0);
+                  at(i, j, k) -= c_(k, kk)*at(i, j, k+kk)/c_(k, 0);
               }
             }
         }
@@ -888,65 +888,65 @@ public:
       switch(fType_) {
       case(F::U) : {
         if(space()->bcl(X) > 0) {
-          OT i = space()->si(fType_,X,B::Y);
-          for(OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-            for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j) {
+          OT i = space()->si(fType_, X, B::Y);
+          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+            for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j) {
               for(OT ii=0; ii<=SW::DU(X); ++ii)
-                at(i+ii+1,j,k) -= at(i,j,k)*space()->getInterpolateV2S()->getC(X,1,ii)/space()->getInterpolateV2S()->getC(X,1,-1);
-              at(i,j,k) = 0.;
+                at(i+ii+1, j, k) -= at(i, j, k)*space()->getInterpolateV2S()->getC(X, 1, ii)/space()->getInterpolateV2S()->getC(X, 1, -1);
+              at(i, j, k) = 0.;
             }
         }
         if(space()->bcu(X) > 0) {
-          OT i = space()->ei(fType_,X,B::Y);
-          for(OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-            for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j) {
+          OT i = space()->ei(fType_, X, B::Y);
+          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+            for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j) {
               for(OT ii=SW::DL(X); ii<=-1; ++ii)
-                at(i+ii,j,k) -= space()->getInterpolateV2S()->getC(X,i,ii)*at(i,j,k)/space()->getInterpolateV2S()->getC(X,i,0);
-              at(i,j,k) = 0.;
+                at(i+ii, j, k) -= space()->getInterpolateV2S()->getC(X, i, ii)*at(i, j, k)/space()->getInterpolateV2S()->getC(X, i, 0);
+              at(i, j, k) = 0.;
             }
         }
         break;
       }
       case(F::V) : {
         if(space()->bcl(Y) > 0) {
-          OT j = space()->si(fType_,Y,B::Y);
-          for(OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-            for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i) {
+          OT j = space()->si(fType_, Y, B::Y);
+          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
               for(OT jj=0; jj<=SW::DU(Y); ++jj)
-                at(i,j+jj+1,k) -= at(i,j,k)*space()->getInterpolateV2S()->getC(Y,1,jj)/space()->getInterpolateV2S()->getC(Y,1,-1);
-              at(i,j,k) = 0.;
+                at(i, j+jj+1, k) -= at(i, j, k)*space()->getInterpolateV2S()->getC(Y, 1, jj)/space()->getInterpolateV2S()->getC(Y, 1, -1);
+              at(i, j, k) = 0.;
             }
         }
         if(space()->bcu(Y) > 0) {
-          OT j = space()->ei(fType_,Y,B::Y);
-          for(OT k=space()->si(fType_,Z, B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-            for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i) {
+          OT j = space()->ei(fType_, Y, B::Y);
+          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
               for(OT jj=SW::DL(Y); jj<=-1; ++jj)
-                at(i,j+jj,k) -= space()->getInterpolateV2S()->getC(Y,j,jj)*at(i,j,k)/space()->getInterpolateV2S()->getC(Y,j,0);
-              at(i,j,k) = 0.;
+                at(i, j+jj, k) -= space()->getInterpolateV2S()->getC(Y, j, jj)*at(i, j, k)/space()->getInterpolateV2S()->getC(Y, j, 0);
+              at(i, j, k) = 0.;
             }
         }
         break;
       }
       case(F::W) : {
         if(space()->bcl(Z) > 0) {
-          OT k = space()->si(fType_,Z,B::Y);
-          for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j)
-            for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i) {
-              at(i,j,k) /= space()->getInterpolateV2S()->getC(Z,1,-1);
+          OT k = space()->si(fType_, Z, B::Y);
+          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+              at(i, j, k) /= space()->getInterpolateV2S()->getC(Z, 1, -1);
               for(OT kk=0; kk<=SW::DU(Z); ++kk)
-                at(i,j,k+kk+1) -= space()->getInterpolateV2S()->getC(Z,1,kk)*at(i,j,k);
-              at(i,j,k) = 0.;
+                at(i, j, k+kk+1) -= space()->getInterpolateV2S()->getC(Z, 1, kk)*at(i, j, k);
+              at(i, j, k) = 0.;
             }
         }
         if(space()->bcu(Z) > 0) {
-          OT k = space()->ei(fType_,Z,B::Y);
-          for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j)
-            for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i) {
-              at(i,j,k) /= space()->getInterpolateV2S()->getC(Z,k,0);
+          OT k = space()->ei(fType_, Z, B::Y);
+          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+              at(i, j, k) /= space()->getInterpolateV2S()->getC(Z, k, 0);
               for(OT kk=SW::DL(Z); kk<=-1; ++kk)
-                at(i,j,k+kk) -= space()->getInterpolateV2S()->getC(Z,k,kk)*at(i,j,k);
-              at(i,j,k) = 0.;
+                at(i, j, k+kk) -= space()->getInterpolateV2S()->getC(Z, k, kk)*at(i, j, k);
+              at(i, j, k) = 0.;
             }
         }
         break;
@@ -968,18 +968,18 @@ public:
 
       ST pre0 = Teuchos::ScalarTraits<ST>::zero();
 
-      for(OT k=space()->si(fType_,Z); k<=space()->ei(fType_,Z); ++k)
-        for(OT j=space()->si(fType_,Y); j<=space()->ei(fType_,Y); ++j)
-          for(OT i=space()->si(fType_,X); i<=space()->ei(fType_,X); ++i)
-            pre0 += at(i,j,k);
+      for(OT k=space()->si(fType_, Z); k<=space()->ei(fType_, Z); ++k)
+        for(OT j=space()->si(fType_, Y); j<=space()->ei(fType_, Y); ++j)
+          for(OT i=space()->si(fType_, X); i<=space()->ei(fType_, X); ++i)
+            pre0 += at(i, j, k);
 
       pre0 = this->reduce(space()->comm(), pre0);
       pre0 /= static_cast<ST>(getLength());
 
-      for(OT k=space()->si(fType_,Z); k<=space()->ei(fType_,Z); ++k)
-        for(OT j=space()->si(fType_,Y); j<=space()->ei(fType_,Y); ++j)
-          for(OT i=space()->si(fType_,X); i<=space()->ei(fType_,X); ++i)
-            const_cast<ScalarField*>(this)->at(i,j,k) -= pre0;
+      for(OT k=space()->si(fType_, Z); k<=space()->ei(fType_, Z); ++k)
+        for(OT j=space()->si(fType_, Y); j<=space()->ei(fType_, Y); ++j)
+          for(OT i=space()->si(fType_, X); i<=space()->ei(fType_, X); ++i)
+            const_cast<ScalarField*>(this)->at(i, j, k) -= pre0;
     }
   }
 
@@ -988,20 +988,20 @@ public:
   /// Print the vector.  To be used for debugging only.
   void print(std::ostream& out=std::cout)  const {
 
-    out << "--- FieldType: " << fType_ << "--- \n";
-    out << "--- StorageSize: " << getStorageSize() << "---\n";
-    out << "--- owning: " << owning_ << "---\n";
-    out << "--- exchangedState: " << exchangedState_ << "--\n\n";
-    out << "i,\tj,\tk,\tphi(i,j,k)\n";
+    out <<"--- FieldType: " <<fType_ <<"--- \n";
+    out <<"--- StorageSize: " <<getStorageSize() <<"---\n";
+    out <<"--- owning: " <<owning_ <<"---\n";
+    out <<"--- exchangedState: " <<exchangedState_ <<"--\n\n";
+    out <<"i, \tj, \tk, \tphi(i, j, k)\n";
 
-    Teuchos::Tuple<OT,3> cw;
+    Teuchos::Tuple<OT, 3> cw;
     for(int i=0; i<3; ++i)
       cw[i] = space()->nLoc(i) + SW::BU(i) - SW::BL(i) + 1;
 
-    for(OT k=space()->si(fType_,Z,B::Y); k<=space()->ei(fType_,Z,B::Y); ++k)
-      for(OT j=space()->si(fType_,Y,B::Y); j<=space()->ei(fType_,Y,B::Y); ++j)
-        for(OT i=space()->si(fType_,X,B::Y); i<=space()->ei(fType_,X,B::Y); ++i)
-          out << i << "\t" << j << "\t" << k << "\t" << at(i,j,k) << "\n";
+    for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
+      for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
+        for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i)
+          out <<i <<"\t" <<j <<"\t" <<k <<"\t" <<at(i, j, k) <<"\n";
   }
 
 
@@ -1011,17 +1011,17 @@ public:
     if(0==space()->rankS())
       switch(fType_) {
         case F::U:
-          std::cout << "writing velocity field x(" << count << ") ...\n";
+          std::cout <<"writing velocity field x(" <<count <<") ...\n";
           break;
         case F::V:
-          std::cout << "writing velocity field y(" << count << ") ...\n";
+          std::cout <<"writing velocity field y(" <<count <<") ...\n";
           break;
         case F::W:
-          std::cout << "writing velocity field z(" << count << ") ...\n";
+          std::cout <<"writing velocity field z(" <<count <<") ...\n";
           break;
         case F::S:
-          std::cout << "writing pressure field  (" << count << ") ...\n";
-          Teuchos::Tuple<OT,3> N;
+          std::cout <<"writing pressure field  (" <<count <<") ...\n";
+          Teuchos::Tuple<OT, 3> N;
           for(int i=0; i<3; ++i) {
             N[i] = space()->nGlo(i);
             if(space()->getBCGlobal()->getBCL(i)==Pimpact::BC::Periodic)
@@ -1030,51 +1030,51 @@ public:
           if(!restart) {
             std::ofstream xfile;
             std::ostringstream ss;
-            ss << std::setw(5) << std::setfill('0') << count;
+            ss <<std::setw(5) <<std::setfill('0') <<count;
             std::string fname = "pre_"+ss.str();
             xfile.open(fname+".xmf", std::ofstream::out);
-            xfile<< "<Xdmf xmlns:xi=\"http://www.w3.org/2003/XInclude\" Version=\"2.1\">\n";
-            xfile << "\t<Domain>\n";
-            xfile << "\t\t<Grid Name=\"3DRectMesh\" GridType=\"Uniform\">\n";
-            xfile << "\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\"/>\n";
-            xfile << "\t\t\t<Geometry GeometryType=\"VXVYVZ\">\n";
-            xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-            xfile << "\t\t\t\t\tDimensions=\""<< N[0] << "\"\n";
-            xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
-            xfile << "\t\t\t\t\tPrecision=\"8\"\n";
-            xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
-            xfile << "\t\t\t\t\t" << fname << ".h5:/VectorX\n";
-            xfile << "\t\t\t\t</DataItem>\n";
-            xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-            xfile << "\t\t\t\t\tDimensions=\""<< N[1] << "\"\n";
-            xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
-            xfile << "\t\t\t\t\tPrecision=\"8\"\n";
-            xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
-            xfile << "\t\t\t\t\t" << fname << ".h5:/VectorY\n";
-            xfile << "\t\t\t\t</DataItem>\n";
-            xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-            xfile << "\t\t\t\t\tDimensions=\""<< N[2] << "\"\n";
-            xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
-            xfile << "\t\t\t\t\tPrecision=\"8\"\n";
-            xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
-            xfile << "\t\t\t\t\t" << fname << ".h5:/VectorZ\n";
-            xfile << "\t\t\t\t</DataItem>\n";
-            xfile << "\t\t\t</Geometry>\n";
-            xfile << "\t\t\t<Attribute Name=\"Pressure\" AttributeType=\"Scalar\" Center=\"Node\">\n";
-            xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
-            xfile << "\t\t\t\t\t" << fname << ".h5:/pre\n";
-            xfile << "\t\t\t\t</DataItem>\n";
-            xfile << "\t\t\t</Attribute>\n";
-            xfile << "\t\t</Grid>\n";
-            xfile << "\t</Domain>\n";
-            xfile << "</Xdmf>\n";
+            xfile<<"<Xdmf xmlns:xi=\"http://www.w3.org/2003/XInclude\" Version=\"2.1\">\n";
+            xfile <<"\t<Domain>\n";
+            xfile <<"\t\t<Grid Name=\"3DRectMesh\" GridType=\"Uniform\">\n";
+            xfile <<"\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<<N[2] <<" " <<N[1] <<" " <<N[0] <<"\"/>\n";
+            xfile <<"\t\t\t<Geometry GeometryType=\"VXVYVZ\">\n";
+            xfile <<"\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+            xfile <<"\t\t\t\t\tDimensions=\""<<N[0] <<"\"\n";
+            xfile <<"\t\t\t\t\tNumberType=\"Float\"\n";
+            xfile <<"\t\t\t\t\tPrecision=\"8\"\n";
+            xfile <<"\t\t\t\t\tFormat=\"HDF\">\n";
+            xfile <<"\t\t\t\t\t" <<fname <<".h5:/VectorX\n";
+            xfile <<"\t\t\t\t</DataItem>\n";
+            xfile <<"\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+            xfile <<"\t\t\t\t\tDimensions=\""<<N[1] <<"\"\n";
+            xfile <<"\t\t\t\t\tNumberType=\"Float\"\n";
+            xfile <<"\t\t\t\t\tPrecision=\"8\"\n";
+            xfile <<"\t\t\t\t\tFormat=\"HDF\">\n";
+            xfile <<"\t\t\t\t\t" <<fname <<".h5:/VectorY\n";
+            xfile <<"\t\t\t\t</DataItem>\n";
+            xfile <<"\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+            xfile <<"\t\t\t\t\tDimensions=\""<<N[2] <<"\"\n";
+            xfile <<"\t\t\t\t\tNumberType=\"Float\"\n";
+            xfile <<"\t\t\t\t\tPrecision=\"8\"\n";
+            xfile <<"\t\t\t\t\tFormat=\"HDF\">\n";
+            xfile <<"\t\t\t\t\t" <<fname <<".h5:/VectorZ\n";
+            xfile <<"\t\t\t\t</DataItem>\n";
+            xfile <<"\t\t\t</Geometry>\n";
+            xfile <<"\t\t\t<Attribute Name=\"Pressure\" AttributeType=\"Scalar\" Center=\"Node\">\n";
+            xfile <<"\t\t\t\t<DataItem Dimensions=\""<<N[2] <<" " <<N[1] <<" " <<N[0] <<"\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+            xfile <<"\t\t\t\t\t" <<fname <<".h5:/pre\n";
+            xfile <<"\t\t\t\t</DataItem>\n";
+            xfile <<"\t\t\t</Attribute>\n";
+            xfile <<"\t\t</Grid>\n";
+            xfile <<"\t</Domain>\n";
+            xfile <<"</Xdmf>\n";
             xfile.close();
           }
           break;
     }
 
     if(!restart) {
-      Teuchos::RCP< ScalarField<SpaceT> > temp;
+      Teuchos::RCP<ScalarField<SpaceT> > temp;
 
       if(F::S != fType_) {
         temp = Teuchos::rcp(new ScalarField<SpaceT>(space(), Owning::Y, F::S));
@@ -1102,13 +1102,13 @@ public:
           count,
           (F::S==fType_)?9:10,
           (F::S==fType_)?s_:temp->s_,
-          space()->getCoordinatesGlobal()->getX(F::S,0),
-          space()->getCoordinatesGlobal()->getX(F::S,1),
+          space()->getCoordinatesGlobal()->getX(F::S, 0),
+          space()->getCoordinatesGlobal()->getX(F::S, 1),
           space()->getDomainSize()->getRe(),
           space()->getDomainSize()->getAlpha2());
       } else if(3==SpaceT::sdim) {
 
-        int stride[3] = {1,1,1};
+        int stride[3] = {1, 1, 1};
 
         write_hdf_3D(
             false,
@@ -1132,19 +1132,19 @@ public:
             (F::S==fType_)?9:10,
             stride,
             (F::S==fType_)?s_:temp->s_,
-            space()->getCoordinatesGlobal()->getX(F::S,0),
-            space()->getCoordinatesGlobal()->getX(F::S,1),
-            space()->getCoordinatesGlobal()->getX(F::S,2),
-            space()->getCoordinatesGlobal()->getX(F::U,0),
-            space()->getCoordinatesGlobal()->getX(F::V,1),
-            space()->getCoordinatesGlobal()->getX(F::W,2),
-            space()->getDomainSize()->getRe()/*,*/
+            space()->getCoordinatesGlobal()->getX(F::S, 0),
+            space()->getCoordinatesGlobal()->getX(F::S, 1),
+            space()->getCoordinatesGlobal()->getX(F::S, 2),
+            space()->getCoordinatesGlobal()->getX(F::U, 0),
+            space()->getCoordinatesGlobal()->getX(F::V, 1),
+            space()->getCoordinatesGlobal()->getX(F::W, 2),
+            space()->getDomainSize()->getRe()/*, */
             /*space()->getDomainSize()->getAlpha2()*/);
 
       }
     } else {
 
-      int stride[3] = {1,1,1};
+      int stride[3] = {1, 1, 1};
 
       write_hdf_3D(
           true,
@@ -1168,13 +1168,13 @@ public:
           ((F::S==fType_)?9:10)+7,
           stride,
           s_,
-          space()->getCoordinatesGlobal()->getX(F::S,0),
-          space()->getCoordinatesGlobal()->getX(F::S,1),
-          space()->getCoordinatesGlobal()->getX(F::S,2),
-          space()->getCoordinatesGlobal()->getX(F::U,0),
-          space()->getCoordinatesGlobal()->getX(F::V,1),
-          space()->getCoordinatesGlobal()->getX(F::W,2),
-          space()->getDomainSize()->getRe()/*,*/
+          space()->getCoordinatesGlobal()->getX(F::S, 0),
+          space()->getCoordinatesGlobal()->getX(F::S, 1),
+          space()->getCoordinatesGlobal()->getX(F::S, 2),
+          space()->getCoordinatesGlobal()->getX(F::U, 0),
+          space()->getCoordinatesGlobal()->getX(F::V, 1),
+          space()->getCoordinatesGlobal()->getX(F::W, 2),
+          space()->getDomainSize()->getRe()/*, */
           /*space()->getDomainSize()->getAlpha2() */);
     }
   }
@@ -1273,7 +1273,7 @@ public:
 
   /// \brief updates ghost layers
   void exchange(const int dir) const {
-    int ones[3] = {0,0,0};
+    int ones[3] = {0, 0, 0};
     if(!exchangedState_[dir]) {
       F_exchange(
         static_cast<int>(SpaceT::sdim),
@@ -1364,7 +1364,7 @@ protected:
   ///
   /// \return const reference
   constexpr ST at(const OT i, const OT j, const OT k) {
-    return s_[ index(i,j,k) ];
+    return s_[ index(i, j, k) ];
   }
 
   /// \brief field access
@@ -1375,7 +1375,7 @@ protected:
   ///
   /// \return reference
   ST& at(const OT i, const OT j, const OT k)  {
-    return s_[ index(i,j,k) ];
+    return s_[ index(i, j, k) ];
   }
 
   /// \brief field access
@@ -1394,15 +1394,15 @@ protected:
   /// \brief field access
   ///
   /// \param i index coordinate
-  ST& at(const Teuchos::Tuple<const OT,3>& i) {
-    return s_[ index(i[0],i[1],i[2]) ];
+  ST& at(const Teuchos::Tuple<const OT, 3>& i) {
+    return s_[ index(i[0], i[1], i[2]) ];
   }
 
   /// \brief field access
   ///
   /// \param i index coordinate
-  constexpr ST at(const Teuchos::Tuple<const OT,3>& i) {
-    return s_[ index(i[0],i[1],i[2]) ];
+  constexpr ST at(const Teuchos::Tuple<const OT, 3>& i) {
+    return s_[ index(i[0], i[1], i[2]) ];
   }
 
 public:
@@ -1415,7 +1415,7 @@ public:
   ///
   /// \return const reference
   constexpr ST operator()(const OT i, const OT j, const OT k) {
-    return at(i,j,k);
+    return at(i, j, k);
   }
 
   /// \brief field access
@@ -1426,7 +1426,7 @@ public:
   ///
   /// \return reference
   ST& operator()(const OT i, const OT j, const OT k)  {
-    return at(i,j,k);
+    return at(i, j, k);
   }
 
   /// \brief field access
@@ -1445,13 +1445,13 @@ public:
   /// \brief field access
   ///
   /// \param i index coordinate
-  ST& operator()(const Teuchos::Tuple<const OT,3>& i) {
+  ST& operator()(const Teuchos::Tuple<const OT, 3>& i) {
     return at(i);
   }
   /// \brief field access
   ///
   /// \param i index coordinate
-  constexpr ST operator()(const Teuchos::Tuple<const OT,3>& i) {
+  constexpr ST operator()(const Teuchos::Tuple<const OT, 3>& i) {
     return at(i);
   }
 
@@ -1467,7 +1467,7 @@ public:
 /// \return scalar vector
 /// \relates ScalarField
 template<class SpaceT>
-Teuchos::RCP< ScalarField<SpaceT> >
+Teuchos::RCP<ScalarField<SpaceT> >
 createScalarField(const Teuchos::RCP<const SpaceT >& space, F fType=F::S) {
 
   return Teuchos::rcp(new ScalarField<SpaceT>(space, true, fType));

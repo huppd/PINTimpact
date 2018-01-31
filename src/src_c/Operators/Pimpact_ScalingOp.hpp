@@ -34,23 +34,23 @@ protected:
 
 public:
 
-  ScalingOp( const Teuchos::RCP<FT>& field ): field_(field) {};
+  ScalingOp(const Teuchos::RCP<FT>& field): field_(field) {};
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
-      trans=Belos::NOTRANS ) const {
+      trans=Belos::NOTRANS) const {
 
     y = x;
     y.scale(*field_);
   }
 
-  void assignField( const DomainFieldT& mv ) {};
+  void assignField(const DomainFieldT& mv) {};
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
     return field_->space();
   };
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {}
 
   bool hasApplyTranspose() const {
     return true;
@@ -60,9 +60,9 @@ public:
     return "ScalingOp";
   };
 
-  void print( std::ostream& out=std::cout ) const {
-    out << getLabel() << ":\n";
-    //op_->print( out );
+  void print(std::ostream& out=std::cout) const {
+    out <<getLabel() <<":\n";
+    //op_->print(out);
   }
 
 }; // end of class ScalingOp
@@ -71,10 +71,10 @@ public:
 
 /// \relates ScalingOp
 template<class FT>
-Teuchos::RCP< ScalingOp<FT> > createScalingOp(
-    const Teuchos::RCP<FT>& field ) {
+Teuchos::RCP<ScalingOp<FT> > createScalingOp(
+    const Teuchos::RCP<FT>& field) {
 
-  return Teuchos::rcp( new ScalingOp<FT>(field) );
+  return Teuchos::rcp(new ScalingOp<FT>(field));
 }
 
 

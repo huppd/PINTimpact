@@ -40,29 +40,29 @@ public:
 
   TransferModeOp(
     const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF ):
-    op_( Teuchos::rcp( new InterT( spaceC, spaceF ) ) ) {}
+    const Teuchos::RCP<const CSpaceT>& spaceF):
+    op_(Teuchos::rcp(new InterT(spaceC, spaceF))) {}
 
   TransferModeOp(
     const Teuchos::RCP<const FSpaceT>& spaceC,
     const Teuchos::RCP<const CSpaceT>& spaceF,
-    const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
-    op_( Teuchos::rcp( new InterT( spaceC, spaceF, nb ) ) ) {}
+    const Teuchos::Tuple<int, SpaceT::dimension>& nb):
+    op_(Teuchos::rcp(new InterT(spaceC, spaceF, nb))) {}
 
 
 
   template<class DT, class RT>
-  void apply( const DT& x, RT& y ) const {
+  void apply(const DT& x, RT& y) const {
 
-    op_->apply( x.getCField(), y.getCField() );
-    op_->apply( x.getSField(), y.getSField() );
+    op_->apply(x.getCField(), y.getCField());
+    op_->apply(x.getSField(), y.getSField());
   }
 
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
 
-    out << "=== TransferModeOP ===\n";
-    op_->print( out );
+    out <<"=== TransferModeOP ===\n";
+    op_->print(out);
   }
 
 

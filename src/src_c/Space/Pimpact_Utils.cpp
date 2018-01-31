@@ -2,8 +2,8 @@
 
 
 
-std::string Pimpact::toString( Pimpact::ECoord type ) {
-  switch( type ) {
+std::string Pimpact::toString(Pimpact::ECoord type) {
+  switch(type) {
     case Pimpact::ECoord::X :
       return "X";
     case Pimpact::ECoord::Y :
@@ -17,8 +17,8 @@ std::string Pimpact::toString( Pimpact::ECoord type ) {
 }
 
 
-Pimpact::ECoord& operator++( Pimpact::ECoord& c ) {
-  switch( c ) {
+Pimpact::ECoord& operator++(Pimpact::ECoord& c) {
+  switch(c) {
     case Pimpact::ECoord::X   :
       return c = Pimpact::ECoord::Y;
     case Pimpact::ECoord::Y   :
@@ -33,13 +33,13 @@ Pimpact::ECoord& operator++( Pimpact::ECoord& c ) {
 }
 
 
-bool operator<( const Pimpact::ECoord c, const int i ) {
+bool operator<(const Pimpact::ECoord c, const int i) {
   return static_cast<int>(c)<i;
 }
 
 
-std::string Pimpact::toString( Pimpact::F type ) {
-  switch( type ) {
+std::string Pimpact::toString(Pimpact::F type) {
+  switch(type) {
     case Pimpact::F::U :
       return "U";
     case Pimpact::F::V :
@@ -53,8 +53,8 @@ std::string Pimpact::toString( Pimpact::F type ) {
 }
 
 
-Pimpact::F& operator++( Pimpact::F& c ) {
-  switch( c ) {
+Pimpact::F& operator++(Pimpact::F& c) {
+  switch(c) {
     case Pimpact::F::U   :
       return c = Pimpact::F::V;
     case Pimpact::F::V   :
@@ -69,41 +69,41 @@ Pimpact::F& operator++( Pimpact::F& c ) {
   return c;
 }
 
-bool operator<( const Pimpact::F c, const int i ) {
+bool operator<(const Pimpact::F c, const int i) {
   return static_cast<int>(c)<i;
 }
 
-bool operator==( const Pimpact::F f, const int c ) {
-  if( Pimpact::F::U==f &&  Pimpact::ECoord::X==c ) return true ;
-  else if( Pimpact::F::V==f &&  Pimpact::ECoord::Y==c ) return true;
-  else if( Pimpact::F::W==f &&  Pimpact::ECoord::Z==c ) return true;
+bool operator==(const Pimpact::F f, const int c) {
+  if(Pimpact::F::U==f &&  Pimpact::ECoord::X==c) return true ;
+  else if(Pimpact::F::V==f &&  Pimpact::ECoord::Y==c) return true;
+  else if(Pimpact::F::W==f &&  Pimpact::ECoord::Z==c) return true;
   else return false;
 }
 
-bool operator!=( const Pimpact::F f, const int c ) {
-  if( Pimpact::F::U==f &&  Pimpact::ECoord::X==c ) return false;
-  else if( Pimpact::F::V==f &&  Pimpact::ECoord::Y==c ) return false;
-  else if( Pimpact::F::W==f &&  Pimpact::ECoord::Z==c ) return false;
+bool operator!=(const Pimpact::F f, const int c) {
+  if(Pimpact::F::U==f &&  Pimpact::ECoord::X==c) return false;
+  else if(Pimpact::F::V==f &&  Pimpact::ECoord::Y==c) return false;
+  else if(Pimpact::F::W==f &&  Pimpact::ECoord::Z==c) return false;
   else return true;
 }
 
 
-bool operator==( const int c, const Pimpact::F f ) {
-  if( Pimpact::F::U==f &&  Pimpact::ECoord::X==c ) return true;
-  else if( Pimpact::F::V==f &&  Pimpact::ECoord::Y==c ) return true;
-  else if( Pimpact::F::W==f &&  Pimpact::ECoord::Z==c ) return true;
+bool operator==(const int c, const Pimpact::F f) {
+  if(Pimpact::F::U==f &&  Pimpact::ECoord::X==c) return true;
+  else if(Pimpact::F::V==f &&  Pimpact::ECoord::Y==c) return true;
+  else if(Pimpact::F::W==f &&  Pimpact::ECoord::Z==c) return true;
   else return false;
 }
 
-bool operator!=( const int c, const Pimpact::F& f ) {
-  if( Pimpact::F::U==f &&  Pimpact::ECoord::X==c ) return false;
-  else if( Pimpact::F::V==f &&  Pimpact::ECoord::Y==c ) return false;
-  else if( Pimpact::F::W==f &&  Pimpact::ECoord::Z==c ) return false;
+bool operator!=(const int c, const Pimpact::F& f) {
+  if(Pimpact::F::U==f &&  Pimpact::ECoord::X==c) return false;
+  else if(Pimpact::F::V==f &&  Pimpact::ECoord::Y==c) return false;
+  else if(Pimpact::F::W==f &&  Pimpact::ECoord::Z==c) return false;
   else return true;
 }
 
-std::string Pimpact::toString( Pimpact::EScalarField type ) {
-  switch( type ) {
+std::string Pimpact::toString(Pimpact::EScalarField type) {
+  switch(type) {
     case Pimpact::EScalarField::ConstField : return "constant";
     case Pimpact::EScalarField::Grad2D_inX : return "grad in x";
     case Pimpact::EScalarField::Grad2D_inY : return "grad in y";
@@ -117,86 +117,86 @@ std::string Pimpact::toString( Pimpact::EScalarField type ) {
 }
 
 
-int Pimpact::getDir1( const int dir ) {
+int Pimpact::getDir1(const int dir) {
 
-  int dir1 = ( dir + 1 )%3;
-  int dir2 = ( dir + 2 )%3;
-  if( dir2<dir1 )
+  int dir1 = (dir + 1)%3;
+  int dir2 = (dir + 2)%3;
+  if(dir2<dir1)
     return dir2;
   return dir1;
 }
 
-int Pimpact::getDir2( const int dir ) {
+int Pimpact::getDir2(const int dir) {
 
-  int dir1 = ( dir + 1 )%3;
-  int dir2 = ( dir + 2 )%3;
-  if( dir2>dir1 )
+  int dir1 = (dir + 1)%3;
+  int dir2 = (dir + 2)%3;
+  if(dir2>dir1)
     return dir2;
   return dir1;
 }
 
 
 void Pimpact::setBoundaryConditions(
-    const Teuchos::RCP<Teuchos::ParameterList>& pl , int dtype ) {
+    const Teuchos::RCP<Teuchos::ParameterList>& pl , int dtype) {
 
-  switch( static_cast<Pimpact::EDomainType>(dtype) ) {
+  switch(static_cast<Pimpact::EDomainType>(dtype)) {
     case Pimpact::AllDirichlet:
-      pl->sublist("boundary conditions").set<int>( "lower X", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "upper X", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "lower Y", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "upper Y", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "lower Z", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "upper Z", Pimpact::BC::Dirichlet );
+      pl->sublist("boundary conditions").set<int>("lower X", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("upper X", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("lower Y", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("upper Y", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("lower Z", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("upper Z", Pimpact::BC::Dirichlet);
       break;
     case Pimpact::AllPeriodic:
-      pl->sublist("boundary conditions").set<int>( "lower X", Pimpact::BC::Periodic );
-      pl->sublist("boundary conditions").set<int>( "upper X", Pimpact::BC::Periodic );
-      pl->sublist("boundary conditions").set<int>( "lower Y", Pimpact::BC::Periodic );
-      pl->sublist("boundary conditions").set<int>( "upper Y", Pimpact::BC::Periodic );
-      pl->sublist("boundary conditions").set<int>( "lower Z", Pimpact::BC::Periodic );
-      pl->sublist("boundary conditions").set<int>( "upper Z", Pimpact::BC::Periodic );
+      pl->sublist("boundary conditions").set<int>("lower X", Pimpact::BC::Periodic);
+      pl->sublist("boundary conditions").set<int>("upper X", Pimpact::BC::Periodic);
+      pl->sublist("boundary conditions").set<int>("lower Y", Pimpact::BC::Periodic);
+      pl->sublist("boundary conditions").set<int>("upper Y", Pimpact::BC::Periodic);
+      pl->sublist("boundary conditions").set<int>("lower Z", Pimpact::BC::Periodic);
+      pl->sublist("boundary conditions").set<int>("upper Z", Pimpact::BC::Periodic);
       break;
     case Pimpact::AllNeumann:
-      pl->sublist("boundary conditions").set<int>( "lower X", Pimpact::BC::Neumann );
-      pl->sublist("boundary conditions").set<int>( "upper X", Pimpact::BC::Neumann );
-      pl->sublist("boundary conditions").set<int>( "lower Y", Pimpact::BC::Neumann );
-      pl->sublist("boundary conditions").set<int>( "upper Y", Pimpact::BC::Neumann );
-      pl->sublist("boundary conditions").set<int>( "lower Z", Pimpact::BC::Neumann );
-      pl->sublist("boundary conditions").set<int>( "upper Z", Pimpact::BC::Neumann );
+      pl->sublist("boundary conditions").set<int>("lower X", Pimpact::BC::Neumann);
+      pl->sublist("boundary conditions").set<int>("upper X", Pimpact::BC::Neumann);
+      pl->sublist("boundary conditions").set<int>("lower Y", Pimpact::BC::Neumann);
+      pl->sublist("boundary conditions").set<int>("upper Y", Pimpact::BC::Neumann);
+      pl->sublist("boundary conditions").set<int>("lower Z", Pimpact::BC::Neumann);
+      pl->sublist("boundary conditions").set<int>("upper Z", Pimpact::BC::Neumann);
       break;
     case Pimpact::AllSymmetric:
-      pl->sublist("boundary conditions").set<int>( "lower X", Pimpact::BC::Symmetry );
-      pl->sublist("boundary conditions").set<int>( "upper X", Pimpact::BC::Symmetry );
-      pl->sublist("boundary conditions").set<int>( "lower Y", Pimpact::BC::Symmetry );
-      pl->sublist("boundary conditions").set<int>( "upper Y", Pimpact::BC::Symmetry );
-      pl->sublist("boundary conditions").set<int>( "lower Z", Pimpact::BC::Symmetry );
-      pl->sublist("boundary conditions").set<int>( "upper Z", Pimpact::BC::Symmetry );
+      pl->sublist("boundary conditions").set<int>("lower X", Pimpact::BC::Symmetry);
+      pl->sublist("boundary conditions").set<int>("upper X", Pimpact::BC::Symmetry);
+      pl->sublist("boundary conditions").set<int>("lower Y", Pimpact::BC::Symmetry);
+      pl->sublist("boundary conditions").set<int>("upper Y", Pimpact::BC::Symmetry);
+      pl->sublist("boundary conditions").set<int>("lower Z", Pimpact::BC::Symmetry);
+      pl->sublist("boundary conditions").set<int>("upper Z", Pimpact::BC::Symmetry);
       break;
     case Pimpact::Dirichelt2DChannel:
-      pl->sublist("boundary conditions").set<int>( "lower X", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "upper X", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "lower Y", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "upper Y", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "lower Z", Pimpact::BC::Periodic );
-      pl->sublist("boundary conditions").set<int>( "upper Z", Pimpact::BC::Periodic );
+      pl->sublist("boundary conditions").set<int>("lower X", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("upper X", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("lower Y", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("upper Y", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("lower Z", Pimpact::BC::Periodic);
+      pl->sublist("boundary conditions").set<int>("upper Z", Pimpact::BC::Periodic);
       break;
     case Pimpact::Periodic2DChannel:
-      pl->sublist("boundary conditions").set<int>( "lower X", Pimpact::BC::Periodic );
-      pl->sublist("boundary conditions").set<int>( "upper X", Pimpact::BC::Periodic );
-      pl->sublist("boundary conditions").set<int>( "lower Y", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "upper Y", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "lower Z", Pimpact::BC::Periodic );
-      pl->sublist("boundary conditions").set<int>( "upper Z", Pimpact::BC::Periodic );
+      pl->sublist("boundary conditions").set<int>("lower X", Pimpact::BC::Periodic);
+      pl->sublist("boundary conditions").set<int>("upper X", Pimpact::BC::Periodic);
+      pl->sublist("boundary conditions").set<int>("lower Y", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("upper Y", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("lower Z", Pimpact::BC::Periodic);
+      pl->sublist("boundary conditions").set<int>("upper Z", Pimpact::BC::Periodic);
       break;
     case Pimpact::Open2DChannel:
-      pl->sublist("boundary conditions").set<int>( "lower X", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "upper X", Pimpact::BC::Neumann   );
-      pl->sublist("boundary conditions").set<int>( "lower Y", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "upper Y", Pimpact::BC::Dirichlet );
-      pl->sublist("boundary conditions").set<int>( "lower Z", Pimpact::BC::Periodic  );
-      pl->sublist("boundary conditions").set<int>( "upper Z", Pimpact::BC::Periodic  );
+      pl->sublist("boundary conditions").set<int>("lower X", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("upper X", Pimpact::BC::Neumann  );
+      pl->sublist("boundary conditions").set<int>("lower Y", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("upper Y", Pimpact::BC::Dirichlet);
+      pl->sublist("boundary conditions").set<int>("lower Z", Pimpact::BC::Periodic );
+      pl->sublist("boundary conditions").set<int>("upper Z", Pimpact::BC::Periodic );
       break;
     default:
-      std::cout << "!!!Warning: unkown EDomainType:\t" <<dtype<<"\t!!!\n";
+      std::cout <<"!!!Warning: unkown EDomainType:\t" <<dtype<<"\t!!!\n";
   }
 }

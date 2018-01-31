@@ -27,10 +27,10 @@ public:
     writeIterPost_(-1) {};
 
   PrePostWriteRestart(const Teuchos::RCP<Teuchos::ParameterList>& pl):
-    writeIterPost_( pl->get<int>("restart", -1) ) {};
+    writeIterPost_(pl->get<int>("restart", -1)) {};
 
 
-  PrePostWriteRestart(const NOX::Abstract::PrePostOperator& ) = delete;
+  PrePostWriteRestart(const NOX::Abstract::PrePostOperator&) = delete;
 
   PrePostWriteRestart(NOX::Abstract::PrePostOperator&& that) {
     NOX::Pimpact::PrePostWriteRestart<FieldT>& that_ (that);
@@ -44,12 +44,12 @@ public:
 
   virtual void runPostIterate(const NOX::Solver::Generic& solver) {
 
-    if( writeIterPost_!=-1 && (solver.getNumIterations()%writeIterPost_==0) ) {
+    if(writeIterPost_!=-1 && (solver.getNumIterations()%writeIterPost_==0)) {
       const NOX::Abstract::Group& group = solver.getSolutionGroup();
 
-      Teuchos::rcp_const_cast<FieldT>( Teuchos::rcp_dynamic_cast<const FieldT>(
-            //group.getXPtr() ))->getField().write(0, true);
-            group.getXPtr() ))->getField().write(100*solver.getNumIterations()/writeIterPost_, true);
+      Teuchos::rcp_const_cast<FieldT>(Teuchos::rcp_dynamic_cast<const FieldT>(
+            //group.getXPtr()))->getField().write(0, true);
+            group.getXPtr()))->getField().write(100*solver.getNumIterations()/writeIterPost_, true);
     }
   }
 

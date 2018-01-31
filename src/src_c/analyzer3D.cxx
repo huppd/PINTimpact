@@ -59,16 +59,16 @@ const int dNC = 4;
 //const int dNC = 3;
 //const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
+using SpaceT = Pimpact::Space<ST, OT, sd, 4, dNC>;
 
 
-using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
-using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
+using VF = Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> >;
+using SF = Pimpact::MultiHarmonicField<Pimpact::ScalarField<SpaceT> >;
 
 using MVF = Pimpact::MultiField<VF>;
 using MSF = Pimpact::MultiField<SF>;
 
-using CF = Pimpact::CompoundField< VF, SF>;
+using CF = Pimpact::CompoundField<VF, SF>;
 using MF = Pimpact::MultiField<CF>;
 
 
@@ -90,19 +90,20 @@ int main(int argi, char** argv) {
     my_CLP.recogniseAllOptions(true);
     my_CLP.throwExceptions(true);
 
-    my_CLP.parse(argi,argv);
+    my_CLP.parse(argi, argv);
 
     Teuchos::RCP<Teuchos::ParameterList> pl;
     pl = Teuchos::getParametersFromXmlFile("parameterOut.xml");
     ////////////////////////////////////////// end of set up parameters /////////////////////////
 
 
-    //////////////////////////////////////////  set up initial stuff ////////////////////////////
+    ////////////////////////////////////////// set up initial stuff ////////////////////////////
     Teuchos::RCP<const SpaceT> space =
       Pimpact::create<SpaceT>(Teuchos::sublist(pl, "Space", true));
 
 
-    if(0==space->rankST()) std::cout << "initial field\n";
+    if(0 == space->rankST())
+      std::cout <<"initial field\n";
 
     // init vectors
     //Teuchos::RCP<MF> x = Pimpact::wrapMultiField(Pimpact::create<CF>(space));
@@ -120,8 +121,8 @@ int main(int argi, char** argv) {
     std::string prefix = "energy_";
 
     // compute glob energy in y-dir
-    if(0==space->si(::Pimpact::F::U,3)) {
-      auto vel =  x->getField(0).getVField().get0Field().clone(::Pimpact::ECopy::Deep);
+    if(0==space->si(::Pimpact::F::U, 3)) {
+      auto vel = x->getField(0).getVField().get0Field().clone(::Pimpact::ECopy::Deep);
       vel->add(1., *vel, -1., *base);
 
       auto out = Pimpact::createOstream(prefix + "0.txt",
@@ -130,7 +131,7 @@ int main(int argi, char** argv) {
       Pimpact::computeHEEnergyDir(*vel, *out, gamma);
     }
 
-    for(OT i=std::max(space->si(::Pimpact::F::U,3),1); i<=space->ei(::Pimpact::F::U,3); ++i) {
+    for(OT i=std::max(space->si(::Pimpact::F::U, 3), 1); i<=space->ei(::Pimpact::F::U, 3); ++i) {
       {
         auto out = Pimpact::createOstream(prefix + "C"+std::to_string(i) + ".txt",
             space->getProcGrid()->getRankBar(dir));

@@ -40,23 +40,23 @@ public:
 protected:
 
   const Teuchos::RCP<const InterpolateS2V<SpaceT> > interpolateS2V_;
-  const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,sdim,dimension,dimNC> > interpolateV2S_;
+  const Teuchos::RCP<const InterpolateV2S<Scalar, Ordinal, sdim, dimension, dimNC> > interpolateV2S_;
 
   FieldTensor u_;
 
 public:
 
 
-  ConvectionField( const Teuchos::RCP<const SpaceT>& space  ):
-    interpolateS2V_( create<InterpolateS2V>(space) ),
-    interpolateV2S_( createInterpolateV2S( space ) ),
+  ConvectionField(const Teuchos::RCP<const SpaceT>& space):
+    interpolateS2V_(create<InterpolateS2V>(space)),
+    interpolateV2S_(createInterpolateV2S(space)),
     u_{
     { { space, Owning::Y, F::U } ,
       { space, Owning::Y, F::U } ,
-      { space, Owning::Y, F::U } },{
+      { space, Owning::Y, F::U } }, {
       { space, Owning::Y, F::V } ,
       { space, Owning::Y, F::V } ,
-      { space, Owning::Y, F::V } },{
+      { space, Owning::Y, F::V } }, {
       { space, Owning::Y, F::W } ,
       { space, Owning::Y, F::W } ,
       { space, Owning::Y, F::W } }
@@ -64,31 +64,31 @@ public:
 
   ConvectionField(
     const Teuchos::RCP<const SpaceT>& space,
-    const Teuchos::RCP< InterpolateS2V<SpaceT> >& interpolateS2V,
-    const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,sdim,dimension,dimNC> >& interpolateV2S ):
+    const Teuchos::RCP<InterpolateS2V<SpaceT> >& interpolateS2V,
+    const Teuchos::RCP<InterpolateV2S<Scalar, Ordinal, sdim, dimension, dimNC> >& interpolateV2S):
     interpolateS2V_(interpolateS2V),
     interpolateV2S_(interpolateV2S),
     u_{
-    { space,true,F::U } ,
-    { space,true,F::U } ,
-    { space,true,F::U } ,
-    { space,true,F::V } ,
-    { space,true,F::V } ,
-    { space,true,F::V } ,
-    { space,true,F::W } ,
-    { space,true,F::W } ,
-    { space,true,F::W }
+    { space, true, F::U } ,
+    { space, true, F::U } ,
+    { space, true, F::U } ,
+    { space, true, F::V } ,
+    { space, true, F::V } ,
+    { space, true, F::V } ,
+    { space, true, F::W } ,
+    { space, true, F::W } ,
+    { space, true, F::W }
   } {};
 
 
-  void assignField( const VectorField<SpaceT>& mv ) {
+  void assignField(const VectorField<SpaceT>& mv) {
 
-    ScalarField<SpaceT> temp( mv.space() );
+    ScalarField<SpaceT> temp(mv.space());
 
-    for( int i=0; i<SpaceT::sdim; ++i ) {
-      interpolateV2S_->apply( mv(static_cast<F>(i)), temp );
-      for( int j=0; j<SpaceT::sdim; ++j ) {
-        interpolateS2V_->apply( temp, u_[j][i] );
+    for(int i=0; i<SpaceT::sdim; ++i) {
+      interpolateV2S_->apply(mv(static_cast<F>(i)), temp);
+      for(int j=0; j<SpaceT::sdim; ++j) {
+        interpolateS2V_->apply(temp, u_[j][i]);
       }
     }
   };

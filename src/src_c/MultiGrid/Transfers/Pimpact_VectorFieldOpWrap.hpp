@@ -43,25 +43,25 @@ protected:
 
 public:
 
-  template< class SP1T, class SP2T>
+  template<class SP1T, class SP2T>
   VectorFieldOpWrap(
     const Teuchos::RCP<const SP1T>& fSpace,
-    const Teuchos::RCP<const SP2T>& cSpace ):
-    sop_( create<SOpT>( fSpace, cSpace ) ) {}
+    const Teuchos::RCP<const SP2T>& cSpace):
+    sop_(create<SOpT>(fSpace, cSpace)) {}
 
-  template< class SP1T, class SP2T>
+  template<class SP1T, class SP2T>
   VectorFieldOpWrap(
     const Teuchos::RCP<const SP1T>& fSpace,
     const Teuchos::RCP<const SP2T>& cSpace,
-    Teuchos::Tuple<int,SP1T::dimension> nb ):
-    sop_( Teuchos::rcp( new SOpT( fSpace, cSpace, nb )  ) ) {}
+    Teuchos::Tuple<int, SP1T::dimension> nb):
+    sop_(Teuchos::rcp(new SOpT(fSpace, cSpace, nb))) {}
 
 
-  template< class SP1T, class SP2T>
-  void apply( const VectorField<SP1T>& x, VectorField<SP2T>& y ) const {
+  template<class SP1T, class SP2T>
+  void apply(const VectorField<SP1T>& x, VectorField<SP2T>& y) const {
 
-    for( F i=F::U; i<SpaceT::sdim; ++i ) {
-      sop_->apply( x(i), y(i) );
+    for(F i=F::U; i<SpaceT::sdim; ++i) {
+      sop_->apply(x(i), y(i));
     }
 
   }
@@ -78,16 +78,16 @@ public:
     return sop_->spaceF();
   };
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    sop_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    sop_->setParameter(para);
   }
 
-  void print( std::ostream& out=std::cout ) const {
+  void print(std::ostream& out=std::cout) const {
     sop_->print();
   }
 
   const std::string getLabel() const {
-    return "VectorFieldOpWrap( "+sop_->getLabel()+" ) ";
+    return "VectorFieldOpWrap("+sop_->getLabel()+") ";
   };
 
 }; // end of class VectorFieldOpWrap

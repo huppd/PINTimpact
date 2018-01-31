@@ -23,8 +23,8 @@ public:
 
   using SpaceT = ST;
 
-  using DomainFieldT = TimeField< VectorField<SpaceT> >;
-  using RangeFieldT = TimeField< VectorField<SpaceT> >;
+  using DomainFieldT = TimeField<VectorField<SpaceT> >;
+  using RangeFieldT = TimeField<VectorField<SpaceT> >;
 
 protected:
 
@@ -37,7 +37,7 @@ protected:
 
 public:
 
-  DtTimeOp( const Teuchos::RCP<const SpaceT>& space ):
+  DtTimeOp(const Teuchos::RCP<const SpaceT>& space):
     space_(space) {
 
     Scalar pi = 4.*std::atan(1.);
@@ -47,18 +47,18 @@ public:
   };
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
     x.exchange();
 
-    for( Ordinal i=space_->si(F::S,3); i<=space_->ei(F::S,3); ++i ) {
-      y(i).add( mulI_, x(i), -mulI_, x(i-1) );
+    for(Ordinal i=space_->si(F::S, 3); i<=space_->ei(F::S, 3); ++i) {
+      y(i).add(mulI_, x(i), -mulI_, x(i-1));
     }
 
     y.changed();
   }
 
-  void assignField( const DomainFieldT& mv ) {};
+  void assignField(const DomainFieldT& mv) {};
 
   bool hasApplyTranspose() const {
     return false;

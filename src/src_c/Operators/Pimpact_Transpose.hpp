@@ -18,7 +18,7 @@ namespace Pimpact {
 ///
 /// the \c DomainFieldT  \c RangeFieldT is to be equal for both \c OP.
 /// \ingroup Operator
-template< class OP >
+template<class OP >
 class Transpose {
 
 public:
@@ -34,40 +34,40 @@ protected:
 
 public:
 
-  Transpose( const Teuchos::RCP<OP>& op ): op_(op) {
-    assert( op->hasApplyTranspose() );
+  Transpose(const Teuchos::RCP<OP>& op): op_(op) {
+    assert(op->hasApplyTranspose());
   };
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
-      trans=Belos::NOTRANS ) const {
+      trans=Belos::NOTRANS) const {
 
-    switch( trans ) {
+    switch(trans) {
     case Belos::NOTRANS : {
-      op_->apply( x, y, Belos::TRANS );
+      op_->apply(x, y, Belos::TRANS);
       break;
     }
     case Belos::TRANS : {
-      op_->apply( x, y, Belos::NOTRANS  );
+      op_->apply(x, y, Belos::NOTRANS);
       break;
     }
     case Belos::CONJTRANS : {
-      op_->apply( x, y, Belos::NOTRANS  );
+      op_->apply(x, y, Belos::NOTRANS);
       break;
     }
     }
   }
 
-  void assignField( const DomainFieldT& mv ) {
-    op_->assignField( mv );
+  void assignField(const DomainFieldT& mv) {
+    op_->assignField(mv);
   };
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const {
     return op_->space();
   };
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    op_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    op_->setParameter(para);
   }
 
   bool hasApplyTranspose() const {
@@ -78,9 +78,9 @@ public:
     return op_->getLabel() + std::string("^T");
   };
 
-  void print( std::ostream& out=std::cout ) const {
-    out << getLabel() << ":\n";
-    op_->print( out );
+  void print(std::ostream& out=std::cout) const {
+    out <<getLabel() <<":\n";
+    op_->print(out);
   }
 
 }; // end of class Transpose
@@ -88,10 +88,10 @@ public:
 
 /// \relates Transpose
 template<class OP>
-Teuchos::RCP< Transpose<OP> > createTranspose(
-    const Teuchos::RCP<OP>& op ) {
+Teuchos::RCP<Transpose<OP> > createTranspose(
+    const Teuchos::RCP<OP>& op) {
 
-  return Teuchos::rcp( new Transpose<OP>(op) );
+  return Teuchos::rcp(new Transpose<OP>(op));
 }
 
 

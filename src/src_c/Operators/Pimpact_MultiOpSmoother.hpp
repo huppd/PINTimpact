@@ -35,26 +35,26 @@ protected:
 
 public:
 
-//	MultiOpSmoother( const Teuchos::RCP<OperatorT>& op ):op_(op) {}
+//	MultiOpSmoother(const Teuchos::RCP<OperatorT>& op):op_(op) {}
 
   template<class IOperatorT>
-  MultiOpSmoother( const Teuchos::RCP< MultiOpSmoother<IOperatorT> >& op ):
-    op_( Teuchos::rcp( new OperatorT( op->getOperatorPtr() ) ) ) {}
+  MultiOpSmoother(const Teuchos::RCP<MultiOpSmoother<IOperatorT> >& op):
+    op_(Teuchos::rcp(new OperatorT(op->getOperatorPtr()))) {}
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
+  void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
       trans=Belos::NOTRANS) const {
 
-    assert( x.getNumberVecs()==y.getNumberVecs() );
+    assert(x.getNumberVecs()==y.getNumberVecs());
 
-    for( int i=0; i<x.getNumberVecs(); ++i )
-      op_->apply( x.getField(i), y.getField(i) );
+    for(int i=0; i<x.getNumberVecs(); ++i)
+      op_->apply(x.getField(i), y.getField(i));
   }
 
 
-  void assignField( const DomainFieldT& mv ) {
+  void assignField(const DomainFieldT& mv) {
 
-    op_->assignField( mv.getField(0) );
+    op_->assignField(mv.getField(0));
   };
 
 
@@ -70,16 +70,16 @@ public:
     return op_->space();
   };
 
-  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    op_->setParameter( para );
+  void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
+    op_->setParameter(para);
   }
 
   const std::string getLabel() const {
     return op_->getLabel();
   };
 
-  void print( std::ostream& out=std::cout ) const {
-    op_->print( out );
+  void print(std::ostream& out=std::cout) const {
+    op_->print(out);
   }
 
 }; // end of class MultiOpSmoother
@@ -87,11 +87,11 @@ public:
 
 
 ///// \relates MultiOpSmoother
-///// \deprecated use create<MultiOpSmoother>( op ) instead
+///// \deprecated use create<MultiOpSmoother>(op) instead
 //template<class OperatorT>
-//Teuchos::RCP< MultiOpSmoother<OperatorT> > createMultiOpSmoother( const Teuchos::RCP<OperatorT>& op ) {
+//Teuchos::RCP<MultiOpSmoother<OperatorT> > createMultiOpSmoother(const Teuchos::RCP<OperatorT>& op) {
 //
-//	 return Teuchos::rcp( new MultiOpSmoother<OperatorT>( op ) );
+//	 return Teuchos::rcp(new MultiOpSmoother<OperatorT>(op));
 //}
 
 
