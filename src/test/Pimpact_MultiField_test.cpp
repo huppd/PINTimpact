@@ -23,12 +23,12 @@ const int sd = 3;
 const int d = 3;
 const int dNC=4;
 
-using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
+using SpaceT = Pimpact::Space<ST, OT, sd, d, dNC>;
 
-using SF  = Pimpact::MultiField< Pimpact::ScalarField<SpaceT> >;
-using VF  = Pimpact::MultiField< Pimpact::VectorField<SpaceT> >;
-using MSF = Pimpact::MultiField< Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > >;
-using MVF = Pimpact::MultiField< Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
+using SF  = Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >;
+using VF  = Pimpact::MultiField<Pimpact::VectorField<SpaceT> >;
+using MSF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > >;
+using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
 
 
 bool testMpi = true;
@@ -42,7 +42,7 @@ TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
   clp.addOutputSetupOptions(true);
 	clp.setOption("test-mpi", "test-serial", &testMpi,
-      "Test MPI (if available) or force test of serial.  In a serial build,"
+      "Test MPI (if available) or force test of serial.  In a serial build, "
       " this option is ignored and a serial comm is always used.");
 	clp.setOption("error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results");
@@ -67,7 +67,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, constructor, FType) {
 
   auto space = Pimpact::create<SpaceT>(pl);
 
-  auto mv = Teuchos::rcp(new FType(space,10));
+  auto mv = Teuchos::rcp(new FType(space, 10));
 
   const int m = mv->getNumberVecs();
 
@@ -93,18 +93,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, TwoNorm, FType) {
 
   auto space = Pimpact::create<SpaceT>(pl);
 
-  auto mv = Teuchos::rcp(new FType(space,10));
+  auto mv = Teuchos::rcp(new FType(space, 10));
 
   const OT m = mv->getNumberVecs();
   const OT n = mv->getLength();
   std::vector<ST> normval(m);
 
   // test different float values, assures that initial and norm work smoothly
-  for(ST i=0.; i< 200.1; ++i) {
+  for(ST i=0.; i<200.1; ++i) {
     mv->init(i/2.);
     mv->norm(normval, Pimpact::ENorm::Two);
     for(int j=0; j<m; ++j)
-      TEST_FLOATING_EQUALITY(std::sqrt(std::pow(i/2.,2)*n), normval[j], eps);
+      TEST_FLOATING_EQUALITY(std::sqrt(std::pow(i/2., 2)*n), normval[j], eps);
   }
 
 }
@@ -156,7 +156,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneCopy, FType) {
 
   auto space = Pimpact::create<SpaceT>(pl);
 
-  auto mv = Teuchos::rcp(new FType(space,10));
+  auto mv = Teuchos::rcp(new FType(space, 10));
 
   mv->random();
   auto mv2 = mv->CloneCopy();
@@ -194,7 +194,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneCopy2, FType) {
 
   auto space = Pimpact::create<SpaceT>(pl);
 
-  auto mv = Teuchos::rcp(new FType(space,10));
+  auto mv = Teuchos::rcp(new FType(space, 10));
 
   mv->random();
 
@@ -240,11 +240,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneCopy3, FType) {
 
   auto space = Pimpact::create<SpaceT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space,10));
+  auto mv1 = Teuchos::rcp(new FType(space, 10));
 
   mv1->random();
 
-  Teuchos::Range1D range(2,7);
+  Teuchos::Range1D range(2, 7);
 
   auto mv2 = mv1->CloneCopy(range);
 
@@ -281,7 +281,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneViewNonConst1, FType) {
 
   auto space = Pimpact::create<SpaceT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space,10));
+  auto mv1 = Teuchos::rcp(new FType(space, 10));
 
   mv1->init(0.);
 
@@ -328,11 +328,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneViewNonConst2, FType) {
 
   auto space = Pimpact::create<SpaceT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space,10));
+  auto mv1 = Teuchos::rcp(new FType(space, 10));
 
   mv1->init(0.);
 
-  Teuchos::Range1D range(2,7);
+  Teuchos::Range1D range(2, 7);
 
   auto mv2 = mv1->CloneViewNonConst(range);
 
@@ -392,7 +392,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneView1, FType) {
   std::vector<double> norm1(n1);
   std::vector<double> norm2(n2);
 
-  //			mv2->Random(); //< this should give compile error
+  //			mv2->Random(); //<this should give compile error
   mv1->random();
 
   mv1->norm(norm1);
@@ -424,7 +424,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneView2, FType) {
 
   mv1->init(0.);
 
-  Teuchos::Range1D range(2,7);
+  Teuchos::Range1D range(2, 7);
 
   auto mv2 = mv1->CloneView(range);
 
@@ -465,11 +465,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, TimesMatAdd, FType) {
 
   auto space = Pimpact::create<SpaceT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space,10));
+  auto mv1 = Teuchos::rcp(new FType(space, 10));
 
   mv1->init(0.);
 
-  Teuchos::Range1D index1(0,9);
+  Teuchos::Range1D index1(0, 9);
   std::vector<int> index2(10);
   for(int i=0; i<10; ++i)
     index2[i] = i;
@@ -490,11 +490,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, TimesMatAdd, FType) {
   //  mv2->Random();
   //	mv3->Assign(2.);
 
-  Teuchos::SerialDenseMatrix<int,double> B(n1,n2);
+  Teuchos::SerialDenseMatrix<int, double> B(n1, n2);
 
   for(unsigned int j=0; j<n1; ++j)
     for(unsigned int i=0; i<n1; ++i)
-      B(j,i) = 1./n1;
+      B(j, i) = 1./n1;
 
   mv1->TimesMatAdd(0.5, *mv2, B, 0.5);
 
@@ -513,7 +513,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, TimesMatAdd, FType) {
   for(unsigned int j=0; j<n1; ++j){
     scales[j] = (j+1);
     for(unsigned int i=0; i<n1; ++i)
-      B(j,i) = 1./n1/(j+1);
+      B(j, i) = 1./n1/(j+1);
   }
   mv1->init(1.);
   mv3->init(1.);
@@ -552,7 +552,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, add, FType) {
 
   mv1->init(0.);
 
-  Teuchos::Range1D range(0,9);
+  Teuchos::Range1D range(0, 9);
   std::vector<int> index(10);
   for(int i=0; i<10; ++i)
     index[i] = i;
@@ -618,11 +618,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, dot, FType) {
 
   auto space = Pimpact::create<SpaceT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space,10));
+  auto mv1 = Teuchos::rcp(new FType(space, 10));
 
   mv1->init(0.);
 
-  Teuchos::Range1D index1(0,9);
+  Teuchos::Range1D index1(0, 9);
   std::vector<int> index2(10);
   for(int i=0; i<10; ++i)
     index2[i] = i;
@@ -706,7 +706,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, Trans, FType) {
 
   for(unsigned int j=0; j<n1; ++j) {
     for(unsigned int i=0; i<n1; ++i)
-      TEST_EQUALITY(mv1->getLength(), B(j,i));
+      TEST_EQUALITY(mv1->getLength(), B(j, i));
   }
 
   std::vector<double> scales(n1);

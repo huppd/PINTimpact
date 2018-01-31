@@ -23,7 +23,7 @@ const int sd = 3;
 const int d = 4;
 const int dNC = 4;
 
-using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
+using SpaceT = Pimpact::Space<ST, OT, sd, d, dNC>;
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
 
@@ -52,7 +52,7 @@ TEUCHOS_STATIC_SETUP() {
 	clp.addOutputSetupOptions(true);
 	clp.setOption(
 			"test-mpi", "test-serial", &testMpi,
-			"Test MPI (if available) or force test of serial.  In a serial build,"
+			"Test MPI (if available) or force test of serial.  In a serial build, "
 			" this option is ignored and a serial comm is always used.");
 	clp.setOption(
 			"error-tol-slack", &eps,
@@ -180,7 +180,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, InfNorm, FType) {
 	int rank = space->rankST();
 	ST init;
 	int size;
-	MPI_Comm_size(space->commST(),&size);
+	MPI_Comm_size(space->commST(), &size);
 	for(ST i = 0.; i<200.1; i+=10.5) {
 		init = (size-1)*i-1.;
 		init = std::abs(init);
@@ -196,7 +196,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(MultiHarmonicField, InfNorm, VF)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, InitTwoNorm, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, InitTwoNorm, FType) {
 
 	Pimpact::setBoundaryConditions(pl, domain);
 
@@ -219,9 +219,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, InitTwoNorm, FType ) {
 
 	int N = field->getLength();
 
-	for(ST i=0.; i< 200.1; ++i) {
+	for(ST i=0.; i<200.1; ++i) {
 		field->init(i/2.);
-		TEST_FLOATING_EQUALITY(std::sqrt(std::pow(i/2.,2)*N), field->norm(Pimpact::ENorm::Two), eps);
+		TEST_FLOATING_EQUALITY(std::sqrt(std::pow(i/2., 2)*N), field->norm(Pimpact::ENorm::Two), eps);
 	}
 
 }
@@ -231,7 +231,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(MultiHarmonicField, InitTwoNorm, VF)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, dot, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, dot, FType) {
 
 	Pimpact::setBoundaryConditions(pl, domain);
 
@@ -440,10 +440,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonic, exchange, FType) {
 
 	auto field = Pimpact::createMultiHarmonic<FType>(space, Pimpact::MultiHarmonicField<FType>::Global::Y);
 
-	if(space->si(Pimpact::F::U,3)<=0)
+	if(space->si(Pimpact::F::U, 3)<=0)
 		field->get0Field().init(1.);
 
-	for(OT i=std::max(space->si(Pimpact::F::U,3),1); i<=space->ei(Pimpact::F::U,3); ++i)
+	for(OT i=std::max(space->si(Pimpact::F::U, 3), 1); i<=space->ei(Pimpact::F::U, 3); ++i)
 		field->getField(i).init(i+1.);
 
 	field->changed();

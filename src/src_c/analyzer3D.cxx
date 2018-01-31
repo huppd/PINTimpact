@@ -106,23 +106,22 @@ int main(int argi, char** argv) {
       std::cout <<"initial field\n";
 
     // init vectors
-    //Teuchos::RCP<MF> x = Pimpact::wrapMultiField(Pimpact::create<CF>(space));
-    Teuchos::RCP<MF> x = Teuchos::rcp(new MF(space));
+    Teuchos::RCP<CF> x = Teuchos::rcp(new CF(space));
 
     // init Fields
-    x->getField(0).getVField().initField(pl->sublist("Base flow"));
+    x->getVField().initField(pl->sublist("Base flow"));
 
-    auto base = x->getField(0).getVField().get0Field().clone(Pimpact::ECopy::Deep);
+    auto base = x->getVField().get0Field().clone(Pimpact::ECopy::Deep);
 
-    x->getField(0).read(restart);
+    x->read(restart);
     /*********************************************************************************/
     Pimpact::ECoord dir = Pimpact::ECoord::Y;
     ST gamma = 10.;
     std::string prefix = "energy_";
 
     // compute glob energy in y-dir
-    if(0==space->si(::Pimpact::F::U, 3)) {
-      auto vel = x->getField(0).getVField().get0Field().clone(::Pimpact::ECopy::Deep);
+    if(0 == space->si(::Pimpact::F::U, 3)) {
+      auto vel = x->getVField().get0Field().clone(::Pimpact::ECopy::Deep);
       vel->add(1., *vel, -1., *base);
 
       auto out = Pimpact::createOstream(prefix + "0.txt",
@@ -137,20 +136,20 @@ int main(int argi, char** argv) {
             space->getProcGrid()->getRankBar(dir));
 
         Pimpact::computeHEEnergyDir(
-            x->getField(0).getVField().getCField(i), *out, gamma);
+            x->getVField().getCField(i), *out, gamma);
       }
       {
         auto out = Pimpact::createOstream(prefix + "S"+std::to_string(i) + ".txt",
             space->getProcGrid()->getRankBar(dir));
 
         Pimpact::computeHEEnergyDir(
-            x->getField(0).getVField().getSField(i), *out, gamma);
+            x->getVField().getSField(i), *out, gamma);
       }
     }
 
     x->write();
-    Pimpact::writeMHLambda2evol(x->getField(0).getVField(), 10000);
-    Pimpact::writeMHLambda2(x->getField(0).getVField(), 20000);
+    Pimpact::writeMHLambda2evol(x->getVField(), 10000);
+    Pimpact::writeMHLambda2(x->getVField(), 20000);
   }
 
   MPI_Finalize();

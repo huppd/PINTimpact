@@ -26,7 +26,7 @@ using ST = double;
 using OT = int;
 const int sd = 3;
 
-using SpaceT = Pimpact::Space<ST,OT,sd,3,4>;
+using SpaceT = Pimpact::Space<ST, OT, sd, 3, 4>;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -38,66 +38,66 @@ TEUCHOS_STATIC_SETUP() {
 	clp.addOutputSetupOptions(true);
 	clp.setOption(
 			"test-mpi", "test-serial", &testMpi,
-			"Test MPI (if available) or force test of serial.  In a serial build,"
-			" this option is ignored and a serial comm is always used." );
+			"Test MPI (if available) or force test of serial.  In a serial build, "
+			" this option is ignored and a serial comm is always used.");
 	clp.setOption(
 			"error-tol-slack", &eps,
-			"Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results");
 
-	Pimpact::setBoundaryConditions( pl, 0 );
+	Pimpact::setBoundaryConditions(pl, 0);
 
-  pl->set( "nx", 25 );
-  pl->set( "ny", 17 );
-  pl->set( "nz",  9 );
+  pl->set("nx", 25);
+  pl->set("ny", 17);
+  pl->set("nz",  9);
 }
 
 
 
-TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
+TEUCHOS_UNIT_TEST(BelosSolver, HelmholtzMV) {
 
   using VF = Pimpact::VectorField<SpaceT>;
   using MVF = Pimpact::MultiField<VF>;
 
   using BOp = Pimpact::OperatorBase<MVF>;
 
-  auto space = Pimpact::create<SpaceT>( pl );
+  auto space = Pimpact::create<SpaceT>(pl);
 
-  auto x = Pimpact::wrapMultiField( Pimpact::create<Pimpact::VectorField>(space) );
-  auto b = Pimpact::wrapMultiField( Pimpact::create<Pimpact::VectorField>(space) );
+  auto x = Pimpact::wrapMultiField(Pimpact::create<Pimpact::VectorField>(space));
+  auto b = Pimpact::wrapMultiField(Pimpact::create<Pimpact::VectorField>(space));
 
-  b->init( 1. );
+  b->init(1.);
 
-  auto op = Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::HelmholtzOp>( space ) );
+  auto op = Pimpact::createMultiOperatorBase(Pimpact::create<Pimpact::HelmholtzOp>(space));
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",eps);
+  auto para = Pimpact::createLinSolverParameter("GMRES", eps);
 
   Belos::SolverFactory<ST, MVF, BOp> factory;
 
   // Create the GMRES solver.
   Teuchos::RCP<Belos::SolverManager<ST, MVF, BOp > > solver =
-      factory.create( "GMRES", para );
+      factory.create("GMRES", para);
 
   // Create a LinearProblem struct with the problem to solve.
   // A, X, B, and M are passed by (smart) pointer, not copied.
   Teuchos::RCP<Belos::LinearProblem<ST, MVF, BOp > > problem =
       Teuchos::rcp (new Belos::LinearProblem<ST, MVF, BOp > (op, x, b));
 
-  problem->setProblem(x,b);
+  problem->setProblem(x, b);
 
   // Tell the solver what problem you want to solve.
-  solver->setProblem( problem );
+  solver->setProblem(problem);
 
   solver->solve();
-  TEST_EQUALITY( solver->achievedTol()<eps, true );
+  TEST_EQUALITY(solver->achievedTol()<eps, true);
 
-	if( solver->achievedTol()>=eps )
+	if(solver->achievedTol()>=eps)
 		x->write(111);
 
 }
 
 
 
-TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
+TEUCHOS_UNIT_TEST(BelosSolver, DivGrad) {
 
   using SF = Pimpact::ScalarField<SpaceT>;
   using BSF = Pimpact::MultiField<SF>;
@@ -105,32 +105,32 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   using BOp = Pimpact::OperatorBase<BSF>;
 
 
-  auto space = Pimpact::create<SpaceT>( pl );
+  auto space = Pimpact::create<SpaceT>(pl);
 
 
-  Pimpact::VectorField<SpaceT> temp( space );
-	temp( Pimpact::F::U ).initField(Pimpact::Poiseuille2D_inX);
+  Pimpact::VectorField<SpaceT> temp(space);
+	temp(Pimpact::F::U).initField(Pimpact::Poiseuille2D_inX);
 
-  auto x = Teuchos::rcp( new Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >( space, 1 ) );
+  auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >(space, 1));
   auto b = x->clone();
 
 
 	temp.init();
   auto op = Pimpact::createOperatorBase(
       Pimpact::createMultiOpWrap(
-				Pimpact::create< Pimpact::DivGradOp<SpaceT> >(space)
+				Pimpact::create<Pimpact::DivGradOp<SpaceT> >(space)
           //Pimpact::createDivGradOp(space)
-      )
-  );
+     )
+ );
 
-  //  x->init( 1. );
+  //  x->init(1.);
   x->random();
-  op->apply( *x, *b );
-  x->init( 0. );
+  op->apply(*x, *b);
+  x->init(0.);
   b->write(99);
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",eps);
-  para->set( "Num Blocks", 500 );
+  auto para = Pimpact::createLinSolverParameter("GMRES", eps);
+  para->set("Num Blocks", 500);
 
   //  auto para = Teuchos::parameterList();
 
@@ -140,25 +140,25 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
   // Create the GMRES solver.
   Teuchos::RCP<Belos::SolverManager<ST, BSF, BOp > > solver =
-      factory.create( "GMRES", para );
+      factory.create("GMRES", para);
 
   // Create a LinearProblem struct with the problem to solve.
   // A, X, B, and M are passed by (smart) pointer, not copied.
   Teuchos::RCP<Belos::LinearProblem<ST, BSF, BOp > > problem =
       Teuchos::rcp (new Belos::LinearProblem<ST, BSF, BOp > (op, x, b));
 
-  //   std::cout << "param\n" << *solver->getValidParameters();
-  problem->setProblem(x,b);
+  //   std::cout <<"param\n" <<*solver->getValidParameters();
+  problem->setProblem(x, b);
 
   // Tell the solver what problem you want to solve.
-  solver->setProblem( problem );
-  //       TEST_EQUALITY( solver->getProblem(), *problem)
-  //       std::cout << *problem;
+  solver->setProblem(problem);
+  //       TEST_EQUALITY(solver->getProblem(), *problem)
+  //       std::cout <<*problem;
 
   solver->solve();
-  TEST_EQUALITY( solver->achievedTol()<eps, true );
+  TEST_EQUALITY(solver->achievedTol()<eps, true);
 
-	if( solver->achievedTol()>=eps ) {
+	if(solver->achievedTol()>=eps) {
 		x->write(999);
 		temp.write(999);
 	}
@@ -166,29 +166,29 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 }
 
 
-TEUCHOS_UNIT_TEST( LinearProblem, HelmholtzMV ) {
+TEUCHOS_UNIT_TEST(LinearProblem, HelmholtzMV) {
 
-	using MF = Pimpact::MultiField< Pimpact::VectorField<SpaceT> >;
+	using MF = Pimpact::MultiField<Pimpact::VectorField<SpaceT> >;
 
 
-	auto space = Pimpact::create<SpaceT>( pl );
+	auto space = Pimpact::create<SpaceT>(pl);
 
-	auto x = Teuchos::rcp( new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space,1) );
-	auto b = Teuchos::rcp( new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space,1) );
+	auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space, 1));
+	auto b = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space, 1));
 
 	x->init(0.);
 	b->init(1.);
 
-	auto A = Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::HelmholtzOp>( space ) );
+	auto A = Pimpact::createMultiOperatorBase(Pimpact::create<Pimpact::HelmholtzOp>(space));
 
-	auto param = Pimpact::createLinSolverParameter("GMRES",1.e-4);
+	auto param = Pimpact::createLinSolverParameter("GMRES", 1.e-4);
 
-	auto linprob = Pimpact::createLinearProblem<MF>(A,x,b,param,"GMRES");
+	auto linprob = Pimpact::createLinearProblem<MF>(A, x, b, param, "GMRES");
 
-	linprob->solve(x,b);
+	linprob->solve(x, b);
 
-  TEST_EQUALITY( linprob->getSolver()->achievedTol()<1.e-4, true );
-	if( linprob->getSolver()->achievedTol()>=1.e-4 ) 
+  TEST_EQUALITY(linprob->getSolver()->achievedTol()<1.e-4, true);
+	if(linprob->getSolver()->achievedTol()>=1.e-4) 
 		x->write();
 
 }

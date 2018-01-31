@@ -32,15 +32,15 @@ double eps = 1.e-6;
 int domain = 0;
 
 
-using SpaceT = typename Pimpact::Space<ST,OT,3,d,dNC>;
+using SpaceT = typename Pimpact::Space<ST, OT, 3, d, dNC>;
 
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
 using MSF = typename Pimpact::ModeField<SF>;
 using MVF = typename Pimpact::ModeField<VF>;
 
-using CF = Pimpact::CompoundField<VF,SF>;
-using CMF = Pimpact::CompoundField<MVF,MSF>;
+using CF = Pimpact::CompoundField<VF, SF>;
+using CMF = Pimpact::CompoundField<MVF, MSF>;
 
 
 auto pl = Teuchos::parameterList();
@@ -51,49 +51,49 @@ TEUCHOS_STATIC_SETUP() {
 	clp.addOutputSetupOptions(true);
 	clp.setOption(
 			"test-mpi", "test-serial", &testMpi,
-			"Test MPI (if available) or force test of serial.  In a serial build,"
-			" this option is ignored and a serial comm is always used." );
+			"Test MPI (if available) or force test of serial.  In a serial build, "
+			" this option is ignored and a serial comm is always used.");
 	clp.setOption(
 			"error-tol-slack", &eps,
-			"Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results");
 	clp.setOption(
 			"domain", &domain,
-			"domain" );
+			"domain");
 
-	Pimpact::setBoundaryConditions( pl, domain );
-	pl->set( "nx", 33 );
-	pl->set( "ny", 17 );
-	pl->set( "nz", 9 );
+	Pimpact::setBoundaryConditions(pl, domain);
+	pl->set("nx", 33);
+	pl->set("ny", 17);
+	pl->set("nz", 9);
 
 }
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, BelosMVTest, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, BelosMVTest, FType) {
 
-	auto space = Pimpact::create<SpaceT>( pl );
+	auto space = Pimpact::create<SpaceT>(pl);
 
-	auto mx = Teuchos::rcp( new Pimpact::MultiField<FType>( space, 5 ) );
+	auto mx = Teuchos::rcp(new Pimpact::MultiField<FType>(space, 5));
 
 	// Create an output manager to handle the I/O from the solver
 	Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
-		Teuchos::rcp( new Belos::OutputManager<ST>(Belos::Warnings,rcp( &out, false ) ) );
+		Teuchos::rcp(new Belos::OutputManager<ST>(Belos::Warnings, rcp(&out, false)));
 
-	bool res = Belos::TestMultiVecTraits<ST,Pimpact::MultiField<FType> >( MyOM, mx );
-	TEST_EQUALITY_CONST( res, true );
+	bool res = Belos::TestMultiVecTraits<ST, Pimpact::MultiField<FType> >(MyOM, mx);
+	TEST_EQUALITY_CONST(res, true);
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, VF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, MSF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, MVF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, CF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, CMF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, BelosMVTest, SF)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, BelosMVTest, VF)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, BelosMVTest, MSF)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, BelosMVTest, MVF)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, BelosMVTest, CF)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, BelosMVTest, CMF)
 
 
 
 
-TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
+TEUCHOS_UNIT_TEST(BelosOperatorMV, HelmholtzMV) {
 
 	using VF = Pimpact::VectorField<SpaceT>;
 	using MVF = Pimpact::MultiField<VF>;
@@ -101,56 +101,56 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 	using OpBase = Pimpact::OperatorBase<MVF>;
 
 
-	auto space = Pimpact::create<SpaceT>( pl );
+	auto space = Pimpact::create<SpaceT>(pl);
 
-	auto mv = Teuchos::rcp( new Pimpact::MultiField<VF>( space, 10 ) );
+	auto mv = Teuchos::rcp(new Pimpact::MultiField<VF>(space, 10));
 
-	auto opm = Pimpact::createMultiOpWrap( Pimpact::create<Pimpact::HelmholtzOp>(space) );
+	auto opm = Pimpact::createMultiOpWrap(Pimpact::create<Pimpact::HelmholtzOp>(space));
 
-	auto op = Pimpact::createOperatorBase( opm );
+	auto op = Pimpact::createOperatorBase(opm);
 
 	Teuchos::RCP<Belos::OutputManager<ST> > MyOM = Teuchos::rcp(
-			new Belos::OutputManager<ST>(Belos::Warnings,rcp(&out,false)) );
+			new Belos::OutputManager<ST>(Belos::Warnings, rcp(&out, false)));
 
-	bool res = Belos::TestOperatorTraits< ST, MVF, OpBase >( MyOM, mv, op );
+	bool res = Belos::TestOperatorTraits<ST, MVF, OpBase >(MyOM, mv, op);
 
-	TEST_EQUALITY( res, true );
+	TEST_EQUALITY(res, true);
 }
 
 
 
 
-TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
+TEUCHOS_UNIT_TEST(BelosOperatorMV, DivGrad) {
 
 	using SF = Pimpact::ScalarField<SpaceT>;
 	using BSF = Pimpact::MultiField<SF>;
 
 	using OpBase = Pimpact::OperatorBase<BSF>;
 
-	auto space = Pimpact::create<SpaceT>( pl );
+	auto space = Pimpact::create<SpaceT>(pl);
 
-	auto mv = Teuchos::rcp( new Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >( space , 10 ) );
+	auto mv = Teuchos::rcp(new Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >(space , 10));
 	auto mv2 = mv->clone();
 
 	auto lap = Pimpact::createOperatorBase(
 			Pimpact::createMultiOpWrap(
 				Pimpact::createDivGradOp(
-					Pimpact::create<Pimpact::DivOp>( space ),
-					Pimpact::create<Pimpact::GradOp>(space )
-					)
+					Pimpact::create<Pimpact::DivOp>(space),
+					Pimpact::create<Pimpact::GradOp>(space)
 				)
-			);
+			)
+		);
 
 	Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
-		Teuchos::rcp( new Belos::OutputManager<ST>(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
+		Teuchos::rcp(new Belos::OutputManager<ST>(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
 					Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
-					Belos::StatusTestDetails + Belos::Debug, rcp(&out,false)) );
+					Belos::StatusTestDetails + Belos::Debug, rcp(&out, false)));
 
 
 	bool res =// true;
-	Belos::TestOperatorTraits< ST, BSF, OpBase > (MyOM,mv,lap);
+	Belos::TestOperatorTraits<ST, BSF, OpBase > (MyOM, mv, lap);
 
-	TEST_EQUALITY( res, true );
+	TEST_EQUALITY(res, true);
 }
 
 

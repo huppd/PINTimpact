@@ -31,19 +31,19 @@ using ST = double;
 using OT = int;
 const int sd = 3;
 
-using SpaceT = Pimpact::Space<ST,OT,sd,4,4>; 
+using SpaceT = Pimpact::Space<ST, OT, sd, 4, 4>; 
 
-using FSpace3T = Pimpact::Space<ST,OT,sd,3,4>;
-using FSpace4T = Pimpact::Space<ST,OT,sd,4,4>; 
+using FSpace3T = Pimpact::Space<ST, OT, sd, 3, 4>;
+using FSpace4T = Pimpact::Space<ST, OT, sd, 4, 4>; 
 
-using CSpace3T = Pimpact::Space<ST,OT,sd,3,2>;
-using CSpace4T = Pimpact::Space<ST,OT,sd,4,2>; 
+using CSpace3T = Pimpact::Space<ST, OT, sd, 3, 2>;
+using CSpace4T = Pimpact::Space<ST, OT, sd, 4, 2>; 
 
-using CS3L = Pimpact::CoarsenStrategy<FSpace3T,CSpace3T>;
-using CS3G = Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T,5>;
+using CS3L = Pimpact::CoarsenStrategy<FSpace3T, CSpace3T>;
+using CS3G = Pimpact::CoarsenStrategyGlobal<FSpace3T, CSpace3T, 5>;
 
-using CS4L = Pimpact::CoarsenStrategy<FSpace4T,CSpace4T>;
-using CS4G = Pimpact::CoarsenStrategyGlobal<FSpace4T,CSpace4T,5>;
+using CS4L = Pimpact::CoarsenStrategy<FSpace4T, CSpace4T>;
+using CS4G = Pimpact::CoarsenStrategyGlobal<FSpace4T, CSpace4T, 5>;
 
 template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
 //template<class T> using BVF = Pimpact::MultiField< Pimpact::VectorField<T> >;
@@ -61,9 +61,9 @@ template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDi
 
 //template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
-template<class T> using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+template<class T> using ConvDiffSORT = Pimpact::NonlinearSmoother<T, Pimpact::ConvectionDiffusionSORSmoother >;
 
-template<class T> using ConvDiffJT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
+template<class T> using ConvDiffJT = Pimpact::NonlinearSmoother<T, Pimpact::ConvectionDiffusionJSmoother >;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -96,46 +96,46 @@ TEUCHOS_STATIC_SETUP() {
 	clp.addOutputSetupOptions(true);
 	clp.setOption(
 			"test-mpi", "test-serial", &testMpi,
-			"Test MPI (if available) or force test of serial.  In a serial build,"
-			" this option is ignored and a serial comm is always used." );
+			"Test MPI (if available) or force test of serial.  In a serial build, "
+			" this option is ignored and a serial comm is always used.");
 	clp.setOption(
 			"error-tol-slack", &eps,
-			"Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results");
 	clp.setOption(
 			"domain", &domain,
-			"Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results");
 	clp.setOption(
 			"ftype", &ftype,
-			"Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results");
 	clp.setOption(
 			"fs", &fs,
-			"Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results");
 	clp.setOption(
 			"fe", &fe,
-			"Slack off of machine epsilon used to check test results" );
-	clp.setOption( "npx", &npx, "" );
-	clp.setOption( "npy", &npy, "" );
-	clp.setOption( "npz", &npz, "" );
-	clp.setOption( "npf", &npf, "" );
-	clp.setOption( "nx", &nx, "" );
-	clp.setOption( "ny", &ny, "" );
-	clp.setOption( "nz", &nz, "" );
-	clp.setOption( "nf", &nf, "" );
-	clp.setOption( "rank", &rankbla, "" );
-	clp.setOption( "maxGrids", &maxGrids, "" );
+			"Slack off of machine epsilon used to check test results");
+	clp.setOption("npx", &npx, "");
+	clp.setOption("npy", &npy, "");
+	clp.setOption("npz", &npz, "");
+	clp.setOption("npf", &npf, "");
+	clp.setOption("nx", &nx, "");
+	clp.setOption("ny", &ny, "");
+	clp.setOption("nz", &nz, "");
+	clp.setOption("nf", &nf, "");
+	clp.setOption("rank", &rankbla, "");
+	clp.setOption("maxGrids", &maxGrids, "");
 	clp.setOption(
 			"output", "noutput", &output,
-			"Test MPI (if available) or force test of serial.  In a serial build,"
-			" this option is ignored and a serial comm is always used." );
+			"Test MPI (if available) or force test of serial.  In a serial build, "
+			" this option is ignored and a serial comm is always used.");
 
-	Pimpact::setBoundaryConditions( pl, domain );
+	Pimpact::setBoundaryConditions(pl, domain);
 
-	pl->set( "lx", 2. );
-	pl->set( "ly", 2. );
-	pl->set( "lz", 2. );
+	pl->set("lx", 2.);
+	pl->set("ly", 2.);
+	pl->set("lz", 2.);
 
-	pl->set( "Re", 1. );
-	pl->set( "alpha2", 1. );
+	pl->set("Re", 1.);
+	pl->set("alpha2", 1.);
 }
 
 
@@ -157,36 +157,36 @@ Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, 
 
 template<class T> using MOP = Pimpact::InverseOp< T >;
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiGrid, MG, CS) {
 
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	pl->set("nx", nx);
+	pl->set("ny", ny);
+	pl->set("nz", nz);
+	pl->set("nf", nf);
 
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	pl->set("npx", npx);
+	pl->set("npy", npy);
+	pl->set("npz", npz);
+	pl->set("npf", npf);
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl ); 
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl); 
 
-	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, maxGrids );
+	auto mgSpaces = Pimpact::createMGSpaces<CS>(space, maxGrids);
 
 
 	auto mgPL = Teuchos::parameterList();
-	mgPL->sublist("Smoother").set<std::string>("Solver name", "GMRES" );
-	mgPL->sublist("Smoother").set( "Solver",
-			*Pimpact::createLinSolverParameter( "GMRES", 1.e-16, -1,
-				Teuchos::rcp<std::ostream>( new Teuchos::oblackholestream() ), 4 ) );
+	mgPL->sublist("Smoother").set<std::string>("Solver name", "GMRES");
+	mgPL->sublist("Smoother").set("Solver",
+			*Pimpact::createLinSolverParameter("GMRES", 1.e-16, -1,
+				Teuchos::rcp<std::ostream>(new Teuchos::oblackholestream()), 4));
 
-	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
-	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance" , 1.e-1 );
+	mgPL->sublist("Smoother").set<int>("numIters", 4);
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>("Maximum Iterations", 1000);
+	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES");
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver");
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance" , 1.e-1);
 
-	auto op = Pimpact::create<Pimpact::TimeNSOp>( space );
+	auto op = Pimpact::create<Pimpact::TimeNSOp>(space);
 
 	auto mg = Pimpact::createMultiGrid<
 		CF,
@@ -198,15 +198,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 		Pimpact::TimeNS4DBSmoother,
 		//									Pimpact::TimeStokesBSmoother
 		MOP
-			> ( mgSpaces, op, mgPL );
+			> (mgSpaces, op, mgPL);
 
 	//	mg->print();
 
-  auto x = Pimpact::create<CF>( space );
+  auto x = Pimpact::create<CF>(space);
 
 	using OpT = Pimpact::TimeStokesOp<FSpace4T>;
 
-	auto op_true = Pimpact::create<OpT>( space );
+	auto op_true = Pimpact::create<OpT>(space);
 
 	double p = 1;
 	double alpha = std::sqrt(pl->get<double>("alpha2"));
@@ -218,7 +218,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	auto err = x->clone();
 	err->init(1);
 
-	Pimpact::initVectorTimeField( true_sol->getVField(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+	Pimpact::initVectorTimeField(true_sol->getVField(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha);
 
 	op->assignField(*true_sol);
 
@@ -226,32 +226,32 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
 	//auto true_sol2 = true_sol->clone();
 
-	op->apply(*true_sol,*b);
+	op->apply(*true_sol, *b);
 
 	// consistency  (is ok but in the corsest level x=0 initial guess)
-	//mg->apply( *b, *true_sol2);
-	//err->add(-1.,*true_sol,1.,*true_sol2);
-	//std::cout << "\n" << "consistency err: " << err->norm()/std::sqrt( err->getLength() );
+	//mg->apply(*b, *true_sol2);
+	//err->add(-1., *true_sol, 1., *true_sol2);
+	//std::cout << "\n" << "consistency err: " << err->norm()/std::sqrt(err->getLength());
 
 	//err->write();
 
 	// put BC in the RHS
 	true_sol->init(0);
-	op->apply(*true_sol,*b_bc);
+	op->apply(*true_sol, *b_bc);
 
-	b->add(1.,*b,-1.,*b_bc);
+	b->add(1., *b, -1., *b_bc);
 
 	/////////
 
 	//consistency
 	//true_sol2 = true_sol->clone();
-	//mg->apply( *b, *true_sol2 );
-	//err->add(-1.,*true_sol,1.,*true_sol2);
-	//std::cout << "\n" << "consistency err with bc in RHS: " << err->norm()/std::sqrt( err->getLength() );
+	//mg->apply(*b, *true_sol2);
+	//err->add(-1., *true_sol, 1., *true_sol2);
+	//std::cout << "\n" << "consistency err with bc in RHS: " << err->norm()/std::sqrt(err->getLength());
 
 	///////
 
-	Pimpact::initVectorTimeField( true_sol->getVField(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+	Pimpact::initVectorTimeField(true_sol->getVField(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha);
 
 	// for consistency, ok
 	//x = true_sol->clone();
@@ -263,43 +263,43 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
 	//op->assignField(*x);
 
-	err->add( -1, *x, 1., *true_sol );
-	std::cout << "\n" << "err: " << err->norm()/std::sqrt( err->getLength() )<< std :: endl;
+	err->add(-1, *x, 1., *true_sol);
+	std::cout << "\n" << "err: " << err->norm()/std::sqrt(err->getLength())<< std :: endl;
 
 	if (output)
 		err->write();
 
-	op->apply(*x,*Ax);
+	op->apply(*x, *Ax);
 
-	err->add( -1, *Ax, 1., *b );
-	std::cout << err->norm()/std::sqrt( err->getLength() ) << "\n";
+	err->add(-1, *Ax, 1., *b);
+	std::cout << err->norm()/std::sqrt(err->getLength()) << "\n";
 
 	std::cout << "Start MG" << std::endl;
 
-	for( int i=0; i<50; ++i ) {
-		mg->apply( *b, *x );
+	for(int i=0; i<50; ++i) {
+		mg->apply(*b, *x);
 
 		x->level();
 
-		err->add( -1, *x, 1., *true_sol );
+		err->add(-1, *x, 1., *true_sol);
 
 		if (output)
 			err->write((i+1)*100);
 
-		std::cout << "err: " << err->norm()/std::sqrt( err->getLength() );
+		std::cout << "err: " << err->norm()/std::sqrt(err->getLength());
 
-		op->apply(*x,*Ax);
+		op->apply(*x, *Ax);
 
-		err->add( -1, *Ax, 1., *b );
-		std::cout <<  "       res " << err->norm()/std::sqrt( err->getLength() ) << "\n";
+		err->add(-1, *Ax, 1., *b);
+		std::cout <<  "       res " << err->norm()/std::sqrt(err->getLength()) << "\n";
 	}
 	//x->write();
 
-	TEST_EQUALITY( err->norm()<1.e-5, true );
+	TEST_EQUALITY(err->norm()<1.e-5, true);
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4L )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(MultiGrid, MG, CS4L)
+//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(MultiGrid, MG, CS4G)
 
 } // end of namespae

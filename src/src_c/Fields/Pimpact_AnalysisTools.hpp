@@ -42,9 +42,9 @@ truncErrorEstimate(const MultiHarmonicFieldT& field, ENorm normType=ENorm::L2) {
     u_nf = field.getField(nf).norm(normType);
 
   int rank_1 = 0;
-  if(1==space->getProcGrid()->getNP(3))
+  if(1 == space->getProcGrid()->getNP(3))
     rank_1 = 0;
-  else if(0==(space->nGlo(3)+1)%space->getProcGrid()->getNP(3))
+  else if(0 == (space->nGlo(3)+1)%space->getProcGrid()->getNP(3))
     rank_1 = 1;
   int rank_nf = space->getProcGrid()->getNP(3)-1;
 
@@ -87,7 +87,7 @@ void writeMHLambda2(MHFieldT& x, int id) {
 
   auto space = x.space();
 
-  if(0==space->si(F::U, 3))
+  if(0 == space->si(F::U, 3))
     writeLambda2(x.get0Field(), id);
 
   for(OT i=std::max(space->si(F::U, 3), 1); i<=space->ei(F::U, 3); ++i) {
@@ -109,7 +109,7 @@ void writeMHLambda2evol(MHFieldT& x, int id) {
 
   x.exchange();
 
-  if(space()->getProcGrid()->getIB(3)==1) {
+  if(space()->getProcGrid()->getIB(3) == 1) {
 
     ST pi = 4.*std::atan(1.);
     OT nf = space()->nGlo(3);
@@ -292,7 +292,7 @@ void writeSpectrum(const MultiHarmonicFieldT& field,
   // just on rank "zero"
   Teuchos::RCP<const MultiHarmonicFieldT> y;
 
-  if(field.global()==MultiHarmonicFieldT::Global::Y)
+  if(field.global() == MultiHarmonicFieldT::Global::Y)
     y = Teuchos::rcpFromRef(field);
   else {
     Teuchos::RCP<MultiHarmonicFieldT> temp =
@@ -339,7 +339,7 @@ void computeEnergyDir(const VectorField<SpaceT>& vel, std::ostream& out=std::cou
             case X: {
               ST volume = coord->dx(F::S, Y, j) * coord->dx(F::S, Z, k);
               energy[i-space->si(F::S, X)] +=
-                std::pow(volume * vel * ((0.==gamma)?1.:std::exp(-0.5*std::pow(coord->getX(F::S, Z, k)/gamma, 2))), 2);
+                std::pow(volume * vel * ((0. == gamma)?1.:std::exp(-0.5*std::pow(coord->getX(F::S, Z, k)/gamma, 2))), 2);
               break;
             }
             case Y: {
@@ -353,7 +353,7 @@ void computeEnergyDir(const VectorField<SpaceT>& vel, std::ostream& out=std::cou
             case Z: {
               ST volume = coord->dx(F::S, X, i) * coord->dx(F::S, Y, j);
               energy[k-space->si(F::S, Z)] +=
-                std::pow(volume * vel * ((0.==gamma)?1.:std::exp(-0.5*std::pow(coord->getX(F::S, Z, k)/gamma, 2))), 2);
+                std::pow(volume * vel * ((0. == gamma)?1.:std::exp(-0.5*std::pow(coord->getX(F::S, Z, k)/gamma, 2))), 2);
               break;
             }
             case T: {
@@ -365,7 +365,7 @@ void computeEnergyDir(const VectorField<SpaceT>& vel, std::ostream& out=std::cou
   }
 
   MPI_Reduce(
-      (0==space->getProcGrid()->getRankSlice(dir))?
+      (0 == space->getProcGrid()->getRankSlice(dir))?
       MPI_IN_PLACE:energy.data(),	                // void* send_data,
       energy.data(),                              // void* recv_data,
       space->nLoc(dir),                           // int count,
@@ -380,7 +380,7 @@ void computeEnergyDir(const VectorField<SpaceT>& vel, std::ostream& out=std::cou
 
   std::vector<ST> energyGlobal(space->nGlo(dir), Teuchos::ScalarTraits<ST>::zero());
 
-  if(0==space->getProcGrid()->getRankSlice(dir)) {
+  if(0 == space->getProcGrid()->getRankSlice(dir)) {
     MPI_Gather(
         energy.data(),                           // void* send_data,
         space->nLoc(dir)-1,                      // int send_count,
@@ -391,7 +391,7 @@ void computeEnergyDir(const VectorField<SpaceT>& vel, std::ostream& out=std::cou
         0,                                       // int root,
         space->getProcGrid()->getCommBar(dir)); // MPI_Comm communicator);
 
-    if(0==space->getProcGrid()->getRankBar(dir))
+    if(0 == space->getProcGrid()->getRankBar(dir))
       for(OT j=0; j<space->nGlo(dir); ++j)
         out <<space->getCoordinatesGlobal()->getX(F::S, dir, j+1) <<"\t" <<energyGlobal[j] <<"\n";
   }
@@ -419,7 +419,7 @@ void computeHEEnergyDir(
   auto coord = space->getCoordinatesLocal();
 
   //----- obristd 310510: initialization of spatial modal analysis
-  if(0==space->rankST()) {
+  if(0 == space->rankST()) {
     std::cout <<"\nFourier-Hermite modal analysis\n";
     std::cout <<"==============================\n";
     std::cout <<" gamma     = " <<gamma <<"\n";
@@ -454,11 +454,11 @@ void computeHEEnergyDir(
     for(int n=2; n<n_Hermitemodes; ++n)
       sweight(k-S3p, n) = (x3p/gamma*sweight(k-S3p, n-1) - std::sqrt(static_cast<ST>(n-1))*sweight(k-S3p, n-2))/sqrt(static_cast<ST>(n));
 
-    //if(0==space->rankST()) std::cout <<"k: " <<k <<" x3p: " <<x3p <<"\t";
+    //if(0 == space->rankST()) std::cout <<"k: " <<k <<" x3p: " <<x3p <<"\t";
     for(int n=0; n<n_Hermitemodes; ++n) {
       sweight(k-S3p, n) *= std::exp(-std::pow(x3p/gamma, 2)/2.)*dx3p/std::sqrt(gamma*std::sqrt(2*pi)); // dh: don't know where it is coming from: normalization factor for exp(...)
       //sweight(k-S3p, n) *= std::exp(-std::pow(x3p/gamma, 2)/2.)*dx3p;
-      //if(0==space->rankST()) std::cout <<sweight(k-S3p, n) <<"\t";
+      //if(0 == space->rankST()) std::cout <<sweight(k-S3p, n) <<"\t";
     }
     //std::cout <<"\n";
   }
@@ -524,7 +524,7 @@ void computeHEEnergyDir(
 
   Teuchos::SerialDenseMatrix<OT, ST> energyGlobal(n_Hermitemodes, space->nGlo(dir));
 
-  if(0==space->getProcGrid()->getRankSlice(dir)) {
+  if(0 == space->getProcGrid()->getRankSlice(dir)) {
     MPI_Gather(
         energydensity.values(),                  // void* send_data,
         (space->nLoc(dir)-1)*n_Hermitemodes,     // int send_count,
@@ -535,7 +535,7 @@ void computeHEEnergyDir(
         0,                                       // int root,
         space->getProcGrid()->getCommBar(dir)); // MPI_Comm communicator);
 
-    if(0==space->getProcGrid()->getRankBar(dir))
+    if(0 == space->getProcGrid()->getRankBar(dir))
       for(OT j=0; j<space->nGlo(dir); ++j) {
         out <<space->getCoordinatesGlobal()->getX(F::S, dir, j+1) <<"\t" ;
         for(OT n=0; n<n_Hermitemodes; ++n) out <<energyGlobal(n, j) <<"\t";
