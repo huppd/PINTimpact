@@ -7,7 +7,7 @@
 
 #include "Pimpact_RestrictionBaseOp.hpp"
 #include "Pimpact_ScalarField.hpp"
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 #include "Pimpact_Stencil.hpp"
 #include "Pimpact_InterpolateS2VOp.hpp"
 
@@ -19,26 +19,26 @@ namespace Pimpact {
 
 
 
-/// \brief Opetartor that restricts from a fine space to a coarse space
+/// \brief Opetartor that restricts from a fine grid to a coarse grid
 ///
-/// \tparam ST type of the \c Space
-template<class ST>
-class RestrictionVFOp : private RestrictionBaseOp<ST> {
+/// \tparam GT type of the \c Grid
+template<class GT>
+class RestrictionVFOp : private RestrictionBaseOp<GT> {
 
-  static const int dimension = ST::dimension;
+  static const int dimension = GT::dimension;
 
-  using Scalar = typename ST::Scalar;
-  using Ordinal = typename ST::Ordinal;
+  using Scalar = typename GT::Scalar;
+  using Ordinal = typename GT::Ordinal;
 
 public:
 
-  using SpaceT = ST;
+  using GridT = GT;
 
-  using FSpaceT = SpaceT;
-  using CSpaceT = SpaceT;
+  using FGridT = GridT;
+  using CGridT = GridT;
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
   using StencS = Stencil<Scalar, Ordinal, 1, -1, 1 >;
   using StencV = Stencil<Scalar, Ordinal, 0,  0, 1 >;
@@ -52,10 +52,10 @@ protected:
 
     Ordinal i=this->dd_[dir]*(ii-1) + 1;
 
-    if(0<spaceF()->getBCLocal()->getBCL(dir))
+    if(0<gridF()->getBCLocal()->getBCL(dir))
       i = std::max(0, i);
-    if(0<spaceF()->getBCLocal()->getBCU(dir))
-      i = std::min(spaceF()->ei(F::S, dir)-1, i);
+    if(0<gridF()->getBCLocal()->getBCU(dir))
+      i = std::min(gridF()->ei(F::S, dir)-1, i);
     return i;
   }
 
@@ -72,23 +72,23 @@ protected:
       MG_getCRVS(
         this->iimax_[dir],
         (this->nGather_[dir]>1)?
-        spaceF()->getBCLocal()->getBCL(dir):
-        spaceC()->getBCLocal()->getBCL(dir),
+        gridF()->getBCLocal()->getBCL(dir):
+        gridC()->getBCLocal()->getBCL(dir),
         (this->nGather_[dir]>1)?
-        spaceF()->getBCLocal()->getBCU(dir):
-        spaceC()->getBCLocal()->getBCU(dir),
+        gridF()->getBCLocal()->getBCU(dir):
+        gridC()->getBCLocal()->getBCU(dir),
         this->dd_[dir],
-        spaceF()->getGridSizeLocal()->get(dir),
-        spaceF()->bl(dir),
-        spaceF()->bu(dir),
-        spaceF()->getCoordinatesLocal()->getX(F::S, dir),
+        gridF()->getGridSizeLocal()->get(dir),
+        gridF()->bl(dir),
+        gridF()->bu(dir),
+        gridF()->getCoordinatesLocal()->getX(F::S, dir),
         cRS_[dir].get());
 
 
       cRV_[dir] = StencV(iimax);
 
-      const auto& xf = spaceF()->getCoordinatesLocal()->getV(dir);
-      const auto& xs = spaceF()->getCoordinatesLocal()->getS(dir);
+      const auto& xf = gridF()->getCoordinatesLocal()->getV(dir);
+      const auto& xs = gridF()->getCoordinatesLocal()->getS(dir);
 
       // Restriktion, linienweise, 1d
       // fine
@@ -110,22 +110,22 @@ protected:
       }
 
       // Dirichlet boundary conditions
-      if(0<spaceF()->getBCLocal()->getBCL(dir)) {
+      if(0<gridF()->getBCLocal()->getBCL(dir)) {
         cRV_[dir](0, 0) = 1.;
         cRV_[dir](0, 1) = 0.;
       }
-      if(0<spaceF()->getBCLocal()->getBCU(dir)) {
+      if(0<gridF()->getBCLocal()->getBCU(dir)) {
         cRV_[dir](iimax, 0) = 0.;
         cRV_[dir](iimax, 1) = 1.;
       }
 
       // symmetric boundary conditions
-      if(BC::Symmetry==spaceC()->getBCLocal()->getBCL(dir)) {
+      if(BC::Symmetry==gridC()->getBCLocal()->getBCL(dir)) {
         cRV_[dir](0, 0) = 0.;
         cRV_[dir](0, 1) = 0.;
       }
 
-      if(BC::Symmetry==spaceC()->getBCLocal()->getBCU(dir)) {
+      if(BC::Symmetry==gridC()->getBCLocal()->getBCU(dir)) {
         cRV_[dir](iimax, 0) = 0.;
         cRV_[dir](iimax, 1) = 0.;
       }
@@ -135,19 +135,19 @@ protected:
 public:
 
   RestrictionVFOp(
-    const Teuchos::RCP<const SpaceT>& spaceF,
-    const Teuchos::RCP<const SpaceT>& spaceC):
-    RestrictionBaseOp<ST>(spaceF, spaceC) {
+    const Teuchos::RCP<const GridT>& gridF,
+    const Teuchos::RCP<const GridT>& gridC):
+    RestrictionBaseOp<GT>(gridF, gridC) {
 
     initVF();
   }
 
 
   RestrictionVFOp(
-    const Teuchos::RCP<const SpaceT>& spaceF,
-    const Teuchos::RCP<const SpaceT>& spaceC,
+    const Teuchos::RCP<const GridT>& gridF,
+    const Teuchos::RCP<const GridT>& gridC,
     const Teuchos::Tuple<int, dimension>& np):
-    RestrictionBaseOp<ST>(spaceF, spaceC, np) {
+    RestrictionBaseOp<GT>(gridF, gridC, np) {
 
     initVF();
   }
@@ -164,12 +164,12 @@ public:
 
     switch(fType) {
       case(F::U) : {
-        if(2==ST::sdim) {
-          for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
+        if(2==GT::sdim) {
+          for(Ordinal kk=gridC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
             Ordinal k = kk;
-            for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+            for(Ordinal jj=gridC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
               Ordinal j = this->dd_[Y]*(jj - 1) + 1;
-              for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+              for(Ordinal ii=gridC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
                 Ordinal i = getIF(X, ii);
 
                 y(ii, jj, kk) = 0.;
@@ -182,11 +182,11 @@ public:
             }
           }
         } else {
-          for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
+          for(Ordinal kk=gridC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
             Ordinal k = this->dd_[Z]* (kk - 1) + 1;
-            for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+            for(Ordinal jj=gridC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
               Ordinal j = this->dd_[Y]*(jj - 1) + 1;
-              for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+              for(Ordinal ii=gridC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
                 Ordinal i = getIF(X, ii);
 
                 y(ii, jj, kk) = 0.;
@@ -204,12 +204,12 @@ public:
       }
       case(F::V) : {
 
-        if(2==ST::sdim) {
-          for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
+        if(2==GT::sdim) {
+          for(Ordinal kk=gridC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
             Ordinal k = kk;
-            for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+            for(Ordinal jj=gridC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
               Ordinal j = getIF(Y, jj);
-              for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+              for(Ordinal ii=gridC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
                 Ordinal i = this->dd_[X]*(ii - 1) + 1;
 
                 y(ii, jj, kk) = 0.;
@@ -222,11 +222,11 @@ public:
             }
           }
         } else {
-          for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
+          for(Ordinal kk=gridC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
             Ordinal k = this->dd_[Z]* (kk - 1) + 1;
-            for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+            for(Ordinal jj=gridC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
               Ordinal j = getIF(Y, jj);
-              for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+              for(Ordinal ii=gridC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
                 Ordinal i = this->dd_[X]*(ii - 1) + 1;
 
                 y(ii, jj, kk) = 0.;
@@ -244,11 +244,11 @@ public:
       }
       case(F::W) : {
 
-        for(Ordinal kk=spaceC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
+        for(Ordinal kk=gridC()->si(fType, Z, B::Y); kk<=this->iimax_[Z]; ++kk) {
           Ordinal k = getIF(Z, kk);
-          for(Ordinal jj=spaceC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
+          for(Ordinal jj=gridC()->si(fType, Y, B::Y); jj<=this->iimax_[Y]; ++jj) {
             Ordinal j = this->dd_[Y]*(jj - 1) + 1;
-            for(Ordinal ii=spaceC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
+            for(Ordinal ii=gridC()->si(fType, X, B::Y); ii<=this->iimax_[X]; ++ii) {
               Ordinal i = this->dd_[X]*(ii - 1) + 1;
 
               y(ii, jj, kk) = 0.;
@@ -300,11 +300,11 @@ public:
     return this->dd_;
   };
 
-  Teuchos::RCP<const SpaceT> spaceC() const {
-    return this->spaceC_;
+  Teuchos::RCP<const GridT> gridC() const {
+    return this->gridC_;
   };
-  Teuchos::RCP<const SpaceT> spaceF() const {
-    return this->spaceF_;
+  Teuchos::RCP<const GridT> gridF() const {
+    return this->gridF_;
   };
 
   const std::string getLabel() const {

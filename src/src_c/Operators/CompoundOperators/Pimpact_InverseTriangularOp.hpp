@@ -29,7 +29,7 @@ public:
   using DomainFieldT = CompoundField<VF, SF>;
   using RangeFieldT = CompoundField<VF, SF>;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
@@ -57,7 +57,7 @@ public:
     opS2S_->apply(x.getSField(),  y.getSField());
     y.getSField().scale(-1.);
 
-    VF tempv(space());
+    VF tempv(grid());
 
     opS2V_->apply(y.getSField(), tempv, Add::Y);
 
@@ -71,8 +71,8 @@ public:
     opV2V_->assignField(mv.getVField());
   };
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return opV2V_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return opV2V_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {

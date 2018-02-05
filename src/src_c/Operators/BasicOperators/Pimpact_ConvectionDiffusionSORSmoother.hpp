@@ -19,19 +19,19 @@ class ConvectionDiffusionSORSmoother {
 
 public:
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
-  using FluxFieldT = ScalarField<SpaceT>[3];
+  using FluxFieldT = ScalarField<GridT>[3];
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
-  using SW = typename SpaceT::SW;
+  using SW = typename GridT::SW;
 
   ST omega_;
   int nIter_;
@@ -67,8 +67,8 @@ public:
     ordering_(pl->get("Ordering", 1)),
     op_(op) {
 
-    if(4==SpaceT::dimNC)
-      if(0==op->space()->rankST())
+    if(4==GridT::dimNC)
+      if(0==op->grid()->rankST())
         std::cout <<"Warning!!! ConvectionDiffusionSORSmoother strange behavior for dimNC=4, problems at outflow\n";
 
     if(0==ordering_) {
@@ -89,11 +89,11 @@ public:
     // testing field consistency
     assert(z.getType() == y.getType());
 
-    for(int i=0; i<SpaceT::sdim; ++i)
+    for(int i=0; i<GridT::sdim; ++i)
       assert(x[i].getType() == y.getType());
 
     // exchange wind and "rhs"
-    for(int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir)
+    for(int vel_dir=0; vel_dir<GridT::sdim; ++vel_dir)
       x[vel_dir].exchange();
 
     for(int i=0; i<nIter_; ++i) {
@@ -118,7 +118,7 @@ protected:
 
   void applySHL(const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z) const {
 
-    Teuchos::Tuple<int, SpaceT::dimension> ib = space()->getProcGrid()->getNP();
+    Teuchos::Tuple<int, GridT::dimension> ib = grid()->getProcGrid()->getNP();
 
     Teuchos::Tuple<int, 3>	dirS;
     Teuchos::Tuple<int, 3>	inc;
@@ -134,7 +134,7 @@ protected:
     }
 
     dirs_[1] = 1;
-    if(3==SpaceT::sdim)
+    if(3==GridT::sdim)
       for(dirs_[2]=dirS[2]; std::abs(dirs_[2])<=1; dirs_[2]+=inc[2])
           for(dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0])
             apply(x, y, z, dirs_);
@@ -148,7 +148,7 @@ protected:
 
   void applyNPoint(const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z) const {
 
-    Teuchos::Tuple<int, SpaceT::dimension> ib = space()->getProcGrid()->getNP();
+    Teuchos::Tuple<int, GridT::dimension> ib = grid()->getProcGrid()->getNP();
 
     Teuchos::Tuple<int, 3>	dirS;
     Teuchos::Tuple<int, 3>	inc;
@@ -164,7 +164,7 @@ protected:
     }
 
     dirs_[0] = -1;
-    if(3==SpaceT::sdim)
+    if(3==GridT::sdim)
       for(dirs_[2]=dirS[2]; std::abs(dirs_[2])<=1; dirs_[2]+=inc[2])
         for(dirs_[1]=dirS[1]; std::abs(dirs_[1])<=1; dirs_[1]+=inc[1])
           for(dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0])
@@ -194,11 +194,11 @@ protected:
     Teuchos::Tuple<OT, 3> ss;
     Teuchos::Tuple<OT, 3> nn;
     for(int i=0; i<3; ++i) {
-      ss[i] = (dirs[i]>0)?(space()->si(f, i, B::N) ):(space()->ei(f, i, B::N) );
-      nn[i] = (dirs[i]>0)?(space()->ei(f, i, B::N)+1):(space()->si(f, i, B::N)-1);
+      ss[i] = (dirs[i]>0)?(grid()->si(f, i, B::N) ):(grid()->ei(f, i, B::N) );
+      nn[i] = (dirs[i]>0)?(grid()->ei(f, i, B::N)+1):(grid()->si(f, i, B::N)-1);
     }
 
-    if(3==SpaceT::sdim) {
+    if(3==GridT::sdim) {
 
       for(OT k=ss[Z]; k!=nn[Z]; k+=dirs[Z])
         for(OT j=ss[Y]; j!=nn[Y]; j+=dirs[Y])
@@ -260,10 +260,10 @@ protected:
     if(F::U==f) {
 
       // tangential direction: Y
-      if(0<space()->bcl(Y)) {
-        OT j = space()->si(f, Y, B::Y);
-        for(OT k=space()->si(f, Z, B::Y); k<=space()->ei(f, Z, B::Y); ++k)
-          for(OT i=space()->si(f, X, B::N); i<=space()->ei(f, X, B::N); ++i) {
+      if(0<grid()->bcl(Y)) {
+        OT j = grid()->si(f, Y, B::Y);
+        for(OT k=grid()->si(f, Z, B::Y); k<=grid()->ei(f, Z, B::Y); ++k)
+          for(OT i=grid()->si(f, X, B::N); i<=grid()->ei(f, X, B::N); ++i) {
             ST temp = 0.;
             //std::cout <<"f: " <<f <<"i: " <<i <<"j: " <<"k: " <<k <<"y: " <<y(i, j, k) <<"\n";
             for(OT jj=0; jj<=SW::BU(Y); ++jj)
@@ -271,10 +271,10 @@ protected:
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(Y, f, j, 0);
           }
       }
-      if(0<space()->bcu(Y)) {
-        OT j = space()->ei(f, Y, B::Y);
-        for(OT k=space()->si(f, Z, B::Y); k<=space()->ei(f, Z, B::Y); ++k)
-          for(OT i=space()->si(f, X, B::N); i<=space()->ei(f, X, B::N); ++i) {
+      if(0<grid()->bcu(Y)) {
+        OT j = grid()->ei(f, Y, B::Y);
+        for(OT k=grid()->si(f, Z, B::Y); k<=grid()->ei(f, Z, B::Y); ++k)
+          for(OT i=grid()->si(f, X, B::N); i<=grid()->ei(f, X, B::N); ++i) {
             ST temp = 0.;
             for(OT jj=SW::BL(Y); jj<=0; ++jj)
               temp += getHC(Y, f, j, jj)*y(i, j+jj, k);
@@ -283,20 +283,20 @@ protected:
       }
 
       // tangential direction: Z
-      if(0<space()->bcl(Z)) {
-        OT k = space()->si(f, Z, B::Y);
-        for(OT j=space()->si(f, Y, B::Y); j<=space()->ei(f, Y, B::Y); ++j)
-          for(OT i=space()->si(f, X, B::N); i<=space()->ei(f, X, B::N); ++i) {
+      if(0<grid()->bcl(Z)) {
+        OT k = grid()->si(f, Z, B::Y);
+        for(OT j=grid()->si(f, Y, B::Y); j<=grid()->ei(f, Y, B::Y); ++j)
+          for(OT i=grid()->si(f, X, B::N); i<=grid()->ei(f, X, B::N); ++i) {
             ST temp = 0.;
             for(OT kk=0; kk<=SW::BU(Z); ++kk)
               temp += getHC(Z, f, k, kk)*y(i, j, k+kk);
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(Z, f, k, 0);
           }
       }
-      if(0<space()->bcu(Z)) {
-        OT k = space()->ei(f, Z, B::Y);
-        for(OT j=space()->si(f, Y, B::Y); j<=space()->ei(f, Y, B::Y); ++j)
-          for(OT i=space()->si(f, X, B::N); i<=space()->ei(f, X, B::N); ++i) {
+      if(0<grid()->bcu(Z)) {
+        OT k = grid()->ei(f, Z, B::Y);
+        for(OT j=grid()->si(f, Y, B::Y); j<=grid()->ei(f, Y, B::Y); ++j)
+          for(OT i=grid()->si(f, X, B::N); i<=grid()->ei(f, X, B::N); ++i) {
             ST temp = 0.;
             for(OT kk=SW::BL(Z); kk<=0; ++kk)
               temp += getHC(Z, f, k, kk)*y(i, j, k+kk);
@@ -305,10 +305,10 @@ protected:
       }
 
       // normal direction: X
-      if(0<space()->bcl(X)) {
-        OT i = space()->si(f, X, B::Y);
-        for(OT k=space()->si(f, Z, B::Y); k<=space()->ei(f, Z, B::Y); ++k)
-          for(OT j=space()->si(f, Y, B::Y); j<=space()->ei(f, Y, B::Y); ++j) {
+      if(0<grid()->bcl(X)) {
+        OT i = grid()->si(f, X, B::Y);
+        for(OT k=grid()->si(f, Z, B::Y); k<=grid()->ei(f, Z, B::Y); ++k)
+          for(OT j=grid()->si(f, Y, B::Y); j<=grid()->ei(f, Y, B::Y); ++j) {
             ST temp = 0.;
             for(OT ii=0; ii<=SW::BU(X); ++ii)
               temp += getHC(X, f, i, ii)*y(i+ii, j, k);
@@ -316,10 +316,10 @@ protected:
             //std::cout <<"f: " <<f <<"i: " <<i <<"j: " <<"k: " <<k <<"y: " <<y(i, j, k) <<"\n\n";
           }
       }
-      if(0<space()->bcu(X)) {
-        OT i = space()->ei(f, X, B::Y);
-        for(OT k=space()->si(f, Z, B::Y); k<=space()->ei(f, Z, B::Y); ++k)
-          for(OT j=space()->si(f, Y, B::Y); j<=space()->ei(f, Y, B::Y); ++j) {
+      if(0<grid()->bcu(X)) {
+        OT i = grid()->ei(f, X, B::Y);
+        for(OT k=grid()->si(f, Z, B::Y); k<=grid()->ei(f, Z, B::Y); ++k)
+          for(OT j=grid()->si(f, Y, B::Y); j<=grid()->ei(f, Y, B::Y); ++j) {
             ST temp = 0.;
             for(OT ii=SW::BL(X); ii<=0; ++ii)
               temp += getHC(X, f, i, ii)*y(i+ii, j, k);
@@ -332,20 +332,20 @@ protected:
     if(F::V==f) {
 
       // tangential direction: X
-      if(0<space()->bcl(X)) {
-        OT i = space()->si(f, X, B::Y);
-        for(OT k=space()->si(f, Z, B::Y); k<=space()->ei(f, Z, B::Y); ++k)
-          for(OT j=space()->si(f, Y, B::N); j<=space()->ei(f, Y, B::N); ++j) {
+      if(0<grid()->bcl(X)) {
+        OT i = grid()->si(f, X, B::Y);
+        for(OT k=grid()->si(f, Z, B::Y); k<=grid()->ei(f, Z, B::Y); ++k)
+          for(OT j=grid()->si(f, Y, B::N); j<=grid()->ei(f, Y, B::N); ++j) {
             ST temp = 0.;
             for(OT ii=0; ii<=SW::BU(X); ++ii)
               temp += getHC(X, f, i, ii)*y(i+ii, j, k);
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(X, f, i, 0);
           }
       }
-      if(0<space()->bcu(X)) {
-        OT i = space()->ei(f, X, B::Y);
-        for(OT k=space()->si(f, Z, B::Y); k<=space()->ei(f, Z, B::Y); ++k)
-          for(OT j=space()->si(f, Y, B::N); j<=space()->ei(f, Y, B::N); ++j) {
+      if(0<grid()->bcu(X)) {
+        OT i = grid()->ei(f, X, B::Y);
+        for(OT k=grid()->si(f, Z, B::Y); k<=grid()->ei(f, Z, B::Y); ++k)
+          for(OT j=grid()->si(f, Y, B::N); j<=grid()->ei(f, Y, B::N); ++j) {
             ST temp = 0.;
             for(OT ii=SW::BL(X); ii<=0; ++ii)
               temp += getHC(X, f, i, ii)*y(i+ii, j, k);
@@ -354,20 +354,20 @@ protected:
       }
 
       // tangential direction: Z
-      if(0<space()->bcl(Z)) {
-        OT k = space()->si(f, Z, B::Y);
-        for(OT j=space()->si(f, Y, B::N); j<=space()->ei(f, Y, B::N); ++j)
-          for(OT i=space()->si(f, X, B::Y); i<=space()->ei(f, X, B::Y); ++i) {
+      if(0<grid()->bcl(Z)) {
+        OT k = grid()->si(f, Z, B::Y);
+        for(OT j=grid()->si(f, Y, B::N); j<=grid()->ei(f, Y, B::N); ++j)
+          for(OT i=grid()->si(f, X, B::Y); i<=grid()->ei(f, X, B::Y); ++i) {
             ST temp = 0.;
             for(OT kk=0; kk<=SW::BU(Z); ++kk)
               temp += getHC(Z, f, k, kk)*y(i, j, k+kk);
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(Z, f, k, 0);
           }
       }
-      if(0<space()->bcu(Z)) {
-        OT k = space()->ei(f, Z, B::Y);
-        for(OT j=space()->si(f, Y, B::N); j<=space()->ei(f, Y, B::N); ++j)
-          for(OT i=space()->si(f, X, B::Y); i<=space()->ei(f, X, B::Y); ++i) {
+      if(0<grid()->bcu(Z)) {
+        OT k = grid()->ei(f, Z, B::Y);
+        for(OT j=grid()->si(f, Y, B::N); j<=grid()->ei(f, Y, B::N); ++j)
+          for(OT i=grid()->si(f, X, B::Y); i<=grid()->ei(f, X, B::Y); ++i) {
             ST temp = 0.;
             for(OT kk=SW::BL(Z); kk<=0; ++kk)
               temp += getHC(Z, f, k, kk)*y(i, j, k+kk);
@@ -376,20 +376,20 @@ protected:
       }
 
       // normal direction: Y
-      if(0<space()->bcl(Y)) {
-        OT j = space()->si(f, Y, B::Y);
-        for(OT k=space()->si(f, Z, B::Y); k<=space()->ei(f, Z, B::Y); ++k)
-          for(OT i=space()->si(f, X, B::Y); i<=space()->ei(f, X, B::Y); ++i) {
+      if(0<grid()->bcl(Y)) {
+        OT j = grid()->si(f, Y, B::Y);
+        for(OT k=grid()->si(f, Z, B::Y); k<=grid()->ei(f, Z, B::Y); ++k)
+          for(OT i=grid()->si(f, X, B::Y); i<=grid()->ei(f, X, B::Y); ++i) {
             ST temp = 0.;
             for(OT jj=0; jj<=SW::BU(Y); ++jj)
               temp += getHC(Y, f, j, jj)*y(i, j+jj, k);
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(Y, f, j, 0);
           }
       }
-      if(0<space()->bcu(Y)) {
-        OT j = space()->ei(f, Y, B::Y);
-        for(OT k=space()->si(f, Z, B::Y); k<=space()->ei(f, Z, B::Y); ++k)
-          for(OT i=space()->si(f, X, B::Y); i<=space()->ei(f, X, B::Y); ++i) {
+      if(0<grid()->bcu(Y)) {
+        OT j = grid()->ei(f, Y, B::Y);
+        for(OT k=grid()->si(f, Z, B::Y); k<=grid()->ei(f, Z, B::Y); ++k)
+          for(OT i=grid()->si(f, X, B::Y); i<=grid()->ei(f, X, B::Y); ++i) {
             ST temp = 0.;
             for(OT jj=SW::DL(Y); jj<=SW::DU(Y); ++jj)
               temp += getHC(Y, f, j, jj)*y(i, j+jj, k);
@@ -402,20 +402,20 @@ protected:
     if(F::W==f) {
 
       // tangential direction: X
-      if(0<space()->bcl(X)) {
-        OT i = space()->si(f, X, B::Y);
-        for(OT k=space()->si(f, Z, B::N); k<=space()->ei(f, Z, B::N); ++k)
-          for(OT j=space()->si(f, Y, B::Y); j<=space()->ei(f, Y, B::Y); ++j) {
+      if(0<grid()->bcl(X)) {
+        OT i = grid()->si(f, X, B::Y);
+        for(OT k=grid()->si(f, Z, B::N); k<=grid()->ei(f, Z, B::N); ++k)
+          for(OT j=grid()->si(f, Y, B::Y); j<=grid()->ei(f, Y, B::Y); ++j) {
             ST temp = 0.;
             for(OT ii=0; ii<=SW::BU(X); ++ii)
               temp += getHC(X, f, i, ii)*y(i+ii, j, k);
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(X, f, i, 0);
           }
       }
-      if(0<space()->bcu(X)) {
-        OT i = space()->ei(f, X, B::Y);
-        for(OT k=space()->si(f, Z, B::N); k<=space()->ei(f, Z, B::N); ++k)
-          for(OT j=space()->si(f, Y, B::Y); j<=space()->ei(f, Y, B::Y); ++j) {
+      if(0<grid()->bcu(X)) {
+        OT i = grid()->ei(f, X, B::Y);
+        for(OT k=grid()->si(f, Z, B::N); k<=grid()->ei(f, Z, B::N); ++k)
+          for(OT j=grid()->si(f, Y, B::Y); j<=grid()->ei(f, Y, B::Y); ++j) {
             ST temp = 0.;
             for(OT ii=SW::BL(X); ii<=0; ++ii)
               temp += getHC(X, f, i, ii)*y(i+ii, j, k);
@@ -424,20 +424,20 @@ protected:
       }
 
       // tangential direction: Y
-      if(0<space()->bcl(Y)) {
-        OT j = space()->si(f, Y, B::Y);
-        for(OT k=space()->si(f, Z, B::N); k<=space()->ei(f, Z, B::N); ++k)
-          for(OT i=space()->si(f, X, B::Y); i<=space()->ei(f, X, B::Y); ++i) {
+      if(0<grid()->bcl(Y)) {
+        OT j = grid()->si(f, Y, B::Y);
+        for(OT k=grid()->si(f, Z, B::N); k<=grid()->ei(f, Z, B::N); ++k)
+          for(OT i=grid()->si(f, X, B::Y); i<=grid()->ei(f, X, B::Y); ++i) {
             ST temp = 0.;
             for(OT jj=0; jj<=SW::BU(Y); ++jj)
               temp += getHC(Y, f, j, jj)*y(i, j+jj, k);
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(Y, f, j, 0);
           }
       }
-      if(0<space()->bcu(Y)) {
-        OT j = space()->ei(f, Y, B::Y);
-        for(OT k=space()->si(f, Z, B::N); k<=space()->ei(f, Z, B::N); ++k)
-          for(OT i=space()->si(f, X, B::Y); i<=space()->ei(f, X, B::Y); ++i) {
+      if(0<grid()->bcu(Y)) {
+        OT j = grid()->ei(f, Y, B::Y);
+        for(OT k=grid()->si(f, Z, B::N); k<=grid()->ei(f, Z, B::N); ++k)
+          for(OT i=grid()->si(f, X, B::Y); i<=grid()->ei(f, X, B::Y); ++i) {
             ST temp = 0.;
             for(OT jj=SW::BL(Y); jj<=0; ++jj)
               temp += getHC(Y, f, j, jj)*y(i, j+jj, k);
@@ -446,20 +446,20 @@ protected:
       }
 
       // normal direction: Z
-      if(0<space()->bcl(Z)) {
-        OT k = space()->si(f, Z, B::Y);
-        for(OT j=space()->si(f, Y, B::Y); j<=space()->ei(f, Y, B::Y); ++j)
-          for(OT i=space()->si(f, X, B::Y); i<=space()->ei(f, X, B::Y); ++i) {
+      if(0<grid()->bcl(Z)) {
+        OT k = grid()->si(f, Z, B::Y);
+        for(OT j=grid()->si(f, Y, B::Y); j<=grid()->ei(f, Y, B::Y); ++j)
+          for(OT i=grid()->si(f, X, B::Y); i<=grid()->ei(f, X, B::Y); ++i) {
             ST temp = 0.;
             for(OT kk=0; kk<=SW::BU(Z); ++kk)
               temp += getHC(Z, f, k, kk)*y(i, j, k+kk);
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(Z, f, k, 0);
           }
       }
-      if(0<space()->bcu(Z)) {
-        OT k = space()->ei(f, Z, B::Y);
-        for(OT j=space()->si(f, Y, B::Y); j<=space()->ei(f, Y, B::Y); ++j)
-          for(OT i=space()->si(f, X, B::Y); i<=space()->ei(f, X, B::Y); ++i) {
+      if(0<grid()->bcu(Z)) {
+        OT k = grid()->ei(f, Z, B::Y);
+        for(OT j=grid()->si(f, Y, B::Y); j<=grid()->ei(f, Y, B::Y); ++j)
+          for(OT i=grid()->si(f, X, B::Y); i<=grid()->ei(f, X, B::Y); ++i) {
             ST temp = 0.;
             for(OT kk=SW::BL(Z); kk<=0; ++kk)
               temp += getHC(Z, f, k, kk)*y(i, j, k+kk);
@@ -481,8 +481,8 @@ public:
     return false;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   }
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}

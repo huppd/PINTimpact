@@ -20,15 +20,15 @@ class ModePrec {
 
 public:
 
-  using SpaceT = typename OpT::SpaceT;
+  using GridT = typename OpT::GridT;
 
   using DomainFieldT = ModeField<typename OpT::DomainFieldT>;
   using RangeFieldT = ModeField<typename OpT::RangeFieldT>;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
   ST mulI_;
   ST mulC_;
@@ -47,7 +47,7 @@ public:
     const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList()):
     mulI_(0.),
     mulC_(1.),
-    mulL_(1./op->space()->getDomainSize()->getRe()),
+    mulL_(1./op->grid()->getDomainSize()->getRe()),
     omega_(pl->get<ST>("mode omega", 1.)),
     type_(pl->get<int>("type", -1)),
     op_(op) {
@@ -135,7 +135,7 @@ public:
   void applyELinv(const DomainFieldT& x, RangeFieldT& y) const {
 
     //std::cout <<"applyELinv\n";
-    DomainFieldT temp(space());
+    DomainFieldT temp(grid());
 
     // left
     //temp = x;
@@ -175,10 +175,10 @@ public:
 
     const B wb=B::Y;
 
-    for(F f=F::U; f<SpaceT::sdim; ++f) {
-      for(OT k=space()->si(f, Z, wb); k<=space()->ei(f, Z, wb); ++k)
-        for(OT j=space()->si(f, Y, wb); j<=space()->ei(f, Y, wb); ++j)
-          for(OT i=space()->si(f, X, wb); i<=space()->ei(f, X, wb); ++i) {
+    for(F f=F::U; f<GridT::sdim; ++f) {
+      for(OT k=grid()->si(f, Z, wb); k<=grid()->ei(f, Z, wb); ++k)
+        for(OT j=grid()->si(f, Y, wb); j<=grid()->ei(f, Y, wb); ++j)
+          for(OT i=grid()->si(f, X, wb); i<=grid()->ei(f, X, wb); ++i) {
 
             ST tempC =  0.5*y.getCField()(f)(i, j, k) + 0.5*y.getSField()(f)(i, j, k);
             ST tempS =  0.5*y.getCField()(f)(i, j, k) - 0.5*y.getSField()(f)(i, j, k);
@@ -294,8 +294,8 @@ public:
 
   void assignField(const DomainFieldT& mv) {};
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   Teuchos::RCP<OpT> getOperator() const {

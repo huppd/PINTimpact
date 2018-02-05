@@ -27,10 +27,10 @@ class DivGradO2Inv {
 
 public:
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
 protected:
 
@@ -66,8 +66,8 @@ public:
     return false;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return solver_.getOperator()->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return solver_.getOperator()->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}

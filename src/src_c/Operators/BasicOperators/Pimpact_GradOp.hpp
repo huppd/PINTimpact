@@ -25,14 +25,14 @@ class GradOp {
 
 public:
 
-  using SpaceT = SpT;
+  using GridT = SpT;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
-  using SW = typename SpaceT::SW;
+  using SW = typename GridT::SW;
 
   static const int dimNC = SpT::dimNC;
   static const int dim = SpT::dimension;
@@ -43,7 +43,7 @@ protected:
   using TD = const Teuchos::Tuple<StencD, SpT::sdim>;
   using TG = const Teuchos::Tuple<StencG, SpT::sdim>;
 
-  Teuchos::RCP<const SpaceT> space_;
+  Teuchos::RCP<const GridT> grid_;
 
   TG c_;
   TD cT_;
@@ -52,13 +52,13 @@ public:
 
   static constexpr int epsI = 1e3;
 
-  using DomainFieldT =  ScalarField<SpaceT>;
-  using RangeFieldT =  VectorField<SpaceT>;
+  using DomainFieldT =  ScalarField<GridT>;
+  using RangeFieldT =  VectorField<GridT>;
 
   /// \todo for the transposed stencil it would be better to compute locally all global stencils instead of MPI_allreduce them
   /// \todo make it MG readey (participant, all reduce)
-  GradOp(const Teuchos::RCP<const SpaceT>& space):
-    space_(space) {
+  GradOp(const Teuchos::RCP<const GridT>& grid):
+    grid_(grid) {
 
     //const bool mapping=true; // order ~2
     const bool mapping=false; // order ~6
@@ -68,44 +68,44 @@ public:
 
       F fdir = static_cast<F>(dir);
 
-      c_[dir] = StencG(space_->nLoc(dir));
+      c_[dir] = StencG(grid_->nLoc(dir));
 
       FD_getDiffCoeff(
         0,
-        space_->nLoc(dir),
-        space_->bl(dir),
-        space_->bu(dir),
-        space_->gl(dir),
-        space_->gu(dir),
-        space_->getBCLocal()->getBCL(dir),
-        space_->getBCLocal()->getBCU(dir),
-        space_->getShift(dir),
+        grid_->nLoc(dir),
+        grid_->bl(dir),
+        grid_->bu(dir),
+        grid_->gl(dir),
+        grid_->gu(dir),
+        grid_->getBCLocal()->getBCL(dir),
+        grid_->getBCLocal()->getBCU(dir),
+        grid_->getShift(dir),
         2,
         dir+1,
         1,
         0,
         mapping,
-        space_->getStencilWidths()->getDimNcbG(dir),
-        space_->getStencilWidths()->getNcbG(dir),
-        space_->getCoordinatesLocal()->getX(F::S, dir),
-        space_->getCoordinatesLocal()->getX(fdir, dir),
+        grid_->getStencilWidths()->getDimNcbG(dir),
+        grid_->getStencilWidths()->getNcbG(dir),
+        grid_->getCoordinatesLocal()->getX(F::S, dir),
+        grid_->getCoordinatesLocal()->getX(fdir, dir),
         c_[dir].get());
 
       // transposed Gradient stencil
-      cT_[dir] = StencD(space_->nLoc(dir));
+      cT_[dir] = StencD(grid_->nLoc(dir));
 
-      OT nTempG = (space_->nGlo(dir) + space_->bu(dir) - space_->bl(dir) + 1)
-                  *(space_->bu(dir) - space_->bl(dir) + 1);
+      OT nTempG = (grid_->nGlo(dir) + grid_->bu(dir) - grid_->bl(dir) + 1)
+                  *(grid_->bu(dir) - grid_->bl(dir) + 1);
 
 
       Stencil<ST, OT, SW::BL(0), SW::BL(0), SW::BU(0) >
-      cG1(space_->nGlo(dir) + space_->bu(dir));
+      cG1(grid_->nGlo(dir) + grid_->bu(dir));
       Stencil<ST, OT, SW::BL(0), SW::BL(0), SW::BU(0) >
-      cG2(space_->nGlo(dir) + space_->bu(dir));
+      cG2(grid_->nGlo(dir) + grid_->bu(dir));
 
-      for(OT i = space_->si(fdir, dir, B::Y); i<=space_->ei(fdir, dir, B::Y); ++i)
-        for(OT ii = space_->gl(dir); ii<=space_->gu(dir); ++ii)
-          cG1(i+space_->getShift(dir), ii) = getC(static_cast<ECoord>(dir), i, ii);
+      for(OT i = grid_->si(fdir, dir, B::Y); i<=grid_->ei(fdir, dir, B::Y); ++i)
+        for(OT ii = grid_->gl(dir); ii<=grid_->gu(dir); ++ii)
+          cG1(i+grid_->getShift(dir), ii) = getC(static_cast<ECoord>(dir), i, ii);
 
       MPI_Allreduce(
         cG1.get(),	                              // const void *sendbuf,
@@ -113,28 +113,28 @@ public:
         nTempG,			                              // int count,
         MPI_REAL8,	                              // MPI_Datatype datatype,
         MPI_SUM,		                              // MPI_Op op,
-        space_->getProcGrid()->getCommBar(dir)); // MPI_Comm comm)
+        grid_->getProcGrid()->getCommBar(dir)); // MPI_Comm comm)
 
-      if(-1==space_->getBCGlobal()->getBCL(dir)) {
+      if(-1==grid_->getBCGlobal()->getBCL(dir)) {
 
-        OT ls1 = space_->getStencilWidths()->getLS(dir);
-        OT M1 = space_->nGlo(dir);
+        OT ls1 = grid_->getStencilWidths()->getLS(dir);
+        OT M1 = grid_->nGlo(dir);
 
-        for(OT i=space->bl(dir); i<=-1; ++i)
-          for(OT ii=space->bl(dir); ii<=space->bu(dir); ++ii)
+        for(OT i=grid->bl(dir); i<=-1; ++i)
+          for(OT ii=grid->bl(dir); ii<=grid->bu(dir); ++ii)
             cG2(2+ls1+i, ii) = cG2(M1+1+ls1+i, ii);
 
-        for(OT i=1; i<=space->bu(dir); ++i)
-          for(OT ii=space->bl(dir); ii<=space->bu(dir); ++ii)
+        for(OT i=1; i<=grid->bu(dir); ++i)
+          for(OT ii=grid->bl(dir); ii<=grid->bu(dir); ++ii)
             cG2(M1+ls1+i, ii) = cG2(1+ls1+i, ii);
       }
 
       for(OT
-           i =space_->si(F::S, static_cast<ECoord>(dir), B::Y);
-           i<=space_->ei(F::S, static_cast<ECoord>(dir), B::Y);
+           i =grid_->si(F::S, static_cast<ECoord>(dir), B::Y);
+           i<=grid_->ei(F::S, static_cast<ECoord>(dir), B::Y);
            ++i)
-        for(OT ii=space->dl(dir); ii<=space->du(dir); ++ii) {
-          cT_[dir](i, ii) = cG2(i+ii+space_->getShift(dir), -ii);
+        for(OT ii=grid->dl(dir); ii<=grid->du(dir); ++ii) {
+          cT_[dir](i, ii) = cG2(i+ii+grid_->getShift(dir), -ii);
         }
     }
   };
@@ -155,26 +155,26 @@ public:
     //const B& b = B::N;
 
     x.exchange(X);
-    for(OT k=space()->si(F::U, Z, b); k<=space()->ei(F::U, Z, b); ++k)
-      for(OT j=space()->si(F::U, Y, b); j<=space()->ei(F::U, Y, b); ++j)
-        for(OT i=space()->si(F::U, X, b); i<=space()->ei(F::U, X, b); ++i) {
+    for(OT k=grid()->si(F::U, Z, b); k<=grid()->ei(F::U, Z, b); ++k)
+      for(OT j=grid()->si(F::U, Y, b); j<=grid()->ei(F::U, Y, b); ++j)
+        for(OT i=grid()->si(F::U, X, b); i<=grid()->ei(F::U, X, b); ++i) {
           if(Add::N==add) y(F::U)(i, j, k) = 0.;
           y(F::U)(i, j, k) += innerStencU(x, i, j, k);
         }
 
     x.exchange(Y);
-    for(OT k=space()->si(F::V, Z, b); k<=space()->ei(F::V, Z, b); ++k)
-      for(OT j=space()->si(F::V, Y, b); j<=space()->ei(F::V, Y, b); ++j)
-        for(OT i=space()->si(F::V, X, b); i<=space()->ei(F::V, X, b); ++i) {
+    for(OT k=grid()->si(F::V, Z, b); k<=grid()->ei(F::V, Z, b); ++k)
+      for(OT j=grid()->si(F::V, Y, b); j<=grid()->ei(F::V, Y, b); ++j)
+        for(OT i=grid()->si(F::V, X, b); i<=grid()->ei(F::V, X, b); ++i) {
           if(Add::N==add) y(F::V)(i, j, k) = 0.;
           y(F::V)(i, j, k) += innerStencV(x, i, j, k);
         }
 
-    if(3==SpaceT::sdim)  {
+    if(3==GridT::sdim)  {
       x.exchange(Z);
-      for(OT k=space()->si(F::W, Z, b); k<=space()->ei(F::W, Z, b); ++k)
-        for(OT j=space()->si(F::W, Y, b); j<=space()->ei(F::W, Y, b); ++j)
-          for(OT i=space()->si(F::W, X, b); i<=space()->ei(F::W, X, b); ++i) {
+      for(OT k=grid()->si(F::W, Z, b); k<=grid()->ei(F::W, Z, b); ++k)
+        for(OT j=grid()->si(F::W, Y, b); j<=grid()->ei(F::W, Y, b); ++j)
+          for(OT i=grid()->si(F::W, X, b); i<=grid()->ei(F::W, X, b); ++i) {
             if(Add::N==add) y(F::W)(i, j, k) = 0.;
             y(F::W)(i, j, k) += innerStencW(x, i, j, k);
           }
@@ -188,51 +188,51 @@ public:
     // BC scaling
     const ST eps = 1./static_cast<ST>(epsI);
 
-    for(F dir=F::U; dir<SpaceT::sdim; ++dir) {
+    for(F dir=F::U; dir<GridT::sdim; ++dir) {
       B bc2 = B::Y;
       if(F::U!=dir) {
-        if(space()->getBCLocal()->getBCL(X) > 0) {
-          OT i = space()->si(dir, X, B::Y);
-          for(OT k=space()->si(dir, Z, bc2); k<=space()->ei(dir, Z, bc2); ++k)
-            for(OT j=space()->si(dir, Y, bc2); j<=space()->ei(dir, Y, bc2); ++j)
+        if(grid()->getBCLocal()->getBCL(X) > 0) {
+          OT i = grid()->si(dir, X, B::Y);
+          for(OT k=grid()->si(dir, Z, bc2); k<=grid()->ei(dir, Z, bc2); ++k)
+            for(OT j=grid()->si(dir, Y, bc2); j<=grid()->ei(dir, Y, bc2); ++j)
               y(dir)(i, j, k) *= eps;
         }
-        if(space()->getBCLocal()->getBCU(X) > 0) {
-          OT i = space()->ei(dir, X, B::Y);
-          for(OT k=space()->si(dir, Z, bc2); k<=space()->ei(dir, Z, bc2); ++k)
-            for(OT j=space()->si(dir, Y, bc2); j<=space()->ei(dir, Y, bc2); ++j)
+        if(grid()->getBCLocal()->getBCU(X) > 0) {
+          OT i = grid()->ei(dir, X, B::Y);
+          for(OT k=grid()->si(dir, Z, bc2); k<=grid()->ei(dir, Z, bc2); ++k)
+            for(OT j=grid()->si(dir, Y, bc2); j<=grid()->ei(dir, Y, bc2); ++j)
               y(dir)(i, j, k) *= eps;
         }
         bc2 = B::N;
       }
 
       if(F::V!=dir) {
-        if(space()->getBCLocal()->getBCL(Y) > 0) {
-          OT j = space()->si(dir, Y, B::Y);
-          for(OT k=space()->si(dir, Z, bc2); k<=space()->ei(dir, Z, bc2); ++k)
-            for(OT i=space()->si(dir, X, bc2); i<=space()->ei(dir, X, bc2); ++i)
+        if(grid()->getBCLocal()->getBCL(Y) > 0) {
+          OT j = grid()->si(dir, Y, B::Y);
+          for(OT k=grid()->si(dir, Z, bc2); k<=grid()->ei(dir, Z, bc2); ++k)
+            for(OT i=grid()->si(dir, X, bc2); i<=grid()->ei(dir, X, bc2); ++i)
               y(dir)(i, j, k) *= eps;
         }
-        if(space()->getBCLocal()->getBCU(Y) > 0) {
-          OT j = space()->ei(dir, Y, B::Y);
-          for(OT k=space()->si(dir, Z, bc2); k<=space()->ei(dir, Z, bc2); ++k)
-            for(OT i=space()->si(dir, X, bc2); i<=space()->ei(dir, X, bc2); ++i)
+        if(grid()->getBCLocal()->getBCU(Y) > 0) {
+          OT j = grid()->ei(dir, Y, B::Y);
+          for(OT k=grid()->si(dir, Z, bc2); k<=grid()->ei(dir, Z, bc2); ++k)
+            for(OT i=grid()->si(dir, X, bc2); i<=grid()->ei(dir, X, bc2); ++i)
               y(dir)(i, j, k) *= eps;
         }
         bc2 = B::N;
       }
 
       if(F::W!=dir) {
-        if(space()->getBCLocal()->getBCL(Z) > 0) {
-          OT k = space()->si(dir, Z, B::Y);
-          for(OT j=space()->si(dir, Y, bc2); j<=space()->ei(dir, Y, bc2); ++j)
-            for(OT i=space()->si(dir, X, bc2); i<=space()->ei(dir, X, bc2); ++i)
+        if(grid()->getBCLocal()->getBCL(Z) > 0) {
+          OT k = grid()->si(dir, Z, B::Y);
+          for(OT j=grid()->si(dir, Y, bc2); j<=grid()->ei(dir, Y, bc2); ++j)
+            for(OT i=grid()->si(dir, X, bc2); i<=grid()->ei(dir, X, bc2); ++i)
               y(dir)(i, j, k) *= eps;
         }
-        if(space()->getBCLocal()->getBCU(Z) > 0) {
-          OT k = space()->ei(dir, Z, B::Y);
-          for(OT j=space()->si(dir, Y, bc2); j<=space()->ei(dir, Y, bc2); ++j)
-            for(OT i=space()->si(dir, X, bc2); i<=space()->ei(dir, X, bc2); ++i)
+        if(grid()->getBCLocal()->getBCU(Z) > 0) {
+          OT k = grid()->ei(dir, Z, B::Y);
+          for(OT j=grid()->si(dir, Y, bc2); j<=grid()->ei(dir, Y, bc2); ++j)
+            for(OT i=grid()->si(dir, X, bc2); i<=grid()->ei(dir, X, bc2); ++i)
               y(dir)(i, j, k) *= eps;
         }
         bc2 = B::N;
@@ -245,22 +245,22 @@ public:
 
   void apply(const RangeFieldT& x, DomainFieldT& y, const Add add=Add::N) const {
 
-    for(int dir=0; dir<SpaceT::sdim; ++dir)
+    for(int dir=0; dir<GridT::sdim; ++dir)
       x.exchange(dir, dir);
 
-    if(3==SpaceT::sdim)  {
+    if(3==GridT::sdim)  {
 
-      for(OT k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-        for(OT j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-          for(OT i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+      for(OT k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+        for(OT j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+          for(OT i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
             if(Add::N==add) y(i, j, k) = 0.;
             y(i, j, k) += innerStenc3D(x, i, j, k);
           }
     } else {
 
-      for(OT k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-        for(OT j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-          for(OT i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+      for(OT k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+        for(OT j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+          for(OT i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
             if(Add::N==add) y(i, j, k) = 0.;
             y(i, j, k) += innerStenc2D(x, i, j, k);
           }
@@ -278,8 +278,8 @@ public:
     return false;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return space_;
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return grid_;
   };
 
   constexpr const ST* getC(const ECoord dir) const {

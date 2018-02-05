@@ -37,7 +37,7 @@ const int sd = 3;
 const int d = 4;
 const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, d, dNC>;
+using GridT = Pimpact::Grid<ST, OT, sd, d, dNC>;
 
 bool testMpi = true;
 bool output = false;
@@ -49,12 +49,12 @@ int npy = 1;
 int npz = 1;
 int npf = 1;
 
-using SF = Pimpact::ScalarField<SpaceT>;
-using VF = Pimpact::VectorField<SpaceT>;
+using SF = Pimpact::ScalarField<GridT>;
+using VF = Pimpact::VectorField<GridT>;
 
 using CF = Pimpact::CompoundField<
-  Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
-  Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
+  Pimpact::TimeField<Pimpact::VectorField<GridT> >,
+  Pimpact::TimeField<Pimpact::ScalarField<GridT> > >;
 
 using TSF = Pimpact::TimeField<SF>;
 using TVF = Pimpact::TimeField<VF>;
@@ -111,13 +111,13 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOperator) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeStokesOp<SpaceT>;
+	using OpT = Pimpact::TimeStokesOp<GridT>;
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 
 	auto y = x->clone();
 	auto y_cc = x->clone();
@@ -184,15 +184,15 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesBSmooth) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeStokesOp<SpaceT>;
-	auto space = Pimpact::create<SpaceT>(pl);
+	using OpT = Pimpact::TimeStokesOp<GridT>;
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>(op));
 
 	// test smoothing properties
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 	auto y = x->clone();
 	auto error = x->clone();
 	auto true_sol = x->clone();	
@@ -241,16 +241,16 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesLSmooth) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeStokesOp<SpaceT>;
-	auto space = Pimpact::create<SpaceT>(pl);
+	using OpT = Pimpact::TimeStokesOp<GridT>;
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>(op));      
 	auto lSmoother = Teuchos::rcp(new Pimpact::TimeStokesLSmoother<OpT>(op));
 
 
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 
 	auto error = x->clone(); 
 	x->random();
@@ -278,14 +278,14 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesBSmooth_conv) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeStokesOp<SpaceT>;
-	auto space = Pimpact::create<SpaceT>(pl);
+	using OpT = Pimpact::TimeStokesOp<GridT>;
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>(op));
 
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 
 	auto y = x->clone();
 	auto Ax = x->clone();
@@ -331,14 +331,14 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesLSmooth_conv) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeStokesOp<SpaceT>;
-	auto space = Pimpact::create<SpaceT>(pl);
+	using OpT = Pimpact::TimeStokesOp<GridT>;
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
 	auto lSmoother = Teuchos::rcp(new Pimpact::TimeStokesLSmoother<OpT>(op));
 
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 	auto y = x->clone();
 	auto error = x->clone();
 	auto true_sol = x->clone();
@@ -372,15 +372,15 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSBSmooth) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeNSOp<SpaceT>;
+	using OpT = Pimpact::TimeNSOp<GridT>;
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNSBSmoother<OpT>(op));
 
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 	auto rhs = x->clone();
 	auto error = x->clone();
 	auto zero_wind = x->clone();
@@ -417,14 +417,14 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSBSmooth_conv) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeNSOp<SpaceT>;
-	auto space = Pimpact::create<SpaceT>(pl);
+	using OpT = Pimpact::TimeNSOp<GridT>;
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNSBSmoother<OpT>(op));
 
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 	auto y = x->clone();
 	auto error = x->clone();
 	auto true_sol = x->clone();
@@ -468,15 +468,15 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNS4DBSmoothasfd) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeNSOp<SpaceT>;
+	using OpT = Pimpact::TimeNSOp<GridT>;
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNS4DBSmoother<OpT>(op));
 
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 	auto rhs = x->clone();
 	auto error = x->clone();
 
@@ -510,14 +510,14 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNS4DBSmooth_conv) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeNSOp<SpaceT>;
-	auto space = Pimpact::create<SpaceT>(pl);
+	using OpT = Pimpact::TimeNSOp<GridT>;
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNS4DBSmoother<OpT>(op));
 
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 	auto y = x->clone();
 	auto error = x->clone();
 	auto true_sol = x->clone();
@@ -561,15 +561,15 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNS4DBSmooth) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	using OpT = Pimpact::TimeNSOp<SpaceT>;
+	using OpT = Pimpact::TimeNSOp<GridT>;
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNS4DBSmoother<OpT>(op));
 
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 	auto rhs = x->clone();
 	auto error = x->clone();
 

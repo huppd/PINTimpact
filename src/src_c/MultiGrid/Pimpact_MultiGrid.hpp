@@ -7,7 +7,7 @@
 #include "Pimpact_MGOperators.hpp"
 #include "Pimpact_MGTransfers.hpp"
 #include "Pimpact_MGSmoothers.hpp"
-#include "Pimpact_MGSpaces.hpp"
+#include "Pimpact_MGGrids.hpp"
 
 
 
@@ -25,7 +25,7 @@ namespace Pimpact {
 
 /// \brief basic multi grid calls
 ///
-/// \tparam MGSpacesT grid hierarchy
+/// \tparam MGGridsT grid hierarchy
 /// \tparam FieldT field type
 /// \tparam TransT transfer operator type
 /// \tparam RestrT restriction operator type
@@ -38,7 +38,7 @@ namespace Pimpact {
 /// \todo constructor with FOperator
 /// \ingroup MG
 template<
-  class MGSpacesT,
+  class MGGridsT,
   template<class> class FieldT,
   template<class, class> class TransT,
   template<class> class RestrT,
@@ -49,26 +49,26 @@ template<
   template<class> class CGST >
 class MultiGrid {
 
-  using FSpaceT = typename MGSpacesT::FSpaceT;
-  using CSpaceT = typename MGSpacesT::CSpaceT;
+  using FGridT = typename MGGridsT::FGridT;
+  using CGridT = typename MGGridsT::CGridT;
 
 
-  using MGTransfersT = MGTransfers<MGSpacesT, TransT, RestrT, InterT>;
+  using MGTransfersT = MGTransfers<MGGridsT, TransT, RestrT, InterT>;
 
-  using MGFieldsT = MGFields<MGSpacesT, FieldT>;
+  using MGFieldsT = MGFields<MGGridsT, FieldT>;
 
-  using MGOperatorsT = MGOperators<MGSpacesT, FOperatorT, COperatorT>;
+  using MGOperatorsT = MGOperators<MGGridsT, FOperatorT, COperatorT>;
 
   using MGSmoothersT = MGSmoothers<MGOperatorsT, SmootherT>;
 
 public:
 
-  using SpaceT =  FSpaceT;
+  using GridT =  FGridT;
 
-  using DomainFieldT = FieldT<FSpaceT>;
-  using RangeFieldT = FieldT<FSpaceT>;
+  using DomainFieldT = FieldT<FGridT>;
+  using RangeFieldT = FieldT<FGridT>;
 
-  using CGridSolverT = CGST<COperatorT<CSpaceT> >;
+  using CGridSolverT = CGST<COperatorT<CGridT> >;
 
 protected:
 
@@ -77,7 +77,7 @@ protected:
   int cycleType_;
   int numGrids_;
 
-  const Teuchos::RCP<const MGSpacesT> mgSpaces_;
+  const Teuchos::RCP<const MGGridsT> mgGrids_;
 
   Teuchos::RCP<const MGTransfersT> mgTrans_;
 
@@ -91,7 +91,7 @@ public:
 
   /// \brief constructor
   ///
-  /// \param mgSpaces
+  /// \param mgGrids
   /// \param pl  Parameter list of options for the multi grid solver.
   ///   These are the options accepted by the solver manager:
   ///   - "defect correction" - a \c bool specifying if defect correction is
@@ -99,31 +99,31 @@ public:
   ///   - "init zero" - a \c bool specifying if defect correction is
   ///     applied before cylcing. Default: false  /
   ///   - "numCycles" - a \c int number of cycles. Default:
-  ///     FSpaceT::dimNC - CSpaceT::dimNC+1)  /
+  ///     FGridT::dimNC - CGridT::dimNC+1)  /
   ///   - "Smoother" - a \c sublist for smoothers
   ///   - "Coarse Grid Solver" - a \c sublist for coarse grid solver
-  /// \todo FSpaceOperator should be passed here
+  /// \todo FGridOperator should be passed here
   MultiGrid(
-    const Teuchos::RCP<const MGSpacesT>& mgSpaces,
-    const Teuchos::RCP<FOperatorT<typename MGSpacesT::FSpaceT> >& fOperator,
+    const Teuchos::RCP<const MGGridsT>& mgGrids,
+    const Teuchos::RCP<FOperatorT<typename MGGridsT::FGridT> >& fOperator,
     const Teuchos::RCP<Teuchos::ParameterList>& pl):
     defectCorrection_(pl->get<bool>("defect correction", true)),
-    numCycles_(pl->get<int>("numCycles", FSpaceT::dimNC-CSpaceT::dimNC+1)),
+    numCycles_(pl->get<int>("numCycles", FGridT::dimNC-CGridT::dimNC+1)),
     cycleType_(pl->get<int>("cycle type", 0)),
     numGrids_(pl->get<int>("numGrids", -1)),
-    mgSpaces_(mgSpaces),
-    mgTrans_(createMGTransfers<TransT, RestrT, InterT>(mgSpaces)),
-    mgOps_(  createMGOperators<FOperatorT, COperatorT>(mgSpaces, fOperator)),
+    mgGrids_(mgGrids),
+    mgTrans_(createMGTransfers<TransT, RestrT, InterT>(mgGrids)),
+    mgOps_(  createMGOperators<FOperatorT, COperatorT>(mgGrids, fOperator)),
     mgSms_(  createMGSmoothers<SmootherT>(mgOps_, Teuchos::sublist(pl, "Smoother"))),
-    //cGridSolver_(mgSpaces_->participating(-1)?create<CGridSolverT>(mgOps_->get(-1),
+    //cGridSolver_(mgGrids_->participating(-1)?create<CGridSolverT>(mgOps_->get(-1),
           //Teuchos::sublist(pl, "Coarse Grid Solver")):Teuchos::null) {
-    cGridSolver_(mgSpaces_->participating(numGrids_)?create<CGridSolverT>(mgOps_->get(numGrids_),
+    cGridSolver_(mgGrids_->participating(numGrids_)?create<CGridSolverT>(mgOps_->get(numGrids_),
           Teuchos::sublist(pl, "Coarse Grid Solver")):Teuchos::null) {
 
       //print();
-      //assert(!(numGrids_==-1 || numGrids_<mgSpaces_->getNGrids()));
+      //assert(!(numGrids_==-1 || numGrids_<mgGrids_->getNGrids()));
       if(numGrids_==-1) {
-        numGrids_ = mgSpaces_->getNGrids()-1;
+        numGrids_ = mgGrids_->getNGrids()-1;
         //pl->set<int>("numGrids", numGrids_); 
       }
     }
@@ -145,9 +145,9 @@ public:
   /// \note todo template cycle method
   void applyVcycle(const DomainFieldT& rhs, RangeFieldT& y) const {
 
-    MGFieldsT x(   mgSpaces_);
-    MGFieldsT temp(mgSpaces_);
-    MGFieldsT b(   mgSpaces_);
+    MGFieldsT x(   mgGrids_);
+    MGFieldsT temp(mgGrids_);
+    MGFieldsT b(   mgGrids_);
 
     // === no defect correction
     if(!defectCorrection_) {
@@ -175,7 +175,7 @@ public:
       for(i=0; i<=numGrids_-1; ++i) {
         if(i>0) x.get(i).init(0.); // necessary? for DivGradOp yes
 
-        if(mgSpaces_->participating(i)) {
+        if(mgGrids_->participating(i)) {
           mgSms_->get(i)->apply(b.get(i), x.get(i));
           mgOps_->get(i)->computeResidual(b.get(i), x.get(i), temp.get(i));
           mgTrans_->getRestrictionOp(i)->apply(temp.get(i), b.get(i+1));
@@ -185,7 +185,7 @@ public:
       // coarse grid solution
       i = numGrids_;
       //i = -1;
-      if(mgSpaces_->participating(i)) {
+      if(mgGrids_->participating(i)) {
         x.get(i).init(0.);
         try {
           cGridSolver_->apply(b.get(i), x.get(i));
@@ -202,7 +202,7 @@ public:
 
       for(i=numGrids_-1; i>=0; --i) {
         // interpolate/correct/smooth
-        if(mgSpaces_->participating(i)) {
+        if(mgGrids_->participating(i)) {
           mgTrans_->getInterpolationOp(i)->apply(x.get(i+1), temp.get(i));
           x.get(i).add(1., temp.get(i), 1., x.get(i));
           //
@@ -221,9 +221,9 @@ public:
   /// defect correction\f$ \hat{L}u_{k+1} = f-L u_k +\hat{L}u_k \f$ and V-cylce for solving with \f$\hat{L}\f$
   void applyVFull(const DomainFieldT& rhs, RangeFieldT& y) const {
 
-    MGFieldsT x(   mgSpaces_);
-    MGFieldsT temp(mgSpaces_);
-    MGFieldsT b(   mgSpaces_);
+    MGFieldsT x(   mgGrids_);
+    MGFieldsT temp(mgGrids_);
+    MGFieldsT b(   mgGrids_);
 
 
     b.get() = rhs;
@@ -231,7 +231,7 @@ public:
 
     // coarse grid solution
     int i = -1;
-    if(mgSpaces_->participating(i)) {
+    if(mgGrids_->participating(i)) {
       try {
         cGridSolver_->apply(b.get(i), x.get(i));
       } catch(std::logic_error& e) {
@@ -245,13 +245,13 @@ public:
     }
 
 
-    for(int start=-2; start>=-mgSpaces_->getNGrids(); --start) {
+    for(int start=-2; start>=-mgGrids_->getNGrids(); --start) {
 
       mgTrans_->getInterpolationOp(start)->apply(x.get(start+1), x.get(start));
 
       for(int j=0; j<numCycles_; ++j) {
 
-        if(-mgSpaces_->getNGrids()==start && defectCorrection_) {
+        if(-mgGrids_->getNGrids()==start && defectCorrection_) {
           mgTrans_->getTransferOp()->apply(x.get(0), y);
           // defect correction rhs \hat{f}= b = x - L y
           mgOps_->get()->computeResidual(rhs, y, b.get());
@@ -267,9 +267,9 @@ public:
         }
 
         int i;
-        for(i=mgSpaces_->getNGrids()+start; i<mgSpaces_->getNGrids()-1; ++i) {
+        for(i=mgGrids_->getNGrids()+start; i<mgGrids_->getNGrids()-1; ++i) {
 
-          if(mgSpaces_->participating(i)) {
+          if(mgGrids_->participating(i)) {
             mgSms_->get(i)->apply(b.get(i), x.get(i));
             mgOps_->get(i)->computeResidual(b.get(i), x.get(i), temp.get(i));
             mgTrans_->getRestrictionOp(i)->apply(temp.get(i), b.get(i+1));
@@ -278,7 +278,7 @@ public:
 
         // coarse grid solution
         i = -1;
-        if(mgSpaces_->participating(i)) {
+        if(mgGrids_->participating(i)) {
           x.get(i).init(0.);
           try {
             cGridSolver_->apply(b.get(i), x.get(i));
@@ -295,7 +295,7 @@ public:
 
         for(i=-2; i>=start; --i) {
           // interpolate/correct/smooth
-          if(mgSpaces_->participating(i)) {
+          if(mgGrids_->participating(i)) {
             mgTrans_->getInterpolationOp(i)->apply(x.get(i+1), temp.get(i));
             x.get(i).add(1., temp.get(i), 1., x.get(i));
             //
@@ -312,25 +312,25 @@ public:
   void assignField(const DomainFieldT& mv) {
     //std::cout <<getLabel() <<"assignField\n";
 
-    MGFieldsT temp(mgSpaces_);
+    MGFieldsT temp(mgGrids_);
 
     //mgOps_->get()->assignField(mv);
     mgTrans_->getTransferOp()->apply(mv, temp.get(0));
 
-    for(int i=0; i<mgSpaces_->getNGrids()-1; ++i)  {
-      if(mgSpaces_->participating(i)) {
+    for(int i=0; i<mgGrids_->getNGrids()-1; ++i)  {
+      if(mgGrids_->participating(i)) {
         mgOps_->get(i)->assignField(temp.get(i));
         mgTrans_->getRestrictionOp(i)->apply(temp.get(i), temp.get(i+1));
         //std::cout <<temp.get(i).norm()<<"\n";
       }
     }
 
-    if(mgSpaces_->participating(-1))
+    if(mgGrids_->participating(-1))
       mgOps_->get(-1)->assignField(temp.get(-1));
   };
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return mgSpaces_->get();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return mgGrids_->get();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
@@ -354,12 +354,12 @@ public:
   void print(std::ostream& out=std::cout) const {
     out <<"--- " <<getLabel() <<" ---\n";
     out <<"#grids: " <<numGrids_ <<" numCycles: " <<numCycles_ <<"\n";
-    out <<"FOperator: " <<mgOps_->get()->getLabel() <<" d" <<FSpaceT::dimNC <<"\n";
-    if(mgSpaces_->participating(0))
-      out <<"COperator: " <<mgOps_->get(0)->getLabel()  <<" d" <<CSpaceT::dimNC <<"\n";
-    if(mgSpaces_->participating(0))
+    out <<"FOperator: " <<mgOps_->get()->getLabel() <<" d" <<FGridT::dimNC <<"\n";
+    if(mgGrids_->participating(0))
+      out <<"COperator: " <<mgOps_->get(0)->getLabel()  <<" d" <<CGridT::dimNC <<"\n";
+    if(mgGrids_->participating(0))
       out <<"Smoother: " <<mgSms_->get(0)->getLabel() <<"\n";
-    if(mgSpaces_->participating(-1))
+    if(mgGrids_->participating(-1))
       out <<"Coarse Grid Solver: " <<cGridSolver_->getLabel() <<"\n";
   }
 
@@ -378,16 +378,16 @@ template<
   template<class> class COperatorT,
   template<class> class SmootherT,
   template<class> class CGridSolverT,
-  class MGSpacesT >
-Teuchos::RCP<MultiGrid<MGSpacesT, FieldT, TransT, RestrT, InterT, FOperatorT, COperatorT, SmootherT, CGridSolverT> >
+  class MGGridsT >
+Teuchos::RCP<MultiGrid<MGGridsT, FieldT, TransT, RestrT, InterT, FOperatorT, COperatorT, SmootherT, CGridSolverT> >
 createMultiGrid(
-  const Teuchos::RCP<const MGSpacesT>& mgSpaces,
-  const Teuchos::RCP<FOperatorT<typename MGSpacesT::FSpaceT> > & fOperatr,
+  const Teuchos::RCP<const MGGridsT>& mgGrids,
+  const Teuchos::RCP<FOperatorT<typename MGGridsT::FGridT> > & fOperatr,
   const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList()) {
 
   return Teuchos::rcp(new
-      MultiGrid<MGSpacesT, FieldT, TransT, RestrT, InterT, FOperatorT, COperatorT, SmootherT, CGridSolverT>(
-        mgSpaces, fOperatr, pl));
+      MultiGrid<MGGridsT, FieldT, TransT, RestrT, InterT, FOperatorT, COperatorT, SmootherT, CGridSolverT>(
+        mgGrids, fOperatr, pl));
 }
 
 

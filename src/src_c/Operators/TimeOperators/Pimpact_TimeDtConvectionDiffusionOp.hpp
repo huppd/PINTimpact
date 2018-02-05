@@ -27,38 +27,38 @@ public:
 
   //static const int method = meth;
 
-  using SpaceT = SpT;
+  using GridT = SpT;
 
-  using DomainFieldT = TimeField<VectorField<SpaceT> >;
-  using RangeFieldT = TimeField<VectorField<SpaceT> >;
+  using DomainFieldT = TimeField<VectorField<GridT> >;
+  using RangeFieldT = TimeField<VectorField<GridT> >;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
-  Teuchos::RCP<NonlinearWrap<ConvectionDiffusionSOp<SpaceT> > > op_;
+  Teuchos::RCP<NonlinearWrap<ConvectionDiffusionSOp<GridT> > > op_;
 
-  Teuchos::Array<Teuchos::RCP<ConvectionField<SpaceT> > > wind_;
+  Teuchos::Array<Teuchos::RCP<ConvectionField<GridT> > > wind_;
 
 public:
 
 
-  TimeDtConvectionDiffusionOp(const Teuchos::RCP<const SpaceT>& space):
-    op_(create<NonlinearWrap>(create<ConvectionDiffusionSOp<SpaceT> >(space))),
-    wind_(space()->nLoc(3) + space()->bu(3) - space()->bl(3)) {
+  TimeDtConvectionDiffusionOp(const Teuchos::RCP<const GridT>& grid):
+    op_(create<NonlinearWrap>(create<ConvectionDiffusionSOp<GridT> >(grid))),
+    wind_(grid()->nLoc(3) + grid()->bu(3) - grid()->bl(3)) {
 
-    OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+    OT nt = grid()->nLoc(3) + grid()->bu(3) - grid()->bl(3);
 
     for(OT i=0; i<nt; ++i)
-      wind_[i] = create<ConvectionField>(space);
+      wind_[i] = create<ConvectionField>(grid);
   };
 
   void assignField(const DomainFieldT& mv) {
 
     mv.exchange();
 
-    OT nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+    OT nt = grid()->nLoc(3) + grid()->bu(3) - grid()->bl(3);
 
     for(OT i=0; i<nt; ++i) {
       wind_[i]->assignField(mv(i));
@@ -68,15 +68,15 @@ public:
 
   void apply(const DomainFieldT& y, RangeFieldT& z, bool init_yes=true) const {
 
-    OT sInd = space()->si(F::S, 3);
-    OT eInd = space()->ei(F::S, 3);
+    OT sInd = grid()->si(F::S, 3);
+    OT eInd = grid()->ei(F::S, 3);
 
-    ST iRe = 1./space()->getDomainSize()->getRe();
-    ST a2 = space()->getDomainSize()->getAlpha2()*iRe;
+    ST iRe = 1./grid()->getDomainSize()->getRe();
+    ST a2 = grid()->getDomainSize()->getAlpha2()*iRe;
 
     ST pi = 4.*std::atan(1.);
 
-    ST mulI = a2*(static_cast<ST>(space()->nGlo(3)))/2./pi;
+    ST mulI = a2*(static_cast<ST>(grid()->nGlo(3)))/2./pi;
 
 
     y.exchange();
@@ -109,8 +109,8 @@ public:
 
 
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}

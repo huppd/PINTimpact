@@ -10,13 +10,13 @@ const int sd = 2;
 const int d  = 3;
 const int dNC= 4;
 
-using SpaceT = Pimpact::Space<S, O, sd, d, dNC>;
+using GridT = Pimpact::Grid<S, O, sd, d, dNC>;
 
-using FSpaceT = SpaceT;
-using CSpaceT = Pimpact::Space<S, O, sd, d, 2>;
+using FGridT = GridT;
+using CGridT = Pimpact::Grid<S, O, sd, d, 2>;
 
 
-using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT, CSpaceT>;
+using CS = Pimpact::CoarsenStrategyGlobal<FGridT, CGridT>;
 
 template<class T1, class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1, T2> >;
 template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
@@ -48,16 +48,16 @@ int main(int argi, char** argv) {
   pl->set<O>("nx", 129);
   pl->set<O>("ny", 129);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mgSpaces = Pimpact::createMGSpaces<CS>(space, 5);
+  auto mgGrids = Pimpact::createMGGrids<CS>(grid, 5);
 
-  Pimpact::VectorField<SpaceT> wind(space);
-  Pimpact::VectorField<SpaceT> y   (space);
-  Pimpact::VectorField<SpaceT> z   (space);
-  Pimpact::VectorField<SpaceT> z2  (space);
+  Pimpact::VectorField<GridT> wind(grid);
+  Pimpact::VectorField<GridT> y   (grid);
+  Pimpact::VectorField<GridT> z   (grid);
+  Pimpact::VectorField<GridT> z2  (grid);
 
-  auto op = Pimpact::create<ConvDiffOpT>(space);
+  auto op = Pimpact::create<ConvDiffOpT>(grid);
 
   {
     short int dirx=1;
@@ -80,11 +80,11 @@ int main(int argi, char** argv) {
         ConvDiffOpT,
         ConvDiffOpT,
         ConvDiffSORT,
-        MOP > (mgSpaces, op, pls);
+        MOP > (mgGrids, op, pls);
 
       std::ofstream phifile;
 
-      if(space()->rankST()==0) {
+      if(grid()->rankST()==0) {
         std::string fname = "phin.txt";
         if(3==dirx)
           fname.insert(4, std::to_string((long long)8));
@@ -97,7 +97,7 @@ int main(int argi, char** argv) {
 
         S phi = 2.*pi*phii/(nwinds);
 
-        if(space()->rankST()==0)
+        if(grid()->rankST()==0)
           phifile <<phi <<"\t";
 
         // init solution
@@ -124,7 +124,7 @@ int main(int argi, char** argv) {
         std::string filename = "GS.txt";
         filename.insert(2, std::to_string((long long)phii));
 
-        if(space()->rankST()==0)
+        if(grid()->rankST()==0)
           ofs.open(filename, std::ofstream::out);
 
         S error;
@@ -138,23 +138,23 @@ int main(int argi, char** argv) {
           error = z2.norm()/sol->norm();
 
 
-          if(space()->rankST()==0) ofs <<error <<"\n";
-          if(space()->rankST()==0) std::cout <<"iter: " <<iter <<" " <<error <<"\n";
+          if(grid()->rankST()==0) ofs <<error <<"\n";
+          if(grid()->rankST()==0) std::cout <<"iter: " <<iter <<" " <<error <<"\n";
 
           iter++;
           if(iter>1000) error=-1;
 
         } while(error>1.e-6);
 
-        if(space()->rankST()==0)
+        if(grid()->rankST()==0)
           //					phifile <<error <<"\n";
           phifile <<iter <<"\n";
 
 
-        if(space()->rankST()==0)
+        if(grid()->rankST()==0)
           ofs.close();
       }
-      if(space()->rankST()==0)
+      if(grid()->rankST()==0)
         phifile.close();
     }
 

@@ -61,13 +61,13 @@ void PI_getLocalCoordinates(
 /// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
 ///
 /// \todo make nice interface for getter
-/// \ingroup SpaceObject
+/// \ingroup GridObject
 template<class ScalarT, class OrdinalT, int dim, int dimNC>
 class CoordinatesLocal {
 
   template<class ST, class OT, int sdT, int dT, int dNC>
   friend Teuchos::RCP<const CoordinatesLocal<ST, OT, dT, dNC> > createCoordinatesLocal(
-    const Teuchos::RCP<const StencilWidths<dT, dNC> >& fieldSpace,
+    const Teuchos::RCP<const StencilWidths<dT, dNC> >& stencilWidth,
     const Teuchos::RCP<const DomainSize<ST, sdT> >& domainSize,
     const Teuchos::RCP<const GridSizeGlobal<OT, sdT> >& gridSizeGlobal,
     const Teuchos::RCP<const GridSizeLocal<OT, sdT, dT> >& gridSizeLocal,

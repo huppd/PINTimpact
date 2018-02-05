@@ -18,10 +18,10 @@ contains
   !!
   !! \param[in] iStart start indedx 
   !! \param[in] Nmax dimension of cc and xc,xs corresponds to \c GridSizeLocal
-  !! \param[in] bl  coordinate lower bound \c FieldSpace
-  !! \param[in] bu  coordinate upper bound \c FieldSpace
-  !! \param[in] cl  stencil lower bound \c FieldSpace
-  !! \param[in] cu  stencil upper bound \c FieldSpace
+  !! \param[in] bl  coordinate lower bound \c FieldGrid
+  !! \param[in] bu  coordinate upper bound \c FieldGrid
+  !! \param[in] cl  stencil lower bound \c FieldGrid
+  !! \param[in] cu  stencil upper bound \c FieldGrid
   !! \param[in] BCL local lower Boundary conditions \c BoundaryConditionsLocal
   !! \param[in] BCU local upper Boundary conditions \c BoundaryConditionsLocal
   !! \param[in] SShift shift in \c ProcGrid

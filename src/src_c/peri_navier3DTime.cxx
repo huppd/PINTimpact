@@ -41,7 +41,7 @@
 #include "Pimpact_TransferCompoundOp.hpp"
 #include "Pimpact_TransferMultiHarmonicOp.hpp"
 #include "Pimpact_Utils.hpp"
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 
 #include "Pimpact_DivGradNullSpace.hpp"
 
@@ -68,16 +68,16 @@ const int method = 1;
 //const int dNC = 3;
 //const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, 4, dNC>;
+using GridT = Pimpact::Grid<ST, OT, sd, 4, dNC>;
 
-using FSpaceT = Pimpact::Space<ST, OT, sd, 4, dNC>;
-using CSpaceT = Pimpact::Space<ST, OT, sd, 4, 2  >;
+using FGridT = Pimpact::Grid<ST, OT, sd, 4, dNC>;
+using CGridT = Pimpact::Grid<ST, OT, sd, 4, 2  >;
 
-//using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT, CSpaceT>;
-using CS = Pimpact::CoarsenStrategy<FSpaceT, CSpaceT>; // dirty fix: till gather isn't fixed
+//using CS = Pimpact::CoarsenStrategyGlobal<FGridT, CGridT>;
+using CS = Pimpact::CoarsenStrategy<FGridT, CGridT>; // dirty fix: till gather isn't fixed
 
-using VF = Pimpact::TimeField<Pimpact::VectorField<SpaceT> >;
-using SF = Pimpact::TimeField<Pimpact::ScalarField<SpaceT> >;
+using VF = Pimpact::TimeField<Pimpact::VectorField<GridT> >;
+using SF = Pimpact::TimeField<Pimpact::ScalarField<GridT> >;
 
 using MVF = Pimpact::MultiField<VF>;
 using MSF = Pimpact::MultiField<SF>;
@@ -111,26 +111,26 @@ template<class T> using POP3  = Pimpact::PrecInverseOp<T, ConvDiffSORT >;
 
 
 // full MG
-template<class SpaceT>
+template<class GridT>
 using CVF = Pimpact::CompoundField<
-            Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
-            Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
+            Pimpact::TimeField<Pimpact::VectorField<GridT> >,
+            Pimpact::TimeField<Pimpact::ScalarField<GridT> > >;
 
-template<class SpaceT>
+template<class GridT>
 using INT = Pimpact::IntResCompoundOp<
-            Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
-            Pimpact::InterpolationTimeOp<                         Pimpact::InterpolationOp<SpaceT> > >;
+            Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<GridT> > >,
+            Pimpact::InterpolationTimeOp<                         Pimpact::InterpolationOp<GridT> > >;
 
-template<class SpaceT>
+template<class GridT>
 using RES = Pimpact::IntResCompoundOp<
-            Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<SpaceT>
-            > >, Pimpact::RestrictionTimeOp<Pimpact::RestrictionSFOp<SpaceT> > >;
+            Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<GridT>
+            > >, Pimpact::RestrictionTimeOp<Pimpact::RestrictionSFOp<GridT> > >;
 
-template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
-    Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
-    Pimpact::TransferTimeOp<                         Pimpact::TransferOp<SpaceT1, SpaceT2> > >;
+template<class GridT1, class GridT2> using TCO = Pimpact::TransferCompoundOp<
+    Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<GridT1, GridT2> > >,
+    Pimpact::TransferTimeOp<                         Pimpact::TransferOp<GridT1, GridT2> > >;
 
-using CS4L = Pimpact::CoarsenStrategy<SpaceT, CSpaceT>;
+using CS4L = Pimpact::CoarsenStrategy<GridT, CGridT>;
 
 int main(int argi, char** argv) {
 
@@ -163,49 +163,49 @@ int main(int argi, char** argv) {
     int withoutput=pl->sublist("Solver").get<int>("withoutput", 1);
 
 
-    Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(
-                                         Teuchos::sublist(pl, "Space", true));
+    Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(
+                                         Teuchos::sublist(pl, "Grid", true));
 
 
-    if(0==space->rankST()) std::cout <<"initial field\n";
+    if(0==grid->rankST()) std::cout <<"initial field\n";
 
     // init vectors
     Teuchos::RCP<MF> x = Pimpact::wrapMultiField(
-        Pimpact::create<CF>(space));
+        Pimpact::create<CF>(grid));
 
     // init Fields
     //x->getField(0).getVField().initField(pl->sublist("Base flow"));
 
     /*********************************************************************************/
 
-    if(0==space->rankST()) std::cout <<"create operator\n";
-    //auto opV2V = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT, method> >(space);
-    //auto opS2V = Pimpact::createTimeOpWrap(Pimpact::create<Pimpact::GradOp>(space));
-    //auto opV2S = Pimpact::createTimeOpWrap(Pimpact::create<Pimpact::DivOp>(space));
+    if(0==grid->rankST()) std::cout <<"create operator\n";
+    //auto opV2V = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<GridT, method> >(grid);
+    //auto opS2V = Pimpact::createTimeOpWrap(Pimpact::create<Pimpact::GradOp>(grid));
+    //auto opV2S = Pimpact::createTimeOpWrap(Pimpact::create<Pimpact::DivOp>(grid));
 
     //auto op = Pimpact::createCompoundOpWrap(
                 //opV2V,
                 //opS2V,
                 //opV2S);
-    auto op = Pimpact::create<Pimpact::TimeNSOp<SpaceT>>(space);
+    auto op = Pimpact::create<Pimpact::TimeNSOp<GridT>>(grid);
 
-    if(0==space->rankST()) std::cout <<"create RHS:\n";
-    if(0==space->rankST()) std::cout <<"\tdiv test\n";
+    if(0==grid->rankST()) std::cout <<"create RHS:\n";
+    if(0==grid->rankST()) std::cout <<"\tdiv test\n";
     //{
       //opV2S->apply(x->getField(0).getVField(), x->getField(0).getSField() );
       //ST divergence = x->getField(0).getSField().norm();
-      //if(0==space->rankST())
+      //if(0==grid->rankST())
         //std::cout <<"\n\tdiv(Base Flow): " <<divergence <<"\n\n";
       //x->getField(0).getSField().init(0.);
     //}
 
     std::string rl = "";
 
-    if(0==space->rankST()) std::cout <<"\tcreate RHS\n";
+    if(0==grid->rankST()) std::cout <<"\tcreate RHS\n";
     auto fu = x->clone(Pimpact::ECopy::Shallow);
     auto sol = fu->clone(Pimpact::ECopy::Shallow);
 
-    if(0==space->rankST()) std::cout <<"\tBC interpolation\n";
+    if(0==grid->rankST()) std::cout <<"\tBC interpolation\n";
     {
       // to get the Dirichlet for the RHS (necessary interpolation) ugly
       // super ugly hack for BC::Dirichlet
@@ -213,7 +213,7 @@ int main(int argi, char** argv) {
       fu->init(0., Pimpact::B::N);
     }
 
-    if(0==space->rankST()) std::cout <<"\tforcing\n";
+    if(0==grid->rankST()) std::cout <<"\tforcing\n";
     // Taylor Green Vortex
     std::string forceType = pl->sublist("Force").get<std::string>("force type", "Dirichlet");
     if("force"== forceType)
@@ -221,8 +221,8 @@ int main(int argi, char** argv) {
     //fu->getField(0).getVField().initField(pl->sublist("Force"), Pimpact::Add::Y);
     else if("Taylor-Green"==forceType) {
       ST pi2 = 2.*std::acos(-1.);
-      ST alpha2 = space->getDomainSize()->getAlpha2();
-      ST re = space->getDomainSize()->getRe();
+      ST alpha2 = grid->getDomainSize()->getAlpha2();
+      ST re = grid->getDomainSize()->getRe();
       ST A =  pl->sublist("Force").get<ST>("A", 0.5);
       ST B =  pl->sublist("Force").get<ST>("B", -0.5);
       ST C =  pl->sublist("Force").get<ST>("C", 0.);
@@ -231,11 +231,11 @@ int main(int argi, char** argv) {
       ST c =  pl->sublist("Force").get<ST>("c", 0.);
       TEUCHOS_TEST_FOR_EXCEPT(std::abs(a*A + b*B + c*C)>1.e-16);
 
-      for(OT i=space->si(Pimpact::F::U, 3); i<=space->ei(Pimpact::F::U, 3); ++i) {
+      for(OT i=grid->si(Pimpact::F::U, 3); i<=grid->ei(Pimpact::F::U, 3); ++i) {
         {
           // init RHS
-          ST timei = space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
-          ST timeim =space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i-1);
+          ST timei = grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
+          ST timeim =grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i-1);
           //std::cout <<time <<"\n";
           //ST ctime = (std::cos(timei)+std::cos(timeim))/2.;
           ST ctime = std::cos((timei+timeim)/2.);
@@ -254,7 +254,7 @@ int main(int argi, char** argv) {
         }
         // init sol
         {
-          ST time = space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
+          ST time = grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
           //std::cout<<time <<"\n";
           ST stime = std::sin(time);
           sol->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
@@ -270,7 +270,7 @@ int main(int argi, char** argv) {
     }
 
 
-    if(0==space->rankST()) std::cout <<"set initial conditions\n";
+    if(0==grid->rankST()) std::cout <<"set initial conditions\n";
     if("zero"==initGuess)
       x->init(0.);
     else if("almost zero"==initGuess) {
@@ -286,7 +286,7 @@ int main(int argi, char** argv) {
         x->getField(0).getVField() = sol->getField(0).getVField();
 
       ST pi2 = 2.*std::acos(-1.);
-      ST re = space->getDomainSize()->getRe();
+      ST re = grid->getDomainSize()->getRe();
       ST A =  pl->sublist("Force").get<ST>("A", 0.5);
       ST B =  pl->sublist("Force").get<ST>("B", -0.5);
       //ST C =  pl->sublist("Force").get<ST>("C", 0.);
@@ -294,10 +294,10 @@ int main(int argi, char** argv) {
       ST b =  pl->sublist("Force").get<ST>("b", 1.);
       //ST c =  pl->sublist("Force").get<ST>("c", 1.);
 
-      for(OT i=space->si(Pimpact::F::U, 3); i<=space->ei(Pimpact::F::U, 3); ++i) {
+      for(OT i=grid->si(Pimpact::F::U, 3); i<=grid->ei(Pimpact::F::U, 3); ++i) {
         // init
-        ST time0 = space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i );
-        ST time1 = space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i-1);
+        ST time0 = grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i );
+        ST time1 = grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i-1);
         ST stime0 = std::sin(time0);
         ST stime1 = std::sin(time1);
         ST s2time = (std::pow(1.+stime0, 2) + std::pow(1.+stime1, 2))/2.;
@@ -314,7 +314,7 @@ int main(int argi, char** argv) {
 
     if(withoutput)
       pl->sublist("Picard Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
-        "Output Stream", Pimpact::createOstream("Picard.txt", space->rankST()));
+        "Output Stream", Pimpact::createOstream("Picard.txt", grid->rankST()));
     else
       pl->sublist("Picard Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
         "Output Stream", Teuchos::rcp(new Teuchos::oblackholestream));
@@ -329,15 +329,15 @@ int main(int argi, char** argv) {
     //if(false) {
     //if("none" != picardPrecString) {
 
-      //// create Multi space
-      //auto mgSpaces = Pimpact::createMGSpaces<CS>(space, pl->sublist("Multi Grid").get<int>("maxGrids"));
+      //// create Multi grid
+      //auto mgGrids = Pimpact::createMGGrids<CS>(grid, pl->sublist("Multi Grid").get<int>("maxGrids"));
 
       ///////////////////////////////////////////////begin of opv2v////////////////////////////////////
 
       //if(withoutput)
         //pl->sublist("TimeConvDiff").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
           //"Output Stream", Pimpact::createOstream(opV2V->getLabel()+rl+".txt",
-              //space->rankST()));
+              //grid->rankST()));
       //else
         //pl->sublist("TimeConvDiff").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
           //"Output Stream", Teuchos::rcp(new Teuchos::oblackholestream));
@@ -349,13 +349,13 @@ int main(int argi, char** argv) {
 
       //if("none" != timeConvDiffPrecString) {
         //// creat H0-inv prec
-        //auto zeroOp = Pimpact::create<ConvDiffOpT>(space);
+        //auto zeroOp = Pimpact::create<ConvDiffOpT>(grid);
 
         //if(withoutput)
           //pl->sublist("ConvDiff").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
             //"Output Stream",
             //Pimpact::createOstream(zeroOp->getLabel()+rl+".txt",
-                                    //space->rankST()));
+                                    //grid->rankST()));
         //else
           //pl->sublist("ConvDiff").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
             //"Output Stream", Teuchos::rcp(new Teuchos::oblackholestream));
@@ -376,9 +376,9 @@ int main(int argi, char** argv) {
           //MOP
           ////POP2
           ////POP3
-          //> (mgSpaces, Teuchos::sublist(Teuchos::sublist(pl, "ConvDiff"), "Multi Grid")) ;
+          //> (mgGrids, Teuchos::sublist(Teuchos::sublist(pl, "ConvDiff"), "Multi Grid")) ;
 
-        ////if(0==space->rankST())
+        ////if(0==grid->rankST())
         ////mgConvDiff->print();
 
         //std::string convDiffPrecString = pl->sublist("ConvDiff").get<std::string>("preconditioner", "none");
@@ -406,7 +406,7 @@ int main(int argi, char** argv) {
       //if(withoutput)
         //pl->sublist("DivGrad").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
           //"Output Stream",
-          //Pimpact::createOstream("DivGrad"+rl+".txt", space->rankST()));
+          //Pimpact::createOstream("DivGrad"+rl+".txt", grid->rankST()));
       //else
         //pl->sublist("DivGrad").sublist("Solver").set<Teuchos::RCP<std::ostream> >(
           //"Output Stream", Teuchos::rcp(new Teuchos::oblackholestream));
@@ -453,9 +453,9 @@ int main(int argi, char** argv) {
                          ////Pimpact::DivGradO2Inv
                          ////Pimpact::DivGradO2SORSmoother
                          //Pimpact::DivGradO2JSmoother
-                         //>(mgSpaces, Teuchos::sublist(Teuchos::sublist(pl, "DivGrad"), "Multi Grid"));
+                         //>(mgGrids, Teuchos::sublist(Teuchos::sublist(pl, "DivGrad"), "Multi Grid"));
 
-        //if(0==space->rankST())
+        //if(0==grid->rankST())
           //mgDivGrad->print();
 
         //if("right" == divGradPrecString)
@@ -481,7 +481,7 @@ int main(int argi, char** argv) {
           //opSchur,
           //divGradInv);
 
-      ////if(space->rankST()==0)
+      ////if(grid->rankST()==0)
       ////std::cout <<opS2Sinv->getLabel() <<"\n";
 
       //auto invTriangOp =
@@ -498,7 +498,7 @@ int main(int argi, char** argv) {
     ////if(false) {
     if("none" != picardPrecString) {
 
-      auto mgSpaces = Pimpact::createMGSpaces<CS4L>(space, 10);
+      auto mgGrids = Pimpact::createMGGrids<CS4L>(grid, 10);
 
       auto mgPL = Teuchos::parameterList();
       //mgPL->sublist("Smoother").set<std::string>("Solver name", "GMRES");
@@ -521,7 +521,7 @@ int main(int argi, char** argv) {
                 Pimpact::TimeNSOp,
 								Pimpact::TimeNS4DBSmoother,
 								//Pimpact::TimeStokesBSmoother,
-                MOP > (mgSpaces, op, mgPL);
+                MOP > (mgGrids, op, mgPL);
 
       if("right" == picardPrecString)
         opInv->setRightPrec(Pimpact::createMultiOperatorBase(mg));
@@ -565,8 +565,8 @@ int main(int argi, char** argv) {
       NOX::Solver::buildSolver(group, statusTest, noxSolverPara);
 
 
-    if(0==space->rankST())
-      std::cout <<"\n\t--- Nf: "<<space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
+    if(0==grid->rankST())
+      std::cout <<"\n\t--- Nf: "<<grid->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
 
     // Solve the nonlinear system
     {
@@ -593,15 +593,15 @@ int main(int argi, char** argv) {
     ST solNorm = sol->getField(0).getVField().norm();
     sol->getField(0).getVField().add(1., sol->getField(0).getVField(), -1., x->getField(0).getVField());
     ST error = sol->getField(0).getVField().norm()/solNorm;
-    if(0==space->rankST()) std::cout <<"error: " <<error <<"\n";
-    auto eStream = Pimpact::createOstream("error.txt", space->rankST());
+    if(0==grid->rankST()) std::cout <<"error: " <<error <<"\n";
+    auto eStream = Pimpact::createOstream("error.txt", grid->rankST());
     *eStream <<error <<"\n";
 
     /******************************************************************************************/
 
     Teuchos::TimeMonitor::summarize();
 
-    if(0==space->rankST()) {
+    if(0==grid->rankST()) {
       pl->sublist("NOX Solver").sublist("Solver Options").remove("Status Test Check Type"); // dirty fix probably, will be fixed in NOX
       Teuchos::writeParameterListToXmlFile(*pl, "parameterOut.xml");
     }

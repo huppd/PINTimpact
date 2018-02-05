@@ -35,7 +35,7 @@ public:
   using OperatorT = OpT;
   using ProT = ProjectorT<OpT>;
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
   using DomainFieldT = typename OperatorT::DomainFieldT;
   using RangeFieldT = typename OperatorT::RangeFieldT;
@@ -46,7 +46,7 @@ public:
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
+  using ST = typename GridT::Scalar;
 
   bool level_;
   bool nullspaceOrtho_;
@@ -66,7 +66,7 @@ public:
 
   /// should be avoided(used in peri_navierSMGXML)
   /// does not work
-  InverseOp(const Teuchos::RCP<const SpaceT>& space):
+  InverseOp(const Teuchos::RCP<const GridT>& grid):
     level_(false),
     nullspaceOrtho_(false),
     initZero_(false),
@@ -183,8 +183,8 @@ public:
   };
 
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return problem_->getOperator()->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() {
+    return problem_->getOperator()->grid();
   };
 
 

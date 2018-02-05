@@ -3,7 +3,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 
 include_directories("./")
-include_directories("./Space")
+include_directories("./Grid")
 include_directories("./Fields")
 include_directories("./Operators")
 include_directories("./Operators/BasicOperators")
@@ -17,7 +17,7 @@ include_directories("./MultiGrid")
 include_directories("./MultiGrid/Transfers")
 include_directories( "./EigenSolver" )
 
-add_subdirectory("./Space")
+add_subdirectory("./Grid")
 add_subdirectory("./Fields")
 add_subdirectory("./Operators")
 add_subdirectory("./BelosPimpact")
@@ -26,7 +26,7 @@ add_subdirectory("./MultiGrid/Transfers")
 add_subdirectory("./NOXPimpact")
  
 
-add_library( lpimpact ${Space_SOURCES} ${field_SOURCES} ${operator_SOURCES} ${belosETI_SOURCES} ${mg_SOURCES} ${trans_SOURCES} ${nox_SOURCES} )
+add_library( lpimpact ${Grid_SOURCES} ${field_SOURCES} ${operator_SOURCES} ${belosETI_SOURCES} ${mg_SOURCES} ${trans_SOURCES} ${nox_SOURCES} )
 set_target_properties( lpimpact PROPERTIES LINKER_LANGUAGE CXX )
 target_link_libraries( lpimpact cmod )
  

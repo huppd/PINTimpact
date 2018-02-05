@@ -9,7 +9,7 @@
 #include "Teuchos_TestForException.hpp"
 
 #include "Pimpact_ScalarField.hpp"
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 
 
 
@@ -134,32 +134,32 @@ extern "C" {
 
 
 
-/// \brief Operator that restricts from a fine space to a coarse space
+/// \brief Operator that restricts from a fine grid to a coarse grid
 ///
 /// \todo c++fy
-/// \tparam ST type of the \c Space
-template<class ST>
+/// \tparam GT type of the \c Grid
+template<class GT>
 class RestrictionBaseOp {
 
-  static const int dimension = ST::dimension;
+  static const int dimension = GT::dimension;
 
-  using Scalar = typename ST::Scalar;
-  using Ordinal = typename ST::Ordinal;
+  using Scalar = typename GT::Scalar;
+  using Ordinal = typename GT::Ordinal;
 
 public:
 
-  using SpaceT = ST;
+  using GridT = GT;
 
-  using FSpaceT = SpaceT;
-  using CSpaceT = SpaceT;
+  using FGridT = GridT;
+  using CGridT = GridT;
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
 protected:
 
-  Teuchos::RCP<const SpaceT> spaceF_; 		  ///<fine space
-  Teuchos::RCP<const SpaceT> spaceC_; 		  ///<coarse space
+  Teuchos::RCP<const GridT> gridF_; 		  ///<fine grid
+  Teuchos::RCP<const GridT> gridC_; 		  ///<coarse grid
 
   int rankc2_; 														  ///<rank on coarse grid that gathers
 
@@ -179,10 +179,10 @@ protected:
   void init(const Teuchos::Tuple<int, dimension>& np) {
 
     // ------------- nGather_, iimax_
-    Teuchos::Tuple<int, dimension> periodic = spaceF_->getBCGlobal()->periodic();
+    Teuchos::Tuple<int, dimension> periodic = gridF_->getBCGlobal()->periodic();
 
-    const Teuchos::Tuple<int, dimension>& npF = spaceF_->getProcGrid()->getNP();
-    const Teuchos::Tuple<int, dimension>& npC = spaceC_->getProcGrid()->getNP();
+    const Teuchos::Tuple<int, dimension>& npF = gridF_->getProcGrid()->getNP();
+    const Teuchos::Tuple<int, dimension>& npC = gridC_->getProcGrid()->getNP();
 
     Teuchos::Tuple<Ordinal, dimension> iiShift;
 
@@ -193,24 +193,24 @@ protected:
       nGatherTotal *= nGather_[i];
 
       if(i<3) {
-        iimax_[i] = (spaceC_->nLoc(i) - 1)/nGather_[i] + 1;
-        dd_[i] = std::max((spaceF_->nLoc(i) - 1)/(iimax_[i] -1), static_cast<Ordinal>(1)); // check
+        iimax_[i] = (gridC_->nLoc(i) - 1)/nGather_[i] + 1;
+        dd_[i] = std::max((gridF_->nLoc(i) - 1)/(iimax_[i] -1), static_cast<Ordinal>(1)); // check
 
-        if(spaceF_->getStencilWidths()->getLS(i)==0)
-          if(spaceF_->getBCGlobal()->getBCL(i)==BC::Neighbor || spaceF_->getBCGlobal()->getBCL(i)==BC::Periodic)
+        if(gridF_->getStencilWidths()->getLS(i)==0)
+          if(gridF_->getBCGlobal()->getBCL(i)==BC::Neighbor || gridF_->getBCGlobal()->getBCL(i)==BC::Periodic)
             iimax_[i] = iimax_[i]-1;
-        if(spaceF_->getStencilWidths()->getLS(i)==-1)
-          if(spaceF_->getBCGlobal()->getBCU(i)==BC::Neighbor || spaceF_->getBCGlobal()->getBCU(i)==BC::Periodic)
+        if(gridF_->getStencilWidths()->getLS(i)==-1)
+          if(gridF_->getBCGlobal()->getBCU(i)==BC::Neighbor || gridF_->getBCGlobal()->getBCU(i)==BC::Periodic)
             iimax_[i] = iimax_[i]-1;
       } else {
-        iimax_[i] = spaceC_->nLoc(i);
+        iimax_[i] = gridC_->nLoc(i);
         dd_[i]    = 1;
       }
 
-      iiShift[i] = (iimax_[i] - 1)*((spaceF_->getProcGrid()->getIB(i) -1)%nGather_[i]);
+      iiShift[i] = (iimax_[i] - 1)*((gridF_->getProcGrid()->getIB(i) -1)%nGather_[i]);
       if(i<3)
-        if(spaceF_->getStencilWidths()->getLS(i)==0)
-          if(spaceF_->getBCGlobal()->getBCL(i)==BC::Neighbor || spaceF_->getBCGlobal()->getBCL(i)==BC::Periodic)
+        if(gridF_->getStencilWidths()->getLS(i)==0)
+          if(gridF_->getBCGlobal()->getBCL(i)==BC::Neighbor || gridF_->getBCGlobal()->getBCL(i)==BC::Periodic)
             iiShift[i] = iiShift[i] - 1;
     }
 
@@ -225,7 +225,7 @@ protected:
     if(nGatherTotal>1) {
       int * newRanks = new int[nGatherTotal];
 
-      MPI_Comm commWorld = spaceF_->getProcGrid()->getCommWorld();
+      MPI_Comm commWorld = gridF_->getProcGrid()->getCommWorld();
       MPI_Comm commTemp;
       MPI_Group baseGroup, newGroup;
       MPI_Comm_group(commWorld, &baseGroup);
@@ -250,7 +250,7 @@ protected:
                       coord.getRawPtr(),
                       &newRanks[i+nGather_[0]*j+nGather_[0]*nGather_[1]*k]);
 
-                    if(newRanks[i+nGather_[0]*j+nGather_[0]*nGather_[1]*k]==spaceF_->rankST())
+                    if(newRanks[i+nGather_[0]*j+nGather_[0]*nGather_[1]*k]==gridF_->rankST())
                       member_yes = true;
 
                   }
@@ -271,7 +271,7 @@ protected:
                   &comm2_);            // communicator with new Cartesian topology (handle)
                 MPI_Comm_free(&commTemp);
                 int rank_comm2 = 0;
-                if(spaceC_->getProcGrid()->participating())
+                if(gridC_->getProcGrid()->participating())
                   MPI_Comm_rank(comm2_, &rank_comm2);
                 MPI_Allreduce(
                   &rank_comm2, // starting address of send buffer (choice) starting
@@ -305,7 +305,7 @@ protected:
                           coord.getRawPtr(),
                           &newRanks[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] + l*nGather_[0]*nGather_[1]*nGather_[2] ] );
 
-                        if( newRanks[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] + l*nGather_[0]*nGather_[1]*nGather_[2] ]==spaceF_->rankST())
+                        if( newRanks[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] + l*nGather_[0]*nGather_[1]*nGather_[2] ]==gridF_->rankST())
                           member_yes = true;
 
                       }
@@ -333,7 +333,7 @@ protected:
                   comm2_ = commTemp;
 
                   int rank_comm2 = 0;
-                  if(spaceC_->getProcGrid()->participating())
+                  if(gridC_->getProcGrid()->participating())
                     MPI_Comm_rank(comm2_, &rank_comm2);
                   MPI_Allreduce(
                     &rank_comm2, // starting address of send buffer (choice) starting
@@ -351,7 +351,7 @@ protected:
       delete[] newRanks;
       // ------------------------- offs_, sizs_
 
-      if(spaceF_->getProcGrid()->participating())  {
+      if(gridF_->getProcGrid()->participating())  {
         int rank_comm2;
         MPI_Comm_rank(comm2_, &rank_comm2);
 
@@ -369,7 +369,7 @@ protected:
 
         for(int i=0; i<3; ++i) {
           sizs_local[i] = iimax_[i];
-          if(0<spaceF_->bcl(i)) sizs_local[i] +=1;
+          if(0<gridF_->bcl(i)) sizs_local[i] +=1;
         }
 
         MPI_Iallgather(
@@ -403,22 +403,22 @@ protected:
 public:
 
   RestrictionBaseOp(
-    const Teuchos::RCP<const SpaceT>& spaceF,
-    const Teuchos::RCP<const SpaceT>& spaceC):
-    spaceF_(spaceF),
-    spaceC_(spaceC),
+    const Teuchos::RCP<const GridT>& gridF,
+    const Teuchos::RCP<const GridT>& gridC):
+    gridF_(gridF),
+    gridC_(gridC),
     comm2_(MPI_COMM_NULL) {
 
-    init(spaceF_->getProcGrid()->getNP());
+    init(gridF_->getProcGrid()->getNP());
   }
 
 
   RestrictionBaseOp(
-    const Teuchos::RCP<const SpaceT>& spaceF,
-    const Teuchos::RCP<const SpaceT>& spaceC,
+    const Teuchos::RCP<const GridT>& gridF,
+    const Teuchos::RCP<const GridT>& gridC,
     const Teuchos::Tuple<int, dimension>& np):
-    spaceF_(spaceF),
-    spaceC_(spaceC),
+    gridF_(gridF),
+    gridC_(gridC),
     comm2_(MPI_COMM_NULL) {
 
     init(np);
@@ -429,14 +429,14 @@ public:
 
     if(nGather_[0]*nGather_[1]*nGather_[2]>1)
       MG_RestrictGather(
-        spaceC_->nLoc(),
-        spaceC_->bl(),
-        spaceC_->bu(),
-        spaceF_->getBCLocal()->getBCL(),
-        spaceF_->getBCGlobal()->getBCL(),
+        gridC_->nLoc(),
+        gridC_->bl(),
+        gridC_->bu(),
+        gridF_->getBCLocal()->getBCL(),
+        gridF_->getBCGlobal()->getBCL(),
         iimax_.getRawPtr(),
         nGather_.getRawPtr(),
-        spaceC_->getProcGrid()->participating(),
+        gridC_->getProcGrid()->participating(),
         rankc2_,
         MPI_Comm_c2f(comm2_),
         recv_.getRawPtr(),
@@ -451,12 +451,12 @@ public:
 
 
 /// \todo colect all create methods in one file
-template<template<class> class OpT, class SpaceT>
-Teuchos::RCP<const OpT<SpaceT> > create(
-  const Teuchos::RCP<const SpaceT>& spaceF,
-  const Teuchos::RCP<const SpaceT>& spaceC) {
+template<template<class> class OpT, class GridT>
+Teuchos::RCP<const OpT<GridT> > create(
+  const Teuchos::RCP<const GridT>& gridF,
+  const Teuchos::RCP<const GridT>& gridC) {
 
-  return Teuchos::rcp(new OpT<SpaceT>(spaceF, spaceC));
+  return Teuchos::rcp(new OpT<GridT>(gridF, gridC));
 }
 
 

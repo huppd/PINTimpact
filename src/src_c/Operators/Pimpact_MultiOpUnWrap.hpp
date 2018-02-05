@@ -27,7 +27,7 @@ public:
   using DomainFieldT = typename MOperatorT::DomainFieldT::InnerFieldT;
   using RangeFieldT = typename MOperatorT::RangeFieldT::InnerFieldT;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
@@ -67,8 +67,8 @@ public:
     return op_;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   }
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

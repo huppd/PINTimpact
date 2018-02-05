@@ -36,7 +36,7 @@
 #include "Pimpact_TransferCompoundOp.hpp"
 #include "Pimpact_TransferMultiHarmonicOp.hpp"
 #include "Pimpact_Utils.hpp"
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 
 
 
@@ -52,14 +52,14 @@ const int dNC = 4;
 const int sd = 3;
 //const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, dimension, 4>;
+using GridT = Pimpact::Grid<ST, OT, sd, dimension, 4>;
 
-using FSpaceT = SpaceT;
-using CSpaceT = Pimpact::Space<ST, OT, sd, dimension, 2>;
+using FGridT = GridT;
+using CGridT = Pimpact::Grid<ST, OT, sd, dimension, 2>;
 
-using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT, CSpaceT>;
+using CS = Pimpact::CoarsenStrategyGlobal<FGridT, CGridT>;
 
-using MGSpacesT = Pimpact::MGSpaces<FSpaceT, CSpaceT>;
+using MGGridsT = Pimpact::MGGrids<FGridT, CGridT>;
 
 
 template<class T>
@@ -84,7 +84,7 @@ template<class T> using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoo
 
 
 using DGJMGT = Pimpact::MultiGrid<
-	MGSpacesT,
+	MGGridsT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
 	Pimpact::RestrictionSFOp,
@@ -97,7 +97,7 @@ using DGJMGT = Pimpact::MultiGrid<
 
 
 using DGLMGT = Pimpact::MultiGrid<
-	MGSpacesT,
+	MGGridsT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
 	Pimpact::RestrictionSFOp,
@@ -108,7 +108,7 @@ using DGLMGT = Pimpact::MultiGrid<
 	Pimpact::DivGradO2Inv >;
 
 using DGCMGT = Pimpact::MultiGrid<
-	MGSpacesT,
+	MGGridsT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
 	Pimpact::RestrictionSFOp,
@@ -120,8 +120,8 @@ using DGCMGT = Pimpact::MultiGrid<
 
 
 // blup
-using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
-using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
+using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<GridT> >;
+using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<GridT> >;
 
 using MVF = Pimpact::MultiField<VF>;
 using MSF = Pimpact::MultiField<SF>;
@@ -168,24 +168,24 @@ TEUCHOS_UNIT_TEST(bla, bla ) {
 
 
 	///////////////////////////////////////////  set up initial stuff ////////////////////////////
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(
-			Teuchos::rcpFromRef(pl->sublist("Space", true)));
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(
+			Teuchos::rcpFromRef(pl->sublist("Grid", true)));
 
 
 	// init Fields
-	auto x = Pimpact::create<CF>(space);
+	auto x = Pimpact::create<CF>(grid);
 	auto rhs = x->clone(Pimpact::ECopy::Shallow);
 	auto rhs2 = x->clone(Pimpact::ECopy::Shallow);
 
 	x->getVField().initField(pl->sublist("Base flow"));
-	x->getSField().get0Field().initField(Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe());
+	x->getSField().get0Field().initField(Pimpact::Grad2D_inX, -2./grid->getDomainSize()->getRe());
 	x->getVField().write();
 
 
 	// construct NS Operators
-	auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp(space);
-	auto opS2V = Pimpact::createMultiHarmonicOpWrap(Pimpact::create<Pimpact::GradOp>(space));
-	auto opV2S = Pimpact::createMultiHarmonicOpWrap(Pimpact::create<Pimpact::DivOp>(space));
+	auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp(grid);
+	auto opS2V = Pimpact::createMultiHarmonicOpWrap(Pimpact::create<Pimpact::GradOp>(grid));
+	auto opV2S = Pimpact::createMultiHarmonicOpWrap(Pimpact::create<Pimpact::DivOp>(grid));
 	opV2V->assignField(x->getVField());
 	auto divGradOp =
 		Pimpact::createDivGradOp(
@@ -196,7 +196,7 @@ TEUCHOS_UNIT_TEST(bla, bla ) {
 	{
 		opV2S->apply(x->getVField(), rhs->getSField());
 		ST div = rhs->getSField().norm();
-		if(0==space->rankST())
+		if(0==grid->rankST())
 			std::cout << "\ndiv(U) = " << div << "\n";
 	}
 
@@ -215,7 +215,7 @@ TEUCHOS_UNIT_TEST(bla, bla ) {
 
 		ST residual = res->getVField().norm();
 		res->getVField().get0Field().write(300);
-		if(0==space->rankST()) 
+		if(0==grid->rankST()) 
 			std::cout << "|| rhs_u - grad(p) ||: " << residual << "\n";
 	}
 	{ // check consistency of RHS
@@ -248,7 +248,7 @@ TEUCHOS_UNIT_TEST(bla, bla ) {
 				Teuchos::rcpFromRef(pl->sublist("DivGrad")));
 
 	//  Multigrid DivGrad
-	auto mgSpaces = Pimpact::createMGSpaces<CS>(space, pl->sublist("Multi Grid"
+	auto mgGrids = Pimpact::createMGGrids<CS>(grid, pl->sublist("Multi Grid"
 			).get<int>("maxGrids"));
 
 	auto mgDivGrad = 
@@ -263,9 +263,9 @@ TEUCHOS_UNIT_TEST(bla, bla ) {
 			//Pimpact::DivGradO2LSmoother,
 			Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv
-				>(mgSpaces, divGradOp, Teuchos::rcpFromRef(pl->sublist("DivGrad").sublist("Multi Grid")));
+				>(mgGrids, divGradOp, Teuchos::rcpFromRef(pl->sublist("DivGrad").sublist("Multi Grid")));
 
-	if(0==space->rankST())
+	if(0==grid->rankST())
 		mgDivGrad->print();
 
 	// set preconditioners
@@ -334,7 +334,7 @@ TEUCHOS_UNIT_TEST(bla, bla ) {
 
 		//ST residual = res->getVField().norm();
 		//res->getVField().write(300);
-		//if(0==space->rankST()) 
+		//if(0==grid->rankST()) 
 		//std::cout << "|| rhs_u - grad(p) ||: " << residual << "\n";
 	}
 

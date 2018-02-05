@@ -25,29 +25,29 @@ namespace Pimpact {
 
 
 template<class S, class O, int sd, int d, int dimNC>
-class Space;
+class Grid;
 
 
 
-template<class SpaceT>
+template<class GridT>
 class ScalarField;
 
 
 
 /// \brief Interpolation operator.
 /// \ingroup BaseOperator
-/// \ingroup Space
+/// \ingroup Grid
 ///
 /// is used in the \c ScalarField::write method to interpolate the velocity to the pressure points, also used in \c ConvectionVOp
-template<class Scalar, class Ordinal, int sdim, int dimension, int dimNC >
+template<class Scalar, class Ordinal, int sdim, int dimension, int dimNC>
 class InterpolateV2S {
 
 public:
 
-  using SpaceT = Space<Scalar, Ordinal, sdim, dimension, dimNC>;
+  using GridT = Grid<Scalar, Ordinal, sdim, dimension, dimNC>;
 
-  using DomainFieldT = ScalarField<SpaceT >;
-  using RangeFieldT = ScalarField<SpaceT >;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
 protected:
 
@@ -107,16 +107,16 @@ public:
     assert(x.getType() != F::S);
     assert(y.getType() == F::S);
 
-    Teuchos::RCP<const SpaceT> space = x.space();
+    Teuchos::RCP<const GridT> grid = x.grid();
 
     ECoord m = static_cast<ECoord>(x.getType());
 
     x.exchange(m);
 
     if(X==m) {
-      for(Ordinal k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-        for(Ordinal j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-          for(Ordinal i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+      for(Ordinal k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+        for(Ordinal j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+          for(Ordinal i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
             if(Add::N==add) y(i, j, k) = 0.;
             for(Ordinal ii=c_[m].bl(); ii<=c_[m].bu(); ++ii)
               y(i, j, k) += getC(m, i, ii)*x(i+ii, j, k);
@@ -124,9 +124,9 @@ public:
     }
 
     if(Y==m) {
-      for(Ordinal k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-        for(Ordinal j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-          for(Ordinal i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+      for(Ordinal k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+        for(Ordinal j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+          for(Ordinal i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
             if(Add::N==add) y(i, j, k) = 0.;
             for(Ordinal jj=c_[m].bl(); jj<=c_[m].bu(); ++jj)
               y(i, j, k) += getC(m, j, jj)*x(i, j+jj, k);
@@ -134,9 +134,9 @@ public:
     }
 
     if(Z==m) {
-      for(Ordinal k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-        for(Ordinal j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-          for(Ordinal i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+      for(Ordinal k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+        for(Ordinal j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+          for(Ordinal i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
             if(Add::N==add) y(i, j, k) = 0.;
             for(Ordinal kk=c_[m].bl(); kk<=c_[m].bu(); ++kk)
               y(i, j, k) += getC(m, k, kk)*x(i, j, k+kk);
@@ -209,9 +209,9 @@ Teuchos::RCP<const InterpolateV2S<S, O, sd, d, dimNC> > createInterpolateV2S(
 /// \relates InterpolateV2S
 template<class S, class O, int sd, int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S, O, sd, d, dimNC> > createInterpolateV2S(
-    const Teuchos::RCP<const Space<S, O, sd, d, dimNC> >& space) {
+    const Teuchos::RCP<const Grid<S, O, sd, d, dimNC> >& grid) {
 
-  return space->getInterpolateV2S();
+  return grid->getInterpolateV2S();
 }
 
 

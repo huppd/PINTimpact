@@ -24,14 +24,14 @@ class MGSmoothers {
 
 public:
 
-  using MGSpacesT = typename MGOperatorsT::MGSpacesT;
+  using MGGridsT = typename MGOperatorsT::MGGridsT;
   using COperatorT = typename MGOperatorsT::COperatorT;
 
   using SmootherT = ST<COperatorT>;
 
 protected:
 
-  Teuchos::RCP<const MGSpacesT> mgSpaces_;
+  Teuchos::RCP<const MGGridsT> mgGrids_;
 
   std::vector<Teuchos::RCP<SmootherT> >  smoothers_;
 
@@ -40,11 +40,11 @@ public:
   MGSmoothers(
     const Teuchos::RCP<const MGOperatorsT>& mgOperators,
     Teuchos::RCP<Teuchos::ParameterList> pl):
-    mgSpaces_(mgOperators->getMGSpaces()),
-    smoothers_(mgSpaces_->getNGrids()-1) {
+    mgGrids_(mgOperators->getMGGrids()),
+    smoothers_(mgGrids_->getNGrids()-1) {
 
-    for(int i=0; i<mgSpaces_->getNGrids()-1; ++i)
-      if(mgSpaces_->participating(i))
+    for(int i=0; i<mgGrids_->getNGrids()-1; ++i)
+      if(mgGrids_->participating(i))
         smoothers_[i] = Teuchos::rcp(new SmootherT(mgOperators->get(i), pl));
 
     // not working on brutus
@@ -53,11 +53,11 @@ public:
 
 //public:
 
-  /// \brief gets ith smoother, similar to python i=-1 is gets you the coarsest space
+  /// \brief gets ith smoother, similar to python i=-1 is gets you the coarsest grid
   const Teuchos::RCP<SmootherT>& get(int i) const {
     assert(-1!=i);
     if(i<0)
-      return smoothers_[mgSpaces_->getNGrids()+i];
+      return smoothers_[mgGrids_->getNGrids()+i];
     else
       return smoothers_[i];
   }
@@ -84,7 +84,7 @@ createMGSmoothers(
 
 
 
-#include "Pimpact_MGSpaces.hpp"
+#include "Pimpact_MGGrids.hpp"
 #include "Pimpact_MGOperators.hpp"
 #include "Pimpact_DivGradO2JSmoother.hpp"
 #include "Pimpact_NonlinearSmoother.hpp"

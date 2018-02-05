@@ -36,7 +36,7 @@ const int sd = 3;
 const int d = 3;
 const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, d, dNC>;
+using GridT = Pimpact::Grid<ST, OT, sd, d, dNC>;
 
 
 bool testMpi = true;
@@ -81,8 +81,8 @@ TEUCHOS_STATIC_SETUP() {
 //  typedef NOX::Pimpact::LinearStokes Interface;
 //
 //  auto fS  = Pimpact::createStencilWidths<OT>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<OT>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<OT>();
+//  auto iIS = Pimpact::createInnerFieldIndexGrids<OT>();
+//  auto fIS = Pimpact::createFullFieldIndexGrids<OT>();
 //
 //  auto xv = Pimpact::createInitMVF<ST, OT>(Pimpact::Zero2DFlow, fST, iIS, fIS);
 //
@@ -127,8 +127,8 @@ TEUCHOS_STATIC_SETUP() {
 //  typedef NOX::Pimpact::LinearStokes Interface;
 //
 //  auto fS  = Pimpact::createStencilWidths<OT>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<OT>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<OT>();
+//  auto iIS = Pimpact::createInnerFieldIndexGrids<OT>();
+//  auto fIS = Pimpact::createFullFieldIndexGrids<OT>();
 //
 //  auto xv = Pimpact::createInitMVF<ST, OT>(Pimpact::Zero2DFlow, fS, iIS, fIS);
 //
@@ -181,8 +181,8 @@ TEUCHOS_STATIC_SETUP() {
 //  typedef NOX::Pimpact::LinearStokes Interface;
 //
 //  auto fS  = Pimpact::createStencilWidths<OT>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<OT>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<OT>();
+//  auto iIS = Pimpact::createInnerFieldIndexGrids<OT>();
+//  auto fIS = Pimpact::createFullFieldIndexGrids<OT>();
 //
 //  auto xv = Pimpact::createInitMVF<ST, OT>(Pimpact::Zero2DFlow, fS, iIS, fIS);
 //
@@ -235,8 +235,8 @@ TEUCHOS_STATIC_SETUP() {
 //  typedef NOX::Pimpact::LinearStokes Interface;
 //
 //  auto fS  = Pimpact::createStencilWidths<OT>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<OT>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<OT>();
+//  auto iIS = Pimpact::createInnerFieldIndexGrids<OT>();
+//  auto fIS = Pimpact::createFullFieldIndexGrids<OT>();
 //
 //  auto xv = Pimpact::createInitMVF<ST, OT>(Pimpact::Zero2DFlow, fS, iIS, fIS);
 //
@@ -288,8 +288,8 @@ TEUCHOS_STATIC_SETUP() {
 //  typedef NOX::Pimpact::LinearStokes Interface;
 //
 //  auto fS  = Pimpact::createStencilWidths<OT>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<OT>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<OT>();
+//  auto iIS = Pimpact::createInnerFieldIndexGrids<OT>();
+//  auto fIS = Pimpact::createFullFieldIndexGrids<OT>();
 //
 //  auto xv = Pimpact::createInitMVF<ST, OT>(Pimpact::Zero2DFlow, fS, iIS, fIS);
 //
@@ -341,14 +341,14 @@ TEUCHOS_STATIC_SETUP() {
 //  typedef Pimpact::OperatorBase<MVF>  BOP;
 //
 //  auto fS = Pimpact::createStencilWidths<OT>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<OT>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<OT>();
+//  auto iIS = Pimpact::createInnerFieldIndexGrids<OT>();
+//  auto fIS = Pimpact::createFullFieldIndexGrids<OT>();
 //
 //  auto vel = Pimpact::createVectorField<ST, OT>(fS, iIS, fIS);
 //
 //
-//  auto x = Teuchos::rcp(new Pimpact::MultiField<VF>(space, 10));
-//  auto y = Teuchos::rcp(new Pimpact::MultiField<VF>(space, 10));
+//  auto x = Teuchos::rcp(new Pimpact::MultiField<VF>(grid, 10));
+//  auto y = Teuchos::rcp(new Pimpact::MultiField<VF>(grid, 10));
 //
 //  auto op = Pimpact::createMultiOperatorBase<MVF, OP>();
 //
@@ -388,8 +388,8 @@ TEUCHOS_STATIC_SETUP() {
 //  typedef NOX::Pimpact::Interface<> Interface;
 //
 //  auto fS  = Pimpact::createStencilWidths<OT>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<OT>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<OT>();
+//  auto iIS = Pimpact::createInnerFieldIndexGrids<OT>();
+//  auto fIS = Pimpact::createFullFieldIndexGrids<OT>();
 //
 //  auto xv = Pimpact::createInitMVF<ST, OT>(Pimpact::Zero2DFlow, fS, iIS, fIS);
 //
@@ -440,8 +440,8 @@ TEUCHOS_STATIC_SETUP() {
 //  typedef NOX::Pimpact::LinearStokes Interface;
 //
 //  auto fS  = Pimpact::createStencilWidths<OT>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<OT>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<OT>();
+//  auto iIS = Pimpact::createInnerFieldIndexGrids<OT>();
+//  auto fIS = Pimpact::createFullFieldIndexGrids<OT>();
 //
 //  auto xv = Pimpact::createInitMVF<ST, OT>(Pimpact::Zero2DFlow, fS, iIS, fIS);
 //
@@ -480,7 +480,7 @@ TEUCHOS_STATIC_SETUP() {
 
 //TEUCHOS_UNIT_TEST(NOXPimpact_Group, SimpleNonlinear) {
 
-//typedef Pimpact::VectorField<SpaceT> VF;
+//typedef Pimpact::VectorField<GridT> VF;
 
 //typedef Pimpact::MultiField<VF> MVF;
 
@@ -489,19 +489,19 @@ TEUCHOS_STATIC_SETUP() {
 //typedef NOX::Pimpact::Vector<typename Inter::FieldT> NV;
 
 
-//Teuchos::RCP<const SpaceT> = Pimpact::create<SpaceT>(pl);
+//Teuchos::RCP<const GridT> = Pimpact::create<GridT>(pl);
 
-//int rank = space->rankST();
+//int rank = grid->rankST();
 
-//auto vel = Pimpact::create<Pimpact::VectorField>(space);
+//auto vel = Pimpact::create<Pimpact::VectorField>(grid);
 
 //vel->initField(Pimpact::ZeroFlow);
 
-//auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space, 1);
-//auto f = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space, 1);
+//auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<GridT> >(grid, 1);
+//auto f = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<GridT> >(grid, 1);
 
 
-//auto sop = Pimpact::create<ConvDiffOpT>(space); ;
+//auto sop = Pimpact::create<ConvDiffOpT>(grid); ;
 
 //auto op =
 //Pimpact::createOperatorBase(
@@ -515,7 +515,7 @@ TEUCHOS_STATIC_SETUP() {
 //Pimpact::createMultiOpWrap(
 //Pimpact::create<
 //Pimpact::NonlinearSmoother<
-//ConvDiffOpT<Pimpact::Space<ST, OT, d, dNC> > ,
+//ConvDiffOpT<Pimpact::Grid<ST, OT, d, dNC> > ,
 //Pimpact::ConvectionDiffusionSORSmoother > > (
 //sop
 //)

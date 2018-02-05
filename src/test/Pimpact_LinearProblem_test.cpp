@@ -26,7 +26,7 @@ using ST = double;
 using OT = int;
 const int sd = 3;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, 3, 4>;
+using GridT = Pimpact::Grid<ST, OT, sd, 3, 4>;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -55,19 +55,19 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST(BelosSolver, HelmholtzMV) {
 
-  using VF = Pimpact::VectorField<SpaceT>;
+  using VF = Pimpact::VectorField<GridT>;
   using MVF = Pimpact::MultiField<VF>;
 
   using BOp = Pimpact::OperatorBase<MVF>;
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto x = Pimpact::wrapMultiField(Pimpact::create<Pimpact::VectorField>(space));
-  auto b = Pimpact::wrapMultiField(Pimpact::create<Pimpact::VectorField>(space));
+  auto x = Pimpact::wrapMultiField(Pimpact::create<Pimpact::VectorField>(grid));
+  auto b = Pimpact::wrapMultiField(Pimpact::create<Pimpact::VectorField>(grid));
 
   b->init(1.);
 
-  auto op = Pimpact::createMultiOperatorBase(Pimpact::create<Pimpact::HelmholtzOp>(space));
+  auto op = Pimpact::createMultiOperatorBase(Pimpact::create<Pimpact::HelmholtzOp>(grid));
 
   auto para = Pimpact::createLinSolverParameter("GMRES", eps);
 
@@ -99,27 +99,27 @@ TEUCHOS_UNIT_TEST(BelosSolver, HelmholtzMV) {
 
 TEUCHOS_UNIT_TEST(BelosSolver, DivGrad) {
 
-  using SF = Pimpact::ScalarField<SpaceT>;
+  using SF = Pimpact::ScalarField<GridT>;
   using BSF = Pimpact::MultiField<SF>;
 
   using BOp = Pimpact::OperatorBase<BSF>;
 
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
 
-  Pimpact::VectorField<SpaceT> temp(space);
+  Pimpact::VectorField<GridT> temp(grid);
 	temp(Pimpact::F::U).initField(Pimpact::Poiseuille2D_inX);
 
-  auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >(space, 1));
+  auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::ScalarField<GridT> >(grid, 1));
   auto b = x->clone();
 
 
 	temp.init();
   auto op = Pimpact::createOperatorBase(
       Pimpact::createMultiOpWrap(
-				Pimpact::create<Pimpact::DivGradOp<SpaceT> >(space)
-          //Pimpact::createDivGradOp(space)
+				Pimpact::create<Pimpact::DivGradOp<GridT> >(grid)
+          //Pimpact::createDivGradOp(grid)
      )
  );
 
@@ -168,18 +168,18 @@ TEUCHOS_UNIT_TEST(BelosSolver, DivGrad) {
 
 TEUCHOS_UNIT_TEST(LinearProblem, HelmholtzMV) {
 
-	using MF = Pimpact::MultiField<Pimpact::VectorField<SpaceT> >;
+	using MF = Pimpact::MultiField<Pimpact::VectorField<GridT> >;
 
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space, 1));
-	auto b = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space, 1));
+	auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<GridT> >(grid, 1));
+	auto b = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<GridT> >(grid, 1));
 
 	x->init(0.);
 	b->init(1.);
 
-	auto A = Pimpact::createMultiOperatorBase(Pimpact::create<Pimpact::HelmholtzOp>(space));
+	auto A = Pimpact::createMultiOperatorBase(Pimpact::create<Pimpact::HelmholtzOp>(grid));
 
 	auto param = Pimpact::createLinSolverParameter("GMRES", 1.e-4);
 

@@ -23,10 +23,10 @@ using OT = int;
 
 const int sd = 3;
 
-using SpaceT = typename Pimpact::Space<ST,OT,sd,3,4>;
+using GridT = typename Pimpact::Grid<ST,OT,sd,3,4>;
 
-using SF = Pimpact::ScalarField<SpaceT>;
-using VF = Pimpact::VectorField<SpaceT>;
+using SF = Pimpact::ScalarField<GridT>;
+using VF = Pimpact::VectorField<GridT>;
 using MSF = Pimpact::ModeField<SF>;
 using MVF = Pimpact::ModeField<VF>;
 using BMSF = Pimpact::MultiField<MSF>;
@@ -61,21 +61,21 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, createInitPrint) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
 	Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x));
 
-	nx->init(space->rankST());
+	nx->init(grid->rankST());
 }
 
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, InfNormAndInit) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
 	Teuchos::RCP<NV> um = Teuchos::rcp(new NV(x));
 
@@ -90,7 +90,7 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, InfNormAndInit) {
 	// one test with infty-norm
 	int rank;
 	double init;
-	MPI_Comm_rank(space->comm(), &rank);
+	MPI_Comm_rank(grid->comm(), &rank);
 	for(double i = 0.; i<200.1; ++i) {
 		init = 3*i-1.;
 		init = (init<0)?-init:init;
@@ -104,9 +104,9 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, InfNormAndInit) {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, TwoNormAndInit) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
 	Teuchos::RCP<NV> q = Teuchos::rcp(new NV(x));
 
@@ -126,9 +126,9 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, TwoNormAndInit) {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, add) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x));
   Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone(Pimpact::ECopy::Shallow)));
@@ -159,9 +159,9 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, add) {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, reciprocal) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x));
   Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone(Pimpact::ECopy::Shallow)));
@@ -197,9 +197,9 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, reciprocal) {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, normWeighted) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x));
   Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone(Pimpact::ECopy::Shallow)));
@@ -242,9 +242,9 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, normWeighted) {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, scale2) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x));
   Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone(Pimpact::ECopy::Shallow)));
@@ -284,9 +284,9 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, scale2) {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, innerProduct) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
 	Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x));
 	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone()));
@@ -321,9 +321,9 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, innerProduct) {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, scale) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
 	Teuchos::RCP<NV> q = Teuchos::rcp(new NV(x));
 
@@ -340,9 +340,9 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, scale) {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, random) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
 	Teuchos::RCP<NV> q = Teuchos::rcp(new NV(x));
 
@@ -360,9 +360,9 @@ TEUCHOS_UNIT_TEST(NOXPimpactVector, random) {
 
 TEUCHOS_UNIT_TEST(NOXPimpactVector, update) {
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Teuchos::RCP<CF> x  = Pimpact::create<CF>(space);
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>(grid);
 
 	Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x));
 	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone()));

@@ -24,10 +24,10 @@ class NonlinearSmoother {
 
 public:
 
-  using SpaceT = typename ConvVOpT::SpaceT;
+  using GridT = typename ConvVOpT::GridT;
 
-  using DomainFieldT = VectorField<SpaceT>;
-  using RangeFieldT = VectorField<SpaceT>;
+  using DomainFieldT = VectorField<GridT>;
+  using RangeFieldT = VectorField<GridT>;
 
   using SSmootherT = SmootherT<typename ConvVOpT::ConvSOpT>;
 
@@ -35,7 +35,7 @@ protected:
 
   Teuchos::RCP<NonlinearWrap<SSmootherT> > convVWrap_;
 
-  Teuchos::RCP<ConvectionField<SpaceT> > convField_;
+  Teuchos::RCP<ConvectionField<GridT> > convField_;
 
 public:
 
@@ -58,7 +58,7 @@ public:
   }
 
 
-  Teuchos::RCP<ConvectionField<SpaceT> > getConvField() const {
+  Teuchos::RCP<ConvectionField<GridT> > getConvField() const {
     return convField_;
   }
 
@@ -67,8 +67,8 @@ public:
     return false;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return convVWrap_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return convVWrap_->grid();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

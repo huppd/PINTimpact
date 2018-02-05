@@ -26,7 +26,7 @@ public:
   using DomainFieldT = typename OP3::DomainFieldT;
   using RangeFieldT = typename OP1::RangeFieldT;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
@@ -47,11 +47,11 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
       trans=Belos::NOTRANS) const {
 
-    typename OP2::RangeFieldT temp1(space()); // has to be equal to OP2::DomainFieldT
+    typename OP2::RangeFieldT temp1(grid()); // has to be equal to OP2::DomainFieldT
 
     op3_->apply(x, temp1);
 
-    typename OP2::DomainFieldT temp2(space()); // has to be equal to OP3::DomainFieldT
+    typename OP2::DomainFieldT temp2(grid()); // has to be equal to OP3::DomainFieldT
 
     //temp1.extrapolateBC();
 
@@ -65,8 +65,8 @@ public:
   /// \note here nothing happens, because it is assumed to be done somewhere else
   void assignField(const RangeFieldT& field) { };
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op1_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op1_->grid();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

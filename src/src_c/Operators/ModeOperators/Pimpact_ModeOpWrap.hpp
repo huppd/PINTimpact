@@ -27,7 +27,7 @@ public:
   using DomainFieldT = ModeField<typename Operator::DomainFieldT>;
   using RangeFieldT = ModeField<typename Operator::RangeFieldT>;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
@@ -59,8 +59,8 @@ public:
     return op_->hasApplyTranspose();
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}

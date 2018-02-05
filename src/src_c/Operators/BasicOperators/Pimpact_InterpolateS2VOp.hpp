@@ -20,15 +20,15 @@ class InterpolateS2V {
 
 public:
 
-  using SpaceT = ST;
+  using GridT = ST;
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT  = ScalarField<SpaceT>;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT  = ScalarField<GridT>;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
   static const int dimNC = ST::dimNC;
   static const int dim = ST::dimension;
@@ -38,43 +38,43 @@ protected:
   using Stenc = Stencil<Scalar, Ordinal, 0, SW::GL(0), SW::GU(0) >;
   using TO = const Teuchos::Tuple<Stenc, ST::sdim>;
 
-  Teuchos::RCP<const SpaceT> space_;
+  Teuchos::RCP<const GridT> grid_;
 
   TO c_;
 
 public:
 
   /// \todo set stencils for dNC=2 and BC=Dirichlet
-  InterpolateS2V(const Teuchos::RCP<const SpaceT>& space):
-    space_(space) {
+  InterpolateS2V(const Teuchos::RCP<const GridT>& grid):
+    grid_(grid) {
 
     //const bool mapping = true; // order ~4
     const bool mapping = false;  // order ~6
 
-    for(int i=0; i<SpaceT::sdim; ++i) {
+    for(int i=0; i<GridT::sdim; ++i) {
       F f = static_cast<F>(i);
 
-      c_[i] = Stenc(space_->nLoc(i));
+      c_[i] = Stenc(grid_->nLoc(i));
 
       FD_getDiffCoeff(
         0,
-        space_->nLoc(i),
-        space_->bl(i),
-        space_->bu(i),
-        space_->gl(i),
-        space_->gu(i),
-        space_->getBCLocal()->getBCL(i),
-        space_->getBCLocal()->getBCU(i),
-        space_->getShift(i),
+        grid_->nLoc(i),
+        grid_->bl(i),
+        grid_->bu(i),
+        grid_->gl(i),
+        grid_->gu(i),
+        grid_->getBCLocal()->getBCL(i),
+        grid_->getBCLocal()->getBCU(i),
+        grid_->getShift(i),
         2,    // grid_type ???
         i+1,  // direction
         0,    // derivative
         0,    // central
         mapping, // mapping
-        space_->getStencilWidths()->getDimNcbG(i),
-        space_->getStencilWidths()->getNcbG(i),
-        space_->getCoordinatesLocal()->getX(F::S, i),
-        space_->getCoordinatesLocal()->getX(f, i),
+        grid_->getStencilWidths()->getDimNcbG(i),
+        grid_->getStencilWidths()->getNcbG(i),
+        grid_->getCoordinatesLocal()->getX(F::S, i),
+        grid_->getCoordinatesLocal()->getX(f, i),
         c_[i].get());
     }
   };
@@ -85,7 +85,7 @@ public:
 
     assert(x.getType() == F::S);
     assert(y.getType() != F::S);
-    assert(!(y.getType() == F::W && SpaceT::sdim==2));
+    assert(!(y.getType() == F::W && GridT::sdim==2));
 
     int m = static_cast<int>(y.getType());
     const F field = y.getType();
@@ -93,11 +93,11 @@ public:
 
     x.exchange(m);
     //
-    for(Ordinal k=space()->si(field, Z, B::Y); k<=space()->ei(field, Z, B::Y); ++k)
-      for(Ordinal j=space()->si(field, Y, B::Y); j<=space()->ei(field, Y, B::Y); ++j)
-        for(Ordinal i=space()->si(field, X, B::Y); i<=space()->ei(field, X, B::Y); ++i) {
+    for(Ordinal k=grid()->si(field, Z, B::Y); k<=grid()->ei(field, Z, B::Y); ++k)
+      for(Ordinal j=grid()->si(field, Y, B::Y); j<=grid()->ei(field, Y, B::Y); ++j)
+        for(Ordinal i=grid()->si(field, X, B::Y); i<=grid()->ei(field, X, B::Y); ++i) {
           if(Add::N==add) y(i, j, k) = 0.;
-          for(int ii = space_->gl(m); ii<=space_->gu(m); ++ii) {
+          for(int ii = grid_->gl(m); ii<=grid_->gu(m); ++ii) {
             if(F::U==field) {
               y(i, j, k) += getC(static_cast<ECoord>(m), i, ii)*x(i+ii, j, k) ;
             } else if(F::V==field) {
@@ -117,8 +117,8 @@ public:
     return false;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return space_;
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return grid_;
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
@@ -128,7 +128,7 @@ public:
     out <<"\n--- " <<getLabel() <<" ---\n";
     out <<"--- stencil: ---";
 
-    for(int dir=0; dir<SpaceT::sdim; ++dir) {
+    for(int dir=0; dir<GridT::sdim; ++dir) {
       out <<"\ncoord: " <<static_cast<ECoord>(dir) <<"\n";
       c_[dir].print(out);
     }

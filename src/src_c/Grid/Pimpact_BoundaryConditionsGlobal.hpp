@@ -18,7 +18,7 @@ namespace Pimpact {
 /// \brief global boundary conditions
 ///
 /// \tparam dim as soon time is another class dim ->sdim
-/// \ingroup SpaceObject
+/// \ingroup GridObject
 /// \todo make int -> BC
 template<int dim>
 class BoundaryConditionsGlobal {

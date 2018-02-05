@@ -1,5 +1,5 @@
 include_directories( "../src_c" )
-include_directories( "../src_c/Space" )
+include_directories( "../src_c/Grid" )
 include_directories( "../src_c/Fields" )
 include_directories( "../src_c/Operators" )
 include_directories( "../src_c/Operators/BasicOperators" )
@@ -16,9 +16,9 @@ include_directories( "../src_c/MultiGrid/Transfers" )
 enable_testing()
 
 ## unit tests
-ADD_EXECUTABLE( SpaceGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_SpaceGrid_test.cpp )
-TARGET_LINK_LIBRARIES( SpaceGridTest  ${Pimpact_TPL_LIBRARIES} )
-add_test( NAME SpaceGridTest COMMAND mpirun -np 4 ./SpaceGridTest )
+ADD_EXECUTABLE( GridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_Grid_test.cpp )
+TARGET_LINK_LIBRARIES( GridTest  ${Pimpact_TPL_LIBRARIES} )
+add_test( NAME GridTest COMMAND mpirun -np 4 ./GridTest )
 
 ADD_EXECUTABLE( FieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_Field_test.cpp )
 TARGET_LINK_LIBRARIES( FieldTest ${Pimpact_TPL_LIBRARIES} ) 

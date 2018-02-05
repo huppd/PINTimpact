@@ -25,17 +25,17 @@ namespace Pimpact {
 ///
 /// \note it would be wishful to have a more general apply function for general operators
 ///
-/// \tparam SpaceT Space
-template<class SpaceT>
+/// \tparam GridT Grid
+template<class GridT>
 class TeuchosTransfer {
 
-  using ST  = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST  = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
 public:
 
-  using DomainFieldT= ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using DomainFieldT= ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
 
   using VectorT = Teuchos::SerialDenseVector<OT, ST>;
@@ -43,19 +43,19 @@ public:
 
 protected:
 
-  using TO = const Teuchos::Tuple<OT, SpaceT::sdim>;
+  using TO = const Teuchos::Tuple<OT, GridT::sdim>;
 
-  const Teuchos::RCP<const SpaceT> space_;
+  const Teuchos::RCP<const GridT> grid_;
 
   OT N_;
 
   TO SS_;
   TO NN_;
 
-  Teuchos::Tuple<OT, SpaceT::sdim-1> cw_;
+  Teuchos::Tuple<OT, GridT::sdim-1> cw_;
 
   constexpr OT getI(const OT i, const OT j, const OT k) {
-    return (SpaceT::sdim==2)?
+    return (GridT::sdim==2)?
       (i-SS_[X]) + (j-SS_[Y])*cw_[0] :
       (i-SS_[X]) + (j-SS_[Y])*cw_[0] + (k-SS_[Z])*cw_[1];
   }
@@ -67,35 +67,35 @@ public:
   }
 
   TeuchosTransfer(
-    const Teuchos::RCP<const SpaceT>& space,
+    const Teuchos::RCP<const GridT>& grid,
     const OT* SS,
     const OT* NN):
-    space_(space) {
+    grid_(grid) {
 
-    for(int i=0; i<SpaceT::sdim; ++i) {
+    for(int i=0; i<GridT::sdim; ++i) {
       SS_[i] = SS[i];
       NN_[i] = NN[i];
     }
 
     N_ = 1;
 
-    for(int i=0; i<SpaceT::sdim; ++i)
+    for(int i=0; i<GridT::sdim; ++i)
       N_ *= (NN_[i] - SS_[i] + 1);
 
     cw_[0] = (NN_[0] - SS_[0] + 1);
-    if(3==SpaceT::sdim)
+    if(3==GridT::sdim)
       cw_[1] = (NN_[1] - SS_[1] + 1)*cw_[0];
   }
 
-  TeuchosTransfer(const Teuchos::RCP<const SpaceT>& space):
-    TeuchosTransfer(space, space->sInd(F::S), space->eInd(F::S)) {}
+  TeuchosTransfer(const Teuchos::RCP<const GridT>& grid):
+    TeuchosTransfer(grid, grid->sInd(F::S), grid->eInd(F::S)) {}
 
 
   void apply(const DomainFieldT& x, VectorT& v) const {
 
     assert(N_== v.numRows() * v.numCols());
 
-    if(2==SpaceT::sdim)
+    if(2==GridT::sdim)
       for(OT j=SS_[Y]; j<=NN_[Y]; ++j)
         for(OT i=SS_[X]; i<=NN_[X]; ++i)
           v(getI(i, j, 1)) = x(i, j, 1);
@@ -112,7 +112,7 @@ public:
 
     assert(N_ == v.numRows()*v.numCols());
 
-    if(2==SpaceT::sdim)
+    if(2==GridT::sdim)
       for(OT j=SS_[Y]; j<=NN_[Y]; ++j)
         for(OT i=SS_[X]; i<=NN_[X]; ++i)
           x(i, j, 1) = v(getI(i, j, 1));
@@ -129,7 +129,7 @@ public:
 
     assert(N_==v.numRows()*v.numCols());
 
-    if(2==SpaceT::sdim)
+    if(2==GridT::sdim)
       for(OT j=SS_[Y]; j<=NN_[Y]; ++j)
         for(OT i=SS_[X]; i<=NN_[X]; ++i)
           x(i, j, 1) = (1-om)*x(i, j, 1) + om*v(getI(i, j, 1));
@@ -141,7 +141,7 @@ public:
   }
 
 
-  void apply(const Teuchos::RCP<const DivGradO2Op<SpaceT> >& op,
+  void apply(const Teuchos::RCP<const DivGradO2Op<GridT> >& op,
               Teuchos::RCP<MatrixT> A) const {
 
     if(A.is_null())
@@ -156,15 +156,15 @@ public:
       for(OT j=SS_[Y]; j<=NN_[Y]; ++j)
         for(OT i=SS_[X]; i<=NN_[X]; ++i) {
 
-          const bool bcX = (op->space()->getBCLocal()->getBCL(X) > 0 && i==op->space()->si(F::S, X)) ||
-                           (op->space()->getBCLocal()->getBCU(X) > 0 && i==op->space()->ei(F::S, X)) ;
-          const bool bcY = (op->space()->getBCLocal()->getBCL(Y) > 0 && j==op->space()->si(F::S, Y)) ||
-                           (op->space()->getBCLocal()->getBCU(Y) > 0 && j==op->space()->ei(F::S, Y)) ;
-          const bool bcZ = (op->space()->getBCLocal()->getBCL(Z) > 0 && k==op->space()->si(F::S, Z)) ||
-                           (op->space()->getBCLocal()->getBCU(Z) > 0 && k==op->space()->ei(F::S, Z)) ;
+          const bool bcX = (op->grid()->getBCLocal()->getBCL(X) > 0 && i==op->grid()->si(F::S, X)) ||
+                           (op->grid()->getBCLocal()->getBCU(X) > 0 && i==op->grid()->ei(F::S, X)) ;
+          const bool bcY = (op->grid()->getBCLocal()->getBCL(Y) > 0 && j==op->grid()->si(F::S, Y)) ||
+                           (op->grid()->getBCLocal()->getBCU(Y) > 0 && j==op->grid()->ei(F::S, Y)) ;
+          const bool bcZ = (op->grid()->getBCLocal()->getBCL(Z) > 0 && k==op->grid()->si(F::S, Z)) ||
+                           (op->grid()->getBCLocal()->getBCU(Z) > 0 && k==op->grid()->ei(F::S, Z)) ;
 
           //const ST eps = 0.1;
-          const ST eps = 1./static_cast<ST>(DivGradO2Op<SpaceT>::epsI);
+          const ST eps = 1./static_cast<ST>(DivGradO2Op<GridT>::epsI);
 
           const ST epsX = (bcY||bcZ)?eps:1.;
           const ST epsY = (bcX||bcZ)?eps:1.;
@@ -179,7 +179,7 @@ public:
             if((j+o)>=SS_[Y] && (j+o)<=NN_[Y])
               (*A)(I, getI(i, j+o, k)) += epsY*op->getC(Y, j, o) ;
 
-            if(3==SpaceT::sdim && (k+o)>=SS_[Z] && (k+o)<=NN_[Z])
+            if(3==GridT::sdim && (k+o)>=SS_[Z] && (k+o)<=NN_[Z])
               (*A)(I, getI(i, j, k+o)) += epsZ*op->getC(Z, k, o) ;
           }
         }
@@ -187,27 +187,27 @@ public:
 
 
   // \note not BC ready
-  void updateRHS(const Teuchos::RCP<const DivGradO2Op<SpaceT> > op,
+  void updateRHS(const Teuchos::RCP<const DivGradO2Op<GridT> > op,
                   const DomainFieldT& x, Teuchos::RCP<VectorT> b) const {
 
     assert(N_==b->numRows()*b->numCols());
 
     // boundary conditions in X
-    if(space_->getBCLocal()->getBCL(X)<=0 || SS_[X]>space_->si(F::S, X, true)) {
+    if(grid_->getBCLocal()->getBCL(X)<=0 || SS_[X]>grid_->si(F::S, X, true)) {
 
       OT i = SS_[X];
 
       OT SZ = SS_[Z];
-      if(space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->si(F::S, Z, true))
+      if(grid_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==grid_->si(F::S, Z, true))
         ++SZ;
       OT NZ = NN_[Z];
-      if(space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->ei(F::S, Z, true))
+      if(grid_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==grid_->ei(F::S, Z, true))
         --NZ;
       OT SY = SS_[Y];
-      if(space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->si(F::S, Y, true))
+      if(grid_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==grid_->si(F::S, Y, true))
         ++SY;
       OT NY = NN_[Y];
-      if(space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->ei(F::S, Y, true))
+      if(grid_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==grid_->ei(F::S, Y, true))
         --NY;
 
       for(OT k=SZ; k<=NZ; ++k)
@@ -215,21 +215,21 @@ public:
           (*b)(getI(i, j, k)) -= x(i-1, j, k)*op->getC(X, i, -1);
     }
 
-    if(space_->getBCLocal()->getBCU(X)<=0 || NN_[X]<space_->ei(F::S, X, true)) {
+    if(grid_->getBCLocal()->getBCU(X)<=0 || NN_[X]<grid_->ei(F::S, X, true)) {
 
       OT i = NN_[X];
 
       OT SZ = SS_[Z];
-      if(space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->si(F::S, Z, true))
+      if(grid_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==grid_->si(F::S, Z, true))
         ++SZ;
       OT NZ = NN_[Z];
-      if(space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->ei(F::S, Z, true))
+      if(grid_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==grid_->ei(F::S, Z, true))
         --NZ;
       OT SY = SS_[Y];
-      if(space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->si(F::S, Y, true))
+      if(grid_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==grid_->si(F::S, Y, true))
         ++SY;
       OT NY = NN_[Y];
-      if(space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->ei(F::S, Y, true))
+      if(grid_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==grid_->ei(F::S, Y, true))
         --NY;
 
       for(OT k=SZ; k<=NZ; ++k)
@@ -238,21 +238,21 @@ public:
     }
 
     // boundary conditions in Y
-    if(space_->getBCLocal()->getBCL(Y)<=0 || SS_[Y]>space_->si(F::S, Y, true)) {
+    if(grid_->getBCLocal()->getBCL(Y)<=0 || SS_[Y]>grid_->si(F::S, Y, true)) {
 
       OT j = SS_[Y];
 
       OT SZ = SS_[Z];
-      if(space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->si(F::S, Z, true))
+      if(grid_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==grid_->si(F::S, Z, true))
         ++SZ;
       OT NZ = NN_[Z];
-      if(space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->ei(F::S, Z, true))
+      if(grid_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==grid_->ei(F::S, Z, true))
         --NZ;
       OT SX = SS_[X];
-      if(space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->si(F::S, X, true))
+      if(grid_->getBCLocal()->getBCL(X)>0 && SS_[X]==grid_->si(F::S, X, true))
         ++SX;
       OT NX = NN_[X];
-      if(space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->ei(F::S, X, true))
+      if(grid_->getBCLocal()->getBCU(X)>0 && NN_[X]==grid_->ei(F::S, X, true))
         --NX;
 
       for(OT k=SZ; k<=NZ; ++k)
@@ -260,21 +260,21 @@ public:
           (*b)(getI(i, j, k)) -= x(i, j-1, k)*op->getC(Y, j, -1);
     }
 
-    if(space_->getBCLocal()->getBCU(Y)<=0 || NN_[Y]<space_->ei(F::S, Y, true)) {
+    if(grid_->getBCLocal()->getBCU(Y)<=0 || NN_[Y]<grid_->ei(F::S, Y, true)) {
 
       OT j = NN_[Y];
 
       OT SZ = SS_[Z];
-      if(space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->si(F::S, Z, true))
+      if(grid_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==grid_->si(F::S, Z, true))
         ++SZ;
       OT NZ = NN_[Z];
-      if(space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->ei(F::S, Z, true))
+      if(grid_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==grid_->ei(F::S, Z, true))
         --NZ;
       OT SX = SS_[X];
-      if(space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->si(F::S, X, true))
+      if(grid_->getBCLocal()->getBCL(X)>0 && SS_[X]==grid_->si(F::S, X, true))
         ++SX;
       OT NX = NN_[X];
-      if(space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->ei(F::S, X, true))
+      if(grid_->getBCLocal()->getBCU(X)>0 && NN_[X]==grid_->ei(F::S, X, true))
         --NX;
 
       for(OT k=SZ; k<=NZ; ++k)
@@ -283,21 +283,21 @@ public:
     }
 
     // boundary conditions in Z
-    if(space_->getBCLocal()->getBCL(Z)<=0 || SS_[Z]>space_->si(F::S, Z, true)) {
+    if(grid_->getBCLocal()->getBCL(Z)<=0 || SS_[Z]>grid_->si(F::S, Z, true)) {
 
       OT k = SS_[Z];
 
       OT SX = SS_[X];
-      if(space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->si(F::S, X, true))
+      if(grid_->getBCLocal()->getBCL(X)>0 && SS_[X]==grid_->si(F::S, X, true))
         ++SX;
       OT NX = NN_[X];
-      if(space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->ei(F::S, X, true))
+      if(grid_->getBCLocal()->getBCU(X)>0 && NN_[X]==grid_->ei(F::S, X, true))
         --NX;
       OT SY = SS_[Y];
-      if(space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->si(F::S, Y, true))
+      if(grid_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==grid_->si(F::S, Y, true))
         ++SY;
       OT NY = NN_[Y];
-      if(space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->ei(F::S, Y, true))
+      if(grid_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==grid_->ei(F::S, Y, true))
         --NY;
 
       for(OT j=SY; j<=NY; ++j)
@@ -305,21 +305,21 @@ public:
           (*b)(getI(i, j, k)) -= x(i, j, k-1)*op->getC(Z, k, -1);
     }
 
-    if(space_->getBCLocal()->getBCU(Z)<=0 || NN_[Z]<space_->ei(F::S, Z, true)) {
+    if(grid_->getBCLocal()->getBCU(Z)<=0 || NN_[Z]<grid_->ei(F::S, Z, true)) {
 
       OT k = NN_[Z];
 
       OT SX = SS_[X];
-      if(space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->si(F::S, X, true))
+      if(grid_->getBCLocal()->getBCL(X)>0 && SS_[X]==grid_->si(F::S, X, true))
         ++SX;
       OT NX = NN_[X];
-      if(space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->ei(F::S, X, true))
+      if(grid_->getBCLocal()->getBCU(X)>0 && NN_[X]==grid_->ei(F::S, X, true))
         --NX;
       OT SY = SS_[Y];
-      if(space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->si(F::S, Y, true))
+      if(grid_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==grid_->si(F::S, Y, true))
         ++SY;
       OT NY = NN_[Y];
-      if(space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->ei(F::S, Y, true))
+      if(grid_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==grid_->ei(F::S, Y, true))
         --NY;
 
       for(OT j=SY; j<=NY; ++j)
@@ -352,12 +352,12 @@ class TeuchosSolver {
 
 public:
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
 protected:
 
-  using ST  = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST  = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
 public:
 
@@ -373,7 +373,7 @@ public:
 protected:
 
   Teuchos::RCP<const OperatorT > op_;
-  Teuchos::RCP<TeuchosTransfer<SpaceT> > trans_;
+  Teuchos::RCP<TeuchosTransfer<GridT> > trans_;
   Teuchos::RCP<SolverT > Asov_;
 
 
@@ -394,7 +394,7 @@ public:
 
   TeuchosSolver(const Teuchos::RCP<const OperatorT>& op):
     op_(op),
-    trans_(Teuchos::rcp(new TeuchosTransfer<SpaceT>(op->space()))) {
+    trans_(Teuchos::rcp(new TeuchosTransfer<GridT>(op->grid()))) {
 
     init();
   }
@@ -404,7 +404,7 @@ public:
     const OT* SS,
     const OT* NN):
     op_(op),
-    trans_(Teuchos::rcp(new TeuchosTransfer<SpaceT>(op->space(), SS, NN))) {
+    trans_(Teuchos::rcp(new TeuchosTransfer<GridT>(op->grid(), SS, NN))) {
 
     init();
   }
@@ -456,7 +456,7 @@ public:
   constexpr const Teuchos::RCP<const OperatorT >& getOperator() const {
     return op_;
   }
-  constexpr const Teuchos::RCP<TeuchosTransfer<SpaceT> >& getTeuchosTransfer() const {
+  constexpr const Teuchos::RCP<TeuchosTransfer<GridT> >& getTeuchosTransfer() const {
     return trans_;
   }
 
@@ -468,10 +468,10 @@ public:
 template<class OperatorT>
 class TeuchosEigenvalues {
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
-  using ST  = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST  = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
   using DomainFieldT= typename OperatorT::DomainFieldT;
   using RangeFieldT = typename OperatorT::RangeFieldT;
@@ -482,13 +482,13 @@ class TeuchosEigenvalues {
 protected:
 
   Teuchos::RCP<const OperatorT > op_;
-  Teuchos::RCP<TeuchosTransfer<SpaceT> > trans_;
+  Teuchos::RCP<TeuchosTransfer<GridT> > trans_;
 
 public:
 
   TeuchosEigenvalues(const Teuchos::RCP<const OperatorT>& op):
     op_(op),
-    trans_(Teuchos::rcp(new TeuchosTransfer<SpaceT>(op->space()))) { }
+    trans_(Teuchos::rcp(new TeuchosTransfer<GridT>(op->grid()))) { }
 
   /// \name getter
   /// @{
@@ -504,7 +504,7 @@ public:
   Teuchos::RCP<const OperatorT > getOperator() const {
     return op_;
   }
-  Teuchos::RCP<TeuchosTransfer<SpaceT> > getTeuchosTransfer() const {
+  Teuchos::RCP<TeuchosTransfer<GridT> > getTeuchosTransfer() const {
     return trans_;
   }
 
@@ -513,22 +513,22 @@ public:
   void computeEV(const ECoord dir, ST& evMax, ST& evMin) const {
 
 
-    OT n = op_->space()->nLoc(dir)-1+1;
+    OT n = op_->grid()->nLoc(dir)-1+1;
 
     Teuchos::RCP<MatrixT > A;
 
     A = Teuchos::rcp(new MatrixT(n, n, true));
     // construct A
-    for(OT i=1; i<=op_->space()->nLoc(dir); ++i)
+    for(OT i=1; i<=op_->grid()->nLoc(dir); ++i)
       for(int o=-1; o<=1; ++o) {
         OT I = i-1;
-        if((i+o)>=op_->space()->si(F::S, dir) && (i+o)<=op_->space()->ei(F::S, dir))
+        if((i+o)>=op_->grid()->si(F::S, dir) && (i+o)<=op_->grid()->ei(F::S, dir))
           (*A)(I, I+o) += op_->getC(dir, i, o) ;
       }
 
 
     // lower boundaries // deperacted?
-    if(op_->space()->getBCLocal()->getBCL(dir)>0) {
+    if(op_->grid()->getBCLocal()->getBCL(dir)>0) {
       OT i = 1;
       OT I = i-1;
       // set row zero
@@ -539,8 +539,8 @@ public:
     }
 
     // upper boundaries
-    if(op_->space()->getBCLocal()->getBCU(dir)>0) {
-      OT i = op_->space()->nLoc(dir);
+    if(op_->grid()->getBCLocal()->getBCU(dir)>0) {
+      OT i = op_->grid()->nLoc(dir);
       OT I = i-1;
       // set row zero
       for(OT l=0; l<A->numCols(); ++l)
@@ -630,7 +630,7 @@ public:
     evMax = 0.;
     evMin = 0.;
 
-    for(int i=0; i<SpaceT::sdim; ++i) {
+    for(int i=0; i<GridT::sdim; ++i) {
       ST evMaxTemp, evMinTemp;
       computeEV(static_cast<Pimpact::ECoord>(i), evMaxTemp, evMinTemp);
       evMax += evMaxTemp;
@@ -641,11 +641,11 @@ public:
   // move to EV computer
   void computeFullEV(ST& evMax, ST& evMin) const {
 
-    Teuchos::RCP<const TeuchosTransfer<SpaceT> > trans =
-      Teuchos::rcp(new TeuchosTransfer<SpaceT>(
-                      op_->space(),
-                      op_->space()->sIndB(F::S),
-                      op_->space()->eIndB(F::S)));
+    Teuchos::RCP<const TeuchosTransfer<GridT> > trans =
+      Teuchos::rcp(new TeuchosTransfer<GridT>(
+                      op_->grid(),
+                      op_->grid()->sIndB(F::S),
+                      op_->grid()->eIndB(F::S)));
 
     OT N = trans->getN();
 

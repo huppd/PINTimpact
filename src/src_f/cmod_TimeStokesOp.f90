@@ -17,37 +17,37 @@ contains
   !> \brief computes \f$ \begin{bmatrix} r\_vel \\ r\_p \end{bmatrix} = \begin{pmatrix} mulI\partial_t -mulL\Delta & \nabla \\ \nabla \cdot \end{pmatrix}\begin{bmatrix} r\_vel \\ r\_p \end{bmatrix}  \f$
   !!
   !! \param dimens denotes spatial dimension can be either two or three is
-  !!        defined in \c Space::dim
-  !! \param N is the spatial local grid size in the three spatial direction can be get from \c Space::nLoc()
+  !!        defined in \c Grid::dim
+  !! \param N is the spatial local grid size in the three spatial direction can be get from \c Grid::nLoc()
   !! \param bl is the lower stencil width used for ghost layer and boundary
-  !!        condtions can be get from Space::bl()
+  !!        condtions can be get from Grid::bl()
   !! \param bu is the upper stencil width used for ghost layer and boundary
-  !!        condtions can be get from \c Space::bu()
-  !!        condtions can be get from \c Space::dl()
+  !!        condtions can be get from \c Grid::bu()
+  !!        condtions can be get from \c Grid::dl()
   !! \param bu is the upper stencil width for the divergence stencil used for ghost layer and boundary
   !! \param dl is the lower stencil width for the divergence stencil used for ghost layer and boundary
   !! \param du is the upper stencil width for the divergence stencil used for ghost layer and boundary
-  !!        condtions can be get from \c Space::du()
+  !!        condtions can be get from \c Grid::du()
   !! \param gl is the lower stencil width for the gradiant stencil used for ghost layer and boundary
-  !!        condtions can be get from \c Space::gl()
+  !!        condtions can be get from \c Grid::gl()
   !! \param gu is the upper stencil width for the gradiant stencil used for ghost layer and boundary
-  !!        condtions can be get from \c Space::gu()
+  !!        condtions can be get from \c Grid::gu()
   !! \param SS starting index for pressure fields, can be get from \c
-  !!        Space::sInd(EFieldType)
+  !!        Grid::sInd(EFieldType)
   !! \param NN end index for pressure fields, can be get from \c
-  !!        Space::eInd(EFieldType)
+  !!        Grid::eInd(EFieldType)
   !! \param SU starting index for velocity fields in x-direction, can be get from \c
-  !!        Space::sInd(EFieldType::U)
+  !!        Grid::sInd(EFieldType::U)
   !! \param NU end index for velocity fields in x-direction, can be get from \c
-  !!        Space::eInd(EFieldType::U)
+  !!        Grid::eInd(EFieldType::U)
   !! \param SV starting index for velocity fields in y-direction, can be get from \c
-  !!        Space::sInd(EFieldType::V)
+  !!        Grid::sInd(EFieldType::V)
   !! \param NV end index for velocity fields in y-direction, can be get from \c
-  !!        Space::eInd(EFieldType::V)
+  !!        Grid::eInd(EFieldType::V)
   !! \param SW starting index for velocity fields in z-direction, can be get from \c
-  !!        Space::sInd(EFieldType::W)
+  !!        Grid::sInd(EFieldType::W)
   !! \param NW end index for velocity fields in z-direction, can be get from \c
-  !!        Space::eInd(EFieldType::W)
+  !!        Grid::eInd(EFieldType::W)
   !! \param c11p stencil coefficients for laplace operator in x-direction on
   !!        pressure coordinates, can be get from \c HelmholtzOp::getC(X,S)
   !! \param c22p stencil coefficients for laplace operator in y-direction on

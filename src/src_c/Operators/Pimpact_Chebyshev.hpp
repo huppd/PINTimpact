@@ -9,7 +9,7 @@
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_Space.hpp" // just for createOstream<>
+#include "Pimpact_Grid.hpp" // just for createOstream<>
 
 
 
@@ -28,11 +28,11 @@ public:
   using DomainFieldT = typename OperatorT::DomainFieldT;
   using RangeFieldT = typename OperatorT::RangeFieldT;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
+  using Scalar = typename GridT::Scalar;
 
   int numIters_;
 
@@ -56,8 +56,8 @@ public:
     lamMin_(pl->get<Scalar>("min EV", Teuchos::ScalarTraits<Scalar>::zero())),
     op_(op) {
 
-    Teuchos::RCP<DomainFieldT> x = create<DomainFieldT>(space());
-    Teuchos::RCP<RangeFieldT> r = create<RangeFieldT>(space());
+    Teuchos::RCP<DomainFieldT> x = create<DomainFieldT>(grid());
+    Teuchos::RCP<RangeFieldT> r = create<RangeFieldT>(grid());
 
     if(pl->get<bool>("with output", false))
       out_ = Pimpact::createOstream("conv_Cheb.txt");
@@ -85,7 +85,7 @@ public:
 
       lamMax_ *= 1.1;
       lamMin_ = lamMax_*eigRatio_;
-      if(0==space()->rankST()) {
+      if(0==grid()->rankST()) {
         std::cout <<"lamMax: (" <<lamMax_ <<", \t" <<lamMin_ <<")\n";
       }
     }
@@ -340,8 +340,8 @@ public:
     //op_->assignField(mv);
   };
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

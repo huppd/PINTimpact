@@ -30,22 +30,22 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// vector for a scalar field, e.g.: pressure,
 /// \ingroup Field
-template<class SpaceType>
-class ScalarField : private AbstractField<SpaceType > {
+template<class GridType>
+class ScalarField : private AbstractField<GridType > {
 
 public:
 
-  using SpaceT = SpaceType;
+  using GridT = GridType;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
   using ScalarArray = ST*;
   using State = Teuchos::Tuple<bool, 3>;
 
-  using SW = typename SpaceT::SW;
+  using SW = typename GridT::SW;
 
   ScalarArray s_;
 
@@ -66,17 +66,17 @@ protected:
 
 public:
 
-  ScalarField(const Teuchos::RCP<const SpaceT>& space, const Owning owning=Owning::Y,
+  ScalarField(const Teuchos::RCP<const GridT>& grid, const Owning owning=Owning::Y,
       const F fType=F::S):
-    AbstractField<SpaceT>(space),
+    AbstractField<GridT>(grid),
     owning_(owning),
     exchangedState_(Teuchos::tuple(true, true, true)),
     fType_(fType),
-    stride1_(space->nLoc(0)+SW::BU(0)-SW::BL(0)+1),
-    stride2_((space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1)*(
-          space->nLoc(1)+SW::BU(1)-SW::BL(1)+1)) {
+    stride1_(grid->nLoc(0)+SW::BU(0)-SW::BL(0)+1),
+    stride2_((grid()->nLoc(0)+SW::BU(0)-SW::BL(0)+1)*(
+          grid->nLoc(1)+SW::BU(1)-SW::BL(1)+1)) {
 
-      if(owning_==Owning::Y) allocate();
+      if(owning_ == Owning::Y) allocate();
     };
 
 
@@ -86,14 +86,14 @@ public:
   /// \param sF ScalarField which is copied
   /// \param copyType by default a ECopy::Deep is done but also allows to ECopy::Shallow
   ScalarField(const ScalarField& sF, const ECopy copyType=ECopy::Deep):
-    AbstractField<SpaceT>(sF.space()),
+    AbstractField<GridT>(sF.grid()),
     owning_(sF.owning_),
     exchangedState_(sF.exchangedState_),
     fType_(sF.fType_),
     stride1_(sF.stride1_),
     stride2_(sF.stride2_) {
 
-      if(owning_==Owning::Y) {
+      if(owning_ == Owning::Y) {
 
         allocate();
 
@@ -109,13 +109,13 @@ public:
 
 
   ~ScalarField() {
-    if(owning_==Owning::Y) delete[] s_;
+    if(owning_ == Owning::Y) delete[] s_;
   }
 
 
   Teuchos::RCP<ScalarField> clone(const ECopy copyType=ECopy::Deep) const {
 
-    Teuchos::RCP<ScalarField> mv = Teuchos::rcp(new ScalarField(space(), Owning::Y, this->fType_));
+    Teuchos::RCP<ScalarField> mv = Teuchos::rcp(new ScalarField(grid(), Owning::Y, this->fType_));
 
     switch(copyType) {
     case ECopy::Shallow:
@@ -133,16 +133,16 @@ public:
   /// \brief returns the length of Field.
   constexpr OT getLength() {
 
-    Teuchos::RCP<const BoundaryConditionsGlobal<SpaceT::dimension> > bc =
-      space()->getBCGlobal();
+    Teuchos::RCP<const BoundaryConditionsGlobal<GridT::dimension> > bc =
+      grid()->getBCGlobal();
 
     OT vl = 1;
 
-    for(int dir = 0; dir<SpaceT::sdim; ++dir) {
-      vl *= space()->nGlo(dir) +
-            ((BC::Periodic==bc->getBCL(dir))?
+    for(int dir = 0; dir<GridT::sdim; ++dir) {
+      vl *= grid()->nGlo(dir) +
+            ((BC::Periodic == bc->getBCL(dir))?
               -1:
-              (fType_==dir)?1:0);
+              (fType_ == dir)?1:0);
     }
 
     return vl;
@@ -155,20 +155,20 @@ public:
   /// @{
 
   /// \brief Replace \c this with \f$\alpha a + \beta B\f$.
-  /// \todo make checks for spaces and k
+  /// \todo make checks for grids and k
   void add(const ST alpha, const ScalarField& a, const ST beta, const
             ScalarField& b, const B wb=B::Y) {
 
-    assert(a.getType()==b.getType());
-    assert(getType()==b.getType());
+    assert(a.getType() == b.getType());
+    assert(getType() == b.getType());
 #ifndef NDEBUG
     for(int dir=0; dir<3; ++dir) {
-      bool same_space = space()->nLoc(dir)>a.space()->nLoc(dir) ||
-                        space()->nLoc(dir)>b.space()->nLoc(dir);
+      bool same_space = grid()->nLoc(dir)>a.grid()->nLoc(dir) ||
+                        grid()->nLoc(dir)>b.grid()->nLoc(dir);
       assert(!same_space);
       bool consistent_space = (
-                                (a.space()->nLoc(dir)-1)%(space()->nLoc(dir)-1))!=0 || (
-                                (b.space()->nLoc(dir)-1)%(space()->nLoc(dir)-1))!=0 ;
+                                (a.grid()->nLoc(dir)-1)%(grid()->nLoc(dir)-1))!=0 || (
+                                (b.grid()->nLoc(dir)-1)%(grid()->nLoc(dir)-1))!=0 ;
       assert(!consistent_space);
     }
 #endif
@@ -177,23 +177,23 @@ public:
 
     bool with_d_yes = false;
     for(int dir=0; dir<3; ++dir) {
-      da[dir] = (a.space()->nLoc(dir)-1)/(space()->nLoc(dir)-1);
-      db[dir] = (b.space()->nLoc(dir)-1)/(space()->nLoc(dir)-1);
+      da[dir] = (a.grid()->nLoc(dir)-1)/(grid()->nLoc(dir)-1);
+      db[dir] = (b.grid()->nLoc(dir)-1)/(grid()->nLoc(dir)-1);
       if(1!=da[dir]) with_d_yes=true;
       if(1!=db[dir]) with_d_yes=true;
     }
 
     if(with_d_yes) {
-      for(OT k=space()->si(fType_, Z, wb); k<=space()->ei(fType_, Z, wb); ++k)
-        for(OT j=space()->si(fType_, Y, wb); j<=space()->ei(fType_, Y, wb); ++j)
-          for(OT i=space()->si(fType_, X, wb); i<=space()->ei(fType_, X, wb); ++i)
+      for(OT k=grid()->si(fType_, Z, wb); k<=grid()->ei(fType_, Z, wb); ++k)
+        for(OT j=grid()->si(fType_, Y, wb); j<=grid()->ei(fType_, Y, wb); ++j)
+          for(OT i=grid()->si(fType_, X, wb); i<=grid()->ei(fType_, X, wb); ++i)
             at(i, j, k) = alpha*a.at((i-1)*da[0]+1, (j-1)*da[1]+1, (k-1)*da[2]+1)
               + beta*b.at((i-1)*db[0]+1, (j-1)*db[1]+1, (k-1)*db[2]+1);
     }
     else {
-      for(OT k=space()->si(fType_, Z, wb); k<=space()->ei(fType_, Z, wb); ++k)
-        for(OT j=space()->si(fType_, Y, wb); j<=space()->ei(fType_, Y, wb); ++j)
-          for(OT i=space()->si(fType_, X, wb); i<=space()->ei(fType_, X, wb); ++i)
+      for(OT k=grid()->si(fType_, Z, wb); k<=grid()->ei(fType_, Z, wb); ++k)
+        for(OT j=grid()->si(fType_, Y, wb); j<=grid()->ei(fType_, Y, wb); ++j)
+          for(OT i=grid()->si(fType_, X, wb); i<=grid()->ei(fType_, X, wb); ++i)
             at(i, j, k) = alpha*a.at(i, j, k) + beta*b.at(i, j, k);
     }
 
@@ -210,11 +210,11 @@ public:
   void abs(const ScalarField& y, const B bcYes=B::Y) {
 
     for(int dir=0; dir<3; ++dir)
-      assert(space()->nLoc(dir)==y.space()->nLoc(dir));
+      assert(grid()->nLoc(dir) == y.grid()->nLoc(dir));
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i)
           at(i, j, k) = std::fabs(y.at(i, j, k));
 
     changed();
@@ -230,14 +230,14 @@ public:
 
 #ifndef NDEBUG
     for(int dir=0; dir<3; ++dir) {
-      bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
+      bool same_space = grid()->nLoc(dir)!=y.grid()->nLoc(dir);
       assert(!same_space);
     }
 #endif
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i)
           at(i, j, k) = Teuchos::ScalarTraits<ST>::one()/ y.at(i, j, k);
 
     changed();
@@ -247,9 +247,9 @@ public:
   /// \brief Scale each element of the vector with \c alpha.
   void scale(const ST alpha, const B wB=B::Y) {
 
-    for(OT k=space()->si(fType_, Z, wB); k<=space()->ei(fType_, Z, wB); ++k)
-      for(OT j=space()->si(fType_, Y, wB); j<=space()->ei(fType_, Y, wB); ++j)
-        for(OT i=space()->si(fType_, X, wB); i<=space()->ei(fType_, X, wB); ++i)
+    for(OT k=grid()->si(fType_, Z, wB); k<=grid()->ei(fType_, Z, wB); ++k)
+      for(OT j=grid()->si(fType_, Y, wB); j<=grid()->ei(fType_, Y, wB); ++j)
+        for(OT i=grid()->si(fType_, X, wB); i<=grid()->ei(fType_, X, wB); ++i)
           at(i, j, k) *= alpha;
 
     changed();
@@ -264,14 +264,14 @@ public:
 
 #ifndef NDEBUG
     for(int dir=0; dir<3; ++dir) {
-      bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
+      bool same_space = grid()->nLoc(dir)!=y.grid()->nLoc(dir);
       assert(!same_space);
     }
 #endif
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i)
           at(i, j, k) *= y.at(i, j, k);
     changed();
   }
@@ -285,17 +285,17 @@ public:
 
 #ifndef NDEBUG
     for(int dir=0; dir<3; ++dir) {
-      bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
+      bool same_space = grid()->nLoc(dir)!=y.grid()->nLoc(dir);
       assert(!same_space);
     }
 #endif
 
     ST b = Teuchos::ScalarTraits<ST>::zero();
-    //auto coord = space()->getCoordinatesLocal();
+    //auto coord = grid()->getCoordinatesLocal();
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i) {
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i) {
           //ST volume = coord->dx(fType_, X, i) * coord->dx(fType_, Y, j) * coord->dx(fType_, Z, k);
           b += /*volume**/at(i, j, k)*y.at(i, j, k);
         }
@@ -313,9 +313,9 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i)
           normvec += std::fabs(at(i, j, k));
 
     return normvec;
@@ -327,9 +327,9 @@ public:
     //return normLocL2(bcYes);
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i)
           normvec += std::pow(at(i, j, k), 2);
 
     return normvec;
@@ -340,9 +340,9 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i)
           normvec = std::fmax(std::fabs(at(i, j, k)), normvec);
 
     return normvec;
@@ -353,11 +353,11 @@ public:
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-    auto coord = space()->getCoordinatesLocal();
+    auto coord = grid()->getCoordinatesLocal();
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i) {
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i) {
           ST volume = coord->dx(fType_, X, i) * coord->dx(fType_, Y, j) * coord->dx(fType_, Z, k);
           normvec += volume*std::pow(at(i, j, k), 2);
         }
@@ -368,10 +368,10 @@ public:
 
   constexpr ST normLoc(const ENorm type=ENorm::Two, const B bcYes=B::Y) {
 
-    return (ENorm::One==type)?
+    return (ENorm::One == type)?
       normLoc1(bcYes):
-      (ENorm::Two==type)?
-        normLoc2(bcYes): (ENorm::Inf==type)?
+      (ENorm::Two == type)?
+        normLoc2(bcYes): (ENorm::Inf == type)?
           normLocInf(bcYes): normLocL2(bcYes);
   }
 
@@ -381,9 +381,9 @@ public:
   constexpr ST norm(const ENorm type=ENorm::Two, const B bcYes=B::Y) {
 
     ST normvec = this->reduce(comm(), normLoc(type, bcYes),
-        (ENorm::Inf==type)?MPI_MAX:MPI_SUM);
+        (ENorm::Inf == type)?MPI_MAX:MPI_SUM);
 
-    normvec = (ENorm::Two==type||ENorm::L2==type) ?
+    normvec = (ENorm::Two == type||ENorm::L2 == type) ?
       std::sqrt(normvec) :
       normvec;
 
@@ -400,13 +400,13 @@ public:
   constexpr ST normLoc(const ScalarField& weights, const B bcYes=B::Y) {
 
     for(int dir=0; dir<3; ++dir)
-      assert(space()->nLoc(dir)==weights.space()->nLoc(dir));
+      assert(grid()->nLoc(dir) == weights.grid()->nLoc(dir));
 
     ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i)
           normvec += at(i, j, k)*at(i, j, k)*weights.at(i, j, k)*weights.at(i, j, k);
 
     return normvec;
@@ -435,12 +435,12 @@ public:
   /// \note the \c StencilWidths is not take care of assuming every field is generated with one
   ScalarField& operator=(const ScalarField& a) {
 
-    assert(getType()==a.getType());
-    assert(getStorageSize()==a.getStorageSize());
+    assert(getType() == a.getType());
+    assert(getStorageSize() == a.getStorageSize());
 
     std::copy_n(a.s_, getStorageSize(), s_);
 
-    for(int dir=0; dir<SpaceT::sdim; ++dir)
+    for(int dir=0; dir<GridT::sdim; ++dir)
       exchangedState_[dir] = a.exchangedState_[dir];
     return *this;
   }
@@ -453,15 +453,15 @@ public:
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(-0.5, 0.5);
 
-    for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-      for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-        for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+    for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+      for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+        for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i)
           at(i, j, k) = dis(gen);
 
-    if(!space()->getProcGrid()->participating())
-      for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-        for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
-          for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i)
+    if(!grid()->getProcGrid()->participating())
+      for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+        for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j)
+          for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i)
             at(i, j, k) = Teuchos::ScalarTraits<ST>::zero();
     changed();
   }
@@ -472,21 +472,21 @@ public:
   /// \param bcYes also initializing the boundary values
   void init(const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B bcYes=B::Y) {
 
-    if(B::Y==bcYes) {
+    if(B::Y == bcYes) {
       std::fill_n(s_, getStorageSize(), alpha);
       exchangedState_[X] = true;
       exchangedState_[Y] = true;
       exchangedState_[Z] = true;
     } else {
-      for(OT k=space()->si(fType_, Z, bcYes); k<=space()->ei(fType_, Z, bcYes); ++k)
-        for(OT j=space()->si(fType_, Y, bcYes); j<=space()->ei(fType_, Y, bcYes); ++j)
-          for(OT i=space()->si(fType_, X, bcYes); i<=space()->ei(fType_, X, bcYes); ++i)
+      for(OT k=grid()->si(fType_, Z, bcYes); k<=grid()->ei(fType_, Z, bcYes); ++k)
+        for(OT j=grid()->si(fType_, Y, bcYes); j<=grid()->ei(fType_, Y, bcYes); ++j)
+          for(OT i=grid()->si(fType_, X, bcYes); i<=grid()->ei(fType_, X, bcYes); ++i)
             at(i, j, k) = alpha;
 
-      if(!space()->getProcGrid()->participating())
-        for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
-            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i)
+      if(!grid()->getProcGrid()->participating())
+        for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+          for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i)
               at(i, j, k) = Teuchos::ScalarTraits<ST>::zero();
       changed();
     }
@@ -530,20 +530,20 @@ public:
   template<typename Functor>
   void initFromFunction(Functor&& func, const Add add=Add::N) {
 
-    Teuchos::RCP<const CoordinatesLocal<ST, OT, SpaceT::dimension, SpaceT::dimNC> > coord =
-      space()->getCoordinatesLocal();
-    Teuchos::RCP<const DomainSize<ST, SpaceT::sdim> > domain = space()->getDomainSize();
+    Teuchos::RCP<const CoordinatesLocal<ST, OT, GridT::dimension, GridT::dimNC> > coord =
+      grid()->getCoordinatesLocal();
+    Teuchos::RCP<const DomainSize<ST, GridT::sdim> > domain = grid()->getDomainSize();
 
     const B bY = B::Y;
 
-    for(OT k=space()->si(fType_, Z, bY); k<=space()->ei(fType_, Z, bY); ++k)
-      for(OT j=space()->si(fType_, Y, bY); j<=space()->ei(fType_, Y, bY); ++j)
-        for(OT i=space()->si(fType_, X, bY); i<=space()->ei(fType_, X, bY); ++i) {
+    for(OT k=grid()->si(fType_, Z, bY); k<=grid()->ei(fType_, Z, bY); ++k)
+      for(OT j=grid()->si(fType_, Y, bY); j<=grid()->ei(fType_, Y, bY); ++j)
+        for(OT i=grid()->si(fType_, X, bY); i<=grid()->ei(fType_, X, bY); ++i) {
           ST val = func(
                 (coord->getX(fType_, X, i)-domain->getOrigin(X))/domain->getSize(X),
                 (coord->getX(fType_, Y, j)-domain->getOrigin(Y))/domain->getSize(Y),
                 (coord->getX(fType_, Z, k)-domain->getOrigin(Z))/domain->getSize(Z));
-          if(Add::Y==add)
+          if(Add::Y == add)
             at(i, j, k) += val;
           else
             at(i, j, k) = val;
@@ -560,7 +560,7 @@ public:
 
     switch(type) {
       case ConstField : {
-        if(Add::N==add) init();
+        if(Add::N == add) init();
         break;
       }
       case Grad2D_inX : {
@@ -605,8 +605,8 @@ public:
       case FPoint : {
         ST xc[3] = {
           para.get<ST>("c_x", Teuchos::ScalarTraits<ST>::one()),
-          para.get<ST>("c_y", space()->getDomainSize()->getSize(Y)/2.),
-          para.get<ST>("c_z", space()->getDomainSize()->getSize(Z)/2.)
+          para.get<ST>("c_y", grid()->getDomainSize()->getSize(Y)/2.),
+          para.get<ST>("c_z", grid()->getDomainSize()->getSize(Z)/2.)
         };
         ST amp = para.get<ST>("amp", Teuchos::ScalarTraits<ST>::one());
         ST sig[3] = {
@@ -615,7 +615,7 @@ public:
           para.get<ST>("sig_z", 0.2)
         };
 
-        Teuchos::RCP<const DomainSize<ST, SpaceT::sdim> > domain = space()->getDomainSize();
+        Teuchos::RCP<const DomainSize<ST, GridT::sdim> > domain = grid()->getDomainSize();
 
         initFromFunction(
             [&xc, &amp, &sig, &domain] (ST x_, ST y_, ST z_)->ST {
@@ -632,7 +632,7 @@ public:
       }
     }
 
-    if(!space()->getProcGrid()->participating()) // not sure why?
+    if(!grid()->getProcGrid()->participating()) // not sure why?
       init(Teuchos::ScalarTraits<ST>::zero());
 
     changed();
@@ -689,7 +689,7 @@ public:
       }
     }
 
-    if(!space()->getProcGrid()->participating())
+    if(!grid()->getProcGrid()->participating())
       init(Teuchos::ScalarTraits<ST>::zero());
     changed();
   }
@@ -708,54 +708,54 @@ public:
       case(F::U):  {
         using StencD = Stencil<ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
-        StencD c_(space()->nLoc(X));
+        StencD c_(grid()->nLoc(X));
 
-        if(space()->bcl(X)==BC::Neumann || space()->bcu(X)==BC::Neumann)
+        if(grid()->bcl(X) == BC::Neumann || grid()->bcu(X) == BC::Neumann)
           FD_getDiffCoeff(
             1,
-            space()->nLoc(X),
-            space()->bl(X),
-            space()->bu(X),
-            space()->dl(X),
-            space()->du(X),
-            space()->getBCLocal()->getBCL(X),
-            space()->getBCLocal()->getBCU(X),
-            space()->getShift(X),
+            grid()->nLoc(X),
+            grid()->bl(X),
+            grid()->bu(X),
+            grid()->dl(X),
+            grid()->du(X),
+            grid()->getBCLocal()->getBCL(X),
+            grid()->getBCLocal()->getBCU(X),
+            grid()->getShift(X),
             3,
             1,
             1,
             0,
             false, // mapping
-            space()->getStencilWidths()->getDimNcbD(X),
-            space()->getStencilWidths()->getNcbD(X),
-            space()->getCoordinatesLocal()->getX(F::U, X),
-            space()->getCoordinatesLocal()->getX(F::S, X),
+            grid()->getStencilWidths()->getDimNcbD(X),
+            grid()->getStencilWidths()->getNcbD(X),
+            grid()->getCoordinatesLocal()->getX(F::U, X),
+            grid()->getCoordinatesLocal()->getX(F::S, X),
             c_.get());
 
-        if(0 <space()->bcl(X)) {
-          OT i = space()->si(fType_, X, B::Y);
-          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-            for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j) {
+        if(0 <grid()->bcl(X)) {
+          OT i = grid()->si(fType_, X, B::Y);
+          for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+            for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j) {
               at(i, j, k) = 0.;
-              if(BC::Dirichlet==space()->bcl(X)) {
+              if(BC::Dirichlet == grid()->bcl(X)) {
                 for(OT ii=0; ii<=SW::DU(X); ++ii)
-                  at(i, j, k) -= at(1+ii, j, k)*space()->getInterpolateV2S()->getC(X, 1, ii)/space()->getInterpolateV2S()->getC(X, 1, -1);
-              } else if(BC::Neumann==space()->bcl(X)) {
+                  at(i, j, k) -= at(1+ii, j, k)*grid()->getInterpolateV2S()->getC(X, 1, ii)/grid()->getInterpolateV2S()->getC(X, 1, -1);
+              } else if(BC::Neumann == grid()->bcl(X)) {
                 for(OT ii=0; ii<=SW::DU(X); ++ii)
                   at(i, j, k) -= at(1+ii, j, k)*c_(1, ii)/c_(1, -1);
               }
             }
         }
-        if(0 <space()->bcu(X)) {
+        if(0 <grid()->bcu(X)) {
 
-          OT i = space()->ei(fType_, X, B::Y);
-          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-            for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j) {
+          OT i = grid()->ei(fType_, X, B::Y);
+          for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+            for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j) {
               at(i, j, k) = 0.;
-              if(BC::Dirichlet==space()->bcu(X)) {
+              if(BC::Dirichlet == grid()->bcu(X)) {
                 for(OT ii=SW::DL(X); ii<=-1; ++ii)
-                  at(i, j, k) -= space()->getInterpolateV2S()->getC(X, i, ii)*at(i+ii, j, k)/space()->getInterpolateV2S()->getC(X, i, 0);
-              } else if(BC::Neumann==space()->bcu(X)) {
+                  at(i, j, k) -= grid()->getInterpolateV2S()->getC(X, i, ii)*at(i+ii, j, k)/grid()->getInterpolateV2S()->getC(X, i, 0);
+              } else if(BC::Neumann == grid()->bcu(X)) {
                 for(OT ii=SW::DL(X); ii<=-1; ++ii)
                   at(i, j, k) -= c_(i, ii)*at(i+ii, j, k)/c_(i, 0);
               }
@@ -766,53 +766,53 @@ public:
       case(F::V) : {
         using StencD = Stencil<ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
-        StencD c_(space()->nLoc(Y));
+        StencD c_(grid()->nLoc(Y));
 
-        if(space()->bcl(Y)==BC::Neumann || space()->bcu(Y)==BC::Neumann)
+        if(grid()->bcl(Y) == BC::Neumann || grid()->bcu(Y) == BC::Neumann)
           FD_getDiffCoeff(
             1,
-            space()->nLoc(Y),
-            space()->bl(Y),
-            space()->bu(Y),
-            space()->dl(Y),
-            space()->du(Y),
-            space()->getBCLocal()->getBCL(Y),
-            space()->getBCLocal()->getBCU(Y),
-            space()->getShift(Y),
+            grid()->nLoc(Y),
+            grid()->bl(Y),
+            grid()->bu(Y),
+            grid()->dl(Y),
+            grid()->du(Y),
+            grid()->getBCLocal()->getBCL(Y),
+            grid()->getBCLocal()->getBCU(Y),
+            grid()->getShift(Y),
             3,
             1,
             1,
             0,
             false, // mapping
-            space()->getStencilWidths()->getDimNcbD(Y),
-            space()->getStencilWidths()->getNcbD(Y),
-            space()->getCoordinatesLocal()->getX(F::V, Y),
-            space()->getCoordinatesLocal()->getX(F::S, Y),
+            grid()->getStencilWidths()->getDimNcbD(Y),
+            grid()->getStencilWidths()->getNcbD(Y),
+            grid()->getCoordinatesLocal()->getX(F::V, Y),
+            grid()->getCoordinatesLocal()->getX(F::S, Y),
             c_.get());
 
-        if(0 <space()->bcl(Y)) {
-          OT j = space()->si(fType_, Y, B::Y);
-          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+        if(0 <grid()->bcl(Y)) {
+          OT j = grid()->si(fType_, Y, B::Y);
+          for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+            for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i) {
               at(i, j, k) = 0.;
-              if(BC::Dirichlet==space()->bcl(Y)) {
+              if(BC::Dirichlet == grid()->bcl(Y)) {
                 for(OT jj=0; jj<=SW::DU(Y); ++jj)
-                  at(i, j, k) -= at(i, 1+jj, k)*space()->getInterpolateV2S()->getC(Y, 1, jj)/space()->getInterpolateV2S()->getC(Y, 1, -1);
-              } else if(BC::Neumann==space()->bcl(Y)) {
+                  at(i, j, k) -= at(i, 1+jj, k)*grid()->getInterpolateV2S()->getC(Y, 1, jj)/grid()->getInterpolateV2S()->getC(Y, 1, -1);
+              } else if(BC::Neumann == grid()->bcl(Y)) {
                 for(OT jj=0; jj<=SW::DU(Y); ++jj)
                   at(i, j, k) -= at(i, 1+jj, k)*c_(1, jj)/c_(1, -1);
               }
             }
         }
-        if(0 <space()->bcu(Y)) {
-          OT j = space()->ei(fType_, Y, B::Y);
-          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+        if(0 <grid()->bcu(Y)) {
+          OT j = grid()->ei(fType_, Y, B::Y);
+          for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+            for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i) {
               at(i, j, k) = 0.;
-              if(BC::Dirichlet==space()->bcu(Y)) {
+              if(BC::Dirichlet == grid()->bcu(Y)) {
                 for(OT jj=SW::DL(Y); jj<=-1; ++jj)
-                  at(i, j, k) -= space()->getInterpolateV2S()->getC(Y, j, jj)*at(i, j+jj, k)/space()->getInterpolateV2S()->getC(Y, j, 0);
-              } else if(BC::Neumann==space()->bcu(Y)) {
+                  at(i, j, k) -= grid()->getInterpolateV2S()->getC(Y, j, jj)*at(i, j+jj, k)/grid()->getInterpolateV2S()->getC(Y, j, 0);
+              } else if(BC::Neumann == grid()->bcu(Y)) {
                 for(OT jj=SW::DL(Y); jj<=-1; ++jj)
                   at(i, j, k) -= c_(j, jj)*at(i, j+jj, k)/c_(j, 0);
               }
@@ -823,53 +823,53 @@ public:
       case(F::W) : {
         using StencD = Stencil<ST, OT, 0, SW::DL(0), SW::DU(0) >;
 
-        StencD c_(space()->nLoc(Z));
+        StencD c_(grid()->nLoc(Z));
 
-        if(space()->bcl(Z)==BC::Neumann || space()->bcu(Z)==BC::Neumann)
+        if(grid()->bcl(Z) == BC::Neumann || grid()->bcu(Z) == BC::Neumann)
           FD_getDiffCoeff(
             1,
-            space()->nLoc(Z),
-            space()->bl(Z),
-            space()->bu(Z),
-            space()->dl(Z),
-            space()->du(Z),
-            space()->getBCLocal()->getBCL(Z),
-            space()->getBCLocal()->getBCU(Z),
-            space()->getShift(Z),
+            grid()->nLoc(Z),
+            grid()->bl(Z),
+            grid()->bu(Z),
+            grid()->dl(Z),
+            grid()->du(Z),
+            grid()->getBCLocal()->getBCL(Z),
+            grid()->getBCLocal()->getBCU(Z),
+            grid()->getShift(Z),
             3,
             1,
             1,
             0,
             false, // mapping
-            space()->getStencilWidths()->getDimNcbD(Z),
-            space()->getStencilWidths()->getNcbD(Z),
-            space()->getCoordinatesLocal()->getX(F::W, Z),
-            space()->getCoordinatesLocal()->getX(F::S, Z),
+            grid()->getStencilWidths()->getDimNcbD(Z),
+            grid()->getStencilWidths()->getNcbD(Z),
+            grid()->getCoordinatesLocal()->getX(F::W, Z),
+            grid()->getCoordinatesLocal()->getX(F::S, Z),
             c_.get());
 
-        if(space()->bcl(Z) > 0) {
-          OT k = space()->si(fType_, Z, B::Y);
-          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
-            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+        if(grid()->bcl(Z) > 0) {
+          OT k = grid()->si(fType_, Z, B::Y);
+          for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i) {
               at(i, j, k) = 0.;
-              if(BC::Dirichlet==space()->bcl(Z)) {
+              if(BC::Dirichlet == grid()->bcl(Z)) {
                 for(OT kk=0; kk<=SW::DU(Z); ++kk)
-                  at(i, j, k) -= space()->getInterpolateV2S()->getC(Z, 1, kk)*at(i, j, 1+kk)/space()->getInterpolateV2S()->getC(Z, 1, -1);
-              } else if(BC::Neumann==space()->bcl(Z)) {
+                  at(i, j, k) -= grid()->getInterpolateV2S()->getC(Z, 1, kk)*at(i, j, 1+kk)/grid()->getInterpolateV2S()->getC(Z, 1, -1);
+              } else if(BC::Neumann == grid()->bcl(Z)) {
                 for(OT kk=0; kk<=SW::DU(Z); ++kk)
                   at(i, j, k) -= c_(1, kk)*at(i, j, 1+kk)/c_(1, -1);
               }
             }
         }
-        if(space()->bcu(Z) > 0) {
-          OT k = space()->ei(fType_, Z, B::Y);
-          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
-            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+        if(grid()->bcu(Z) > 0) {
+          OT k = grid()->ei(fType_, Z, B::Y);
+          for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i) {
               at(i, j, k) = 0.;
-              if(BC::Dirichlet==space()->bcu(Z)) {
+              if(BC::Dirichlet == grid()->bcu(Z)) {
                 for(OT kk=SW::DL(Z); kk<=-1; ++kk)
-                  at(i, j, k) -= space()->getInterpolateV2S()->getC(Z, k, kk)*at(i, j, k+kk)/space()->getInterpolateV2S()->getC(Z, k, 0);
-              } else if(BC::Neumann==space()->bcu(Z)) {
+                  at(i, j, k) -= grid()->getInterpolateV2S()->getC(Z, k, kk)*at(i, j, k+kk)/grid()->getInterpolateV2S()->getC(Z, k, 0);
+              } else if(BC::Neumann == grid()->bcu(Z)) {
                 for(OT kk=SW::DL(Z); kk<=-1; ++kk)
                   at(i, j, k) -= c_(k, kk)*at(i, j, k+kk)/c_(k, 0);
               }
@@ -887,65 +887,65 @@ public:
 
       switch(fType_) {
       case(F::U) : {
-        if(space()->bcl(X) > 0) {
-          OT i = space()->si(fType_, X, B::Y);
-          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-            for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j) {
+        if(grid()->bcl(X) > 0) {
+          OT i = grid()->si(fType_, X, B::Y);
+          for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+            for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j) {
               for(OT ii=0; ii<=SW::DU(X); ++ii)
-                at(i+ii+1, j, k) -= at(i, j, k)*space()->getInterpolateV2S()->getC(X, 1, ii)/space()->getInterpolateV2S()->getC(X, 1, -1);
+                at(i+ii+1, j, k) -= at(i, j, k)*grid()->getInterpolateV2S()->getC(X, 1, ii)/grid()->getInterpolateV2S()->getC(X, 1, -1);
               at(i, j, k) = 0.;
             }
         }
-        if(space()->bcu(X) > 0) {
-          OT i = space()->ei(fType_, X, B::Y);
-          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-            for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j) {
+        if(grid()->bcu(X) > 0) {
+          OT i = grid()->ei(fType_, X, B::Y);
+          for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+            for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j) {
               for(OT ii=SW::DL(X); ii<=-1; ++ii)
-                at(i+ii, j, k) -= space()->getInterpolateV2S()->getC(X, i, ii)*at(i, j, k)/space()->getInterpolateV2S()->getC(X, i, 0);
+                at(i+ii, j, k) -= grid()->getInterpolateV2S()->getC(X, i, ii)*at(i, j, k)/grid()->getInterpolateV2S()->getC(X, i, 0);
               at(i, j, k) = 0.;
             }
         }
         break;
       }
       case(F::V) : {
-        if(space()->bcl(Y) > 0) {
-          OT j = space()->si(fType_, Y, B::Y);
-          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+        if(grid()->bcl(Y) > 0) {
+          OT j = grid()->si(fType_, Y, B::Y);
+          for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+            for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i) {
               for(OT jj=0; jj<=SW::DU(Y); ++jj)
-                at(i, j+jj+1, k) -= at(i, j, k)*space()->getInterpolateV2S()->getC(Y, 1, jj)/space()->getInterpolateV2S()->getC(Y, 1, -1);
+                at(i, j+jj+1, k) -= at(i, j, k)*grid()->getInterpolateV2S()->getC(Y, 1, jj)/grid()->getInterpolateV2S()->getC(Y, 1, -1);
               at(i, j, k) = 0.;
             }
         }
-        if(space()->bcu(Y) > 0) {
-          OT j = space()->ei(fType_, Y, B::Y);
-          for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
+        if(grid()->bcu(Y) > 0) {
+          OT j = grid()->ei(fType_, Y, B::Y);
+          for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+            for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i) {
               for(OT jj=SW::DL(Y); jj<=-1; ++jj)
-                at(i, j+jj, k) -= space()->getInterpolateV2S()->getC(Y, j, jj)*at(i, j, k)/space()->getInterpolateV2S()->getC(Y, j, 0);
+                at(i, j+jj, k) -= grid()->getInterpolateV2S()->getC(Y, j, jj)*at(i, j, k)/grid()->getInterpolateV2S()->getC(Y, j, 0);
               at(i, j, k) = 0.;
             }
         }
         break;
       }
       case(F::W) : {
-        if(space()->bcl(Z) > 0) {
-          OT k = space()->si(fType_, Z, B::Y);
-          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
-            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
-              at(i, j, k) /= space()->getInterpolateV2S()->getC(Z, 1, -1);
+        if(grid()->bcl(Z) > 0) {
+          OT k = grid()->si(fType_, Z, B::Y);
+          for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i) {
+              at(i, j, k) /= grid()->getInterpolateV2S()->getC(Z, 1, -1);
               for(OT kk=0; kk<=SW::DU(Z); ++kk)
-                at(i, j, k+kk+1) -= space()->getInterpolateV2S()->getC(Z, 1, kk)*at(i, j, k);
+                at(i, j, k+kk+1) -= grid()->getInterpolateV2S()->getC(Z, 1, kk)*at(i, j, k);
               at(i, j, k) = 0.;
             }
         }
-        if(space()->bcu(Z) > 0) {
-          OT k = space()->ei(fType_, Z, B::Y);
-          for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
-            for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i) {
-              at(i, j, k) /= space()->getInterpolateV2S()->getC(Z, k, 0);
+        if(grid()->bcu(Z) > 0) {
+          OT k = grid()->ei(fType_, Z, B::Y);
+          for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j)
+            for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i) {
+              at(i, j, k) /= grid()->getInterpolateV2S()->getC(Z, k, 0);
               for(OT kk=SW::DL(Z); kk<=-1; ++kk)
-                at(i, j, k+kk) -= space()->getInterpolateV2S()->getC(Z, k, kk)*at(i, j, k);
+                at(i, j, k+kk) -= grid()->getInterpolateV2S()->getC(Z, k, kk)*at(i, j, k);
               at(i, j, k) = 0.;
             }
         }
@@ -968,17 +968,17 @@ public:
 
       ST pre0 = Teuchos::ScalarTraits<ST>::zero();
 
-      for(OT k=space()->si(fType_, Z); k<=space()->ei(fType_, Z); ++k)
-        for(OT j=space()->si(fType_, Y); j<=space()->ei(fType_, Y); ++j)
-          for(OT i=space()->si(fType_, X); i<=space()->ei(fType_, X); ++i)
+      for(OT k=grid()->si(fType_, Z); k<=grid()->ei(fType_, Z); ++k)
+        for(OT j=grid()->si(fType_, Y); j<=grid()->ei(fType_, Y); ++j)
+          for(OT i=grid()->si(fType_, X); i<=grid()->ei(fType_, X); ++i)
             pre0 += at(i, j, k);
 
-      pre0 = this->reduce(space()->comm(), pre0);
+      pre0 = this->reduce(grid()->comm(), pre0);
       pre0 /= static_cast<ST>(getLength());
 
-      for(OT k=space()->si(fType_, Z); k<=space()->ei(fType_, Z); ++k)
-        for(OT j=space()->si(fType_, Y); j<=space()->ei(fType_, Y); ++j)
-          for(OT i=space()->si(fType_, X); i<=space()->ei(fType_, X); ++i)
+      for(OT k=grid()->si(fType_, Z); k<=grid()->ei(fType_, Z); ++k)
+        for(OT j=grid()->si(fType_, Y); j<=grid()->ei(fType_, Y); ++j)
+          for(OT i=grid()->si(fType_, X); i<=grid()->ei(fType_, X); ++i)
             const_cast<ScalarField*>(this)->at(i, j, k) -= pre0;
     }
   }
@@ -996,11 +996,11 @@ public:
 
     Teuchos::Tuple<OT, 3> cw;
     for(int i=0; i<3; ++i)
-      cw[i] = space()->nLoc(i) + SW::BU(i) - SW::BL(i) + 1;
+      cw[i] = grid()->nLoc(i) + SW::BU(i) - SW::BL(i) + 1;
 
-    for(OT k=space()->si(fType_, Z, B::Y); k<=space()->ei(fType_, Z, B::Y); ++k)
-      for(OT j=space()->si(fType_, Y, B::Y); j<=space()->ei(fType_, Y, B::Y); ++j)
-        for(OT i=space()->si(fType_, X, B::Y); i<=space()->ei(fType_, X, B::Y); ++i)
+    for(OT k=grid()->si(fType_, Z, B::Y); k<=grid()->ei(fType_, Z, B::Y); ++k)
+      for(OT j=grid()->si(fType_, Y, B::Y); j<=grid()->ei(fType_, Y, B::Y); ++j)
+        for(OT i=grid()->si(fType_, X, B::Y); i<=grid()->ei(fType_, X, B::Y); ++i)
           out <<i <<"\t" <<j <<"\t" <<k <<"\t" <<at(i, j, k) <<"\n";
   }
 
@@ -1008,7 +1008,7 @@ public:
   /// Write the ScalarField to an hdf5 file, the velocities are interpolated to the pressure points
   void write(const int count=0 , const bool restart=false) const {
 
-    if(0==space()->rankS())
+    if(0 == grid()->rankS())
       switch(fType_) {
         case F::U:
           std::cout <<"writing velocity field x(" <<count <<") ...\n";
@@ -1023,8 +1023,8 @@ public:
           std::cout <<"writing pressure field  (" <<count <<") ...\n";
           Teuchos::Tuple<OT, 3> N;
           for(int i=0; i<3; ++i) {
-            N[i] = space()->nGlo(i);
-            if(space()->getBCGlobal()->getBCL(i)==Pimpact::BC::Periodic)
+            N[i] = grid()->nGlo(i);
+            if(grid()->getBCGlobal()->getBCL(i) == Pimpact::BC::Periodic)
               N[i] = N[i]-1;
           }
           if(!restart) {
@@ -1074,72 +1074,72 @@ public:
     }
 
     if(!restart) {
-      Teuchos::RCP<ScalarField<SpaceT> > temp;
+      Teuchos::RCP<ScalarField<GridT> > temp;
 
       if(F::S != fType_) {
-        temp = Teuchos::rcp(new ScalarField<SpaceT>(space(), Owning::Y, F::S));
-        space()->getInterpolateV2S()->apply(*this, *temp);
+        temp = Teuchos::rcp(new ScalarField<GridT>(grid(), Owning::Y, F::S));
+        grid()->getInterpolateV2S()->apply(*this, *temp);
       }
 
-      if(2==SpaceT::sdim) {
+      if(2 == GridT::sdim) {
 
         write_hdf5_2D(
-          space()->rankS(),
-          MPI_Comm_c2f(space()->comm()),
-          space()->nGlo(),
-          space()->getBCGlobal()->getBCL(),
-          space()->getBCGlobal()->getBCU(),
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(F::S),
-          space()->eInd(F::S),
-          space()->getStencilWidths()->getLS(),
-          space()->np(),
-          space()->ib(),
-          space()->getShift(),
+          grid()->rankS(),
+          MPI_Comm_c2f(grid()->comm()),
+          grid()->nGlo(),
+          grid()->getBCGlobal()->getBCL(),
+          grid()->getBCGlobal()->getBCU(),
+          grid()->nLoc(),
+          grid()->bl(),
+          grid()->bu(),
+          grid()->sInd(F::S),
+          grid()->eInd(F::S),
+          grid()->getStencilWidths()->getLS(),
+          grid()->np(),
+          grid()->ib(),
+          grid()->getShift(),
           (int)fType_,
           count,
-          (F::S==fType_)?9:10,
-          (F::S==fType_)?s_:temp->s_,
-          space()->getCoordinatesGlobal()->getX(F::S, 0),
-          space()->getCoordinatesGlobal()->getX(F::S, 1),
-          space()->getDomainSize()->getRe(),
-          space()->getDomainSize()->getAlpha2());
-      } else if(3==SpaceT::sdim) {
+          (F::S == fType_)?9:10,
+          (F::S == fType_)?s_:temp->s_,
+          grid()->getCoordinatesGlobal()->getX(F::S, 0),
+          grid()->getCoordinatesGlobal()->getX(F::S, 1),
+          grid()->getDomainSize()->getRe(),
+          grid()->getDomainSize()->getAlpha2());
+      } else if(3 == GridT::sdim) {
 
         int stride[3] = {1, 1, 1};
 
         write_hdf_3D(
             false,
-            space()->rankS(),
-            MPI_Comm_c2f(space()->comm()),
-            space()->nGlo(),
-            space()->getBCGlobal()->getBCL(),
-            space()->getBCGlobal()->getBCU(),
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sInd(F::S),
-            space()->eInd(F::S),
-            space()->getStencilWidths()->getLS(),
-            space()->np(),
-            space()->ib(),
-            space()->getShift(),
+            grid()->rankS(),
+            MPI_Comm_c2f(grid()->comm()),
+            grid()->nGlo(),
+            grid()->getBCGlobal()->getBCL(),
+            grid()->getBCGlobal()->getBCU(),
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sInd(F::S),
+            grid()->eInd(F::S),
+            grid()->getStencilWidths()->getLS(),
+            grid()->np(),
+            grid()->ib(),
+            grid()->getShift(),
             (int)fType_+1,
             (int)F::S+1,
             count,
-            (F::S==fType_)?9:10,
+            (F::S == fType_)?9:10,
             stride,
-            (F::S==fType_)?s_:temp->s_,
-            space()->getCoordinatesGlobal()->getX(F::S, 0),
-            space()->getCoordinatesGlobal()->getX(F::S, 1),
-            space()->getCoordinatesGlobal()->getX(F::S, 2),
-            space()->getCoordinatesGlobal()->getX(F::U, 0),
-            space()->getCoordinatesGlobal()->getX(F::V, 1),
-            space()->getCoordinatesGlobal()->getX(F::W, 2),
-            space()->getDomainSize()->getRe()/*, */
-            /*space()->getDomainSize()->getAlpha2()*/);
+            (F::S == fType_)?s_:temp->s_,
+            grid()->getCoordinatesGlobal()->getX(F::S, 0),
+            grid()->getCoordinatesGlobal()->getX(F::S, 1),
+            grid()->getCoordinatesGlobal()->getX(F::S, 2),
+            grid()->getCoordinatesGlobal()->getX(F::U, 0),
+            grid()->getCoordinatesGlobal()->getX(F::V, 1),
+            grid()->getCoordinatesGlobal()->getX(F::W, 2),
+            grid()->getDomainSize()->getRe()/*, */
+            /*grid()->getDomainSize()->getAlpha2()*/);
 
       }
     } else {
@@ -1148,34 +1148,34 @@ public:
 
       write_hdf_3D(
           true,
-          space()->rankS(),
-          MPI_Comm_c2f(space()->comm()),
-          space()->nGlo(),
-          space()->getBCGlobal()->getBCL(),
-          space()->getBCGlobal()->getBCU(),
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          space()->getStencilWidths()->getLS(),
-          space()->np(),
-          space()->ib(),
-          space()->getShift(),
+          grid()->rankS(),
+          MPI_Comm_c2f(grid()->comm()),
+          grid()->nGlo(),
+          grid()->getBCGlobal()->getBCL(),
+          grid()->getBCGlobal()->getBCU(),
+          grid()->nLoc(),
+          grid()->bl(),
+          grid()->bu(),
+          grid()->sIndB(fType_),
+          grid()->eIndB(fType_),
+          grid()->getStencilWidths()->getLS(),
+          grid()->np(),
+          grid()->ib(),
+          grid()->getShift(),
           (int)fType_+1,
           (int)fType_+1,
           count,
-          ((F::S==fType_)?9:10)+7,
+          ((F::S == fType_)?9:10)+7,
           stride,
           s_,
-          space()->getCoordinatesGlobal()->getX(F::S, 0),
-          space()->getCoordinatesGlobal()->getX(F::S, 1),
-          space()->getCoordinatesGlobal()->getX(F::S, 2),
-          space()->getCoordinatesGlobal()->getX(F::U, 0),
-          space()->getCoordinatesGlobal()->getX(F::V, 1),
-          space()->getCoordinatesGlobal()->getX(F::W, 2),
-          space()->getDomainSize()->getRe()/*, */
-          /*space()->getDomainSize()->getAlpha2() */);
+          grid()->getCoordinatesGlobal()->getX(F::S, 0),
+          grid()->getCoordinatesGlobal()->getX(F::S, 1),
+          grid()->getCoordinatesGlobal()->getX(F::S, 2),
+          grid()->getCoordinatesGlobal()->getX(F::U, 0),
+          grid()->getCoordinatesGlobal()->getX(F::V, 1),
+          grid()->getCoordinatesGlobal()->getX(F::W, 2),
+          grid()->getDomainSize()->getRe()/*, */
+          /*grid()->getDomainSize()->getAlpha2() */);
     }
   }
 
@@ -1183,21 +1183,21 @@ public:
 
     int vel_dir = static_cast<int>(fType_) + 1;
     read_hdf(
-        space()->rankS(),
-        MPI_Comm_c2f(space()->comm()),
-        space()->getBCGlobal()->getBCL(),
-        space()->getBCGlobal()->getBCU(),
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sIndB(fType_),
-        space()->eIndB(fType_),
-        space()->getStencilWidths()->getLS(),
-        space()->ib(),
-        space()->getShift(),
+        grid()->rankS(),
+        MPI_Comm_c2f(grid()->comm()),
+        grid()->getBCGlobal()->getBCL(),
+        grid()->getBCGlobal()->getBCU(),
+        grid()->nLoc(),
+        grid()->bl(),
+        grid()->bu(),
+        grid()->sIndB(fType_),
+        grid()->eIndB(fType_),
+        grid()->getStencilWidths()->getLS(),
+        grid()->ib(),
+        grid()->getShift(),
         vel_dir,
         count,
-        ((F::S==fType_)?9:10)+7,
+        ((F::S == fType_)?9:10)+7,
         s_);
 
     changed();
@@ -1219,7 +1219,7 @@ public:
 
     OT n = 1;
     for(int i=0; i<3; ++i)
-      n *= space()->nLoc(i)+SW::BU(i)-SW::BL(i)+1; // seems wrong: there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
+      n *= grid()->nLoc(i)+SW::BU(i)-SW::BL(i)+1; // seems wrong: there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
 
     return n;
   }
@@ -1239,12 +1239,12 @@ public:
 
   /// @}
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return AbstractField<SpaceT>::space_;
+  constexpr const Teuchos::RCP<const GridT>& grid() {
+    return AbstractField<GridT>::grid_;
   }
 
   constexpr const MPI_Comm& comm() {
-    return space()->comm();
+    return grid()->comm();
   }
 
   /// \name comunication methods.
@@ -1256,7 +1256,7 @@ public:
     exchangedState_[dir] = false;
   }
   void changed() const {
-    for(int dir=0; dir<SpaceT::sdim; ++dir)
+    for(int dir=0; dir<GridT::sdim; ++dir)
       changed(dir);
   }
 
@@ -1266,7 +1266,7 @@ public:
   }
   bool is_exchanged() const {
     bool all_exchanged = true;
-    for(int dir=0; dir<SpaceT::sdim; ++dir)
+    for(int dir=0; dir<GridT::sdim; ++dir)
       all_exchanged = all_exchanged && is_exchanged(dir);
     return all_exchanged;
   }
@@ -1276,21 +1276,21 @@ public:
     int ones[3] = {0, 0, 0};
     if(!exchangedState_[dir]) {
       F_exchange(
-        static_cast<int>(SpaceT::sdim),
-        MPI_Comm_c2f(space()->getProcGrid()->getCommWorld()),
-        space()->getProcGrid()->getRankL(),
-        space()->getProcGrid()->getRankU(),
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->getBCLocal()->getBCL(),
-        space()->getBCLocal()->getBCU(),
-        space()->sInd(F::S),
-        space()->eInd(F::S),
-//				space()->sIndB(fType_), // should it work
-//        space()->eIndB(fType_),
+        static_cast<int>(GridT::sdim),
+        MPI_Comm_c2f(grid()->getProcGrid()->getCommWorld()),
+        grid()->getProcGrid()->getRankL(),
+        grid()->getProcGrid()->getRankU(),
+        grid()->nLoc(),
+        grid()->bl(),
+        grid()->bu(),
+        grid()->getBCLocal()->getBCL(),
+        grid()->getBCLocal()->getBCU(),
+        grid()->sInd(F::S),
+        grid()->eInd(F::S),
+//				grid()->sIndB(fType_), // should it work
+//        grid()->eIndB(fType_),
         ones,
-        space()->nLoc(),
+        grid()->nLoc(),
         1+dir,
         1+(int)fType_,
         s_);
@@ -1298,7 +1298,7 @@ public:
     }
   }
   void exchange() const {
-    for(int dir=0; dir<SpaceT::sdim; ++dir)
+    for(int dir=0; dir<GridT::sdim; ++dir)
       exchange(dir);
   }
 
@@ -1306,7 +1306,7 @@ public:
     exchangedState_[dir] = true;
   }
   void setExchanged() const {
-    for(int dir=0; dir<SpaceT::sdim; ++dir)
+    for(int dir=0; dir<GridT::sdim; ++dir)
       changed(dir);
   }
 
@@ -1320,14 +1320,14 @@ protected:
 
   /// \brief stride in Y direction
   //constexpr OT stride1() {
-    //return space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1;
+    //return grid()->nLoc(0)+SW::BU(0)-SW::BL(0)+1;
   //}
 
   /// \brief stride in Z direction
   //constexpr OT stride2() {
     //return
-          //(space()->nLoc(0)+SW::BU(0)-SW::BL(0)+1)*(
-            //space()->nLoc(1)+SW::BU(1)-SW::BL(1)+1);
+          //(grid()->nLoc(0)+SW::BU(0)-SW::BL(0)+1)*(
+            //grid()->nLoc(1)+SW::BU(1)-SW::BL(1)+1);
   //}
 
 
@@ -1460,17 +1460,17 @@ public:
 
 
 
-/// \brief creates a scalar field(vector) belonging to a space
+/// \brief creates a scalar field(vector) belonging to a grid
 ///
-/// \param space scalar Vector Space to which returned vector belongs
+/// \param grid scalar Vector Grid to which returned vector belongs
 /// \param fType
 /// \return scalar vector
 /// \relates ScalarField
-template<class SpaceT>
-Teuchos::RCP<ScalarField<SpaceT> >
-createScalarField(const Teuchos::RCP<const SpaceT >& space, F fType=F::S) {
+template<class GridT>
+Teuchos::RCP<ScalarField<GridT> >
+createScalarField(const Teuchos::RCP<const GridT >& grid, F fType=F::S) {
 
-  return Teuchos::rcp(new ScalarField<SpaceT>(space, true, fType));
+  return Teuchos::rcp(new ScalarField<GridT>(grid, true, fType));
 }
 
 ///  @}

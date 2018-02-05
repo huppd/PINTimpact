@@ -9,7 +9,7 @@
 #include "Teuchos_Tuple.hpp"
 
 #include "Pimpact_ScalarField.hpp"
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 #include "Pimpact_Stencil.hpp"
 
 
@@ -101,35 +101,35 @@ extern "C" {
 
 
 
-/// \brief Opetartor that interpolates from a coarse space to a fine space
+/// \brief Opetartor that interpolates from a coarse grid to a fine grid
 ///
 /// \todo c++fy
-/// \tparam ST type of the \c Space
-template<class ST>
+/// \tparam GT type of the \c Grid
+template<class GT>
 class InterpolationOp {
 
-  static const int dimension = ST::dimension;
+  static const int dimension = GT::dimension;
 
-  using Scalar = typename ST::Scalar;
-  using Ordinal = typename ST::Ordinal;
+  using Scalar = typename GT::Scalar;
+  using Ordinal = typename GT::Ordinal;
 
 public:
 
-  using SpaceT = ST;
+  using GridT = GT;
 
-  using FSpaceT = SpaceT;
-  using CSpaceT = SpaceT;
+  using FGridT = GridT;
+  using CGridT = GridT;
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
   using StencS = Stencil<Scalar, Ordinal, 1, 1, 2 >;
   using StencV = Stencil<Scalar, Ordinal, 0, 1, 2 >;
 
 protected:
 
-  Teuchos::RCP<const SpaceT> spaceC_; 		///<coarse space
-  Teuchos::RCP<const SpaceT> spaceF_; 		///<fine space
+  Teuchos::RCP<const GridT> gridC_; 		///<coarse grid
+  Teuchos::RCP<const GridT> gridF_; 		///<fine grid
 
   int rankc2_; 														///<rank on coarse grid that gathers
 
@@ -152,10 +152,10 @@ protected:
   void init(const Teuchos::Tuple<int, dimension>& np) {
 
     // ------------- nGather_, iimax_
-    Teuchos::Tuple<int, dimension> periodic = spaceF_->getBCGlobal()->periodic();
+    Teuchos::Tuple<int, dimension> periodic = gridF_->getBCGlobal()->periodic();
 
-    const Teuchos::Tuple<int, dimension>& npF = spaceF_->getProcGrid()->getNP();
-    const Teuchos::Tuple<int, dimension>& npC = spaceC_->getProcGrid()->getNP();
+    const Teuchos::Tuple<int, dimension>& npF = gridF_->getProcGrid()->getNP();
+    const Teuchos::Tuple<int, dimension>& npC = gridC_->getProcGrid()->getNP();
 
     Teuchos::Tuple<Ordinal, dimension> iiShift;
 
@@ -165,13 +165,13 @@ protected:
       nGatherTotal *= nGather_[i]; // check
 
       if(i<3) {
-        iimax_[i] = (spaceC_->nLoc(i) - 1)/nGather_[i] + 1; // check
-        dd_[i] = std::max((spaceF_->nLoc(i) - 1)/(iimax_[i] -1), static_cast<Ordinal>(1)); // check
-        iiShift[i] = (iimax_[i] - 1)*((spaceF_->getProcGrid()->getIB(i) -1)%nGather_[i]); // check
+        iimax_[i] = (gridC_->nLoc(i) - 1)/nGather_[i] + 1; // check
+        dd_[i] = std::max((gridF_->nLoc(i) - 1)/(iimax_[i] -1), static_cast<Ordinal>(1)); // check
+        iiShift[i] = (iimax_[i] - 1)*((gridF_->getProcGrid()->getIB(i) -1)%nGather_[i]); // check
       } else {
-        iimax_[i] = spaceC_->nLoc(i); // check
+        iimax_[i] = gridC_->nLoc(i); // check
         dd_[i] = 1; // check
-        iiShift[i] = (iimax_[i] - 1)*((spaceF_->getProcGrid()->getIB(i) -1)%nGather_[i]); // check
+        iiShift[i] = (iimax_[i] - 1)*((gridF_->getProcGrid()->getIB(i) -1)%nGather_[i]); // check
       }
     }
 
@@ -186,7 +186,7 @@ protected:
     if(nGatherTotal>1) {
       Teuchos::ArrayRCP<int> newRanks = Teuchos::arcp<int>(nGatherTotal);
 
-      MPI_Comm commWorld = spaceF_->getProcGrid()->getCommWorld();
+      MPI_Comm commWorld = gridF_->getProcGrid()->getCommWorld();
       MPI_Comm commTemp;
       MPI_Group baseGroup, newGroup;
       MPI_Comm_group(commWorld, &baseGroup);
@@ -211,7 +211,7 @@ protected:
                       coord.getRawPtr(),
                       &newRanks[i+nGather_[0]*j+nGather_[0]*nGather_[1]*k]);
 
-                    if(newRanks[i+nGather_[0]*j+nGather_[0]*nGather_[1]*k]==spaceF_->rankST())
+                    if(newRanks[i+nGather_[0]*j+nGather_[0]*nGather_[1]*k]==gridF_->rankST())
                       member_yes = true;
                   }
                 }
@@ -231,7 +231,7 @@ protected:
                   &comm2_);            // communicator with new Cartesian topology (handle)
                 MPI_Comm_free(&commTemp);
                 int rank_comm2 = 0;
-                if(spaceC_->getProcGrid()->participating())
+                if(gridC_->getProcGrid()->participating())
                   MPI_Comm_rank(comm2_, &rank_comm2);
                 MPI_Allreduce(
                   &rank_comm2, // starting address of send buffer (choice) starting
@@ -264,7 +264,7 @@ protected:
                           coord.getRawPtr(),
                           &newRanks[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] + l*nGather_[0]*nGather_[1]*nGather_[2] ]);
 
-                        if(newRanks[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] + l*nGather_[0]*nGather_[1]*nGather_[2] ]==spaceF_->rankST())
+                        if(newRanks[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] + l*nGather_[0]*nGather_[1]*nGather_[2] ]==gridF_->rankST())
                           member_yes = true;
 
                       }
@@ -292,7 +292,7 @@ protected:
                   comm2_ = commTemp;
 
                   int rank_comm2 = 0;
-                  if(spaceC_->getProcGrid()->participating())
+                  if(gridC_->getProcGrid()->participating())
                     MPI_Comm_rank(comm2_, &rank_comm2);
                   MPI_Allreduce(
                     &rank_comm2, // starting address of send buffer (choice) starting
@@ -309,7 +309,7 @@ protected:
       MPI_Group_free(&baseGroup);
       // ------------------------- offs_, sizs_
 
-      if(spaceF_->getProcGrid()->participating())  {
+      if(gridF_->getProcGrid()->participating())  {
         int rank_comm2;
         MPI_Comm_rank(comm2_, &rank_comm2);
 
@@ -359,39 +359,39 @@ protected:
     for(int dir=0; dir<3; ++dir) {
 
       //if dd>1
-      cIS_[dir] = StencS(spaceC_->nLoc(dir));
+      cIS_[dir] = StencS(gridC_->nLoc(dir));
 
       MG_getCIS(
-        spaceC_->nLoc(dir),
-        spaceF_->nLoc(dir),
-        spaceC_->bl(dir),
-        spaceC_->bu(dir),
-        spaceF_->getCoordinatesLocal()->getX(F::S, dir ),
+        gridC_->nLoc(dir),
+        gridF_->nLoc(dir),
+        gridC_->bl(dir),
+        gridC_->bu(dir),
+        gridF_->getCoordinatesLocal()->getX(F::S, dir ),
         dd_[dir],
         cIS_[dir].get());
 
-      cIV_[dir] = StencV(spaceF_->nLoc(dir));
+      cIV_[dir] = StencV(gridF_->nLoc(dir));
 
       Ordinal offset = 0;
       if(1!=nGather_[dir])
         offset =
-          (iimax_[dir]-1)*(spaceF_->getProcGrid()->getIB(dir)-1 - nGather_[dir]*(spaceC_->getProcGrid()->getIB(dir)-1));
+          (iimax_[dir]-1)*(gridF_->getProcGrid()->getIB(dir)-1 - nGather_[dir]*(gridC_->getProcGrid()->getIB(dir)-1));
 
       F fdir = static_cast<F>(dir);
       MG_getCIV(
-        spaceC_->nLoc(dir),
-        spaceC_->bl(dir),
-        spaceC_->bu(dir),
-        //spaceC_->sInd(fdir)[dir],
-        //spaceC_->eInd(fdir)[dir],
-        spaceF_->getBCLocal()->getBCL(dir),
-        spaceF_->getBCLocal()->getBCU(dir),
-        spaceF_->nLoc(dir),
-        spaceF_->bl(dir),
-        spaceF_->bu(dir),
+        gridC_->nLoc(dir),
+        gridC_->bl(dir),
+        gridC_->bu(dir),
+        //gridC_->sInd(fdir)[dir],
+        //gridC_->eInd(fdir)[dir],
+        gridF_->getBCLocal()->getBCL(dir),
+        gridF_->getBCLocal()->getBCU(dir),
+        gridF_->nLoc(dir),
+        gridF_->bl(dir),
+        gridF_->bu(dir),
         offset,
-        spaceC_->getCoordinatesLocal()->getX(fdir, dir),
-        spaceF_->getCoordinatesLocal()->getX(fdir, dir),
+        gridC_->getCoordinatesLocal()->getX(fdir, dir),
+        gridF_->getCoordinatesLocal()->getX(fdir, dir),
         dd_[dir],
         cIV_[dir].get());
     }
@@ -401,20 +401,20 @@ protected:
 
 public:
 
-  InterpolationOp(const Teuchos::RCP<const SpaceT>& spaceC, const Teuchos::RCP<const SpaceT>& spaceF):
-    spaceC_(spaceC),
-    spaceF_(spaceF),
+  InterpolationOp(const Teuchos::RCP<const GridT>& gridC, const Teuchos::RCP<const GridT>& gridF):
+    gridC_(gridC),
+    gridF_(gridF),
     comm2_(MPI_COMM_NULL) {
 
-    init(spaceF_->getProcGrid()->getNP());
+    init(gridF_->getProcGrid()->getNP());
   }
 
   InterpolationOp(
-    const Teuchos::RCP<const SpaceT>& spaceC,
-    const Teuchos::RCP<const SpaceT>& spaceF,
+    const Teuchos::RCP<const GridT>& gridC,
+    const Teuchos::RCP<const GridT>& gridF,
     const Teuchos::Tuple<int, dimension>& np):
-    spaceC_(spaceC),
-    spaceF_(spaceF),
+    gridC_(gridC),
+    gridF_(gridF),
     comm2_(MPI_COMM_NULL) {
 
     init(np);
@@ -431,18 +431,18 @@ public:
 
     if(F::S==fType) {
 
-      if(spaceC_->getProcGrid()->participating())
+      if(gridC_->getProcGrid()->participating())
         x.exchange();
 
       if(nGather_[0]*nGather_[1]*nGather_[2]>1) {
         MG_InterpolateScatter(
-          spaceC_->nLoc(),
-          spaceC_->bl(),
-          spaceC_->bu(),
-          //spaceF_->np(),
+          gridC_->nLoc(),
+          gridC_->bl(),
+          gridC_->bu(),
+          //gridF_->np(),
           iimax_.getRawPtr(),
           nGather_.getRawPtr(),
-          spaceC_->getProcGrid()->participating(),
+          gridC_->getProcGrid()->participating(),
           rankc2_,
           MPI_Comm_c2f(comm2_),
           disp_.getRawPtr(),
@@ -451,12 +451,12 @@ public:
       }
 
       MG_interpolate(
-        spaceC_->nLoc(),
-        spaceC_->bl(),
-        spaceC_->bu(),
-        spaceF_->nLoc(),
-        spaceF_->bl(),
-        spaceF_->bu(),
+        gridC_->nLoc(),
+        gridC_->bl(),
+        gridC_->bu(),
+        gridF_->nLoc(),
+        gridF_->bl(),
+        gridF_->bu(),
         iimax_.getRawPtr(),
         dd_.getRawPtr(),
         cIS_[0].get(),
@@ -470,7 +470,7 @@ public:
       //		y.init();
       int dir = static_cast<int>(fType);
 
-      if(spaceC_->getProcGrid()->participating()) {
+      if(gridC_->getProcGrid()->participating()) {
         switch(fType) {
         case F::U:
           x.exchange(1);
@@ -493,13 +493,13 @@ public:
 
       if(nGather_[0]*nGather_[1]*nGather_[2]>1) {
         MG_InterpolateScatter(
-          spaceC_->nLoc(),
-          spaceC_->bl(),
-          spaceC_->bu(),
-          //spaceF_->np(),
+          gridC_->nLoc(),
+          gridC_->bl(),
+          gridC_->bu(),
+          //gridF_->np(),
           iimax_.getRawPtr(),
           nGather_.getRawPtr(),
-          spaceC_->getProcGrid()->participating(),
+          gridC_->getProcGrid()->participating(),
           rankc2_,
           MPI_Comm_c2f(comm2_),
           disp_.getRawPtr(),
@@ -509,16 +509,16 @@ public:
 
       MG_interpolateV(
         dir+1,
-        spaceC_->nLoc(),
-        spaceC_->bl(),
-        spaceC_->bu(),
-        //spaceC_->sIndB(fType),
-        //spaceC_->eIndB(fType),
-        spaceF_->nLoc(),
-        spaceF_->bl(),
-        spaceF_->bu(),
-        //spaceF_->sIndB(fType),
-        //spaceF_->eIndB(fType),
+        gridC_->nLoc(),
+        gridC_->bl(),
+        gridC_->bu(),
+        //gridC_->sIndB(fType),
+        //gridC_->eIndB(fType),
+        gridF_->nLoc(),
+        gridF_->bl(),
+        gridF_->bu(),
+        //gridF_->sIndB(fType),
+        //gridF_->eIndB(fType),
         iimax_.getRawPtr(),
         dd_.getRawPtr(),
         cIV_[dir].get(),
@@ -558,11 +558,11 @@ public:
     out <<"\n";
   }
 
-  Teuchos::RCP<const SpaceT> spaceC() const {
-    return spaceC_;
+  Teuchos::RCP<const GridT> gridC() const {
+    return gridC_;
   };
-  Teuchos::RCP<const SpaceT> spaceF() const {
-    return spaceF_;
+  Teuchos::RCP<const GridT> gridF() const {
+    return gridF_;
   };
 
 }; // end of class InterpolationOp

@@ -14,14 +14,14 @@ namespace Pimpact {
 
 
 
-/// \brief Transfers fields from "coarse" to "fine" spaces, necessary when \c Space::dimNC is  different.
+/// \brief Transfers fields from "coarse" to "fine" grids, necessary when \c Grid::dimNC is  different.
 ///
 /// Goes in both direction. If this is used a lot, it could be beneficial, to
 /// seperate StencilWidths with data layout, so having same datalayout for all
 /// stencile. Coping could be beneficial because Cash effects are bether
 ///
-/// \tparam FSpaceT fine space type in the sense of stencil order.
-/// \tparam CSpaceT coase space type
+/// \tparam FGridT fine grid type in the sense of stencil order.
+/// \tparam CGridT coase grid type
 /// \ingroup BaseOperator
 template<class SOpT>
 class VectorFieldOpWrap {
@@ -29,13 +29,13 @@ class VectorFieldOpWrap {
 public:
 
 
-  using FSpaceT = typename SOpT::FSpaceT;
-  using CSpaceT = typename SOpT::CSpaceT;
+  using FGridT = typename SOpT::FGridT;
+  using CGridT = typename SOpT::CGridT;
 
-  using SpaceT = FSpaceT;
+  using GridT = FGridT;
 
-  using DomainFieldT = VectorField<FSpaceT>;
-  using  RangeFieldT = VectorField<CSpaceT>;
+  using DomainFieldT = VectorField<FGridT>;
+  using  RangeFieldT = VectorField<CGridT>;
 
 protected:
 
@@ -45,37 +45,37 @@ public:
 
   template<class SP1T, class SP2T>
   VectorFieldOpWrap(
-    const Teuchos::RCP<const SP1T>& fSpace,
-    const Teuchos::RCP<const SP2T>& cSpace):
-    sop_(create<SOpT>(fSpace, cSpace)) {}
+    const Teuchos::RCP<const SP1T>& fGrid,
+    const Teuchos::RCP<const SP2T>& cGrid):
+    sop_(create<SOpT>(fGrid, cGrid)) {}
 
   template<class SP1T, class SP2T>
   VectorFieldOpWrap(
-    const Teuchos::RCP<const SP1T>& fSpace,
-    const Teuchos::RCP<const SP2T>& cSpace,
+    const Teuchos::RCP<const SP1T>& fGrid,
+    const Teuchos::RCP<const SP2T>& cGrid,
     Teuchos::Tuple<int, SP1T::dimension> nb):
-    sop_(Teuchos::rcp(new SOpT(fSpace, cSpace, nb))) {}
+    sop_(Teuchos::rcp(new SOpT(fGrid, cGrid, nb))) {}
 
 
   template<class SP1T, class SP2T>
   void apply(const VectorField<SP1T>& x, VectorField<SP2T>& y) const {
 
-    for(F i=F::U; i<SpaceT::sdim; ++i) {
+    for(F i=F::U; i<GridT::sdim; ++i) {
       sop_->apply(x(i), y(i));
     }
 
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return sop_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return sop_->grid();
   };
   /// \note dirty
-  Teuchos::RCP<const SpaceT> spaceC() const {
-    return sop_->spaceC();
+  Teuchos::RCP<const GridT> gridC() const {
+    return sop_->gridC();
   };
   /// \note dirty
-  Teuchos::RCP<const SpaceT> spaceF() const {
-    return sop_->spaceF();
+  Teuchos::RCP<const GridT> gridF() const {
+    return sop_->gridF();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

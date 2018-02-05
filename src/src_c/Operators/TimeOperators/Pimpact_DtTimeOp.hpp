@@ -21,29 +21,29 @@ class DtTimeOp {
 
 public:
 
-  using SpaceT = ST;
+  using GridT = ST;
 
-  using DomainFieldT = TimeField<VectorField<SpaceT> >;
-  using RangeFieldT = TimeField<VectorField<SpaceT> >;
+  using DomainFieldT = TimeField<VectorField<GridT> >;
+  using RangeFieldT = TimeField<VectorField<GridT> >;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
-  Teuchos::RCP<const SpaceT> space_;
+  Teuchos::RCP<const GridT> grid_;
 
   Scalar mulI_;
 
 public:
 
-  DtTimeOp(const Teuchos::RCP<const SpaceT>& space):
-    space_(space) {
+  DtTimeOp(const Teuchos::RCP<const GridT>& grid):
+    grid_(grid) {
 
     Scalar pi = 4.*std::atan(1.);
-    Scalar idt = (static_cast<Scalar>(space_->nGlo(3)))/2./pi;
+    Scalar idt = (static_cast<Scalar>(grid_->nGlo(3)))/2./pi;
     mulI_ =
-      space_->getDomainSize()->getAlpha2()*idt/space_->getDomainSize()->getRe();
+      grid_->getDomainSize()->getAlpha2()*idt/grid_->getDomainSize()->getRe();
   };
 
 
@@ -51,7 +51,7 @@ public:
 
     x.exchange();
 
-    for(Ordinal i=space_->si(F::S, 3); i<=space_->ei(F::S, 3); ++i) {
+    for(Ordinal i=grid_->si(F::S, 3); i<=grid_->ei(F::S, 3); ++i) {
       y(i).add(mulI_, x(i), -mulI_, x(i-1));
     }
 
@@ -64,8 +64,8 @@ public:
     return false;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return space_;
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return grid_;
   };
 
   const std::string getLabel() const {

@@ -74,7 +74,7 @@ public:
       problem.getSolutionGroup().getXPtr();
 
     int nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
-      InterfaceT::FieldT> >(x)->getConstFieldPtr()->space()->nGlo(3) + 1;
+      InterfaceT::FieldT> >(x)->getConstFieldPtr()->grid()->nGlo(3) + 1;
 
     nfr_ = 0;
     if(checkType == NOX::StatusTest::None) {
@@ -192,7 +192,7 @@ private:
     Teuchos::RCP<const NOX::Abstract::Vector> x = grp.getXPtr();
 
     if(Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename InterfaceT::FieldT>
-      >(x)->getConstFieldPtr()->space()->nGlo(3)>0)
+      >(x)->getConstFieldPtr()->grid()->nGlo(3)>0)
       return op->getOperatorPtr()->getOpV2V()->compRefRes(Teuchos::rcp_dynamic_cast<const
           NOX::Pimpact::Vector<typename InterfaceT::FieldT>
           >(x)->getConstFieldPtr()->getField(0).getVField(), cutoff);

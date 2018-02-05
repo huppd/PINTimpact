@@ -22,10 +22,10 @@ class TransferCompoundOp {
 
 public:
 
-  using FSpaceT = typename TransVT::FSpaceT;
-  using CSpaceT = typename TransVT::CSpaceT;
+  using FGridT = typename TransVT::FGridT;
+  using CGridT = typename TransVT::CGridT;
 
-  using SpaceT = typename TransVT::SpaceT;
+  using GridT = typename TransVT::GridT;
 
   using DomainFieldT = CompoundField<typename TransVT::DomainFieldT, typename TransST::DomainFieldT >;
   using RangeFieldT = CompoundField<typename TransVT::RangeFieldT,  typename TransST::RangeFieldT  >;
@@ -38,17 +38,17 @@ protected:
 public:
 
   TransferCompoundOp(
-    const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF):
-    opV_(Teuchos::rcp(new TransVT(spaceC, spaceF))),
-    opS_(Teuchos::rcp(new TransST(spaceC, spaceF))) {}
+    const Teuchos::RCP<const FGridT>& gridC,
+    const Teuchos::RCP<const CGridT>& gridF):
+    opV_(Teuchos::rcp(new TransVT(gridC, gridF))),
+    opS_(Teuchos::rcp(new TransST(gridC, gridF))) {}
 
   TransferCompoundOp(
-    const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF,
-    const Teuchos::Tuple<int, SpaceT::dimension>& nb):
-    opV_(Teuchos::rcp(new TransVT(spaceC, spaceF))),
-    opS_(Teuchos::rcp(new TransST(spaceC, spaceF))) {}
+    const Teuchos::RCP<const FGridT>& gridC,
+    const Teuchos::RCP<const CGridT>& gridF,
+    const Teuchos::Tuple<int, GridT::dimension>& nb):
+    opV_(Teuchos::rcp(new TransVT(gridC, gridF))),
+    opS_(Teuchos::rcp(new TransST(gridC, gridF))) {}
 
 
   template<class DT, class RT>

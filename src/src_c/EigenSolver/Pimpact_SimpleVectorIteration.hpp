@@ -9,7 +9,7 @@
 
 #include "BelosTypes.hpp"
 
-//#include "Pimpact_Space.hpp" // just for createOstream<>
+//#include "Pimpact_Grid.hpp" // just for createOstream<>
 
 
 
@@ -26,9 +26,9 @@ protected:
   using DomainFieldT = typename OperatorT::DomainFieldT;
   using RangeFieldT = typename OperatorT::RangeFieldT;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
-  using ScalarT = typename SpaceT::Scalar;
+  using ScalarT = typename GridT::Scalar;
 
 
   ScalarT lamMax_;
@@ -39,8 +39,8 @@ public:
     const Teuchos::RCP<const OperatorT>& op,
     const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList()) {
 
-    Teuchos::RCP<DomainFieldT> x = create<DomainFieldT>(op->space());
-    Teuchos::RCP<RangeFieldT>  r = create<RangeFieldT>(op->space());
+    Teuchos::RCP<DomainFieldT> x = create<DomainFieldT>(op->grid());
+    Teuchos::RCP<RangeFieldT>  r = create<RangeFieldT>(op->grid());
 
     x->random();
 

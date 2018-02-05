@@ -21,14 +21,14 @@ class ConvectionSOp {
 
 public:
 
-  using SpaceT = ST;
+  using GridT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
-  using FluxFieldT = ScalarField<SpaceT>[3];
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using FluxFieldT = ScalarField<GridT>[3];
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
 protected:
 
@@ -41,7 +41,7 @@ protected:
   using Stenc = Stencil<Scalar, Ordinal, 0, SW::NL(0), SW::NU(0) >;
   using TO = const Teuchos::Tuple<Stenc, sdim >;
 
-  const Teuchos::RCP<const SpaceT> space_;
+  const Teuchos::RCP<const GridT> grid_;
 
   TO cSD_;
   TO cVD_;
@@ -51,79 +51,79 @@ protected:
 
 public:
 
-  ConvectionSOp(const Teuchos::RCP<const SpaceT>& space ):
-    space_(space) {
+  ConvectionSOp(const Teuchos::RCP<const GridT>& grid ):
+    grid_(grid) {
 
     //const bool mapping = true; // order: ~3
     const bool mapping = false; //order: ~5
 
     for(int dir=0; dir<sdim; ++dir) {
 
-      cSD_[dir] = Stenc(space_->nLoc(dir));
+      cSD_[dir] = Stenc(grid_->nLoc(dir));
 
       FD_getDiffCoeff(
         1,
-        space_->nLoc(dir),
-        space_->bl(dir),
-        space_->bu(dir),
-        space_->nl(dir),
-        space_->nu(dir),
-        space_->getBCLocal()->getBCL(dir),
-        space_->getBCLocal()->getBCU(dir),
-        space_->getShift(dir),
+        grid_->nLoc(dir),
+        grid_->bl(dir),
+        grid_->bu(dir),
+        grid_->nl(dir),
+        grid_->nu(dir),
+        grid_->getBCLocal()->getBCL(dir),
+        grid_->getBCLocal()->getBCU(dir),
+        grid_->getShift(dir),
         5,
         dir+1,
         1,
         -1,
         mapping,
-        space_->getStencilWidths()->getDimNcbC(dir),
-        space_->getStencilWidths()->getNcbC(dir),
-        space_->getCoordinatesLocal()->getX(F::S, dir),
-        space_->getCoordinatesLocal()->getX(F::S, dir),
+        grid_->getStencilWidths()->getDimNcbC(dir),
+        grid_->getStencilWidths()->getNcbC(dir),
+        grid_->getCoordinatesLocal()->getX(F::S, dir),
+        grid_->getCoordinatesLocal()->getX(F::S, dir),
         cSD_[dir].get());
 
-      if(BC::Dirichlet==space_->bcl(dir)) {
-        Ordinal i = space_->si(F::S, dir, B::Y);
+      if(BC::Dirichlet==grid_->bcl(dir)) {
+        Ordinal i = grid_->si(F::S, dir, B::Y);
         for(int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii)
           cSD_[dir](i, ii) = 0.;
       }
-      if(BC::Dirichlet==space_->bcu(dir)) {
-        Ordinal i = space_->ei(F::S, dir, B::Y);
+      if(BC::Dirichlet==grid_->bcu(dir)) {
+        Ordinal i = grid_->ei(F::S, dir, B::Y);
         for(int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii)
           cSD_[dir](i, ii) = 0.;
       }
 
 
-      cSU_[dir] = Stenc(space_->nLoc(dir));
+      cSU_[dir] = Stenc(grid_->nLoc(dir));
 
       FD_getDiffCoeff(
         1,
-        space_->nLoc(dir),
-        space_->bl(dir),
-        space_->bu(dir),
-        space_->nl(dir),
-        space_->nu(dir),
-        space_->getBCLocal()->getBCL(dir),
-        space_->getBCLocal()->getBCU(dir),
-        space_->getShift(dir),
+        grid_->nLoc(dir),
+        grid_->bl(dir),
+        grid_->bu(dir),
+        grid_->nl(dir),
+        grid_->nu(dir),
+        grid_->getBCLocal()->getBCL(dir),
+        grid_->getBCLocal()->getBCU(dir),
+        grid_->getShift(dir),
         5,
         dir+1,
         1,
         +1,
         mapping,
-        space_->getStencilWidths()->getDimNcbC(dir),
-        space_->getStencilWidths()->getNcbC(dir),
-        space_->getCoordinatesLocal()->getX(F::S, dir),
-        space_->getCoordinatesLocal()->getX(F::S, dir),
+        grid_->getStencilWidths()->getDimNcbC(dir),
+        grid_->getStencilWidths()->getNcbC(dir),
+        grid_->getCoordinatesLocal()->getX(F::S, dir),
+        grid_->getCoordinatesLocal()->getX(F::S, dir),
         cSU_[dir].get());
 
-      if(BC::Dirichlet==space_->bcl(dir)) {
-        Ordinal i = space_->si(F::S, dir, B::Y);
+      if(BC::Dirichlet==grid_->bcl(dir)) {
+        Ordinal i = grid_->si(F::S, dir, B::Y);
         for(int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii)
           cSU_[dir](i, ii) = 0.;
       }
-      if(BC::Dirichlet==space_->bcu(dir)) {
-        Ordinal i = space_->ei(F::S, dir, B::Y);
+      if(BC::Dirichlet==grid_->bcu(dir)) {
+        Ordinal i = grid_->ei(F::S, dir, B::Y);
         for(int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii)
           cSU_[dir](i, ii) = 0.;
       }
@@ -131,71 +131,71 @@ public:
 
       F fdir = static_cast<F>(dir);
 
-      cVD_[dir] = Stenc(space_->nLoc(dir));
+      cVD_[dir] = Stenc(grid_->nLoc(dir));
 
       FD_getDiffCoeff(
         0,
-        space_->nLoc(dir),
-        space_->bl(dir),
-        space_->bu(dir),
-        space_->nl(dir),
-        space_->nu(dir),
-        space_->getBCLocal()->getBCL(dir),
-        space_->getBCLocal()->getBCU(dir),
-        space_->getShift(dir),
+        grid_->nLoc(dir),
+        grid_->bl(dir),
+        grid_->bu(dir),
+        grid_->nl(dir),
+        grid_->nu(dir),
+        grid_->getBCLocal()->getBCL(dir),
+        grid_->getBCLocal()->getBCU(dir),
+        grid_->getShift(dir),
         1,
         dir+1,
         1,
         -1,
         mapping,
-        space_->getStencilWidths()->getDimNcbC(dir),
-        space_->getStencilWidths()->getNcbC(dir),
-        space_->getCoordinatesLocal()->getX(fdir, dir),
-        space_->getCoordinatesLocal()->getX(fdir, dir),
+        grid_->getStencilWidths()->getDimNcbC(dir),
+        grid_->getStencilWidths()->getNcbC(dir),
+        grid_->getCoordinatesLocal()->getX(fdir, dir),
+        grid_->getCoordinatesLocal()->getX(fdir, dir),
         cVD_[dir].get());
 
-      if(BC::Dirichlet==space_->bcl(dir)) {
-        Ordinal i = space_->si(fdir, dir, B::Y);
+      if(BC::Dirichlet==grid_->bcl(dir)) {
+        Ordinal i = grid_->si(fdir, dir, B::Y);
         for(int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii)
           cVD_[dir](i, ii) = 0.;
       }
-      if(BC::Dirichlet==space_->bcu(dir)) {
-        Ordinal i = space_->ei(fdir, dir, B::Y);
+      if(BC::Dirichlet==grid_->bcu(dir)) {
+        Ordinal i = grid_->ei(fdir, dir, B::Y);
         for(int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii)
           cVD_[dir](i, ii) = 0.;
       }
 
 
-      cVU_[dir] = Stenc(space_->nLoc(dir));
+      cVU_[dir] = Stenc(grid_->nLoc(dir));
 
       FD_getDiffCoeff(
         0,
-        space_->nLoc(dir),
-        space_->bl(dir),
-        space_->bu(dir),
-        space_->nl(dir),
-        space_->nu(dir),
-        space_->getBCLocal()->getBCL(dir),
-        space_->getBCLocal()->getBCU(dir),
-        space_->getShift(dir),
+        grid_->nLoc(dir),
+        grid_->bl(dir),
+        grid_->bu(dir),
+        grid_->nl(dir),
+        grid_->nu(dir),
+        grid_->getBCLocal()->getBCL(dir),
+        grid_->getBCLocal()->getBCU(dir),
+        grid_->getShift(dir),
         1,
         dir+1,
         1,
         +1,
         mapping,
-        space_->getStencilWidths()->getDimNcbC(dir),
-        space_->getStencilWidths()->getNcbC(dir),
-        space_->getCoordinatesLocal()->getX(fdir, dir),
-        space_->getCoordinatesLocal()->getX(fdir, dir),
+        grid_->getStencilWidths()->getDimNcbC(dir),
+        grid_->getStencilWidths()->getNcbC(dir),
+        grid_->getCoordinatesLocal()->getX(fdir, dir),
+        grid_->getCoordinatesLocal()->getX(fdir, dir),
         cVU_[dir].get());
 
-      if(BC::Dirichlet==space_->bcl(dir)) {
-        Ordinal i = space_->si(fdir, dir, B::Y);
+      if(BC::Dirichlet==grid_->bcl(dir)) {
+        Ordinal i = grid_->si(fdir, dir, B::Y);
         for(int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii)
           cVU_[dir](i, ii) = 0.;
       }
-      if(BC::Dirichlet==space_->bcu(dir)) {
-        Ordinal i = space_->ei(fdir, dir, B::Y);
+      if(BC::Dirichlet==grid_->bcu(dir)) {
+        Ordinal i = grid_->ei(fdir, dir, B::Y);
         for(int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii)
           cVU_[dir](i, ii) = 0.;
       }
@@ -220,26 +220,26 @@ public:
 
     assert(z.getType() == y.getType());
 
-    for(int i=0; i<SpaceT::sdim; ++i)
+    for(int i=0; i<GridT::sdim; ++i)
       assert(wind[i].getType()==y.getType());
 
 
-    for(int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir)
+    for(int vel_dir=0; vel_dir<GridT::sdim; ++vel_dir)
       wind[vel_dir].exchange();
 
     y.exchange();
 
-    if(3==SpaceT::sdim)
-      for(Ordinal k=space()->si(m, Z, b); k<=space()->ei(m, Z, b); ++k)
-        for(Ordinal j=space()->si(m, Y, b); j<=space()->ei(m, Y, b); ++j)
-          for(Ordinal i=space()->si(m, X, b); i<=space()->ei(m, X, b); ++i) {
+    if(3==GridT::sdim)
+      for(Ordinal k=grid()->si(m, Z, b); k<=grid()->ei(m, Z, b); ++k)
+        for(Ordinal j=grid()->si(m, Y, b); j<=grid()->ei(m, Y, b); ++j)
+          for(Ordinal i=grid()->si(m, X, b); i<=grid()->ei(m, X, b); ++i) {
             if(Add::N==add) z(i, j, k) = 0.;
             z(i, j, k) += mulC*innerStenc3D(wind[0](i, j, k), wind[1](i, j, k), wind[2](i, j, k), y, i, j, k);
           }
     else
-      for(Ordinal k=space()->si(m, Z, b); k<=space()->ei(m, Z, b); ++k)
-        for(Ordinal j=space()->si(m, Y, b); j<=space()->ei(m, Y, b); ++j)
-          for(Ordinal i=space()->si(m, X, b); i<=space()->ei(m, X, b); ++i) {
+      for(Ordinal k=grid()->si(m, Z, b); k<=grid()->ei(m, Z, b); ++k)
+        for(Ordinal j=grid()->si(m, Y, b); j<=grid()->ei(m, Y, b); ++j)
+          for(Ordinal i=grid()->si(m, X, b); i<=grid()->ei(m, X, b); ++i) {
             if(Add::N==add) z(i, j, k) = 0.;
             z(i, j, k) += mulC*innerStenc2D(wind[0](i, j, k), wind[1](i, j, k), y, i, j, k);
           }
@@ -249,7 +249,7 @@ public:
 
   void print(std::ostream& out=std::cout) const {
     out <<" --- ConvectioSOp ---\n";
-    for(int i=0; i<SpaceT::sdim; ++i) {
+    for(int i=0; i<GridT::sdim; ++i) {
       out <<"dir: " <<static_cast<ECoord>(i) <<"\n ";
       out <<"cSD:\n";
       cSD_[i].print(out);
@@ -267,8 +267,8 @@ public:
     return false;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>&  space() const {
-    return space_;
+  constexpr const Teuchos::RCP<const GridT>&  grid() const {
+    return grid_;
   }
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}

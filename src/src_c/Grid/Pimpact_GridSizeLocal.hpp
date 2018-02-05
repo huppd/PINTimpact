@@ -26,7 +26,7 @@ namespace Pimpact {
 /// \tparam dim as soon as Time is own class ->sdim
 /// generated from \c GridSizeGlobal and \c ProcGridSize
 /// \f$ nLoc = (nGlo-1)/nProc + 1 \f$
-/// \ingroup SpaceObject
+/// \ingroup GridObject
 template<class OrdinalT, int sd, int dim>
 class GridSizeLocal : public Teuchos::Tuple<OrdinalT, dim> {
 
@@ -71,7 +71,7 @@ protected:
       TEUCHOS_TEST_FOR_EXCEPT((*this)[i] <stencilWidths->getBL(i));
       TEUCHOS_TEST_FOR_EXCEPT((*this)[i] <stencilWidths->getBU(i));
     }
-    // problem is used for MultiGridSpace
+    // problem is used for MultiGridGrid
     //      for(int i=0; i<2; ++i)
     //        if((gridSize_[i]-1)!=1)
     //          assert(gridSize_[i]-1)%2 == 0);

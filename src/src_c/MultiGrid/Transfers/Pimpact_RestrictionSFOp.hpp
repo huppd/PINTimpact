@@ -9,7 +9,7 @@
 
 #include "Pimpact_RestrictionBaseOp.hpp"
 #include "Pimpact_ScalarField.hpp"
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 #include "Pimpact_Stencil.hpp"
 
 
@@ -18,27 +18,27 @@
 namespace Pimpact {
 
 
-/// \brief Opetartor that restricts from a fine space to a coarse space
+/// \brief Opetartor that restricts from a fine grid to a coarse grid
 /// \todo c++fy
-/// \tparam ST type of the \c Space
-template<class ST>
-class RestrictionSFOp : private RestrictionBaseOp<ST> {
+/// \tparam GT type of the \c Grid
+template<class GT>
+class RestrictionSFOp : private RestrictionBaseOp<GT> {
 
-  static const int sdim = ST::sdim;
-  static const int dimension = ST::dimension;
+  static const int sdim = GT::sdim;
+  static const int dimension = GT::dimension;
 
-  using Scalar = typename ST::Scalar;
-  using Ordinal = typename ST::Ordinal;
+  using Scalar = typename GT::Scalar;
+  using Ordinal = typename GT::Ordinal;
 
 public:
 
-  using SpaceT = ST;
+  using GridT = GT;
 
-  using FSpaceT = SpaceT;
-  using CSpaceT = SpaceT;
+  using FGridT = GridT;
+  using CGridT = GridT;
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
   using Stenc = Stencil<Scalar, Ordinal, 1, -1, 1 >;
 
@@ -55,16 +55,16 @@ protected:
       MG_getCRS(
         this->iimax_[i],
         (this->nGather_[i]>1)?
-        spaceF()->getBCLocal()->getBCL(i):
-        spaceC()->getBCLocal()->getBCL(i),
+        gridF()->getBCLocal()->getBCL(i):
+        gridC()->getBCLocal()->getBCL(i),
         (this->nGather_[i]>1)?
-        spaceF()->getBCLocal()->getBCU(i):
-        spaceC()->getBCLocal()->getBCU(i),
+        gridF()->getBCLocal()->getBCU(i):
+        gridC()->getBCLocal()->getBCU(i),
         this->dd_[i],
-        spaceF()->getGridSizeLocal()->get(i),
-        spaceF()->bl(i),
-        spaceF()->bu(i),
-        spaceF()->getCoordinatesLocal()->getX(F::S, i),
+        gridF()->getGridSizeLocal()->get(i),
+        gridF()->bl(i),
+        gridF()->bu(i),
+        gridF()->getCoordinatesLocal()->getX(F::S, i),
         cRS_[i].get());
     }
   }
@@ -72,19 +72,19 @@ protected:
 public:
 
   RestrictionSFOp(
-    const Teuchos::RCP<const SpaceT>& spaceF,
-    const Teuchos::RCP<const SpaceT>& spaceC):
-    RestrictionBaseOp<ST>(spaceF, spaceC) {
+    const Teuchos::RCP<const GridT>& gridF,
+    const Teuchos::RCP<const GridT>& gridC):
+    RestrictionBaseOp<GT>(gridF, gridC) {
 
     initSF();
   }
 
 
   RestrictionSFOp(
-    const Teuchos::RCP<const SpaceT>& spaceF,
-    const Teuchos::RCP<const SpaceT>& spaceC,
+    const Teuchos::RCP<const GridT>& gridF,
+    const Teuchos::RCP<const GridT>& gridC,
     const Teuchos::Tuple<int, dimension>& np):
-    RestrictionBaseOp<ST>(spaceF, spaceC, np) {
+    RestrictionBaseOp<GT>(gridF, gridC, np) {
 
     initSF();
   }
@@ -100,12 +100,12 @@ public:
     const int sdimens = sdim; // so ugly
     MG_restrictFW(
       sdimens,
-      spaceF()->nLoc(),
-      spaceF()->bl(),
-      spaceF()->bu(),
-      spaceC()->nLoc(),
-      spaceC()->bl(),
-      spaceC()->bu(),
+      gridF()->nLoc(),
+      gridF()->bl(),
+      gridF()->bu(),
+      gridC()->nLoc(),
+      gridC()->bl(),
+      gridC()->bu(),
       this->iimax_.getRawPtr(),
       this->dd_.getRawPtr(),
       cRS_[0].get(),
@@ -139,11 +139,11 @@ public:
     return this->dd_;
   };
 
-  Teuchos::RCP<const SpaceT> spaceC() const {
-    return this->spaceC_;
+  Teuchos::RCP<const GridT> gridC() const {
+    return this->gridC_;
   };
-  Teuchos::RCP<const SpaceT> spaceF() const {
-    return this->spaceF_;
+  Teuchos::RCP<const GridT> gridF() const {
+    return this->gridF_;
   };
 
   const std::string getLabel() const {

@@ -8,7 +8,7 @@ const int sd = 2;
 const int d = 3;
 const int dNC = 2;
 
-using SpaceT = Pimpact::Space<S, O, sd, d, dNC>;
+using GridT = Pimpact::Grid<S, O, sd, d, dNC>;
 
 template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
@@ -29,15 +29,15 @@ int main(int argi, char** argv) {
   pl->set<O>("ny", 129);
 
 
-  auto space = Pimpact::create<SpaceT >(pl);
+  auto grid = Pimpact::create<GridT >(pl);
 
-  Pimpact::VectorField<SpaceT> wind(space);
-  Pimpact::VectorField<SpaceT> y   (space);
-  Pimpact::VectorField<SpaceT> z   (space);
-  Pimpact::VectorField<SpaceT> z2  (space);
+  Pimpact::VectorField<GridT> wind(grid);
+  Pimpact::VectorField<GridT> y   (grid);
+  Pimpact::VectorField<GridT> z   (grid);
+  Pimpact::VectorField<GridT> z2  (grid);
 
 
-  auto op = Pimpact::create<ConvDiffOpT>(space);
+  auto op = Pimpact::create<ConvDiffOpT>(grid);
 
 
   for(short int dirx=-1; dirx<4; dirx+=2) {
@@ -56,14 +56,14 @@ int main(int argi, char** argv) {
       auto smoother =
         Pimpact::create<
         Pimpact::NonlinearSmoother<
-        ConvDiffOpT<SpaceT> ,
+        ConvDiffOpT<GridT> ,
         Pimpact::ConvectionDiffusionSORSmoother > > (
           op,
           pls);
 
       std::ofstream phifile;
 
-      if(space()->rankST()==0) {
+      if(grid()->rankST()==0) {
         std::string fname = "raki.txt";
         if(3==dirx)
           fname.insert(4, std::to_string(static_cast<long long>(8)));
@@ -109,14 +109,14 @@ int main(int argi, char** argv) {
         else
           iter++;
 
-        if(space()->rankST()==0) {
+        if(grid()->rankST()==0) {
           phifile <<iter <<"\t" <<error <<"\n";
           std::cout <<iter <<"\t" <<error <<"\n";
         }
 
       } while(error>1.e-6);
 
-      if(space()->rankST()==0)
+      if(grid()->rankST()==0)
         phifile.close();
     }
 

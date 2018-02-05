@@ -23,27 +23,27 @@ namespace {
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(VectorField, initField, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(VectorField, initField, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+  Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	space->getInterpolateV2S()->print();
-	auto vel = Pimpact::create<Pimpact::VectorField>(space);
-	auto divVec = Pimpact::create<Pimpact::ScalarField>(space);
+	grid->getInterpolateV2S()->print();
+	auto vel = Pimpact::create<Pimpact::VectorField>(grid);
+	auto divVec = Pimpact::create<Pimpact::ScalarField>(grid);
 
-	auto divOp = Pimpact::create<Pimpact::DivOp>(space);
+	auto divOp = Pimpact::create<Pimpact::DivOp>(grid);
 	auto pl = Teuchos::parameterList();
 	pl->set<std::string>("Type", "disturbance");
 
 	vel->write();
 	divOp->apply(*vel, *divVec);
 	auto bla = divVec->norm(Pimpact::ENorm::Inf);
-	if(0==space->rankST())
+	if(0==grid->rankST())
 		std::cout <<"F: " << "\tmax div: " <<bla <<"\n";
 	bla = divVec->norm(Pimpact::ENorm::Two);
-	if(0==space->rankST())
+	if(0==grid->rankST())
 		std::cout <<"F: " <<"\t||div||: " <<bla <<"\n";
 	divVec->write(1);
 }
@@ -53,13 +53,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(VectorField, initField, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(VectorField, computeEnergy, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(VectorField, computeEnergy, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+  Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Pimpact::VectorField<SpaceT> vel(space);
+	Pimpact::VectorField<GridT> vel(grid);
 	vel.init(1.);
 
 	std::cout <<"energy: " <<vel.norm(Pimpact::ENorm::L2) <<"\n";
@@ -70,13 +70,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(VectorField, computeEnergy, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(VectorField, computeEnergyY, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(VectorField, computeEnergyY, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+  Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Pimpact::VectorField<SpaceT> vel(space);
+	Pimpact::VectorField<GridT> vel(grid);
 	vel.init(1.);
 
   Pimpact::computeEnergyDir(vel);

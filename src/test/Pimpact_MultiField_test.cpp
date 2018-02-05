@@ -23,12 +23,12 @@ const int sd = 3;
 const int d = 3;
 const int dNC=4;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, d, dNC>;
+using GridT = Pimpact::Grid<ST, OT, sd, d, dNC>;
 
-using SF  = Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >;
-using VF  = Pimpact::MultiField<Pimpact::VectorField<SpaceT> >;
-using MSF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > >;
-using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
+using SF  = Pimpact::MultiField<Pimpact::ScalarField<GridT> >;
+using VF  = Pimpact::MultiField<Pimpact::VectorField<GridT> >;
+using MSF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<GridT> > >;
+using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<GridT> > >;
 
 
 bool testMpi = true;
@@ -61,13 +61,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, constructor, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv = Teuchos::rcp(new FType(space, 10));
+  auto mv = Teuchos::rcp(new FType(grid, 10));
 
   const int m = mv->getNumberVecs();
 
@@ -87,13 +87,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, TwoNorm, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv = Teuchos::rcp(new FType(space, 10));
+  auto mv = Teuchos::rcp(new FType(grid, 10));
 
   const OT m = mv->getNumberVecs();
   const OT n = mv->getLength();
@@ -121,13 +121,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, clone, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv = Teuchos::rcp(new FType(space, 1));
+  auto mv = Teuchos::rcp(new FType(grid, 1));
 
   auto mv2 = mv->clone(10);
 
@@ -150,13 +150,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneCopy, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv = Teuchos::rcp(new FType(space, 10));
+  auto mv = Teuchos::rcp(new FType(grid, 10));
 
   mv->random();
   auto mv2 = mv->CloneCopy();
@@ -188,13 +188,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneCopy2, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv = Teuchos::rcp(new FType(space, 10));
+  auto mv = Teuchos::rcp(new FType(grid, 10));
 
   mv->random();
 
@@ -234,13 +234,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneCopy3, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space, 10));
+  auto mv1 = Teuchos::rcp(new FType(grid, 10));
 
   mv1->random();
 
@@ -275,13 +275,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneViewNonConst1, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space, 10));
+  auto mv1 = Teuchos::rcp(new FType(grid, 10));
 
   mv1->init(0.);
 
@@ -322,13 +322,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneViewNonConst2, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space, 10));
+  auto mv1 = Teuchos::rcp(new FType(grid, 10));
 
   mv1->init(0.);
 
@@ -366,13 +366,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneView1, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space, 10));
+  auto mv1 = Teuchos::rcp(new FType(grid, 10));
 
   mv1->init(0.);
 
@@ -414,13 +414,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, CloneView2, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space, 10));
+  auto mv1 = Teuchos::rcp(new FType(grid, 10));
 
   mv1->init(0.);
 
@@ -459,13 +459,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, TimesMatAdd, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space, 10));
+  auto mv1 = Teuchos::rcp(new FType(grid, 10));
 
   mv1->init(0.);
 
@@ -542,13 +542,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, add, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space, 10));
+  auto mv1 = Teuchos::rcp(new FType(grid, 10));
 
   mv1->init(0.);
 
@@ -612,13 +612,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, dot, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space, 10));
+  auto mv1 = Teuchos::rcp(new FType(grid, 10));
 
   mv1->init(0.);
 
@@ -672,13 +672,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiField, Trans, FType) {
   Pimpact::setBoundaryConditions(pl, domain);
 
   // processor grid size
-  pl->set("npx", (2==FType::SpaceT::sdim)?4:2);
+  pl->set("npx", (2==FType::GridT::sdim)?4:2);
   pl->set("npy",            2);
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:2);
+  pl->set("npz", (2==FType::GridT::sdim)?1:2);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mv1 = Teuchos::rcp(new FType(space, 10));
+  auto mv1 = Teuchos::rcp(new FType(grid, 10));
 
   mv1->init(0.);
 

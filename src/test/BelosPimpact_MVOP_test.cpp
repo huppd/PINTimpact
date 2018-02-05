@@ -32,10 +32,10 @@ double eps = 1.e-6;
 int domain = 0;
 
 
-using SpaceT = typename Pimpact::Space<ST, OT, 3, d, dNC>;
+using GridT = typename Pimpact::Grid<ST, OT, 3, d, dNC>;
 
-using SF = typename Pimpact::ScalarField<SpaceT>;
-using VF = typename Pimpact::VectorField<SpaceT>;
+using SF = typename Pimpact::ScalarField<GridT>;
+using VF = typename Pimpact::VectorField<GridT>;
 using MSF = typename Pimpact::ModeField<SF>;
 using MVF = typename Pimpact::ModeField<VF>;
 
@@ -70,9 +70,9 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, BelosMVTest, FType) {
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto mx = Teuchos::rcp(new Pimpact::MultiField<FType>(space, 5));
+	auto mx = Teuchos::rcp(new Pimpact::MultiField<FType>(grid, 5));
 
 	// Create an output manager to handle the I/O from the solver
 	Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
@@ -95,17 +95,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, BelosMVTest, CMF)
 
 TEUCHOS_UNIT_TEST(BelosOperatorMV, HelmholtzMV) {
 
-	using VF = Pimpact::VectorField<SpaceT>;
+	using VF = Pimpact::VectorField<GridT>;
 	using MVF = Pimpact::MultiField<VF>;
 
 	using OpBase = Pimpact::OperatorBase<MVF>;
 
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto mv = Teuchos::rcp(new Pimpact::MultiField<VF>(space, 10));
+	auto mv = Teuchos::rcp(new Pimpact::MultiField<VF>(grid, 10));
 
-	auto opm = Pimpact::createMultiOpWrap(Pimpact::create<Pimpact::HelmholtzOp>(space));
+	auto opm = Pimpact::createMultiOpWrap(Pimpact::create<Pimpact::HelmholtzOp>(grid));
 
 	auto op = Pimpact::createOperatorBase(opm);
 
@@ -122,21 +122,21 @@ TEUCHOS_UNIT_TEST(BelosOperatorMV, HelmholtzMV) {
 
 TEUCHOS_UNIT_TEST(BelosOperatorMV, DivGrad) {
 
-	using SF = Pimpact::ScalarField<SpaceT>;
+	using SF = Pimpact::ScalarField<GridT>;
 	using BSF = Pimpact::MultiField<SF>;
 
 	using OpBase = Pimpact::OperatorBase<BSF>;
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto mv = Teuchos::rcp(new Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >(space , 10));
+	auto mv = Teuchos::rcp(new Pimpact::MultiField<Pimpact::ScalarField<GridT> >(grid , 10));
 	auto mv2 = mv->clone();
 
 	auto lap = Pimpact::createOperatorBase(
 			Pimpact::createMultiOpWrap(
 				Pimpact::createDivGradOp(
-					Pimpact::create<Pimpact::DivOp>(space),
-					Pimpact::create<Pimpact::GradOp>(space)
+					Pimpact::create<Pimpact::DivOp>(grid),
+					Pimpact::create<Pimpact::GradOp>(grid)
 				)
 			)
 		);

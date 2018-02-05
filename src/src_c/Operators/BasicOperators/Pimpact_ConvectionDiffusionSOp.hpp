@@ -23,19 +23,19 @@ class ConvectionDiffusionSOp {
 
 public:
 
-  using SpaceT = ST;
+  using GridT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
-  using FluxFieldT = ScalarField<SpaceT>[3];
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using FluxFieldT = ScalarField<GridT>[3];
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
 protected:
 
-  Teuchos::RCP<const ConvectionSOp<SpaceT> > convSOp_;
-  Teuchos::RCP<const HelmholtzOp<SpaceT> > helmOp_;
+  Teuchos::RCP<const ConvectionSOp<GridT> > convSOp_;
+  Teuchos::RCP<const HelmholtzOp<GridT> > helmOp_;
 
   Scalar mulI_;
   Scalar mulC_;
@@ -43,12 +43,12 @@ protected:
 
 public:
 
-  ConvectionDiffusionSOp(const Teuchos::RCP<const SpaceT>& space ):
-    convSOp_(create<ConvectionSOp>(space)),
-    helmOp_(create<HelmholtzOp>(space)),
+  ConvectionDiffusionSOp(const Teuchos::RCP<const GridT>& grid ):
+    convSOp_(create<ConvectionSOp>(grid)),
+    helmOp_(create<HelmholtzOp>(grid)),
     mulI_(0.),
     mulC_(1.),
-    mulL_(1./space()->getDomainSize()->getRe())	{};
+    mulL_(1./grid()->getDomainSize()->getRe())	{};
 
 
   void assignField(const RangeFieldT& mv) {};
@@ -69,10 +69,10 @@ public:
               const Scalar mulI, const Scalar mulC, const Scalar mulL, const Add add=Add::N) const {
 
     assert(z.getType() == y.getType());
-    for(int i=0; i<SpaceT::sdim; ++i)
+    for(int i=0; i<GridT::sdim; ++i)
       assert(wind[i].getType() == y.getType());
 
-    for(int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir)
+    for(int vel_dir=0; vel_dir<GridT::sdim; ++vel_dir)
       wind[vel_dir].exchange();
 
 
@@ -86,10 +86,10 @@ public:
 
     //std::cout <<"mulI: " <<mulI <<"\tmulC: " <<mulC <<"\tmulL: " <<mulL <<"\tsize: " <<wind[0].getLength() <<"\tnorm: " <<wind[0].norm() <<"\n";
 
-    if(3==SpaceT::sdim) {
-      for(Ordinal k=space()->si(m, Z, wnB); k<=space()->ei(m, Z, wnB); ++k)
-        for(Ordinal j=space()->si(m, Y, wnB); j<=space()->ei(m, Y, wnB); ++j)
-          for(Ordinal i=space()->si(m, X, wnB); i<=space()->ei(m, X, wnB); ++i) {
+    if(3==GridT::sdim) {
+      for(Ordinal k=grid()->si(m, Z, wnB); k<=grid()->ei(m, Z, wnB); ++k)
+        for(Ordinal j=grid()->si(m, Y, wnB); j<=grid()->ei(m, Y, wnB); ++j)
+          for(Ordinal i=grid()->si(m, X, wnB); i<=grid()->ei(m, X, wnB); ++i) {
             if(Add::N==add) z(i, j, k) = 0.;
             z(i, j, k) +=
               + mulI * y(i, j, k)
@@ -100,9 +100,9 @@ public:
               - mulL * helmOp_->innerStenc3D(y, m, i, j, k);
           }
     } else {
-      for(Ordinal k=space()->si(m, Z, wnB); k<=space()->ei(m, Z, wnB); ++k)
-        for(Ordinal j=space()->si(m, Y, wnB); j<=space()->ei(m, Y, wnB); ++j)
-          for(Ordinal i=space()->si(m, X, wnB); i<=space()->ei(m, X, wnB); ++i) {
+      for(Ordinal k=grid()->si(m, Z, wnB); k<=grid()->ei(m, Z, wnB); ++k)
+        for(Ordinal j=grid()->si(m, Y, wnB); j<=grid()->ei(m, Y, wnB); ++j)
+          for(Ordinal i=grid()->si(m, X, wnB); i<=grid()->ei(m, X, wnB); ++i) {
             if(Add::N==add) z(i, j, k) = 0.;
             z(i, j, k) +=
               + mulI*y(i, j, k)
@@ -121,8 +121,8 @@ public:
     res.add(1., b, -1., res);
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return helmOp_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return helmOp_->grid();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {
@@ -134,10 +134,10 @@ public:
     }
   }
 
-  constexpr const Teuchos::RCP<const ConvectionSOp<SpaceT> >& getConvSOp() const {
+  constexpr const Teuchos::RCP<const ConvectionSOp<GridT> >& getConvSOp() const {
     return convSOp_;
   }
-  constexpr const Teuchos::RCP<const HelmholtzOp<SpaceT> >& getHelmOp() const {
+  constexpr const Teuchos::RCP<const HelmholtzOp<GridT> >& getHelmOp() const {
     return helmOp_;
   }
 

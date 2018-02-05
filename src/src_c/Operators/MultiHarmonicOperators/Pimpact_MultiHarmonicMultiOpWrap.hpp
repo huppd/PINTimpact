@@ -29,11 +29,11 @@ public:
   using DomainFieldT = MultiHarmonicField<typename OpT::DomainFieldT>;
   using RangeFieldT = MultiHarmonicField<typename OpT::RangeFieldT>;
 
-  using SpaceT = typename OpT::SpaceT;
+  using GridT = typename OpT::GridT;
 
 protected:
 
-  using Ordinal = typename SpaceT::Ordinal;
+  using Ordinal = typename GridT::Ordinal;
 
   using MDomainFT = MultiField<typename DomainFieldT::InnerFieldT>;
   using MRanageFT = MultiField<typename RangeFieldT::InnerFieldT>;
@@ -47,10 +47,10 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    MDomainFT mx(space(), 0, Owning::N);
-    MRanageFT my(space(), 0, Owning::N);
+    MDomainFT mx(grid(), 0, Owning::N);
+    MRanageFT my(grid(), 0, Owning::N);
 
-    for(Ordinal i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
+    for(Ordinal i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i) {
       // making x
       mx.push_back(Teuchos::rcpFromRef(
           const_cast<typename DomainFieldT::InnerFieldT&>(x.getCField(i))));
@@ -62,7 +62,7 @@ public:
       my.push_back(Teuchos::rcpFromRef(y.getSField(i)));
     }
 
-    if(0==space()->si(F::U, 3)) {
+    if(0==grid()->si(F::U, 3)) {
       mx.push_back(Teuchos::rcpFromRef(
             const_cast<typename DomainFieldT::InnerFieldT&>(x.get0Field())));
       my.push_back(Teuchos::rcpFromRef(y.get0Field()));
@@ -80,8 +80,8 @@ public:
     return op_->hasApplyTranspose();
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

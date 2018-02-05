@@ -22,32 +22,32 @@ class TransferMultiHarmonicOp {
 
 public:
 
-  using FSpaceT = typename InterT::FSpaceT;
-  using CSpaceT = typename InterT::CSpaceT;
+  using FGridT = typename InterT::FGridT;
+  using CGridT = typename InterT::CGridT;
 
-  using SpaceT = typename InterT::SpaceT;
+  using GridT = typename InterT::GridT;
 
   using DomainFieldT = MultiHarmonicField<typename InterT::DomainFieldT>;
   using RangeFieldT = MultiHarmonicField<typename InterT::RangeFieldT>;
 
 protected:
 
-  using OT = typename SpaceT::Ordinal;
+  using OT = typename GridT::Ordinal;
 
   Teuchos::RCP<InterT> op_;
 
 public:
 
   TransferMultiHarmonicOp(
-    const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF):
-    op_(Teuchos::rcp(new InterT(spaceC, spaceF))) {}
+    const Teuchos::RCP<const FGridT>& gridC,
+    const Teuchos::RCP<const CGridT>& gridF):
+    op_(Teuchos::rcp(new InterT(gridC, gridF))) {}
 
   TransferMultiHarmonicOp(
-    const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF,
-    const Teuchos::Tuple<int, SpaceT::dimension>& nb):
-    op_(Teuchos::rcp(new InterT(spaceC, spaceF, nb))) {}
+    const Teuchos::RCP<const FGridT>& gridC,
+    const Teuchos::RCP<const CGridT>& gridF,
+    const Teuchos::Tuple<int, GridT::dimension>& nb):
+    op_(Teuchos::rcp(new InterT(gridC, gridF, nb))) {}
 
 
 
@@ -58,20 +58,20 @@ public:
     if(x_ref.global()==DT::Global::Y)
       x = Teuchos::rcpFromRef(x_ref);
     else {
-      Teuchos::RCP<DT> temp = Teuchos::rcp(new DT(x_ref.space(), DT::Global::Y));
+      Teuchos::RCP<DT> temp = Teuchos::rcp(new DT(x_ref.grid(), DT::Global::Y));
       *temp = x_ref;
       x = temp;
     }
 
     x->exchange();
-    //std::cout <<y.space()->si(F::U, 3) <<"\n";
+    //std::cout <<y.grid()->si(F::U, 3) <<"\n";
 
-    if(0==y.space()->si(F::U, 3))
+    if(0==y.grid()->si(F::U, 3))
       y.get0Field() = x->get0Field();
       //op_->apply(x->get0Field(), y.get0Field());
 
-    OT iS = std::max(y.space()->si(F::U, 3), 1);
-    OT iE = std::min(x->space()->nGlo(3), y.space()->ei(F::U, 3));
+    OT iS = std::max(y.grid()->si(F::U, 3), 1);
+    OT iE = std::min(x->grid()->nGlo(3), y.grid()->ei(F::U, 3));
 
     for(OT i=iS; i<=iE; ++i) {
       //op_->apply(x->getCField(i), y.getCField(i));
@@ -80,8 +80,8 @@ public:
       y.getSField(i) = x->getSField(i);
     }
 
-    iS = std::max(x->space()->nGlo(3)+1, y.space()->si(F::U, 3));
-    iE = y.space()->ei(F::U, 3);
+    iS = std::max(x->grid()->nGlo(3)+1, y.grid()->si(F::U, 3));
+    iE = y.grid()->ei(F::U, 3);
     for(OT i=iS; i<=iE; ++i) {
       y.getCField(i).init();
       y.getSField(i).init();

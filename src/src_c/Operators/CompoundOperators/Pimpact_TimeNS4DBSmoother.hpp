@@ -76,16 +76,16 @@ class TimeNS4DBSmoother {
 
 public:
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
-  using DomainFieldT = CompoundField<TimeField<VectorField<SpaceT>>,
-        TimeField<ScalarField<SpaceT>>>;
+  using DomainFieldT = CompoundField<TimeField<VectorField<GridT>>,
+        TimeField<ScalarField<GridT>>>;
 
-  using RangeFieldT = CompoundField<TimeField<VectorField<SpaceT>>,
-        TimeField<ScalarField<SpaceT>>>;
+  using RangeFieldT = CompoundField<TimeField<VectorField<GridT>>,
+        TimeField<ScalarField<GridT>>>;
 
 
 protected:
@@ -95,7 +95,7 @@ protected:
 
 public:
 
-  /// \note todo constructor from space
+  /// \note todo constructor from grid
   TimeNS4DBSmoother(const Teuchos::RCP<const OperatorT>& op, Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
     op_(op),
     numIters_(pl->get<int>("numIters", 4))	{};
@@ -103,9 +103,9 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
     Scalar pi = 4.*std::atan(1.);
-    Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;
-    Scalar re = space()->getDomainSize()->getRe();
-    Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
+    Scalar idt = ((Scalar)grid()->nGlo()[3])/2./pi;
+    Scalar re = grid()->getDomainSize()->getRe();
+    Scalar mulI = grid()->getDomainSize()->getAlpha2()*idt/re;
 
     int direction_flag = 0;
 
@@ -122,7 +122,7 @@ public:
       xu.exchange();
       //		xp->exchange();
 
-      for(Ordinal i=space()->si(F::S, 3); i<space()->ei(F::S, 3); ++i) {
+      for(Ordinal i=grid()->si(F::S, 3); i<grid()->ei(F::S, 3); ++i) {
         xu(i-1).exchange();
         xu(i).exchange();
         xp(i).exchange();
@@ -130,25 +130,25 @@ public:
 
 
       OP_TimeNS4DBSmoother(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->getBCLocal()->getBCL(),
-        space()->getBCLocal()->getBCU(),
-        space()->nl(),
-        space()->nu(),
-        space()->dl(),
-        space()->du(),
-        space()->gl(),
-        space()->gu(),
-        space()->sInd(F::S),
-        space()->eInd(F::S),
-        space()->sInd(F::U),
-        space()->eInd(F::U),
-        space()->sInd(F::V),
-        space()->eInd(F::V),
-        space()->sInd(F::W),
-        space()->eInd(F::W),
+        grid()->nLoc(),
+        grid()->bl(),
+        grid()->bu(),
+        grid()->getBCLocal()->getBCL(),
+        grid()->getBCLocal()->getBCU(),
+        grid()->nl(),
+        grid()->nu(),
+        grid()->dl(),
+        grid()->du(),
+        grid()->gl(),
+        grid()->gu(),
+        grid()->sInd(F::S),
+        grid()->eInd(F::S),
+        grid()->sInd(F::U),
+        grid()->eInd(F::U),
+        grid()->sInd(F::V),
+        grid()->eInd(F::V),
+        grid()->sInd(F::W),
+        grid()->eInd(F::W),
         op_->getConvOp()->getCD(X, F::U),
         op_->getConvOp()->getCD(Y, F::V),
         op_->getConvOp()->getCD(Z, F::W),
@@ -184,7 +184,7 @@ public:
         yp.getRawPtr(),
         direction_flag);
 
-      for(Ordinal i=space()->si(F::S, 3); i<space()->ei(F::S, 3); ++i) {
+      for(Ordinal i=grid()->si(F::S, 3); i<grid()->ei(F::S, 3); ++i) {
         yu(i).changed();
         yp(i).changed();
       }
@@ -196,8 +196,8 @@ public:
 
   void assignField(const DomainFieldT& mv) { };
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}

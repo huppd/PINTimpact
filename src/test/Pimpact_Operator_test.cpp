@@ -29,20 +29,20 @@
 namespace {
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivOp, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-	Pimpact::ScalarField<SpaceT> p(space);
-	Pimpact::VectorField<SpaceT> vel(space);
-	Pimpact::ScalarField<SpaceT> sol(space);
+	Pimpact::ScalarField<GridT> p(grid);
+	Pimpact::VectorField<GridT> vel(grid);
+	Pimpact::ScalarField<GridT> sol(grid);
 
 	// zero test
 	vel.init();
 
-	auto op = Pimpact::create<Pimpact::DivOp>(space);
+	auto op = Pimpact::create<Pimpact::DivOp>(grid);
 
 	if(print) op->print();
 
@@ -84,7 +84,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivOp, SpaceT) {
 
 	op->apply(vel, p);
 
-	sol.initField(Pimpact::ConstField, SpaceT::sdim);
+	sol.initField(Pimpact::ConstField, GridT::sdim);
 	sol.add(1., sol, -1., p);
 
 	ST error = sol.norm(Pimpact::ENorm::Inf);
@@ -124,25 +124,25 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, DivOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, InterpolateV2SOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, InterpolateV2SOp, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-	if(print) space->print();
+	if(print) grid->print();
 
-	Pimpact::ScalarField<SpaceT> p(space);
-	Pimpact::ScalarField<SpaceT> sol(space);
-	Pimpact::VectorField<SpaceT> vel(space);
+	Pimpact::ScalarField<GridT> p(grid);
+	Pimpact::ScalarField<GridT> sol(grid);
+	Pimpact::VectorField<GridT> vel(grid);
 
-  auto op = Pimpact::createInterpolateV2S(space);
+  auto op = Pimpact::createInterpolateV2S(grid);
 	
 	if(print)
 		op->print();
 
-	if(0==space->rankST()) std::cout <<"\n";
-	for(Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i) {
+	if(0==grid->rankST()) std::cout <<"\n";
+	for(Pimpact::F i=Pimpact::F::U; i<GridT::sdim; ++i) {
 
 		for(int bla=0; bla<=((domain!=1)?3:0); ++bla) {
 
@@ -156,7 +156,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, InterpolateV2SOp, SpaceT) {
 			sol.add(1., sol, -1., p);
 
 			ST error = sol.norm(Pimpact::ENorm::Inf);
-			if(0==space->rankST()) std::cout <<"field " <<i <<
+			if(0==grid->rankST()) std::cout <<"field " <<i <<
 				", error("<<type <<"): " <<error <<"\n";
 			TEST_EQUALITY(error<eps, true);
 			if(error>= eps){
@@ -175,26 +175,26 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, InterpolateV2SOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, InterpolateS2VOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, InterpolateS2VOp, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	Pimpact::ScalarField<SpaceT> p   (space);
-	Pimpact::VectorField<SpaceT> vel (space);
-	Pimpact::VectorField<SpaceT> solv(space);
+	Pimpact::ScalarField<GridT> p   (grid);
+	Pimpact::VectorField<GridT> vel (grid);
+	Pimpact::VectorField<GridT> solv(grid);
 
-	auto op = Pimpact::create<Pimpact::InterpolateS2V>(space);
+	auto op = Pimpact::create<Pimpact::InterpolateS2V>(grid);
 
 	if(print)
 		op->print();
 
 	if(0==rank) std::cout <<"\n";
 
-	for(Pimpact::F i=Pimpact::F::U; i<SpaceT::sdim; ++i) {
+	for(Pimpact::F i=Pimpact::F::U; i<GridT::sdim; ++i) {
 
-		Pimpact::ScalarField<SpaceT>& sol = solv(i);
+		Pimpact::ScalarField<GridT>& sol = solv(i);
 
 		for(int bla=0; bla<=(domain!=1?6:0); ++bla) {
 
@@ -228,23 +228,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, InterpolateS2VOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, TransferOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, TransferOp, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  using FSpaceT = Pimpact::Space<ST, OT, SpaceT::sdim, d, 4>;
-  using CSpaceT = Pimpact::Space<ST, OT, SpaceT::sdim, d, 2>;
+  using FGridT = Pimpact::Grid<ST, OT, GridT::sdim, d, 4>;
+  using CGridT = Pimpact::Grid<ST, OT, GridT::sdim, d, 2>;
 
-  auto fSpace = Pimpact::create<FSpaceT>(pl);
-  auto cSpace = Pimpact::create<CSpaceT>(pl);
+  auto fGrid = Pimpact::create<FGridT>(pl);
+  auto cGrid = Pimpact::create<CGridT>(pl);
 
-	Pimpact::ScalarField<FSpaceT> fx(fSpace);
-  Pimpact::ScalarField<CSpaceT> cx(cSpace);
+	Pimpact::ScalarField<FGridT> fx(fGrid);
+  Pimpact::ScalarField<CGridT> cx(cGrid);
 
-	Pimpact::ScalarField<FSpaceT> fxs(fSpace);
-  Pimpact::ScalarField<CSpaceT> cxs(cSpace);
+	Pimpact::ScalarField<FGridT> fxs(fGrid);
+  Pimpact::ScalarField<CGridT> cxs(cGrid);
 
-  auto op = Pimpact::create<Pimpact::TransferOp<FSpaceT, CSpaceT> >(fSpace, cSpace);
+  auto op = Pimpact::create<Pimpact::TransferOp<FGridT, CGridT> >(fGrid, cGrid);
 
   // test
   fx.initField(Pimpact::Poiseuille2D_inX);
@@ -273,20 +273,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, TransferOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, VectorFieldOpWrap, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, VectorFieldOpWrap, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  using FSpaceT = Pimpact::Space<ST, OT, 3, d, 4>;
-  using CSpaceT = Pimpact::Space<ST, OT, 3, d, 2>;
+  using FGridT = Pimpact::Grid<ST, OT, 3, d, 4>;
+  using CGridT = Pimpact::Grid<ST, OT, 3, d, 2>;
 
-  auto fSpace = Pimpact::create<FSpaceT>(pl);
-  auto cSpace = Pimpact::create<CSpaceT>(pl);
+  auto fGrid = Pimpact::create<FGridT>(pl);
+  auto cGrid = Pimpact::create<CGridT>(pl);
 
-	Pimpact::VectorField<FSpaceT>fx(fSpace);
-  Pimpact::VectorField<CSpaceT>cx(cSpace);
+	Pimpact::VectorField<FGridT>fx(fGrid);
+  Pimpact::VectorField<CGridT>cx(cGrid);
 
-	auto op = Pimpact::create<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<FSpaceT, CSpaceT> > >(fSpace, cSpace);
+	auto op = Pimpact::create<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<FGridT, CGridT> > >(fGrid, cGrid);
 
   // test
   fx.init();
@@ -314,19 +314,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, VectorFieldOpWrap, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, GradOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, GradOp, GridT) {
 
 	if(domain!=1) {
 
-		setParameter(SpaceT::sdim);
+		setParameter(GridT::sdim);
 
-		auto space = Pimpact::create<SpaceT>(pl);
+		auto grid = Pimpact::create<GridT>(pl);
 
-		Pimpact::ScalarField<SpaceT> p(space);
-		Pimpact::VectorField<SpaceT> v(space);
-		Pimpact::VectorField<SpaceT> sol(space);
+		Pimpact::ScalarField<GridT> p(grid);
+		Pimpact::VectorField<GridT> v(grid);
+		Pimpact::VectorField<GridT> sol(grid);
 
-		auto op = Pimpact::create<Pimpact::GradOp>(space);
+		auto op = Pimpact::create<Pimpact::GradOp>(grid);
 
 		if(print)
 			op->print();
@@ -380,11 +380,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, GradOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, HelmholtzOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, HelmholtzOp, GridT) {
 
 	if(domain!= 1) {
 
-		setParameter(SpaceT::sdim);
+		setParameter(GridT::sdim);
 
 		ST mulI = 5.;
 		ST mulL = 3.;
@@ -392,13 +392,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, HelmholtzOp, SpaceT) {
 		pl->set<ST>("alpha2", mulI);
 		pl->set<ST>("Re", 1./mulL);
 
-		auto space = Pimpact::create<SpaceT>(pl);
+		auto grid = Pimpact::create<GridT>(pl);
 
-		Pimpact::VectorField<SpaceT> x(space);
-		Pimpact::VectorField<SpaceT> b(space);
-		Pimpact::VectorField<SpaceT> bs(space);
+		Pimpact::VectorField<GridT> x(grid);
+		Pimpact::VectorField<GridT> b(grid);
+		Pimpact::VectorField<GridT> bs(grid);
 
-		auto op = Pimpact::create<Pimpact::HelmholtzOp>(space);
+		auto op = Pimpact::create<Pimpact::HelmholtzOp>(grid);
 
 		if(print)
 			op->print();
@@ -406,7 +406,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, HelmholtzOp, SpaceT) {
 		// test in x direction
 		x.init();
 		x(Pimpact::F::U).initField(Pimpact::Poiseuille2D_inX);
-		bs(Pimpact::F::U).init(8./std::pow(space->getDomainSize()->getSize(Pimpact::Y), 2));
+		bs(Pimpact::F::U).init(8./std::pow(grid->getDomainSize()->getSize(Pimpact::Y), 2));
 		bs(Pimpact::F::V).init(0.);
 		bs(Pimpact::F::W).init(0.);
 
@@ -432,7 +432,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, HelmholtzOp, SpaceT) {
 		x.init();
 		x(Pimpact::F::V).initField(Pimpact::Poiseuille2D_inY);
 		bs(Pimpact::F::U).init(0.);
-		bs(Pimpact::F::V).init(8./std::pow(space->getDomainSize()->getSize(Pimpact::X), 2));
+		bs(Pimpact::F::V).init(8./std::pow(grid->getDomainSize()->getSize(Pimpact::X), 2));
 		bs(Pimpact::F::W).init(0.);
 		bs.add(mulI, x, mulL, bs);
 
@@ -455,7 +455,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, HelmholtzOp, SpaceT) {
 
 		bs(Pimpact::F::U).init(0.);
 		bs(Pimpact::F::V).init(0.);
-		bs(Pimpact::F::W).init(8./std::pow(space->getDomainSize()->getSize(Pimpact::X), 2));
+		bs(Pimpact::F::W).init(8./std::pow(grid->getDomainSize()->getSize(Pimpact::X), 2));
 
 		bs.add(mulI, x, mulL, bs);
 
@@ -560,15 +560,15 @@ TEUCHOS_UNIT_TEST(MaatrixTest, DivGradOp2M) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<D3>(pl);
+	auto grid = Pimpact::create<D3>(pl);
 
-	Pimpact::ScalarField<D3> x   (space);
-	Pimpact::ScalarField<D3> x2  (space);
-	Pimpact::ScalarField<D3> b   (space);
-	Pimpact::ScalarField<D3> ones(space);
-	Pimpact::ScalarField<D3> diag(space);
+	Pimpact::ScalarField<D3> x   (grid);
+	Pimpact::ScalarField<D3> x2  (grid);
+	Pimpact::ScalarField<D3> b   (grid);
+	Pimpact::ScalarField<D3> ones(grid);
+	Pimpact::ScalarField<D3> diag(grid);
 
-	auto op = Pimpact::create<Pimpact::DivGradOp>(space);
+	auto op = Pimpact::create<Pimpact::DivGradOp>(grid);
 	if(print) op->print();
 
 	ones.init(1.);
@@ -576,9 +576,9 @@ TEUCHOS_UNIT_TEST(MaatrixTest, DivGradOp2M) {
 
 	if(write) diag.write(999);
 
-	OT nxS = space->ei(Pimpact::F::S, Pimpact::X) - space->si(Pimpact::F::S, Pimpact::X) + 1;
-	OT nyS = space->ei(Pimpact::F::S, Pimpact::Y) - space->si(Pimpact::F::S, Pimpact::Y) + 1;
-	OT nzS = space->ei(Pimpact::F::S, Pimpact::Z) - space->si(Pimpact::F::S, Pimpact::Z) + 1;
+	OT nxS = grid->ei(Pimpact::F::S, Pimpact::X) - grid->si(Pimpact::F::S, Pimpact::X) + 1;
+	OT nyS = grid->ei(Pimpact::F::S, Pimpact::Y) - grid->si(Pimpact::F::S, Pimpact::Y) + 1;
+	OT nzS = grid->ei(Pimpact::F::S, Pimpact::Z) - grid->si(Pimpact::F::S, Pimpact::Z) + 1;
 	OT nS = nxS*nyS*nzS;
 
 
@@ -589,22 +589,22 @@ TEUCHOS_UNIT_TEST(MaatrixTest, DivGradOp2M) {
 		Teuchos::RCP<std::ostream> output = Pimpact::createOstream("DivGradOp.txt");
 		*output <<std::scientific <<std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-		for(OT k=space->si(Pimpact::F::S, Pimpact::Z); k<=space->ei(Pimpact::F::S, Pimpact::Z); ++k)
-			for(OT j=space->si(Pimpact::F::S, Pimpact::Y); j<=space->ei(Pimpact::F::S, Pimpact::Y); ++j)
-				for(OT i=space->si(Pimpact::F::S, Pimpact::X); i<=space->ei(Pimpact::F::S, Pimpact::X); ++i) {
-					OT II = i-space->si(Pimpact::F::S, Pimpact::X)
-						+ nxS*(j-space->si(Pimpact::F::S, Pimpact::Y))
-						+ nxS*nyS*(k-space->si(Pimpact::F::S, Pimpact::Z));
+		for(OT k=grid->si(Pimpact::F::S, Pimpact::Z); k<=grid->ei(Pimpact::F::S, Pimpact::Z); ++k)
+			for(OT j=grid->si(Pimpact::F::S, Pimpact::Y); j<=grid->ei(Pimpact::F::S, Pimpact::Y); ++j)
+				for(OT i=grid->si(Pimpact::F::S, Pimpact::X); i<=grid->ei(Pimpact::F::S, Pimpact::X); ++i) {
+					OT II = i-grid->si(Pimpact::F::S, Pimpact::X)
+						+ nxS*(j-grid->si(Pimpact::F::S, Pimpact::Y))
+						+ nxS*nyS*(k-grid->si(Pimpact::F::S, Pimpact::Z));
 					x.init(0.);
 					x(i, j, k) = 1.;
 					op->apply(x, b);
 
-					for(OT kk=space->si(Pimpact::F::S, Pimpact::Z); kk<=space->ei(Pimpact::F::S, Pimpact::Z); ++kk)
-						for(OT jj=space->si(Pimpact::F::S, Pimpact::Y); jj<=space->ei(Pimpact::F::S, Pimpact::Y); ++jj)
-							for(OT ii=space->si(Pimpact::F::S, Pimpact::X); ii<=space->ei(Pimpact::F::S, Pimpact::X); ++ii) {
-								OT JJ = ii-space->si(Pimpact::F::S, Pimpact::X)
-									+ nxS*(jj-space->si(Pimpact::F::S, Pimpact::Y))
-									+ nxS*nyS*(kk-space->si(Pimpact::F::S, Pimpact::Z));
+					for(OT kk=grid->si(Pimpact::F::S, Pimpact::Z); kk<=grid->ei(Pimpact::F::S, Pimpact::Z); ++kk)
+						for(OT jj=grid->si(Pimpact::F::S, Pimpact::Y); jj<=grid->ei(Pimpact::F::S, Pimpact::Y); ++jj)
+							for(OT ii=grid->si(Pimpact::F::S, Pimpact::X); ii<=grid->ei(Pimpact::F::S, Pimpact::X); ++ii) {
+								OT JJ = ii-grid->si(Pimpact::F::S, Pimpact::X)
+									+ nxS*(jj-grid->si(Pimpact::F::S, Pimpact::Y))
+									+ nxS*nyS*(kk-grid->si(Pimpact::F::S, Pimpact::Z));
 								x2.init(0.);
 								x2(ii, jj, kk) = 1.;
 
@@ -627,22 +627,22 @@ TEUCHOS_UNIT_TEST(MaatrixTest, DivGradOp2M) {
 		Teuchos::RCP<std::ostream> output = Pimpact::createOstream("DivGradOpT.txt");
 		*output <<std::scientific <<std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-		for(OT k=space->si(Pimpact::F::S, Pimpact::Z); k<=space->ei(Pimpact::F::S, Pimpact::Z); ++k)
-			for(OT j=space->si(Pimpact::F::S, Pimpact::Y); j<=space->ei(Pimpact::F::S, Pimpact::Y); ++j)
-				for(OT i=space->si(Pimpact::F::S, Pimpact::X); i<=space->ei(Pimpact::F::S, Pimpact::X); ++i) {
-					OT II = i-space->si(Pimpact::F::S, Pimpact::X)
-						+ nxS*(j-space->si(Pimpact::F::S, Pimpact::Y))
-						+ nxS*nyS*(k-space->si(Pimpact::F::S, Pimpact::Z));
+		for(OT k=grid->si(Pimpact::F::S, Pimpact::Z); k<=grid->ei(Pimpact::F::S, Pimpact::Z); ++k)
+			for(OT j=grid->si(Pimpact::F::S, Pimpact::Y); j<=grid->ei(Pimpact::F::S, Pimpact::Y); ++j)
+				for(OT i=grid->si(Pimpact::F::S, Pimpact::X); i<=grid->ei(Pimpact::F::S, Pimpact::X); ++i) {
+					OT II = i-grid->si(Pimpact::F::S, Pimpact::X)
+						+ nxS*(j-grid->si(Pimpact::F::S, Pimpact::Y))
+						+ nxS*nyS*(k-grid->si(Pimpact::F::S, Pimpact::Z));
 					x.init(0.);
 					x(i, j, k) = 1.;
 					op->apply(x, b, Belos::TRANS);
 
-					for(OT kk=space->si(Pimpact::F::S, Pimpact::Z); kk<=space->ei(Pimpact::F::S, Pimpact::Z); ++kk)
-						for(OT jj=space->si(Pimpact::F::S, Pimpact::Y); jj<=space->ei(Pimpact::F::S, Pimpact::Y); ++jj)
-							for(OT ii=space->si(Pimpact::F::S, Pimpact::X); ii<=space->ei(Pimpact::F::S, Pimpact::X); ++ii) {
-								OT JJ = ii-space->si(Pimpact::F::S, Pimpact::X)
-									+ nxS*(jj-space->si(Pimpact::F::S, Pimpact::Y))
-									+ nxS*nyS*(kk-space->si(Pimpact::F::S, Pimpact::Z));
+					for(OT kk=grid->si(Pimpact::F::S, Pimpact::Z); kk<=grid->ei(Pimpact::F::S, Pimpact::Z); ++kk)
+						for(OT jj=grid->si(Pimpact::F::S, Pimpact::Y); jj<=grid->ei(Pimpact::F::S, Pimpact::Y); ++jj)
+							for(OT ii=grid->si(Pimpact::F::S, Pimpact::X); ii<=grid->ei(Pimpact::F::S, Pimpact::X); ++ii) {
+								OT JJ = ii-grid->si(Pimpact::F::S, Pimpact::X)
+									+ nxS*(jj-grid->si(Pimpact::F::S, Pimpact::Y))
+									+ nxS*nyS*(kk-grid->si(Pimpact::F::S, Pimpact::Z));
 								x2.init(0.);
 								x2(ii, jj, kk) = 1.;
 								DJGT(JJ, II) = x2.dot(b);
@@ -703,34 +703,34 @@ TEUCHOS_UNIT_TEST(MatrixTest, DivOp2M) {
   pl->set("npz", npz);
   pl->set("npf", npf);
 
-  auto space = Pimpact::create<D3>(pl);
+  auto grid = Pimpact::create<D3>(pl);
 
-	Pimpact::VectorField<D3> x   (space);
-	Pimpact::ScalarField<D3> x2  (space);
-	Pimpact::ScalarField<D3> b   (space);
-	Pimpact::ScalarField<D3> ones(space);
+	Pimpact::VectorField<D3> x   (grid);
+	Pimpact::ScalarField<D3> x2  (grid);
+	Pimpact::ScalarField<D3> b   (grid);
+	Pimpact::ScalarField<D3> ones(grid);
 
-  auto op = Pimpact::create<Pimpact::DivOp>(space);
+  auto op = Pimpact::create<Pimpact::DivOp>(grid);
 
 
-	OT nxS = space->ei(Pimpact::F::S, Pimpact::X, Pimpact::B::Y) - space->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y) + 1;
-	OT nyS = space->ei(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y) - space->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y) + 1;
-	OT nzS = space->ei(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y) - space->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y) + 1;
+	OT nxS = grid->ei(Pimpact::F::S, Pimpact::X, Pimpact::B::Y) - grid->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y) + 1;
+	OT nyS = grid->ei(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y) - grid->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y) + 1;
+	OT nzS = grid->ei(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y) - grid->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y) + 1;
 	OT nS = nxS*nyS*nzS;
 
-	OT nxU = space->ei(Pimpact::F::U, Pimpact::X, Pimpact::B::Y) - space->si(Pimpact::F::U, Pimpact::X, Pimpact::B::Y) + 1;
-	OT nyU = space->ei(Pimpact::F::U, Pimpact::Y, Pimpact::B::Y) - space->si(Pimpact::F::U, Pimpact::Y, Pimpact::B::Y) + 1;
-	OT nzU = space->ei(Pimpact::F::U, Pimpact::Z, Pimpact::B::Y) - space->si(Pimpact::F::U, Pimpact::Z, Pimpact::B::Y) + 1;
+	OT nxU = grid->ei(Pimpact::F::U, Pimpact::X, Pimpact::B::Y) - grid->si(Pimpact::F::U, Pimpact::X, Pimpact::B::Y) + 1;
+	OT nyU = grid->ei(Pimpact::F::U, Pimpact::Y, Pimpact::B::Y) - grid->si(Pimpact::F::U, Pimpact::Y, Pimpact::B::Y) + 1;
+	OT nzU = grid->ei(Pimpact::F::U, Pimpact::Z, Pimpact::B::Y) - grid->si(Pimpact::F::U, Pimpact::Z, Pimpact::B::Y) + 1;
 	OT nU = nxU*nyU*nzU;
 
-	OT nxV = space->ei(Pimpact::F::V, Pimpact::X, Pimpact::B::Y) - space->si(Pimpact::F::V, Pimpact::X, Pimpact::B::Y) + 1;
-	OT nyV = space->ei(Pimpact::F::V, Pimpact::Y, Pimpact::B::Y) - space->si(Pimpact::F::V, Pimpact::Y, Pimpact::B::Y) + 1;
-	OT nzV = space->ei(Pimpact::F::V, Pimpact::Z, Pimpact::B::Y) - space->si(Pimpact::F::V, Pimpact::Z, Pimpact::B::Y) + 1;
+	OT nxV = grid->ei(Pimpact::F::V, Pimpact::X, Pimpact::B::Y) - grid->si(Pimpact::F::V, Pimpact::X, Pimpact::B::Y) + 1;
+	OT nyV = grid->ei(Pimpact::F::V, Pimpact::Y, Pimpact::B::Y) - grid->si(Pimpact::F::V, Pimpact::Y, Pimpact::B::Y) + 1;
+	OT nzV = grid->ei(Pimpact::F::V, Pimpact::Z, Pimpact::B::Y) - grid->si(Pimpact::F::V, Pimpact::Z, Pimpact::B::Y) + 1;
 	OT nV = nxV*nyV*nzV;
 
-	OT nxW = space->ei(Pimpact::F::W, Pimpact::X, Pimpact::B::Y) - space->si(Pimpact::F::W, Pimpact::X, Pimpact::B::Y) + 1;
-	OT nyW = space->ei(Pimpact::F::W, Pimpact::Y, Pimpact::B::Y) - space->si(Pimpact::F::W, Pimpact::Y, Pimpact::B::Y) + 1;
-	OT nzW = space->ei(Pimpact::F::W, Pimpact::Z, Pimpact::B::Y) - space->si(Pimpact::F::W, Pimpact::Z, Pimpact::B::Y) + 1;
+	OT nxW = grid->ei(Pimpact::F::W, Pimpact::X, Pimpact::B::Y) - grid->si(Pimpact::F::W, Pimpact::X, Pimpact::B::Y) + 1;
+	OT nyW = grid->ei(Pimpact::F::W, Pimpact::Y, Pimpact::B::Y) - grid->si(Pimpact::F::W, Pimpact::Y, Pimpact::B::Y) + 1;
+	OT nzW = grid->ei(Pimpact::F::W, Pimpact::Z, Pimpact::B::Y) - grid->si(Pimpact::F::W, Pimpact::Z, Pimpact::B::Y) + 1;
 	OT nW = nxW*nyW*nzW;
 
 	Teuchos::Tuple<OT, 3> NX = Teuchos::tuple(nxU, nxV, nxW);
@@ -747,22 +747,22 @@ TEUCHOS_UNIT_TEST(MatrixTest, DivOp2M) {
 
 	for(int dir=0; dir<D3::sdim; ++dir) {
 		Pimpact::F fdir = static_cast<Pimpact::F>(dir);
-		for(OT k=space->si(fdir, Pimpact::Z, Pimpact::B::Y); k<=space->ei(fdir, Pimpact::Z, Pimpact::B::Y); ++k)
-			for(OT j=space->si(fdir, Pimpact::Y, Pimpact::B::Y); j<=space->ei(fdir, Pimpact::Y, Pimpact::B::Y); ++j)
-				for(OT i=space->si(fdir, Pimpact::X, Pimpact::B::Y); i<=space->ei(fdir, Pimpact::X, Pimpact::B::Y); ++i) {
-					OT II =               i-space->si(fdir, Pimpact::X, Pimpact::B::Y)
-						+ NX[dir]*(       j-space->si(fdir, Pimpact::Y, Pimpact::B::Y))
-						+ NX[dir]*NY[dir]*(k-space->si(fdir, Pimpact::Z, Pimpact::B::Y)) + offset[dir];
+		for(OT k=grid->si(fdir, Pimpact::Z, Pimpact::B::Y); k<=grid->ei(fdir, Pimpact::Z, Pimpact::B::Y); ++k)
+			for(OT j=grid->si(fdir, Pimpact::Y, Pimpact::B::Y); j<=grid->ei(fdir, Pimpact::Y, Pimpact::B::Y); ++j)
+				for(OT i=grid->si(fdir, Pimpact::X, Pimpact::B::Y); i<=grid->ei(fdir, Pimpact::X, Pimpact::B::Y); ++i) {
+					OT II =               i-grid->si(fdir, Pimpact::X, Pimpact::B::Y)
+						+ NX[dir]*(       j-grid->si(fdir, Pimpact::Y, Pimpact::B::Y))
+						+ NX[dir]*NY[dir]*(k-grid->si(fdir, Pimpact::Z, Pimpact::B::Y)) + offset[dir];
 					x.init();
 					x(fdir)(i, j, k) = 1.;
 					op->apply(x, b);
 
-					for(OT kk=space->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y); kk<=space->ei(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y); ++kk)
-						for(OT jj=space->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y); jj<=space->ei(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y); ++jj)
-							for(OT ii=space->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y); ii<=space->ei(Pimpact::F::S, Pimpact::X, Pimpact::B::Y); ++ii) {
-								OT JJ =       ii-space->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y)
-									+ nxS*(   jj-space->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y))
-									+ nxS*nyS*(kk-space->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y));
+					for(OT kk=grid->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y); kk<=grid->ei(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y); ++kk)
+						for(OT jj=grid->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y); jj<=grid->ei(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y); ++jj)
+							for(OT ii=grid->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y); ii<=grid->ei(Pimpact::F::S, Pimpact::X, Pimpact::B::Y); ++ii) {
+								OT JJ =       ii-grid->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y)
+									+ nxS*(   jj-grid->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y))
+									+ nxS*nyS*(kk-grid->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y));
 								x2.init();
 								x2(ii, jj, kk) = 1.;
 
@@ -818,33 +818,33 @@ TEUCHOS_UNIT_TEST(MatrixTest, GradOp2M) {
   pl->set("npz", npz);
   pl->set("npf", npf);
 
-  auto space = Pimpact::create<D3>(pl);
+  auto grid = Pimpact::create<D3>(pl);
 
-	Pimpact::VectorField<D3> x (space);
-	Pimpact::ScalarField<D3> x2(space);
-	Pimpact::VectorField<D3> b (space);
+	Pimpact::VectorField<D3> x (grid);
+	Pimpact::ScalarField<D3> x2(grid);
+	Pimpact::VectorField<D3> b (grid);
 
-  auto op = Pimpact::create<Pimpact::GradOp>(space);
+  auto op = Pimpact::create<Pimpact::GradOp>(grid);
 
 
-	OT nxS = space->ei(Pimpact::F::S, Pimpact::X, Pimpact::B::Y) - space->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y) + 1;
-	OT nyS = space->ei(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y) - space->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y) + 1;
-	OT nzS = space->ei(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y) - space->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y) + 1;
+	OT nxS = grid->ei(Pimpact::F::S, Pimpact::X, Pimpact::B::Y) - grid->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y) + 1;
+	OT nyS = grid->ei(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y) - grid->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y) + 1;
+	OT nzS = grid->ei(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y) - grid->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y) + 1;
 	OT nS = nxS*nyS*nzS;
 
-	OT nxU = space->ei(Pimpact::F::U, Pimpact::X, Pimpact::B::Y) - space->si(Pimpact::F::U, Pimpact::X, Pimpact::B::Y) + 1;
-	OT nyU = space->ei(Pimpact::F::U, Pimpact::Y, Pimpact::B::Y) - space->si(Pimpact::F::U, Pimpact::Y, Pimpact::B::Y) + 1;
-	OT nzU = space->ei(Pimpact::F::U, Pimpact::Z, Pimpact::B::Y) - space->si(Pimpact::F::U, Pimpact::Z, Pimpact::B::Y) + 1;
+	OT nxU = grid->ei(Pimpact::F::U, Pimpact::X, Pimpact::B::Y) - grid->si(Pimpact::F::U, Pimpact::X, Pimpact::B::Y) + 1;
+	OT nyU = grid->ei(Pimpact::F::U, Pimpact::Y, Pimpact::B::Y) - grid->si(Pimpact::F::U, Pimpact::Y, Pimpact::B::Y) + 1;
+	OT nzU = grid->ei(Pimpact::F::U, Pimpact::Z, Pimpact::B::Y) - grid->si(Pimpact::F::U, Pimpact::Z, Pimpact::B::Y) + 1;
 	OT nU = nxU*nyU*nzU;
 
-	OT nxV = space->ei(Pimpact::F::V, Pimpact::X, Pimpact::B::Y) - space->si(Pimpact::F::V, Pimpact::X, Pimpact::B::Y) + 1;
-	OT nyV = space->ei(Pimpact::F::V, Pimpact::Y, Pimpact::B::Y) - space->si(Pimpact::F::V, Pimpact::Y, Pimpact::B::Y) + 1;
-	OT nzV = space->ei(Pimpact::F::V, Pimpact::Z, Pimpact::B::Y) - space->si(Pimpact::F::V, Pimpact::Z, Pimpact::B::Y) + 1;
+	OT nxV = grid->ei(Pimpact::F::V, Pimpact::X, Pimpact::B::Y) - grid->si(Pimpact::F::V, Pimpact::X, Pimpact::B::Y) + 1;
+	OT nyV = grid->ei(Pimpact::F::V, Pimpact::Y, Pimpact::B::Y) - grid->si(Pimpact::F::V, Pimpact::Y, Pimpact::B::Y) + 1;
+	OT nzV = grid->ei(Pimpact::F::V, Pimpact::Z, Pimpact::B::Y) - grid->si(Pimpact::F::V, Pimpact::Z, Pimpact::B::Y) + 1;
 	OT nV = nxV*nyV*nzV;
 
-	OT nxW = space->ei(Pimpact::F::W, Pimpact::X, Pimpact::B::Y) - space->si(Pimpact::F::W, Pimpact::X, Pimpact::B::Y) + 1;
-	OT nyW = space->ei(Pimpact::F::W, Pimpact::Y, Pimpact::B::Y) - space->si(Pimpact::F::W, Pimpact::Y, Pimpact::B::Y) + 1;
-	OT nzW = space->ei(Pimpact::F::W, Pimpact::Z, Pimpact::B::Y) - space->si(Pimpact::F::W, Pimpact::Z, Pimpact::B::Y) + 1;
+	OT nxW = grid->ei(Pimpact::F::W, Pimpact::X, Pimpact::B::Y) - grid->si(Pimpact::F::W, Pimpact::X, Pimpact::B::Y) + 1;
+	OT nyW = grid->ei(Pimpact::F::W, Pimpact::Y, Pimpact::B::Y) - grid->si(Pimpact::F::W, Pimpact::Y, Pimpact::B::Y) + 1;
+	OT nzW = grid->ei(Pimpact::F::W, Pimpact::Z, Pimpact::B::Y) - grid->si(Pimpact::F::W, Pimpact::Z, Pimpact::B::Y) + 1;
 	OT nW = nxW*nyW*nzW;
 
 	Teuchos::Tuple<OT, 3> NX = Teuchos::tuple(nxU, nxV, nxW);
@@ -859,24 +859,24 @@ TEUCHOS_UNIT_TEST(MatrixTest, GradOp2M) {
 	Teuchos::RCP<std::ostream> output = Pimpact::createOstream("GradOp.txt");
 	*output <<std::scientific <<std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-	for(OT kk=space->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y); kk<=space->ei(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y); ++kk)
-		for(OT jj=space->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y); jj<=space->ei(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y); ++jj)
-			for(OT ii=space->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y); ii<=space->ei(Pimpact::F::S, Pimpact::X, Pimpact::B::Y); ++ii) {
-				OT JJ =       ii-space->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y)
-					+ nxS*(   jj-space->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y))
-					+ nxS*nyS*(kk-space->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y));
+	for(OT kk=grid->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y); kk<=grid->ei(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y); ++kk)
+		for(OT jj=grid->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y); jj<=grid->ei(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y); ++jj)
+			for(OT ii=grid->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y); ii<=grid->ei(Pimpact::F::S, Pimpact::X, Pimpact::B::Y); ++ii) {
+				OT JJ =       ii-grid->si(Pimpact::F::S, Pimpact::X, Pimpact::B::Y)
+					+ nxS*(   jj-grid->si(Pimpact::F::S, Pimpact::Y, Pimpact::B::Y))
+					+ nxS*nyS*(kk-grid->si(Pimpact::F::S, Pimpact::Z, Pimpact::B::Y));
 				x2.init();
 				x2(ii, jj, kk) = 1.;
 				op->applyG(x2, b);
 
 				for(Pimpact::F fdir=Pimpact::F::U; fdir<D3::sdim; ++fdir) {
 					int dir = static_cast<int>(fdir);
-					for(OT k=space->si(fdir, Pimpact::Z, Pimpact::B::Y); k<=space->ei(fdir, Pimpact::Z, Pimpact::B::Y); ++k)
-						for(OT j=space->si(fdir, Pimpact::Y, Pimpact::B::Y); j<=space->ei(fdir, Pimpact::Y, Pimpact::B::Y); ++j)
-							for(OT i=space->si(fdir, Pimpact::X, Pimpact::B::Y); i<=space->ei(fdir, Pimpact::X, Pimpact::B::Y); ++i) {
-								OT II =               i-space->si(fdir, Pimpact::X, Pimpact::B::Y)
-									+ NX[dir]*(       j-space->si(fdir, Pimpact::Y, Pimpact::B::Y))
-									+ NX[dir]*NY[dir]*(k-space->si(fdir, Pimpact::Z, Pimpact::B::Y)) + offset[dir];
+					for(OT k=grid->si(fdir, Pimpact::Z, Pimpact::B::Y); k<=grid->ei(fdir, Pimpact::Z, Pimpact::B::Y); ++k)
+						for(OT j=grid->si(fdir, Pimpact::Y, Pimpact::B::Y); j<=grid->ei(fdir, Pimpact::Y, Pimpact::B::Y); ++j)
+							for(OT i=grid->si(fdir, Pimpact::X, Pimpact::B::Y); i<=grid->ei(fdir, Pimpact::X, Pimpact::B::Y); ++i) {
+								OT II =               i-grid->si(fdir, Pimpact::X, Pimpact::B::Y)
+									+ NX[dir]*(       j-grid->si(fdir, Pimpact::Y, Pimpact::B::Y))
+									+ NX[dir]*NY[dir]*(k-grid->si(fdir, Pimpact::Z, Pimpact::B::Y)) + offset[dir];
 								x.init();
 								x(fdir)(i, j, k) = 1.;
 
@@ -893,22 +893,22 @@ TEUCHOS_UNIT_TEST(MatrixTest, GradOp2M) {
 	Teuchos::SerialDenseMatrix<OT, ST> J  (nU+nV+nW, nU+nV+nW);
 	for(Pimpact::F fdir=Pimpact::F::U; fdir<D3::sdim; ++fdir) {
 		int dir = static_cast<int>(fdir);
-		for(OT kk=space->si(fdir, Pimpact::Z, Pimpact::B::Y); kk<=space->ei(fdir, Pimpact::Z, Pimpact::B::Y); ++kk)
-			for(OT jj=space->si(fdir, Pimpact::Y, Pimpact::B::Y); jj<=space->ei(fdir, Pimpact::Y, Pimpact::B::Y); ++jj)
-				for(OT ii=space->si(fdir, Pimpact::X, Pimpact::B::Y); ii<=space->ei(fdir, Pimpact::X, Pimpact::B::Y); ++ii) {
-					OT JJ =           ii-space->si(fdir, Pimpact::X, Pimpact::B::Y)
-						+ NX[dir]*(   jj-space->si(fdir, Pimpact::Y, Pimpact::B::Y))
-						+ NX[dir]*NY[dir]*(kk-space->si(fdir, Pimpact::Z, Pimpact::B::Y))+offset[dir];
+		for(OT kk=grid->si(fdir, Pimpact::Z, Pimpact::B::Y); kk<=grid->ei(fdir, Pimpact::Z, Pimpact::B::Y); ++kk)
+			for(OT jj=grid->si(fdir, Pimpact::Y, Pimpact::B::Y); jj<=grid->ei(fdir, Pimpact::Y, Pimpact::B::Y); ++jj)
+				for(OT ii=grid->si(fdir, Pimpact::X, Pimpact::B::Y); ii<=grid->ei(fdir, Pimpact::X, Pimpact::B::Y); ++ii) {
+					OT JJ =           ii-grid->si(fdir, Pimpact::X, Pimpact::B::Y)
+						+ NX[dir]*(   jj-grid->si(fdir, Pimpact::Y, Pimpact::B::Y))
+						+ NX[dir]*NY[dir]*(kk-grid->si(fdir, Pimpact::Z, Pimpact::B::Y))+offset[dir];
 					b.init();
 					b(fdir)(ii, jj, kk) = 1.;
 					op->applyJ(b);
 
-					for(OT k=space->si(fdir, Pimpact::Z, Pimpact::B::Y); k<=space->ei(fdir, Pimpact::Z, Pimpact::B::Y); ++k)
-						for(OT j=space->si(fdir, Pimpact::Y, Pimpact::B::Y); j<=space->ei(fdir, Pimpact::Y, Pimpact::B::Y); ++j)
-							for(OT i=space->si(fdir, Pimpact::X, Pimpact::B::Y); i<=space->ei(fdir, Pimpact::X, Pimpact::B::Y); ++i) {
-								OT II =               i-space->si(fdir, Pimpact::X, Pimpact::B::Y)
-									+ NX[dir]*(       j-space->si(fdir, Pimpact::Y, Pimpact::B::Y))
-									+ NX[dir]*NY[dir]*(k-space->si(fdir, Pimpact::Z, Pimpact::B::Y)) + offset[dir];
+					for(OT k=grid->si(fdir, Pimpact::Z, Pimpact::B::Y); k<=grid->ei(fdir, Pimpact::Z, Pimpact::B::Y); ++k)
+						for(OT j=grid->si(fdir, Pimpact::Y, Pimpact::B::Y); j<=grid->ei(fdir, Pimpact::Y, Pimpact::B::Y); ++j)
+							for(OT i=grid->si(fdir, Pimpact::X, Pimpact::B::Y); i<=grid->ei(fdir, Pimpact::X, Pimpact::B::Y); ++i) {
+								OT II =               i-grid->si(fdir, Pimpact::X, Pimpact::B::Y)
+									+ NX[dir]*(       j-grid->si(fdir, Pimpact::Y, Pimpact::B::Y))
+									+ NX[dir]*NY[dir]*(k-grid->si(fdir, Pimpact::Z, Pimpact::B::Y)) + offset[dir];
 								x.init();
 								x(fdir)(i, j, k) = 1.;
 
@@ -922,24 +922,24 @@ TEUCHOS_UNIT_TEST(MatrixTest, GradOp2M) {
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradO2Op, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradO2Op, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  Pimpact::ScalarField<SpaceT> x (space);
-  Pimpact::ScalarField<SpaceT> x2(space);
-  Pimpact::ScalarField<SpaceT> b (space);
-  Pimpact::ScalarField<SpaceT> diff(space);
+  Pimpact::ScalarField<GridT> x (grid);
+  Pimpact::ScalarField<GridT> x2(grid);
+  Pimpact::ScalarField<GridT> b (grid);
+  Pimpact::ScalarField<GridT> diff(grid);
 
 
-  auto op = Pimpact::create<Pimpact::DivGradOp>(space);
-  auto op2 = Pimpact::create<Pimpact::DivGradO2Op>(space);
+  auto op = Pimpact::create<Pimpact::DivGradOp>(grid);
+  auto op2 = Pimpact::create<Pimpact::DivGradO2Op>(grid);
 
 	if(print) {
 		op->print();
-		space->getInterpolateV2S()->print();
+		grid->getInterpolateV2S()->print();
 		op2->print();
 	}
 
@@ -1043,34 +1043,34 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradO2Op, SpaceT) {
 	diff.add(1., x2, -1., b);
 	if(write) diff.write(2);
 	error = diff.norm(Pimpact::ENorm::Inf);
-	if(0==space->rankST()) 
+	if(0==grid->rankST()) 
 		std::cout <<"diff InvDiag: " <<error <<"\n";
 	TEST_EQUALITY(error<eps, true);
 }
 
-using D22 = Pimpact::Space<ST, OT, 2, d, 2>;
-using D32 = Pimpact::Space<ST, OT, 3, d, 2>;
+using D22 = Pimpact::Grid<ST, OT, 2, d, 2>;
+using D32 = Pimpact::Grid<ST, OT, 3, d, 2>;
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, DivGradO2Op, D22)
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, DivGradO2Op, D32)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradTransposeOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradTransposeOp, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  Pimpact::ScalarField<SpaceT> xp(space);
-  auto xv = Pimpact::create<Pimpact::VectorField>(space);
-  auto bp = Pimpact::create<Pimpact::ScalarField>(space);
-  auto bp2 = Pimpact::create<Pimpact::ScalarField>(space);
-  auto bv = Pimpact::create<Pimpact::VectorField>(space);
-  auto bv2 = Pimpact::create<Pimpact::VectorField>(space);
+  Pimpact::ScalarField<GridT> xp(grid);
+  auto xv = Pimpact::create<Pimpact::VectorField>(grid);
+  auto bp = Pimpact::create<Pimpact::ScalarField>(grid);
+  auto bp2 = Pimpact::create<Pimpact::ScalarField>(grid);
+  auto bv = Pimpact::create<Pimpact::VectorField>(grid);
+  auto bv2 = Pimpact::create<Pimpact::VectorField>(grid);
 
 
-  auto div = Pimpact::create<Pimpact::DivOp>(space);
-  auto grad = Pimpact::create<Pimpact::GradOp>(space);
+  auto div = Pimpact::create<Pimpact::DivOp>(grid);
+  auto grad = Pimpact::create<Pimpact::GradOp>(grid);
 
 	auto divGrad = Pimpact::createDivGradOp(div, grad);
 
@@ -1137,21 +1137,21 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, DivGradTransposeOp, D3)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradO2Smoother, SType) {
 
-	setParameter(SType::SpaceT::sdim);
+	setParameter(SType::GridT::sdim);
 
-	Teuchos::RCP<const typename SType::SpaceT> space = Pimpact::create<typename SType::SpaceT>(pl);
+	Teuchos::RCP<const typename SType::GridT> grid = Pimpact::create<typename SType::GridT>(pl);
 
-	auto coord = space->getCoordinatesGlobal();
+	auto coord = grid->getCoordinatesGlobal();
 	if(0==rank) {
 		Teuchos::RCP<std::ostream> fstream = Pimpact::createOstream("coord.txt");
 		coord->print(*fstream);
 	}
 
-	auto x = Pimpact::create<Pimpact::ScalarField>(space);
+	auto x = Pimpact::create<Pimpact::ScalarField>(grid);
 
-  auto b = Pimpact::create<Pimpact::ScalarField>(space);
+  auto b = Pimpact::create<Pimpact::ScalarField>(grid);
 
-  auto op = Pimpact::create<Pimpact::DivGradO2Op>(space);
+  auto op = Pimpact::create<Pimpact::DivGradO2Op>(grid);
 	//op->print2Mat();
 
 	Teuchos::RCP<Teuchos::ParameterList> ppl = Teuchos::parameterList();
@@ -1161,10 +1161,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradO2Smoother, SType) {
 	ST evMin;
 
 	auto ev = 
-		Teuchos::rcp(new Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<typename SType::SpaceT> >(op));
+		Teuchos::rcp(new Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<typename SType::GridT> >(op));
 
 	if(0==rank)	std::cout <<"\n";
-	for(int i=0; i<SType::SpaceT::sdim; ++i) {
+	for(int i=0; i<SType::GridT::sdim; ++i) {
 		ev->computeEV(static_cast<Pimpact::ECoord>(i), evMax, evMin);
 		if(0==rank)	
 			std::cout <<static_cast<Pimpact::ECoord>(i) <<": "
@@ -1278,7 +1278,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradO2Smoother, SType) {
 
 		x->initField(static_cast<Pimpact::EScalarField>(dir));
 		x->level();
-		Pimpact::ScalarField<typename SType::SpaceT> xp(space);
+		Pimpact::ScalarField<typename SType::GridT> xp(grid);
 		xp = *x;
 
 		op->apply(*x, *b);
@@ -1322,17 +1322,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, DivGradO2Smoother, CheT3D)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradO2Inv, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradO2Inv, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-	Pimpact::ScalarField<SpaceT> x (space);
-	Pimpact::ScalarField<SpaceT> xp(space);
-	Pimpact::ScalarField<SpaceT> b (space);
+	Pimpact::ScalarField<GridT> x (grid);
+	Pimpact::ScalarField<GridT> xp(grid);
+	Pimpact::ScalarField<GridT> b (grid);
 
-  auto op = Pimpact::create<Pimpact::DivGradO2Op>(space);
+  auto op = Pimpact::create<Pimpact::DivGradO2Op>(grid);
 
 	if(print)
 		op->print2Mat();
@@ -1380,15 +1380,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, DivGradO2Inv, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, ForcingOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, ForcingOp, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto vel = Pimpact::create<Pimpact::VectorField>(space);
-	auto force = Pimpact::create<Pimpact::VectorField>(space);
-	auto res = Pimpact::create<Pimpact::VectorField>(space);
+	auto vel = Pimpact::create<Pimpact::VectorField>(grid);
+	auto force = Pimpact::create<Pimpact::VectorField>(grid);
+	auto res = Pimpact::create<Pimpact::VectorField>(grid);
 
 	vel->init(1.);
 	//force->initField(Pimpact::EVectorField(11));
@@ -1408,22 +1408,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, ForcingOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiOperator, Add2Op, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiOperator, Add2Op, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto velx = Pimpact::create<Pimpact::VectorField>(space);
+	auto velx = Pimpact::create<Pimpact::VectorField>(grid);
 
-	auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space, 10));
-	auto y = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space, 10));
+	auto x = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<GridT> >(grid, 10));
+	auto y = Teuchos::rcp(new Pimpact::MultiField<Pimpact::VectorField<GridT> >(grid, 10));
 
 	auto op = Pimpact::createOperatorBase(
 			Pimpact::createMultiOpWrap(
 				Pimpact::createAdd2Op(
-					Pimpact::create<Pimpact::HelmholtzOp>(space),
-					Pimpact::create<Pimpact::HelmholtzOp>(space)
+					Pimpact::create<Pimpact::HelmholtzOp>(grid),
+					Pimpact::create<Pimpact::HelmholtzOp>(grid)
 			)
 		)
 	);
@@ -1439,24 +1439,24 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(MultiOperator, Add2Op, D3)
 template<class T> using WUP = Pimpact::MultiOpUnWrap<Pimpact::MultiOpWrap<T> >;
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiOperator, MulitOpUnWrap, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiOperator, MulitOpUnWrap, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto x = Pimpact::create<Pimpact::VectorField>(space);
-  auto y = Pimpact::create<Pimpact::VectorField>(space);
+  auto x = Pimpact::create<Pimpact::VectorField>(grid);
+  auto y = Pimpact::create<Pimpact::VectorField>(grid);
 
   auto op = Pimpact::createOperatorBase(
 			Pimpact::createMultiOpWrap(
-				Pimpact::create<Pimpact::HelmholtzOp>(space)));
+				Pimpact::create<Pimpact::HelmholtzOp>(grid)));
 
   auto opUW = Pimpact::create<Pimpact::MultiOpUnWrap>(op);
 
   auto opUW2 =
       Pimpact::create<WUP>(
-          Pimpact::create<Pimpact::HelmholtzOp>(space)
+          Pimpact::create<Pimpact::HelmholtzOp>(grid)
     );
 
 
@@ -1474,7 +1474,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(MultiOperator, MulitOpUnWrap, D3)
 
 TEUCHOS_UNIT_TEST(MultiHarmonicOperator, MultiHarmonicOpWrap) {
 
-	using SpaceT = Pimpact::Space<ST, OT, 3, 4, dNC>;
+	using GridT = Pimpact::Grid<ST, OT, 3, 4, dNC>;
 
 	Pimpact::setBoundaryConditions(pl, domain);
 
@@ -1499,26 +1499,26 @@ TEUCHOS_UNIT_TEST(MultiHarmonicOperator, MultiHarmonicOpWrap) {
   pl->set("npz", npz);
   pl->set("npf", npf);
 
-  auto space = Pimpact::create<Pimpact::Space<ST, OT, 3, 4, dNC> >(pl);
+  auto grid = Pimpact::create<Pimpact::Grid<ST, OT, 3, 4, dNC> >(pl);
 
 
-  auto op = Pimpact::createMultiHarmonicOpWrap<Pimpact::HelmholtzOp<SpaceT> >(
-      Pimpact::create<Pimpact::HelmholtzOp>(space));
+  auto op = Pimpact::createMultiHarmonicOpWrap<Pimpact::HelmholtzOp<GridT> >(
+      Pimpact::create<Pimpact::HelmholtzOp>(grid));
 
-  Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Space<ST, OT, 3, 4, dNC> > > x(space);
-  Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Space<ST, OT, 3, 4, dNC> > > y(space);
+  Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Grid<ST, OT, 3, 4, dNC> > > x(grid);
+  Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Grid<ST, OT, 3, 4, dNC> > > y(grid);
 
   op->apply(x, y);
 }
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivOp, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
 	//  grid size
-	for(int dir=0; dir<SpaceT::sdim; ++dir) {
+	for(int dir=0; dir<GridT::sdim; ++dir) {
 
 		pl->set<OT>("nx", 9);
 		pl->set<OT>("ny", 9);
@@ -1546,11 +1546,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivOp, SpaceT) {
 			// grid stretching
 			setStretching();
 
-			auto space = Pimpact::create<SpaceT>(pl);
+			auto grid = Pimpact::create<GridT>(pl);
 
-			Pimpact::VectorField<SpaceT> vel(space);
-			Pimpact::ScalarField<SpaceT> p  (space);
-			Pimpact::ScalarField<SpaceT> sol(space);
+			Pimpact::VectorField<GridT> vel(grid);
+			Pimpact::ScalarField<GridT> p  (grid);
+			Pimpact::ScalarField<GridT> sol(grid);
 
 			// init 
 			if(0==dir) {
@@ -1574,7 +1574,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivOp, SpaceT) {
 
 
 			if(print) vel(Pimpact::F::W).print();
-			auto op = Pimpact::create<Pimpact::DivOp>(space);
+			auto op = Pimpact::create<Pimpact::DivOp>(grid);
 
 			op->apply(vel, p);
 
@@ -1608,12 +1608,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, DivOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, InterpolateV2SOp, SpaceT) { 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, InterpolateV2SOp, GridT) { 
 
 	int rank = 0;
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	for(Pimpact::F dir=Pimpact::F::U; dir<SpaceT::sdim; ++dir) {
+	for(Pimpact::F dir=Pimpact::F::U; dir<GridT::sdim; ++dir) {
 
 		//  grid size
 		pl->set<OT>("nx", 9);
@@ -1641,12 +1641,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, InterpolateV2SOp, SpaceT) {
 			// grid stretching
 			setStretching();
 
-			auto space = Pimpact::create<SpaceT>(pl);
-			rank = space->rankST();
+			auto grid = Pimpact::create<GridT>(pl);
+			rank = grid->rankST();
 
-			Pimpact::VectorField<SpaceT> vel(space);
-			Pimpact::ScalarField<SpaceT> p  (space);
-			Pimpact::ScalarField<SpaceT> sol(space);
+			Pimpact::VectorField<GridT> vel(grid);
+			Pimpact::ScalarField<GridT> p  (grid);
+			Pimpact::ScalarField<GridT> sol(grid);
 
 			// init 
 			if(0==dir) {
@@ -1668,7 +1668,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, InterpolateV2SOp, SpaceT) {
 						[&pi2](ST x, ST y, ST z) ->ST {  return(std::cos(z*pi2)); });
 			}
 
-			auto op = Pimpact::createInterpolateV2S(space);
+			auto op = Pimpact::createInterpolateV2S(grid);
 
 			op->apply(vel(dir), p);
 
@@ -1706,11 +1706,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, InterpolateV2SOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, InterpolateS2VOp, SpaceT) { 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, InterpolateS2VOp, GridT) { 
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	for(Pimpact::F dir=Pimpact::F::U; dir<SpaceT::sdim; ++dir) {
+	for(Pimpact::F dir=Pimpact::F::U; dir<GridT::sdim; ++dir) {
 
 		//  grid size
 		pl->set<OT>("nx", 9);
@@ -1740,11 +1740,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, InterpolateS2VOp, SpaceT) {
 			// grid stretching
 			setStretching();
 
-			auto space = Pimpact::create<SpaceT>(pl);
+			auto grid = Pimpact::create<GridT>(pl);
 
-			Pimpact::VectorField<SpaceT> vel(space);
-			Pimpact::ScalarField<SpaceT> p  (space);
-			Pimpact::VectorField<SpaceT> sol(space);
+			Pimpact::VectorField<GridT> vel(grid);
+			Pimpact::ScalarField<GridT> p  (grid);
+			Pimpact::VectorField<GridT> sol(grid);
 
 			// init 
 			if(0==dir) {
@@ -1766,7 +1766,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, InterpolateS2VOp, SpaceT) {
 						[&pi2](ST x, ST y, ST z) ->ST {  return(std::cos(z*pi2)); });
 			}
 
-			auto op = Pimpact::create<Pimpact::InterpolateS2V>(space);
+			auto op = Pimpact::create<Pimpact::InterpolateS2V>(grid);
 
 			op->apply(p, vel(dir));
 
@@ -1801,13 +1801,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, InterpolateS2VOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, extrapolateBC, SpaceT) { 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, extrapolateBC, GridT) { 
 
 	if(domain!=1) {
 
-		setParameter(SpaceT::sdim);
+		setParameter(GridT::sdim);
 
-		for(Pimpact::F dir=Pimpact::F::U; dir<SpaceT::sdim; ++dir) {
+		for(Pimpact::F dir=Pimpact::F::U; dir<GridT::sdim; ++dir) {
 
 			//  grid size
 			pl->set<OT>("nx", 9);
@@ -1836,10 +1836,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, extrapolateBC, SpaceT) {
 				// grid stretching
 				setStretching();
 
-				auto space = Pimpact::create<SpaceT>(pl);
+				auto grid = Pimpact::create<GridT>(pl);
 
-				Pimpact::VectorField<SpaceT> vel(space);
-				Pimpact::VectorField<SpaceT> sol(space);
+				Pimpact::VectorField<GridT> vel(grid);
+				Pimpact::VectorField<GridT> sol(grid);
 
 				// init 
 				if(Pimpact::F::U==dir) {
@@ -1894,11 +1894,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, extrapolateBC, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, GradOp, SpaceT) { 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, GradOp, GridT) { 
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	for(Pimpact::F dir=Pimpact::F::U; dir<SpaceT::sdim; ++dir) {
+	for(Pimpact::F dir=Pimpact::F::U; dir<GridT::sdim; ++dir) {
 
 		//  grid size
 		pl->set<OT>("nx", 9);
@@ -1926,22 +1926,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, GradOp, SpaceT) {
 
 			setStretching();
 
-			auto space = Pimpact::create<SpaceT>(pl);
+			auto grid = Pimpact::create<GridT>(pl);
 
-			Pimpact::VectorField<SpaceT> vel(space);
-			auto p   = Pimpact::create<Pimpact::ScalarField>(space);
-			Pimpact::VectorField<SpaceT> sol(space);
+			Pimpact::VectorField<GridT> vel(grid);
+			auto p   = Pimpact::create<Pimpact::ScalarField>(grid);
+			Pimpact::VectorField<GridT> sol(grid);
 
 			// init 
 			if(Pimpact::F::U==dir) {
 				p->initFromFunction(
 						[&pi2](ST x, ST y, ST z) ->ST { return(std::cos(x*pi2)); });
 				sol(Pimpact::F::U).initFromFunction(
-						[&pi2, &space](ST x, ST y, ST z) ->ST {
-							if((std::abs(y)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-									(std::abs(y-ly)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-							    (std::abs(z)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-									(std::abs(z-lz)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+						[&pi2, &grid](ST x, ST y, ST z) ->ST {
+							if((std::abs(y)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+									(std::abs(y-ly)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+							    (std::abs(z)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+									(std::abs(z-lz)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 								return(-std::sin(x*pi2)*pi2*0.1); 
 							else
 								return(-std::sin(x*pi2)*pi2);
@@ -1951,11 +1951,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, GradOp, SpaceT) {
 				p->initFromFunction(
 						[&pi2](ST x, ST y, ST z) ->ST {  return(std::cos(y*pi2)); });
 				sol(Pimpact::F::V).initFromFunction(
-						[&pi2, &space](ST x, ST y, ST z) ->ST {
-							if((std::abs(x)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-									(std::abs(x-lx)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-							    (std::abs(z)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-									(std::abs(z-lz)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+						[&pi2, &grid](ST x, ST y, ST z) ->ST {
+							if((std::abs(x)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+									(std::abs(x-lx)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+							    (std::abs(z)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+									(std::abs(z-lz)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 								return(-std::sin(y*pi2)*pi2*0.1); 
 							else
 								return(-std::sin(y*pi2)*pi2);
@@ -1965,18 +1965,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, GradOp, SpaceT) {
 				p->initFromFunction(
 						[&pi2](ST x, ST y, ST z) ->ST {  return(std::cos(z*pi2)); });
 				sol(Pimpact::F::W).initFromFunction(
-						[&pi2, &space](ST x, ST y, ST z) ->ST { 
-							if((std::abs(x)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-									(std::abs(x-lx)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-							    (std::abs(y)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-									(std::abs(y-ly)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0))
+						[&pi2, &grid](ST x, ST y, ST z) ->ST { 
+							if((std::abs(x)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+									(std::abs(x-lx)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+							    (std::abs(y)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+									(std::abs(y-ly)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0))
 								return(-std::sin(z*pi2)*pi2*0.1); 
 							else
 								return(-std::sin(z*pi2)*pi2);
 						});
 			}
 
-			auto op = Pimpact::create<Pimpact::GradOp>(space);
+			auto op = Pimpact::create<Pimpact::GradOp>(grid);
 
 			op->apply(*p, vel);
 
@@ -2016,9 +2016,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivGradOp, OperatorT) {
 	ST pi2 = std::atan(1)*8;
 	std::string label;
 
-	setParameter(OperatorT::SpaceT::sdim);
+	setParameter(OperatorT::GridT::sdim);
 
-	for(int dir=0; dir<OperatorT::SpaceT::sdim; ++dir) {
+	for(int dir=0; dir<OperatorT::GridT::sdim; ++dir) {
 
 		//  grid size
 		pl->set<OT>("nx", 9);
@@ -2049,14 +2049,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivGradOp, OperatorT) {
 		// grid stretching
 		setStretching();
 
-		auto spaceRef = Pimpact::create<typename OperatorT::SpaceT>(plRef);
+		auto gridRef = Pimpact::create<typename OperatorT::GridT>(plRef);
 
-		auto yRef = Pimpact::create<Pimpact::ScalarField>(spaceRef);
-		auto xRef   = Pimpact::create<Pimpact::ScalarField>(spaceRef);
+		auto yRef = Pimpact::create<Pimpact::ScalarField>(gridRef);
+		auto xRef   = Pimpact::create<Pimpact::ScalarField>(gridRef);
 
-		auto opRef = Pimpact::create<OperatorT>(spaceRef);
+		auto opRef = Pimpact::create<OperatorT>(gridRef);
 		//opRef->print();
-		//auto opRef = Pimpact::create<Pimpact::DivGradOp>(spaceRef);
+		//auto opRef = Pimpact::create<Pimpact::DivGradOp>(gridRef);
 
 		// init 
 		if(0==dir) {
@@ -2095,12 +2095,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivGradOp, OperatorT) {
 			// grid stretching
 			setStretching();
 
-			auto space = Pimpact::create<typename OperatorT::SpaceT>(pl);
+			auto grid = Pimpact::create<typename OperatorT::GridT>(pl);
 
-			auto y = Pimpact::create<Pimpact::ScalarField>(space);
-			auto p   = Pimpact::create<Pimpact::ScalarField>(space);
-			auto e   = Pimpact::create<Pimpact::ScalarField>(space);
-			auto eRef= Pimpact::create<Pimpact::ScalarField>(space);
+			auto y = Pimpact::create<Pimpact::ScalarField>(grid);
+			auto p   = Pimpact::create<Pimpact::ScalarField>(grid);
+			auto e   = Pimpact::create<Pimpact::ScalarField>(grid);
+			auto eRef= Pimpact::create<Pimpact::ScalarField>(grid);
 			auto sol = y->clone(Pimpact::ECopy::Shallow);
 
 			// init 
@@ -2108,11 +2108,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivGradOp, OperatorT) {
 				p->initFromFunction(
 						[&pi2](ST x, ST y, ST z) ->ST {  return(std::cos(x*pi2)); });
 				sol->initFromFunction(
-						[&pi2, &space](ST x, ST y, ST z) ->ST {  
-							if((std::abs(y)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-									(std::abs(y-ly)<Teuchos::ScalarTraits<ST>::eps()  && space->bcu(1)>0) ||
-							    (std::abs(z)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-									(std::abs(z-lz)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+						[&pi2, &grid](ST x, ST y, ST z) ->ST {  
+							if((std::abs(y)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+									(std::abs(y-ly)<Teuchos::ScalarTraits<ST>::eps()  && grid->bcu(1)>0) ||
+							    (std::abs(z)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+									(std::abs(z-lz)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 								return(- pi2*pi2*0.1*std::cos(x*pi2));
 							else
 								return(- pi2*pi2*std::cos(x*pi2));
@@ -2123,11 +2123,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivGradOp, OperatorT) {
 				p->initFromFunction(
 						[&pi2](ST x, ST y, ST z) ->ST {  return(std::cos(y*pi2)); });
 				sol->initFromFunction(
-						[&pi2, &space](ST x, ST y, ST z) ->ST {
-							if((std::abs(x)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-									(std::abs(x-lx)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-							    (std::abs(z)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-									(std::abs(z-lz)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+						[&pi2, &grid](ST x, ST y, ST z) ->ST {
+							if((std::abs(x)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+									(std::abs(x-lx)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+							    (std::abs(z)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+									(std::abs(z-lz)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 								return(- pi2*pi2*0.1*std::cos(y*pi2));
 							else
 								return(- pi2*pi2*std::cos(y*pi2));
@@ -2138,11 +2138,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivGradOp, OperatorT) {
 				p->initFromFunction(
 						[&pi2](ST x, ST y, ST z) ->ST {  return(std::cos(z*pi2)); });
 				sol->initFromFunction(
-						[&pi2, &space](ST x, ST y, ST z) ->ST {  
-							if((std::abs(x)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-									(std::abs(x-lx)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-							    (std::abs(y)   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-									(std::abs(y-ly)<Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0))
+						[&pi2, &grid](ST x, ST y, ST z) ->ST {  
+							if((std::abs(x)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+									(std::abs(x-lx)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+							    (std::abs(y)   <Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+									(std::abs(y-ly)<Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0))
 								return(- pi2*pi2*0.1*std::cos(z*pi2));
 							else
 								return(- pi2*pi2*std::cos(z*pi2));
@@ -2150,7 +2150,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DivGradOp, OperatorT) {
 			);
 			}
 
-			auto op = Pimpact::create<OperatorT>(space);
+			auto op = Pimpact::create<OperatorT>(grid);
 			label = op->getLabel();
 
 			y->random();
@@ -2216,14 +2216,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, DivGradOp, DivGradO2OpT3D)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, HelmholtzOp, SpaceT) { 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, HelmholtzOp, GridT) { 
 
 	int rank = 0;
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	for(Pimpact::F field=Pimpact::F::U; field<SpaceT::sdim; ++field) {
-		for(int dir=0; dir<SpaceT::sdim; ++dir) {
+	for(Pimpact::F field=Pimpact::F::U; field<GridT::sdim; ++field) {
+		for(int dir=0; dir<GridT::sdim; ++dir) {
 
 			//  grid size
 			pl->set<OT>("nx", 9);
@@ -2250,23 +2250,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, HelmholtzOp, SpaceT) {
 				// grid stretching
 				setStretching();
 
-				auto space = Pimpact::create<SpaceT>(pl);
-				rank = space->rankST();
+				auto grid = Pimpact::create<GridT>(pl);
+				rank = grid->rankST();
 
-				Pimpact::VectorField<SpaceT> x(space);
-				Pimpact::VectorField<SpaceT> y(space);
-				Pimpact::VectorField<SpaceT> sol(space);
+				Pimpact::VectorField<GridT> x(grid);
+				Pimpact::VectorField<GridT> y(grid);
+				Pimpact::VectorField<GridT> sol(grid);
 
 				// init 
 				ST pi2 = std::atan(1)*8;
-				ST ire = 1./space->getDomainSize()->getRe();
+				ST ire = 1./grid->getDomainSize()->getRe();
 
 				x.init();
 				sol.init();
 				auto inifunc = [&pi2](ST x) -> ST {  
 					return(std::cos(x*pi2));
 				};
-				auto solfunc = [&pi2, &ire, &space](ST x) -> ST {
+				auto solfunc = [&pi2, &ire, &grid](ST x) -> ST {
 					return(std::cos(x*pi2)*pi2*pi2*ire);
 				};
  
@@ -2275,42 +2275,42 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, HelmholtzOp, SpaceT) {
 							[&inifunc](ST x, ST y, ST z) ->ST {  
 								return(inifunc(x)); });
 					sol(field).initFromFunction(
-							[&space, &inifunc, &solfunc](ST x, ST y, ST z) ->ST {
+							[&grid, &inifunc, &solfunc](ST x, ST y, ST z) ->ST {
 
-								if(space->bcl(Pimpact::X)>0 && x<=Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcl(Pimpact::X))
+								if(grid->bcl(Pimpact::X)>0 && x<=Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcl(Pimpact::X))
 										return(inifunc(std::min(std::max(x, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcl(Pimpact::X))
+									else if(Pimpact::BC::Neumann==grid->bcl(Pimpact::X))
 										return(0.);
 								}
-								else if(space->bcu(Pimpact::X)>0 && x>=1.-Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcu(Pimpact::X))
+								else if(grid->bcu(Pimpact::X)>0 && x>=1.-Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcu(Pimpact::X))
 										return(inifunc(std::min(std::max(x, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcu(Pimpact::X))
+									else if(Pimpact::BC::Neumann==grid->bcu(Pimpact::X))
 										return(0.);
 								}
-								else if(space->bcl(Pimpact::Y)>0 && y<=Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y))
+								else if(grid->bcl(Pimpact::Y)>0 && y<=Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcl(Pimpact::Y))
 										return(inifunc(std::min(std::max(x, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcl(Pimpact::Y))
+									else if(Pimpact::BC::Neumann==grid->bcl(Pimpact::Y))
 										return(0.);
 								}
-								else if(space->bcu(Pimpact::Y)>0 && y>=1.-Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y))
+								else if(grid->bcu(Pimpact::Y)>0 && y>=1.-Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcu(Pimpact::Y))
 										return(inifunc(std::min(std::max(x, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcu(Pimpact::Y))
+									else if(Pimpact::BC::Neumann==grid->bcu(Pimpact::Y))
 										return(0.);
 								}
-								else if(space->bcl(Pimpact::Z)>0 && z<=Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z))
+								else if(grid->bcl(Pimpact::Z)>0 && z<=Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcl(Pimpact::Z))
 										return(inifunc(std::min(std::max(x, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcl(Pimpact::Z))
+									else if(Pimpact::BC::Neumann==grid->bcl(Pimpact::Z))
 										return(0.);
 								}
-								else if(space->bcu(Pimpact::Z)>0 && z>=1.-Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z))
+								else if(grid->bcu(Pimpact::Z)>0 && z>=1.-Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcu(Pimpact::Z))
 										return(inifunc(std::min(std::max(x, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcu(Pimpact::Z))
+									else if(Pimpact::BC::Neumann==grid->bcu(Pimpact::Z))
 										return(0.);
 								}
 								return(solfunc(x)); });
@@ -2319,41 +2319,41 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, HelmholtzOp, SpaceT) {
 					x(field).initFromFunction([&inifunc](ST x, ST y, ST z) ->ST {  
 								return(inifunc(y)); });
 					sol(field).initFromFunction(
-							[&space, &inifunc, &solfunc](ST x, ST y, ST z) ->ST {
-								if(space->bcl(Pimpact::X)>0 && x<=Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcl(Pimpact::X))
+							[&grid, &inifunc, &solfunc](ST x, ST y, ST z) ->ST {
+								if(grid->bcl(Pimpact::X)>0 && x<=Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcl(Pimpact::X))
 										return(inifunc(std::min(std::max(y, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcl(Pimpact::X))
+									else if(Pimpact::BC::Neumann==grid->bcl(Pimpact::X))
 										return(0.);
 								}
-								else if(space->bcu(Pimpact::X)>0 && x>=1.-Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcu(Pimpact::X))
+								else if(grid->bcu(Pimpact::X)>0 && x>=1.-Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcu(Pimpact::X))
 										return(inifunc(std::min(std::max(y, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcu(Pimpact::X))
+									else if(Pimpact::BC::Neumann==grid->bcu(Pimpact::X))
 										return(0.);
 								}
-								else if(space->bcl(Pimpact::Y)>0 && y<=Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y))
+								else if(grid->bcl(Pimpact::Y)>0 && y<=Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcl(Pimpact::Y))
 										return(inifunc(std::min(std::max(y, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcl(Pimpact::Y))
+									else if(Pimpact::BC::Neumann==grid->bcl(Pimpact::Y))
 										return(0.);
 								}
-								else if(space->bcu(Pimpact::Y)>0 && y>=1.-Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y))
+								else if(grid->bcu(Pimpact::Y)>0 && y>=1.-Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcu(Pimpact::Y))
 										return(inifunc(std::min(std::max(y, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcu(Pimpact::Y))
+									else if(Pimpact::BC::Neumann==grid->bcu(Pimpact::Y))
 										return(0.);
 								}
-								else if(space->bcl(Pimpact::Z)>0 && z<=Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z))
+								else if(grid->bcl(Pimpact::Z)>0 && z<=Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcl(Pimpact::Z))
 										return(inifunc(std::min(std::max(y, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcl(Pimpact::Z))
+									else if(Pimpact::BC::Neumann==grid->bcl(Pimpact::Z))
 										return(0.);
 								}
-								else if(space->bcu(Pimpact::Z)>0 && z>=1.-Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z))
+								else if(grid->bcu(Pimpact::Z)>0 && z>=1.-Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcu(Pimpact::Z))
 										return(inifunc(std::min(std::max(y, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcu(Pimpact::Z))
+									else if(Pimpact::BC::Neumann==grid->bcu(Pimpact::Z))
 										return(0.);
 								}
 								return(solfunc(y)); });
@@ -2363,47 +2363,47 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, HelmholtzOp, SpaceT) {
 							[&inifunc](ST x, ST y, ST z) ->ST {  
 								return(inifunc(z)); });
 					sol(field).initFromFunction(
-							[&space, &inifunc, &solfunc](ST x, ST y, ST z) ->ST {
-								if(space->bcl(Pimpact::X)>0 && x<=Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcl(Pimpact::X))
+							[&grid, &inifunc, &solfunc](ST x, ST y, ST z) ->ST {
+								if(grid->bcl(Pimpact::X)>0 && x<=Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcl(Pimpact::X))
 										return(inifunc(std::min(std::max(z, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcl(Pimpact::X))
+									else if(Pimpact::BC::Neumann==grid->bcl(Pimpact::X))
 										return(0.);
 								}
-								else if(space->bcu(Pimpact::X)>0 && x>=1.-Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcu(Pimpact::X))
+								else if(grid->bcu(Pimpact::X)>0 && x>=1.-Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcu(Pimpact::X))
 										return(inifunc(std::min(std::max(z, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcu(Pimpact::X))
+									else if(Pimpact::BC::Neumann==grid->bcu(Pimpact::X))
 										return(0.);
 								}
-								else if(space->bcl(Pimpact::Y)>0 && y<=Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y))
+								else if(grid->bcl(Pimpact::Y)>0 && y<=Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcl(Pimpact::Y))
 										return(inifunc(std::min(std::max(z, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcl(Pimpact::Y))
+									else if(Pimpact::BC::Neumann==grid->bcl(Pimpact::Y))
 										return(0.);
 								}
-								else if(space->bcu(Pimpact::Y)>0 && y>=1.-Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y))
+								else if(grid->bcu(Pimpact::Y)>0 && y>=1.-Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcu(Pimpact::Y))
 										return(inifunc(std::min(std::max(z, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcu(Pimpact::Y))
+									else if(Pimpact::BC::Neumann==grid->bcu(Pimpact::Y))
 										return(0.);
 								}
-								else if(space->bcl(Pimpact::Z)>0 && z<=Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z))
+								else if(grid->bcl(Pimpact::Z)>0 && z<=Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcl(Pimpact::Z))
 										return(inifunc(std::min(std::max(z, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcl(Pimpact::Z))
+									else if(Pimpact::BC::Neumann==grid->bcl(Pimpact::Z))
 										return(0.);
 								}
-								else if(space->bcu(Pimpact::Z)>0 && z>=1.-Teuchos::ScalarTraits<ST>::eps()) {
-									if(Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z))
+								else if(grid->bcu(Pimpact::Z)>0 && z>=1.-Teuchos::ScalarTraits<ST>::eps()) {
+									if(Pimpact::BC::Dirichlet==grid->bcu(Pimpact::Z))
 										return(inifunc(std::min(std::max(z, 0.), 1.)));
-									else if(Pimpact::BC::Neumann==space->bcu(Pimpact::Z))
+									else if(Pimpact::BC::Neumann==grid->bcu(Pimpact::Z))
 										return(0.);
 								}
 								return(solfunc(z)); });
 				}
 
-				auto op = Pimpact::create<Pimpact::HelmholtzOp>(space);
+				auto op = Pimpact::create<Pimpact::HelmholtzOp>(grid);
 
 				op->apply(x, y);
 
@@ -2438,27 +2438,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, HelmholtzOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradNullSpace, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradNullSpace, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-	auto null   = Pimpact::create<Pimpact::ScalarField>(space);
-	auto res   = Pimpact::create<Pimpact::ScalarField>(space);
+	auto null   = Pimpact::create<Pimpact::ScalarField>(grid);
+	auto res   = Pimpact::create<Pimpact::ScalarField>(grid);
 	null->random();
 
-	auto op = Pimpact::create<Pimpact::DivOp>(space);
+	auto op = Pimpact::create<Pimpact::DivOp>(grid);
 
 	if(print)
 		op->print();
 
 	// DJG
-	Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;// = Pimpact::create<Pimpact::DivGradNullSpace>();
+	Pimpact::DivGradNullSpace<Pimpact::DivOp<GridT> > compNullspace;// = Pimpact::create<Pimpact::DivGradNullSpace>();
 
 	compNullspace.computeNullSpace(op, *null);
 
-	auto divGrad = Pimpact::create<Pimpact::DivGradOp>(space);
+	auto divGrad = Pimpact::create<Pimpact::DivGradOp>(grid);
 	if(write)
 		null->write(0);
 	divGrad->apply(*null, *res, Belos::TRANS);
@@ -2471,12 +2471,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DivGradNullSpace, SpaceT) {
 
 	compNullspace.computeNullSpace(op, *null, false);
 
-	auto resV   = Pimpact::create<Pimpact::VectorField>(space);
+	auto resV   = Pimpact::create<Pimpact::VectorField>(grid);
 	if(write)
 		null->write(1);
 	op->apply(*null, *resV);
 	if(write) {
-		Pimpact::VectorField<SpaceT> resV2(space);
+		Pimpact::VectorField<GridT> resV2(grid);
 		resV2.abs(*resV);
 		resV2.write();
 	}

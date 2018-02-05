@@ -22,11 +22,11 @@ template<class NV>
 class PrePostEnergyCompute : public NOX::Abstract::PrePostOperator {
 
   //using FieldT = typename NV::FieldT;
-  using FieldT = ::Pimpact::VectorField<typename NV::FieldT::SpaceT>;
+  using FieldT = ::Pimpact::VectorField<typename NV::FieldT::GridT>;
 
 
-  using ST = typename FieldT::SpaceT::Scalar;
-  using OT = typename FieldT::SpaceT::Ordinal;
+  using ST = typename FieldT::GridT::Scalar;
+  using OT = typename FieldT::GridT::Ordinal;
 
   bool computeEnergyIterPost_;
   bool computeEnergyIterPre_;
@@ -51,34 +51,34 @@ class PrePostEnergyCompute : public NOX::Abstract::PrePostOperator {
 
     auto& x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>(
             group.getXPtr()))->getField();
-    auto space = x.space();
+    auto grid = x.grid();
 
     std::string prefix = "energy_"+ ::Pimpact::toString(dir_) +"_r" +
       std::to_string(refinement_) + "_i" + std::to_string(nIter) + "_";
 
     // compute glob energy in y-dir
-    if(0==space->si(::Pimpact::F::U, 3)) {
+    if(0==grid->si(::Pimpact::F::U, 3)) {
       auto vel =  x.getField(0).getVField().get0Field().clone(::Pimpact::ECopy::Deep);
       vel->add(1., *vel, -1., *base_);
 
       auto out = ::Pimpact::createOstream(
            prefix + "0.txt",
-          space->getProcGrid()->getRankBar(dir_));
+          grid->getProcGrid()->getRankBar(dir_));
 
       ::Pimpact::computeEnergyDir(*vel, *out, dir_, gamma_);
     }
 
-    for(OT i=std::max(space->si(::Pimpact::F::U, 3), 1); i<=space->ei(::Pimpact::F::U, 3); ++i) {
+    for(OT i=std::max(grid->si(::Pimpact::F::U, 3), 1); i<=grid->ei(::Pimpact::F::U, 3); ++i) {
       {
         auto out = ::Pimpact::createOstream(prefix + "C"+std::to_string(i) + ".txt",
-            space->getProcGrid()->getRankBar(dir_));
+            grid->getProcGrid()->getRankBar(dir_));
 
         ::Pimpact::computeEnergyDir(
             x.getField(0).getVField().getCField(i), *out, dir_, gamma_);
       }
       {
         auto out = ::Pimpact::createOstream(prefix + "S"+std::to_string(i) + ".txt",
-            space->getProcGrid()->getRankBar(dir_));
+            grid->getProcGrid()->getRankBar(dir_));
 
         ::Pimpact::computeEnergyDir(
             x.getField(0).getVField().getSField(i), *out, dir_, gamma_);
@@ -112,7 +112,7 @@ public:
 		eStream_(Teuchos::null) {
 
 			if(base_!=Teuchos::null) {
-				int world_rank = sol->space()->rankST();
+				int world_rank = sol->grid()->rankST();
         if(0==world_rank) 
           eStream_ = Teuchos::rcp(new std::ofstream("errorIter.txt"));
         else

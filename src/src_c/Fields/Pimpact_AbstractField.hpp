@@ -9,7 +9,7 @@
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 
 
 
@@ -17,21 +17,21 @@
 namespace Pimpact {
 
 
-template<class SpaceT>
+template<class GridT>
 class AbstractField {
 
 public:
 
 
-  static const int dimension = SpaceT::dimension;
+  static const int dimension = GridT::dimension;
 
-  AbstractField(const Teuchos::RCP<const SpaceT>& space):space_(space) {};
+  AbstractField(const Teuchos::RCP<const GridT>& grid):grid_(grid) {};
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
+  using ST = typename GridT::Scalar;
 
-  Teuchos::RCP<const SpaceT> space_;
+  Teuchos::RCP<const GridT> grid_;
 
   /// \note openMPI is picky her with const references :(
   /// \note think about making pubplic

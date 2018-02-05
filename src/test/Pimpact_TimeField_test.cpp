@@ -34,10 +34,10 @@ namespace {
 
 const int sd = 3;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, d, dNC>;
+using GridT = Pimpact::Grid<ST, OT, sd, d, dNC>;
 
-using SF = Pimpact::ScalarField<SpaceT>;
-using VF = Pimpact::VectorField<SpaceT>;
+using SF = Pimpact::ScalarField<GridT>;
+using VF = Pimpact::VectorField<GridT>;
 
 using TSF = Pimpact::TimeField<SF>;
 using TVF = Pimpact::TimeField<VF>;
@@ -53,15 +53,15 @@ using VOpBase = Pimpact::OperatorBase<MTVF>;
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, create_init_print, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	space->print();
+	grid->print();
 
-	FType p(space);
+	FType p(grid);
 
-	p.init(space->rankST());
+	p.init(grid->rankST());
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, create_init_print, TSF)
@@ -71,11 +71,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, create_init_print, TVF)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, InfNorm_and_init, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  FType p(space);
+  FType p(grid);
 
   double norm;
 
@@ -91,8 +91,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, InfNorm_and_init, FType) {
   int rank;
   int size;
   double init;
-  MPI_Comm_rank(space->comm(), &rank);
-  MPI_Comm_size(space->comm(), &size);
+  MPI_Comm_rank(grid->comm(), &rank);
+  MPI_Comm_size(grid->comm(), &size);
   for(double i = 0.; i<10.1; ++i) {
     init = (size-1)*i-1.;
     init = (init<0)?-init:init;
@@ -110,11 +110,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, InfNorm_and_init, TVF)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, OneNorm_and_init, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   // test different float values, assures that initial and norm work smoothly
   for(double i=0.; i<10.1; ++i) {
@@ -132,11 +132,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, OneNorm_and_init, TVF)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, TwoNorm_and_init, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   // test different float values, assures that initial and norm work smoothly
   for(double i=0.; i<10.1; ++i) {
@@ -152,12 +152,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, TwoNorm_and_init, TVF)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, dot, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto vel1 = Pimpact::create<FType>(space);
-  auto vel2 = Pimpact::create<FType>(space);
+  auto vel1 = Pimpact::create<FType>(grid);
+  auto vel2 = Pimpact::create<FType>(grid);
 
   int Np = vel1->getLength();
   int Nq = vel2->getLength();
@@ -195,11 +195,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, dot, TVF)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, scale, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   double norm;
   int N = p->getLength();
@@ -218,11 +218,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, scale, TVF)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, random, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   double norm;
   int N = p->getLength();
@@ -241,13 +241,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, random, TVF)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TemplateField, add, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto vel1 = Pimpact::create<FType>(space);
-  auto vel2 = Pimpact::create<FType>(space);
-  auto vel3 = Pimpact::create<FType>(space);
+  auto vel1 = Pimpact::create<FType>(grid);
+  auto vel2 = Pimpact::create<FType>(grid);
+  auto vel3 = Pimpact::create<FType>(grid);
 
   TEST_EQUALITY(vel1->getLength(), vel2->getLength())
   TEST_EQUALITY(vel2->getLength(), vel3->getLength())
@@ -288,11 +288,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TemplateField, add, TVF)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, write, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   p->init(1.);
   p->write();
@@ -312,13 +312,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, write, TVF)
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TimeField, all, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-	space->print();
+	grid->print();
   //---------------------------------------------------
-  auto field1 = Pimpact::createTimeField<FType>(space);
+  auto field1 = Pimpact::createTimeField<FType>(grid);
 
   auto field2 = field1->clone();
 
@@ -341,13 +341,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TimeField, all, FType) {
   }
 
 	// some test
-	auto fields = Pimpact::createTimeField<FType>(space);
+	auto fields = Pimpact::createTimeField<FType>(grid);
 
 	auto field2s = fields->clone();
 	field2s->random();
 	MPI_Barrier(MPI_COMM_WORLD);
 	field2s->norm();
-	field2s->init(space->getProcGrid()->getIB(3));
+	field2s->init(grid->getProcGrid()->getIB(3));
 	field2s->exchange();
 	field2s->write();
 }
@@ -359,11 +359,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TimeField, all, VF)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TimeField, BelosMVTest, FType) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  auto space = Pimpact::create<SpaceT>(pl);
+  auto grid = Pimpact::create<GridT>(pl);
 
-  auto mvec = Teuchos::rcp(new Pimpact::MultiField<FType>(space, 5));
+  auto mvec = Teuchos::rcp(new Pimpact::MultiField<FType>(grid, 5));
 
   // Create an output manager to handle the I/O from the solver
   Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
@@ -380,15 +380,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TimeField, BelosMVTest, TVF)
 
 TEUCHOS_UNIT_TEST(TimeOpearotr, TimeOpWrap) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto mv = Teuchos::rcp(new Pimpact::MultiField<TVF>(space, 10));
+	auto mv = Teuchos::rcp(new Pimpact::MultiField<TVF>(grid, 10));
 
 	// op test
-	auto op = Pimpact::createTimeOpWrap<Pimpact::HelmholtzOp<SpaceT>, true>(
-			Pimpact::create<Pimpact::HelmholtzOp>(space));
+	auto op = Pimpact::createTimeOpWrap<Pimpact::HelmholtzOp<GridT>, true>(
+			Pimpact::create<Pimpact::HelmholtzOp>(grid));
 
 	auto bop = Pimpact::createMultiOperatorBase(op);
 
@@ -404,7 +404,7 @@ TEUCHOS_UNIT_TEST(TimeOpearotr, TimeOpWrap) {
 
 TEUCHOS_UNIT_TEST(TimeOperator, DtTimeOp) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 	// processor grid size
     
 	//double pi = 4.*std::atan(1.);
@@ -417,17 +417,17 @@ TEUCHOS_UNIT_TEST(TimeOperator, DtTimeOp) {
 
 		pl->set<OT>("nf", n0*std::pow(2, n));
 
-		auto space = Pimpact::create<SpaceT>(pl);
+		auto grid = Pimpact::create<GridT>(pl);
 
-		ST a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+		ST a2 = grid->getDomainSize()->getAlpha2()/grid->getDomainSize()->getRe();
 
-		TVF x(space);
-		TVF y(space);
-		TVF sol(space);
-		TVF er(space);
+		TVF x(grid);
+		TVF y(grid);
+		TVF sol(grid);
+		TVF er(grid);
 
 		// op test
-		auto dt = Pimpact::create<Pimpact::DtTimeOp>(space);
+		auto dt = Pimpact::create<Pimpact::DtTimeOp>(grid);
 
 		// zero test
 		x.init(1.);
@@ -438,10 +438,10 @@ TEUCHOS_UNIT_TEST(TimeOperator, DtTimeOp) {
 		TEST_EQUALITY(y.norm()<eps, true);
 
 		// cos test
-		for(OT i=space->si(Pimpact::F::S, 3); i<=space->ei(Pimpact::F::S, 3); ++i) {
-			ST alpha = std::sin(space->getCoordinatesLocal()->getX(Pimpact::F::S, 3, i));
-			ST beta = a2*std::cos(space->getCoordinatesLocal()->getX(Pimpact::F::S, 3, i));
-			//std::cout <<"\ti: " <<i <<"\tt: " <<space->getCoordinatesLocal()->getX(Pimpact::F::S, 3, i) <<
+		for(OT i=grid->si(Pimpact::F::S, 3); i<=grid->ei(Pimpact::F::S, 3); ++i) {
+			ST alpha = std::sin(grid->getCoordinatesLocal()->getX(Pimpact::F::S, 3, i));
+			ST beta = a2*std::cos(grid->getCoordinatesLocal()->getX(Pimpact::F::S, 3, i));
+			//std::cout <<"\ti: " <<i <<"\tt: " <<grid->getCoordinatesLocal()->getX(Pimpact::F::S, 3, i) <<
 				//"\talpha: " <<alpha <<"\tbeta: " <<beta <<"\n";
 			x(i).init(alpha);
 			sol(i).init(beta);
@@ -457,7 +457,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, DtTimeOp) {
 		errorInf[n] = std::log10(er.norm(Pimpact::ENorm::Inf) / sol.norm(Pimpact::ENorm::Inf));
 		dofs[n] = std::log10(n0*std::pow(2., n));
 
-		if(0==space->rankST())
+		if(0==grid->rankST())
 			std::cout <<std::pow(10., dofs[n]) <<"\t" <<std::pow(10., error2[n]) <<"\t" <<std::pow(10., errorInf[n]) <<"\n";
 	}
 
@@ -479,19 +479,19 @@ TEUCHOS_UNIT_TEST(TimeOperator, DtTimeOp) {
 
 TEUCHOS_UNIT_TEST(TimeOperator, TimeDtConvectionDiffusionOp) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	TVF y(space);
-	TVF x(space);
-	TVF sol(space);
-	TVF wind(space);
+	TVF y(grid);
+	TVF x(grid);
+	TVF sol(grid);
+	TVF wind(grid);
 
-	auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT, true> >(space);
+	auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<GridT, true> >(grid);
 
 	// test against flow dir
-	for(OT i=space->si(Pimpact::F::U, 3); i<=space->ei(Pimpact::F::U, 3); ++i) {
+	for(OT i=grid->si(Pimpact::F::U, 3); i<=grid->ei(Pimpact::F::U, 3); ++i) {
 		wind(i).init(2.);
 		x(i)(Pimpact::F::U).initField(Pimpact::Grad2D_inX);
 		x(i)(Pimpact::F::V).initField(Pimpact::Grad2D_inY);
@@ -519,17 +519,17 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeDtConvectionDiffusionOp) {
 
 TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOp) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	using OpT = Pimpact::TimeStokesOp<SpaceT>;
+	using OpT = Pimpact::TimeStokesOp<GridT>;
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
-	auto x = Pimpact::create<typename OpT::DomainFieldT>(space);
-	auto y = Pimpact::create<typename OpT::RangeFieldT>(space);
+	auto x = Pimpact::create<typename OpT::DomainFieldT>(grid);
+	auto y = Pimpact::create<typename OpT::RangeFieldT>(grid);
 
 	// Const diffusion test in X
 	//Pimpact::initVectorTimeField(x->getVField(), Pimpact::Poiseuille_inX);
@@ -540,7 +540,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOp) {
 	op->apply(*x, *y);
 	//	y->write(0);
 
-	//initVectorTimeField(x->getVField(), Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y), 2)/re, 0., 0.);
+	//initVectorTimeField(x->getVField(), Pimpact::Const2DFlow, 8./std::pow(grid->getDomainSize()->getSize(Pimpact::Y), 2)/re, 0., 0.);
 	x->add(1., *x, -1., *y);
 	//	x->write(100);
 
@@ -556,7 +556,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOp) {
 	op->apply(*x, *y);
 	//	y->write(0);
 
-	//Pimpact::initVectorTimeField(x->getVField(), Pimpact::Const2DFlow, 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X), 2)/re, 0.);
+	//Pimpact::initVectorTimeField(x->getVField(), Pimpact::Const2DFlow, 0., 8./std::pow(grid->getDomainSize()->getSize(Pimpact::X), 2)/re, 0.);
 	x->add(1., *x, -1., *y);
 	//	x->write(100);
 
@@ -565,7 +565,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOp) {
 
 	// Gradient test in X
 	//Pimpact::initVectorTimeField(x->getVField(), Pimpact::Zero2DFlow);
-	for(OT i=space->si(Pimpact::F::U, 3); i<space->ei(Pimpact::F::U, 3); ++i) {
+	for(OT i=grid->si(Pimpact::F::U, 3); i<grid->ei(Pimpact::F::U, 3); ++i) {
 		x->getSField()(i).initField(Pimpact::Grad2D_inX);
 	}
 //	x->write();
@@ -583,7 +583,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOp) {
 
 	// Gradient test in Y
 	Pimpact::initVectorTimeField(x->getVField(), Pimpact::Zero2DFlow);
-	for(OT i=space->si(Pimpact::F::U, 3); i<space->ei(Pimpact::F::U, 3); ++i) {
+	for(OT i=grid->si(Pimpact::F::U, 3); i<grid->ei(Pimpact::F::U, 3); ++i) {
 		x->getSField()(i).initField(Pimpact::Grad2D_inY);
 	}
 //	x->write();
@@ -601,7 +601,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOp) {
 
 	// Gradient test in Z
 	Pimpact::initVectorTimeField(x->getVField(), Pimpact::Zero2DFlow);
-	for(OT i=space->si(Pimpact::F::U, 3); i<space->ei(Pimpact::F::U, 3); ++i) {
+	for(OT i=grid->si(Pimpact::F::U, 3); i<grid->ei(Pimpact::F::U, 3); ++i) {
 		x->getSField()(i).initField(Pimpact::Grad2D_inZ);
 	}
 //	x->write();
@@ -623,9 +623,9 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOp) {
 
 TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOpDT) {
 
-	using OpT = Pimpact::TimeStokesOp<SpaceT>;
+	using OpT = Pimpact::TimeStokesOp<GridT>;
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
 
 	double pi = 4.*std::atan(1.);
@@ -638,16 +638,16 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOpDT) {
 
 		pl->set<OT>("nf", int(std::pow(2, q)));
 
-		auto space = Pimpact::create<SpaceT>(pl);
+		auto grid = Pimpact::create<GridT>(pl);
 
 
-		auto field = Pimpact::create<typename OpT::DomainFieldT>(space);
-		auto field1 = Pimpact::create<typename OpT::RangeFieldT>(space);
-		auto field2 = Pimpact::create<typename OpT::RangeFieldT>(space);
+		auto field = Pimpact::create<typename OpT::DomainFieldT>(grid);
+		auto field1 = Pimpact::create<typename OpT::RangeFieldT>(grid);
+		auto field2 = Pimpact::create<typename OpT::RangeFieldT>(grid);
 
 
 		// op test
-		auto dt = Pimpact::create<OpT>(space);
+		auto dt = Pimpact::create<OpT>(grid);
 
 		// zero test
 		Pimpact::initVectorTimeField(field1->getVField(), Pimpact::Const2DFlow, 1., 1., 1.);
@@ -666,7 +666,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOpDT) {
 		dt->apply(*field, *field1);
 		dt->apply(*field1, *field2);
 
-		ST a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+		ST a2 = grid->getDomainSize()->getAlpha2()/grid->getDomainSize()->getRe();
 
 		ST bla = a2*a2;
 
@@ -676,7 +676,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOpDT) {
 		std::cout <<"error: " <<field()->norm() <<"\n";
 
 		error[q-3] = std::log(field()->norm()); 
-		idt[q-3]   = std::log(((double)space->nGlo()[3])/2./pi);
+		idt[q-3]   = std::log(((double)grid->nGlo()[3])/2./pi);
 
 	}
 
@@ -693,19 +693,19 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeStokesOpDT) {
 
 TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOp) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-	using OpT = Pimpact::TimeNSOp<SpaceT>;
+	using OpT = Pimpact::TimeNSOp<GridT>;
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
 
-	auto op = Pimpact::create<OpT>(space);
+	auto op = Pimpact::create<OpT>(grid);
 
-	typename OpT::DomainFieldT e(space);
-	typename OpT::RangeFieldT  y(space);
-	typename OpT::DomainFieldT  sol(space);
-	typename OpT::RangeFieldT  fu(space);
+	typename OpT::DomainFieldT e(grid);
+	typename OpT::RangeFieldT  y(grid);
+	typename OpT::DomainFieldT  sol(grid);
+	typename OpT::RangeFieldT  fu(grid);
 
 	ST pi2 = 2.*std::acos(-1.);
 	ST A =   0.5;
@@ -715,11 +715,11 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOp) {
 	ST b =   1.;
 	ST c =   1.;
 
-	for(OT i=space->si(Pimpact::F::U, 3); i<=space->ei(Pimpact::F::U, 3); ++i) {
+	for(OT i=grid->si(Pimpact::F::U, 3); i<=grid->ei(Pimpact::F::U, 3); ++i) {
 		{
 			// init RHS
-			ST timei = space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
-			ST timeim =space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i-1);
+			ST timei = grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
+			ST timeim =grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i-1);
 			//std::cout <<time <<"\n";
 			//ST ctime = (std::cos(timei)+std::cos(timeim))/2.;
 			ST ctime = std::cos((timei+timeim)/2.);
@@ -740,7 +740,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOp) {
 		}
 		// init sol
 		{
-			ST time = space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
+			ST time = grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
 			//std::cout<<time <<"\n";
 			ST stime = std::sin(time);
 			sol.getVField()(i)(Pimpact::F::U).initFromFunction(
@@ -772,7 +772,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOp) {
 	//op->apply(*x, *y);
 	////	y->write(0);
 
-	////Pimpact::initVectorTimeField(x->getVField(), Pimpact::Const2DFlow, 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X), 2)/re, 0.);
+	////Pimpact::initVectorTimeField(x->getVField(), Pimpact::Const2DFlow, 0., 8./std::pow(grid->getDomainSize()->getSize(Pimpact::X), 2)/re, 0.);
 	//x->add(1., *x, -1., *y);
 	////	x->write(100);
 
@@ -781,7 +781,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOp) {
 
 	//// Gradient test in X
 	//Pimpact::initVectorTimeField(x->getVField(), Pimpact::Zero2DFlow);
-	//for(OT i=space->si(Pimpact::F::U, 3); i<space->ei(Pimpact::F::U, 3); ++i) {
+	//for(OT i=grid->si(Pimpact::F::U, 3); i<grid->ei(Pimpact::F::U, 3); ++i) {
 		//x->getSField()(i).initField(Pimpact::Grad2D_inX);
 	//}
 ////	x->write();
@@ -799,7 +799,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOp) {
 
 	//// Gradient test in Y
 	//Pimpact::initVectorTimeField(x->getVField(), Pimpact::Zero2DFlow);
-	//for(OT i=space->si(Pimpact::F::U, 3); i<space->ei(Pimpact::F::U, 3); ++i) {
+	//for(OT i=grid->si(Pimpact::F::U, 3); i<grid->ei(Pimpact::F::U, 3); ++i) {
 		//x->getSField()(i).initField(Pimpact::Grad2D_inY);
 	//}
 ////	x->write();
@@ -817,7 +817,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOp) {
 
 	//// Gradient test in Z
 	//Pimpact::initVectorTimeField(x->getVField(), Pimpact::Zero2DFlow);
-	//for(OT i=space->si(Pimpact::F::U, 3); i<space->ei(Pimpact::F::U, 3); ++i) {
+	//for(OT i=grid->si(Pimpact::F::U, 3); i<grid->ei(Pimpact::F::U, 3); ++i) {
 		//x->getSField()(i).initField(Pimpact::Grad2D_inZ);
 	//}
 	////	x->write();
@@ -835,12 +835,12 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOp) {
 
 
 	//// test against flow dir
-	//auto wind   = Pimpact::create<typename OpT::DomainFieldT>(space);
-	//auto field  = Pimpact::create<typename OpT::DomainFieldT>(space);
-	//auto field1 = Pimpact::create<typename OpT::DomainFieldT>(space);
-	//auto field2 = Pimpact::create<typename OpT::DomainFieldT>(space);
+	//auto wind   = Pimpact::create<typename OpT::DomainFieldT>(grid);
+	//auto field  = Pimpact::create<typename OpT::DomainFieldT>(grid);
+	//auto field1 = Pimpact::create<typename OpT::DomainFieldT>(grid);
+	//auto field2 = Pimpact::create<typename OpT::DomainFieldT>(grid);
 
-	//for(OT i=space->si(Pimpact::F::U, 3); i<space->ei(Pimpact::F::U, 3); ++i) {
+	//for(OT i=grid->si(Pimpact::F::U, 3); i<grid->ei(Pimpact::F::U, 3); ++i) {
 		//wind->getVField()(i)(Pimpact::F::U).initField(Pimpact::ConstField, 2.);
 		//wind->getVField()(i)(Pimpact::F::V).initField(Pimpact::ConstField, 2.);
 		//wind->getVField()(i)(Pimpact::F::W).initField(Pimpact::ConstField, 2.);
@@ -874,9 +874,9 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOp) {
 
 TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOpDT) {
 
-	using OpT = Pimpact::TimeNSOp<SpaceT>;
+	using OpT = Pimpact::TimeNSOp<GridT>;
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
 	double pi = 4.*std::atan(1.);
 
@@ -888,16 +888,16 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOpDT) {
 
 		pl->set("nf", int(std::pow(2, q)));
 
-		auto space = Pimpact::create<SpaceT>(pl);
+		auto grid = Pimpact::create<GridT>(pl);
 
 
-		auto field = Pimpact::create<typename OpT::DomainFieldT>(space);
-		auto field1 = Pimpact::create<typename OpT::RangeFieldT>(space);
-		auto field2 = Pimpact::create<typename OpT::RangeFieldT>(space);
+		auto field = Pimpact::create<typename OpT::DomainFieldT>(grid);
+		auto field1 = Pimpact::create<typename OpT::RangeFieldT>(grid);
+		auto field2 = Pimpact::create<typename OpT::RangeFieldT>(grid);
 
 
 		// op test
-		auto dt = Pimpact::create<OpT>(space);
+		auto dt = Pimpact::create<OpT>(grid);
 
 		// zero test
 		Pimpact::initVectorTimeField(field1->getVField(), Pimpact::Const2DFlow, 1., 1., 1.);
@@ -916,7 +916,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOpDT) {
 		dt->apply(*field, *field1);
 		dt->apply(*field1, *field2);
 
-		ST a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+		ST a2 = grid->getDomainSize()->getAlpha2()/grid->getDomainSize()->getRe();
 
 		ST bla = a2*a2;
 
@@ -928,7 +928,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOpDT) {
 		std::cout <<"error: " <<field()->norm() <<"\n";
 
 		error[q-3] = std::log(field()->norm()); 
-		idt[q-3]   = std::log(((double)space->nGlo()[3])/2./pi);
+		idt[q-3]   = std::log(((double)grid->nGlo()[3])/2./pi);
 
 	}
 
@@ -945,7 +945,7 @@ TEUCHOS_UNIT_TEST(TimeOperator, TimeNSOpDT) {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TimeOperator, TimeDtConvectionDiffusionOp2, OpT) {
 
-	using SpT = typename OpT::SpaceT;
+	using SpT = typename OpT::GridT;
 
 	pl->set<bool>("spectral in time", false);
 
@@ -982,23 +982,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TimeOperator, TimeDtConvectionDiffusionOp2, Op
 			// grid stretching
 			setStretching();
 
-			Teuchos::RCP<const SpT> space = Pimpact::create<SpT>(pl);
-			//std::cout <<"re: " <<space->getDomainSize()->getRe() <<"\n";
+			Teuchos::RCP<const SpT> grid = Pimpact::create<SpT>(pl);
+			//std::cout <<"re: " <<grid->getDomainSize()->getRe() <<"\n";
 			//std::cout <<"re: " <<re <<"\n";
-			//std::cout <<"alpha: " <<space->getDomainSize()->getAlpha2() <<"\n";
+			//std::cout <<"alpha: " <<grid->getDomainSize()->getAlpha2() <<"\n";
 			//std::cout <<"alpha: " <<alpha2 <<"\n";
 
-			Pimpact::TimeField<Pimpact::VectorField<SpT> > x(space);
-			Pimpact::TimeField<Pimpact::VectorField<SpT> > y(space);
-			Pimpact::TimeField<Pimpact::VectorField<SpT> > sol(space);
-			Pimpact::TimeField<Pimpact::VectorField<SpT> > err(space);
+			Pimpact::TimeField<Pimpact::VectorField<SpT> > x(grid);
+			Pimpact::TimeField<Pimpact::VectorField<SpT> > y(grid);
+			Pimpact::TimeField<Pimpact::VectorField<SpT> > sol(grid);
+			Pimpact::TimeField<Pimpact::VectorField<SpT> > err(grid);
 
-			auto op = Pimpact::create<OpT>(space);
+			auto op = Pimpact::create<OpT>(grid);
 
 			// initializtion
 			//std::cout <<"\n";
-			for(OT i=space->si(Pimpact::F::U, 3); i<=space->ei(Pimpact::F::U, 3); ++i) {
-				ST time = space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
+			for(OT i=grid->si(Pimpact::F::U, 3); i<=grid->ei(Pimpact::F::U, 3); ++i) {
+				ST time = grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
 				ST stime = std::sin(time);
 				//std::cout <<i <<"\t" <<time <<"\t" <<stime <<"\n";
 				x(i)(Pimpact::F::U).initFromFunction(
@@ -1011,19 +1011,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TimeOperator, TimeDtConvectionDiffusionOp2, Op
 
 
 			// solution init
-			for(OT i=space->si(Pimpact::F::U, 3); i<=space->ei(Pimpact::F::U, 3); ++i) {
-				ST time = (space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i-1) + space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i))/2./*-space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, 1)/2.*/;
+			for(OT i=grid->si(Pimpact::F::U, 3); i<=grid->ei(Pimpact::F::U, 3); ++i) {
+				ST time = (grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i-1) + grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i))/2./*-grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, 1)/2.*/;
 				ST stime = std::sin(time);
 				ST s2time = std::pow(stime, 2);
 				ST ctime = std::cos(time);
 				sol(i)(Pimpact::F::U).initFromFunction(
 						[=](ST x, ST y, ST z) ->ST {
-						if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-							( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-							( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-							( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-							( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-							( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+						if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+							( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+							( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+							( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+							( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+							( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 							return(A*std::cos(a*pi2*std::min(std::max(x, 0.), 1.))*std::sin(b*pi2*y)*stime);
 						else
 							return(
@@ -1033,12 +1033,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TimeOperator, TimeDtConvectionDiffusionOp2, Op
 
 				sol(i)(Pimpact::F::V).initFromFunction(
 						[=](ST x, ST y, ST z) ->ST {
-						if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-							( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-							( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-							( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-							( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-							( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+						if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+							( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+							( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+							( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+							( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+							( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 							return(B*std::sin(a*pi2*x)*std::cos(b*pi2*std::max(std::min(y, 1.), 0.))*stime);
 						else
 							return(
@@ -1080,8 +1080,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TimeOperator, TimeDtConvectionDiffusionOp2, Op
 				std::cout <<"\n--- err ---\n";
 				err.print();
 			}
-			//for(OT i=space->si(Pimpact::F::U, 3); i<=space->ei(Pimpact::F::U, 3); ++i) {
-				//std::cout <<"err(" <<space->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i) <<"): " <<err(i).norm() <<"\n";
+			//for(OT i=grid->si(Pimpact::F::U, 3); i<=grid->ei(Pimpact::F::U, 3); ++i) {
+				//std::cout <<"err(" <<grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i) <<"): " <<err(i).norm() <<"\n";
 			//}
 
 			error2(nX, nT)   = err.norm()/sol.norm();

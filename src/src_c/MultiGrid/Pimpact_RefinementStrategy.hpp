@@ -6,7 +6,7 @@
 #include "Teuchos_Array.hpp"
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 
 
 
@@ -16,35 +16,35 @@ namespace Pimpact {
 
 
 /// \brief simple refinement
-template<class SpaceT>
+template<class GridT>
 class RefinementStrategy {
 
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
-  /// should be same for finest space and coarse spaces
-  static const int sdim = SpaceT::sdim;
-  static const int dimension = SpaceT::dimension;
+  /// should be same for finest grid and coarse grids
+  static const int sdim = GridT::sdim;
+  static const int dimension = GridT::dimension;
 
-  static const int dimNC = SpaceT::dimNC;
+  static const int dimNC = GridT::dimNC;
 
   using TO = typename Teuchos::Tuple<Ordinal, dimension>;
 
 public:
 
-  static Teuchos::RCP<const SpaceT > createRefinedSpace(
-    const Teuchos::RCP<const SpaceT>& space,
+  static Teuchos::RCP<const GridT > createRefinedGrid(
+    const Teuchos::RCP<const GridT>& grid,
     const Teuchos::Tuple<int, 4>& refine_dir) {
 
-    auto stencilWidths = space->getStencilWidths();
+    auto stencilWidths = grid->getStencilWidths();
 
-    auto domainSize = space->getDomainSize();
-    auto boundaryConditionsGlobal = space->getBCGlobal();
-    auto boundaryConditionsLocal = space->getBCLocal();
+    auto domainSize = grid->getDomainSize();
+    auto boundaryConditionsGlobal = grid->getBCGlobal();
+    auto boundaryConditionsLocal = grid->getBCLocal();
 
     // refine global gridsize
-    Teuchos::Tuple<Ordinal, 4> gridSizeGlobalTup = *space->getGridSizeGlobal();
+    Teuchos::Tuple<Ordinal, 4> gridSizeGlobalTup = *grid->getGridSizeGlobal();
 
     for(int i=0; i<3; ++i)
       if(refine_dir[i])
@@ -54,7 +54,7 @@ public:
 
     auto gridSizeGlobal = createGridSizeGlobal<Ordinal, sdim>(gridSizeGlobalTup);
 
-    auto procGrid = space->getProcGrid();
+    auto procGrid = grid->getProcGrid();
 
     auto gridSizeLocal =
       Pimpact::createGridSizeLocal<Ordinal, sdim, dimension, dimNC>(
@@ -73,7 +73,7 @@ public:
       Pimpact::createCoordinatesGlobal<Scalar, Ordinal, sdim, dimension>(
         gridSizeGlobal,
         domainSize,
-        space->getCoordinatesGlobal()->getStretchParameter());
+        grid->getCoordinatesGlobal()->getStretchParameter());
 
     auto coordLocal = Pimpact::createCoordinatesLocal<Scalar, Ordinal, sdim, dimension>(
                         stencilWidths,
@@ -95,7 +95,7 @@ public:
         coordLocal);
 
     return Teuchos::rcp(
-        new SpaceT(
+        new GridT(
           stencilWidths,
           indexSpace,
           gridSizeGlobal,

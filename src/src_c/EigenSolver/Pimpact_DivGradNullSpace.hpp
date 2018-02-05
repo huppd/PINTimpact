@@ -13,7 +13,7 @@
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_Space.hpp" // just for createOstream<>
+#include "Pimpact_Grid.hpp" // just for createOstream<>
 
 
 
@@ -29,13 +29,13 @@ class DivGradNullSpace {
 
 protected:
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
-  using Scalar  = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar  = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
-  static const int dimNC = SpaceT::dimNC;
-  static const int dim = SpaceT::dimension;
+  static const int dimNC = GridT::dimNC;
+  static const int dim = GridT::dimension;
 
   using SW = StencilWidths<dim, dimNC>;
 
@@ -54,27 +54,27 @@ public:
   /// \todo think about changing BC solver to proper one (inner field, setting last component one and move it to the rhs)
   void computeNullSpace(const Teuchos::RCP<const OperatorT>& div, RangeFieldT& y, const bool DJG_yes = true)  {
 
-    Teuchos::RCP<const SpaceT> space = div->space();
+    Teuchos::RCP<const GridT> grid = div->grid();
 
-    Teuchos::Tuple<Teuchos::RCP<VectorT>, SpaceT::sdim > x_ ;
+    Teuchos::Tuple<Teuchos::RCP<VectorT>, GridT::sdim > x_ ;
 
-    for(int dir=0; dir<SpaceT::sdim; ++dir) {
-      const Ordinal N = space->nGlo(dir);
+    for(int dir=0; dir<GridT::sdim; ++dir) {
+      const Ordinal N = grid->nGlo(dir);
       x_[dir] = Teuchos::rcp(new VectorT(N));
 
-      if(-1==space->getBCGlobal()->getBCL(dir)) {
+      if(-1==grid->getBCGlobal()->getBCL(dir)) {
         *x_[dir] = 1.;
       } else {
         // global stencil
-        Ordinal nTempG = (space->nGlo(dir) + space->bu(dir) - space->bl(dir) + 1)
-                         *(space->bu(dir) - space->bl(dir) + 1);
+        Ordinal nTempG = (grid->nGlo(dir) + grid->bu(dir) - grid->bl(dir) + 1)
+                         *(grid->bu(dir) - grid->bl(dir) + 1);
 
-        Stenc cG1(space->nGlo(dir) + space->bu(dir));
-        Stenc cG2(space->nGlo(dir) + space->bu(dir));
+        Stenc cG1(grid->nGlo(dir) + grid->bu(dir));
+        Stenc cG2(grid->nGlo(dir) + grid->bu(dir));
 
-        for(Ordinal i = space->si(F::S, dir); i<=space->ei(F::S, dir); ++i)
-          for(Ordinal ii = space->dl(dir); ii<=space->du(dir); ++ii)
-            cG1(i+space->getShift(dir), ii)= div->getC(static_cast<ECoord>(dir), i, ii);
+        for(Ordinal i = grid->si(F::S, dir); i<=grid->ei(F::S, dir); ++i)
+          for(Ordinal ii = grid->dl(dir); ii<=grid->du(dir); ++ii)
+            cG1(i+grid->getShift(dir), ii)= div->getC(static_cast<ECoord>(dir), i, ii);
 
         /// \todo Allgather would be better
         MPI_Allreduce(
@@ -83,14 +83,14 @@ public:
           nTempG,			                              // int count,
           MPI_REAL8,	                              // MPI_Datatype datatype,
           MPI_SUM,		                              // MPI_Op op,
-          space->getProcGrid()->getCommBar(dir));	// MPI_Comm comm)
+          grid->getProcGrid()->getCommBar(dir));	// MPI_Comm comm)
 
 
         // generate global Div Stencil(copy from transposed stencil)
         // generate Matrix
         Teuchos::RCP<MatrixT> Dtrans = Teuchos::rcp(new MatrixT(N+1, N, true));
         for(Ordinal i=0; i<=N; ++i) {
-          for(int ii=space->gl(dir); ii<=space->gu(dir); ++ii) {
+          for(int ii=grid->gl(dir); ii<=grid->gu(dir); ++ii) {
             if(0<=i+ii-1 && i+ii-1<N)
               (*Dtrans)(i, i+ii-1) = cG2(i+ii, -ii);
           }
@@ -99,34 +99,34 @@ public:
         // generate RHS
         Teuchos::RCP<VectorT> b = Teuchos::rcp(new VectorT(N + 1, true));
 
-        if(space->getBCGlobal()->getBCL(dir)>0) {
+        if(grid->getBCGlobal()->getBCL(dir)>0) {
           if(DJG_yes) {
 
-            for(int ii=-1; ii<=space->du(dir); ++ii)
-              (*b)(ii+1) = -space->getInterpolateV2S()->getC(static_cast<Pimpact::ECoord>(dir), 1, ii);
+            for(int ii=-1; ii<=grid->du(dir); ++ii)
+              (*b)(ii+1) = -grid->getInterpolateV2S()->getC(static_cast<Pimpact::ECoord>(dir), 1, ii);
 
             MPI_Bcast(
               &(*b)(0),																	// void* data,
-              space->du(dir)+2,													// int count,
+              grid->du(dir)+2,													// int count,
               MPI_DOUBLE,																// MPI_Datatype datatype,
               0,																				// int root,
-              space->getProcGrid()->getCommBar(dir));	// MPI_Comm comm)
+              grid->getProcGrid()->getCommBar(dir));	// MPI_Comm comm)
           } else
             (*b)(0) = -1.;
         }
 
-        if(space->getBCGlobal()->getBCU(dir)>0) {
+        if(grid->getBCGlobal()->getBCU(dir)>0) {
           if(DJG_yes) {
 
-            for(int ii=space->dl(dir); ii<=0; ++ii)
-              (*b)(N+ii) = space->getInterpolateV2S()->getC(static_cast<Pimpact::ECoord>(dir), space->ei(F::S, dir), ii);
+            for(int ii=grid->dl(dir); ii<=0; ++ii)
+              (*b)(N+ii) = grid->getInterpolateV2S()->getC(static_cast<Pimpact::ECoord>(dir), grid->ei(F::S, dir), ii);
 
             MPI_Bcast(
               &(*b)(N-3),																//void* data,
-              1-space->dl(dir),													//int count,
+              1-grid->dl(dir),													//int count,
               MPI_DOUBLE,																//MPI_Datatype datatype,
-              space->getProcGrid()->getNP(dir)-1,				//int root,
-              space->getProcGrid()->getCommBar(dir));	// MPI_Comm comm)
+              grid->getProcGrid()->getNP(dir)-1,				//int root,
+              grid->getProcGrid()->getCommBar(dir));	// MPI_Comm comm)
           } else
             (*b)(N) = 1.;
         }
@@ -138,7 +138,7 @@ public:
         solv.setVectors(x_[dir], b);
         solv.solve();
         // solve with QRU
-        if(0==space->rankST()) {
+        if(0==grid->rankST()) {
           //std::cout <<"dir: " <<dir <<"\n";
           //std::cout <<std::scientific;
           //std::cout <<std::setprecision(std::numeric_limits<long double>::digits10 + 1);
@@ -149,17 +149,17 @@ public:
         }
       }
     }
-    if(3==SpaceT::sdim) {
-      for(Ordinal k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-        for(Ordinal j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-          for(Ordinal i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
-            y(i, j, k) = (*x_[0])(i-1+space->getShift(0))* (*x_[1])(j-1+space->getShift(1))* (*x_[2])(k-1+space->getShift(2));
+    if(3==GridT::sdim) {
+      for(Ordinal k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+        for(Ordinal j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+          for(Ordinal i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
+            y(i, j, k) = (*x_[0])(i-1+grid->getShift(0))* (*x_[1])(j-1+grid->getShift(1))* (*x_[2])(k-1+grid->getShift(2));
           }
     } else {
-      for(Ordinal k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-        for(Ordinal j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-          for(Ordinal i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i)
-            y(i, j, k) = (*x_[0])(i-1+space->getShift(0))* (*x_[1])(j-1+space->getShift(1));
+      for(Ordinal k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+        for(Ordinal j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+          for(Ordinal i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i)
+            y(i, j, k) = (*x_[0])(i-1+grid->getShift(0))* (*x_[1])(j-1+grid->getShift(1));
     }
     //Scalar blup = std::sqrt(1./y.dot(y));
     //y.scale(blup);

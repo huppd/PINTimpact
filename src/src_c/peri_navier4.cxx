@@ -25,7 +25,7 @@
 #include "NOX_Pimpact_Vector.hpp"
 
 #include "Pimpact_Utils.hpp"
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_Operator.hpp"
@@ -61,35 +61,35 @@
 using S = double;
 using O = int;
 
-using SpaceT = Pimpact::Space<S, O, 3, 4, 4>;
-using CSpaceT = Pimpact::Space<S, O, 3, 4, 2>;
+using GridT = Pimpact::Grid<S, O, 3, 4, 4>;
+using CGridT = Pimpact::Grid<S, O, 3, 4, 2>;
 
-template<class SpaceT> using CVF =
+template<class GridT> using CVF =
   Pimpact::CompoundField<
-  Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
-  Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
+  Pimpact::TimeField<Pimpact::VectorField<GridT> >,
+  Pimpact::TimeField<Pimpact::ScalarField<GridT> > >;
 
-template<class SpaceT> using INT = Pimpact::IntResCompoundOp<
-                                   Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
-                                   Pimpact::InterpolationTimeOp<                          Pimpact::InterpolationOp<SpaceT> > >;
+template<class GridT> using INT = Pimpact::IntResCompoundOp<
+                                   Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<GridT> > >,
+                                   Pimpact::InterpolationTimeOp<                          Pimpact::InterpolationOp<GridT> > >;
 
-template<class SpaceT> using RES = Pimpact::IntResCompoundOp<
-                                   Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<SpaceT> > >,
-                                   Pimpact::RestrictionTimeOp<                          Pimpact::RestrictionSFOp<SpaceT> > >;
+template<class GridT> using RES = Pimpact::IntResCompoundOp<
+                                   Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<GridT> > >,
+                                   Pimpact::RestrictionTimeOp<                          Pimpact::RestrictionSFOp<GridT> > >;
 
-template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
-    Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
-    Pimpact::TransferTimeOp<                          Pimpact::TransferOp<SpaceT1, SpaceT2> > >;
+template<class GridT1, class GridT2> using TCO = Pimpact::TransferCompoundOp<
+    Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<GridT1, GridT2> > >,
+    Pimpact::TransferTimeOp<                          Pimpact::TransferOp<GridT1, GridT2> > >;
 
 template<class T> using MOP = Pimpact::InverseOp<T>;
 
 
 
-using CS4L = Pimpact::CoarsenStrategy<SpaceT, CSpaceT>;
-using CS4G = Pimpact::CoarsenStrategyGlobal<SpaceT, CSpaceT, 5>;
+using CS4L = Pimpact::CoarsenStrategy<GridT, CGridT>;
+using CS4G = Pimpact::CoarsenStrategyGlobal<GridT, CGridT, 5>;
 
-using VF = Pimpact::TimeField<Pimpact::VectorField<SpaceT> >;
-using SF = Pimpact::TimeField<Pimpact::ScalarField<SpaceT> >;
+using VF = Pimpact::TimeField<Pimpact::VectorField<GridT> >;
+using SF = Pimpact::TimeField<Pimpact::ScalarField<GridT> >;
 using CF = Pimpact::CompoundField<VF, SF>;
 
 using MF = Pimpact::MultiField<CF>;
@@ -256,9 +256,9 @@ int main(int argi, char** argv) {
   pl->set("npz", np3);
   pl->set("npf", np4);
 
-  auto space = Pimpact::create<Pimpact::Space<S, O, 3, 4, 4> >(pl);
-  //  space->print();
-  int rank = space->getProcGrid()->getRank();
+  auto grid = Pimpact::create<Pimpact::Grid<S, O, 3, 4, 4> >(pl);
+  //  grid->print();
+  int rank = grid->getProcGrid()->getRank();
 
   // outputs
   Teuchos::RCP<std::ostream> outPar;
@@ -281,7 +281,7 @@ int main(int argi, char** argv) {
   *outPar <<" \tforce=" <<forcing <<"\n";
   *outPar <<" \tdomain=" <<domain <<"\n";
 
-  // init space
+  // init grid
 
 
   if(rank==0) {
@@ -292,7 +292,7 @@ int main(int argi, char** argv) {
 
 
   // init vectors
-  auto x = Pimpact::wrapMultiField(Pimpact::create<CF>(space));
+  auto x = Pimpact::wrapMultiField(Pimpact::create<CF>(grid));
 
 
   // init Fields, init and rhs
@@ -346,13 +346,13 @@ int main(int argi, char** argv) {
     forcingm1Op = Pimpact::createForcingOp(forcem1);
   }
 
-  auto op = Pimpact::create<Pimpact::TimeNSOp<SpaceT> >(space);
+  auto op = Pimpact::create<Pimpact::TimeNSOp<GridT> >(grid);
 
 
   Teuchos::RCP<BOp> jop;
   {
 
-    auto mgSpaces = Pimpact::createMGSpaces<CS4L>(space, 10);
+    auto mgGrids = Pimpact::createMGGrids<CS4L>(grid, 10);
 
     auto mgPL = Teuchos::parameterList();
     mgPL->sublist("Smoother").set<std::string>("Solver name", "GMRES");
@@ -376,7 +376,7 @@ int main(int argi, char** argv) {
       Pimpact::TimeNS4DBSmoother,
       //									Pimpact::TimeStokesBSmoother
       MOP
-        > (mgSpaces, op, mgPL);
+        > (mgGrids, op, mgPL);
 
 
     jop = Pimpact::createMultiOperatorBase(mg) ;

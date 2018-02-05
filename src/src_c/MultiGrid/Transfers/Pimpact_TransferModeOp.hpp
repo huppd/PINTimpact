@@ -22,32 +22,32 @@ class TransferModeOp {
 
 public:
 
-  using FSpaceT = typename InterT::FSpaceT;
-  using CSpaceT = typename InterT::CSpaceT;
+  using FGridT = typename InterT::FGridT;
+  using CGridT = typename InterT::CGridT;
 
-  using SpaceT = typename InterT::SpaceT;
+  using GridT = typename InterT::GridT;
 
   using DomainFieldT = ModeField<typename InterT::DomainFieldT>;
   using RangeFieldT = ModeField<typename InterT::RangeFieldT>;
 
 protected:
 
-  using OT = typename SpaceT::Ordinal;
+  using OT = typename GridT::Ordinal;
 
   Teuchos::RCP<InterT> op_;
 
 public:
 
   TransferModeOp(
-    const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF):
-    op_(Teuchos::rcp(new InterT(spaceC, spaceF))) {}
+    const Teuchos::RCP<const FGridT>& gridC,
+    const Teuchos::RCP<const CGridT>& gridF):
+    op_(Teuchos::rcp(new InterT(gridC, gridF))) {}
 
   TransferModeOp(
-    const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF,
-    const Teuchos::Tuple<int, SpaceT::dimension>& nb):
-    op_(Teuchos::rcp(new InterT(spaceC, spaceF, nb))) {}
+    const Teuchos::RCP<const FGridT>& gridC,
+    const Teuchos::RCP<const CGridT>& gridF,
+    const Teuchos::Tuple<int, GridT::dimension>& nb):
+    op_(Teuchos::rcp(new InterT(gridC, gridF, nb))) {}
 
 
 

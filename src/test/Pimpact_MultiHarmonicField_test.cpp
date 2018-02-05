@@ -23,9 +23,9 @@ const int sd = 3;
 const int d = 4;
 const int dNC = 4;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, d, dNC>;
-using SF = typename Pimpact::ScalarField<SpaceT>;
-using VF = typename Pimpact::VectorField<SpaceT>;
+using GridT = Pimpact::Grid<ST, OT, sd, d, dNC>;
+using SF = typename Pimpact::ScalarField<GridT>;
+using VF = typename Pimpact::VectorField<GridT>;
 
 bool testMpi = true;
 bool global = true;
@@ -105,9 +105,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, constructor, FType) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-  auto field = Pimpact::createMultiHarmonic<FType>(space,
+  auto field = Pimpact::createMultiHarmonic<FType>(grid,
       static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global));
 }
 
@@ -133,9 +133,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, clone, FType) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto field = Pimpact::createMultiHarmonic<FType>(space,
+	auto field = Pimpact::createMultiHarmonic<FType>(grid,
       static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global));
 
 	auto field2 = field->clone();
@@ -162,9 +162,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, InfNorm, FType) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto field = Pimpact::createMultiHarmonic<FType>(space,
+	auto field = Pimpact::createMultiHarmonic<FType>(grid,
       static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global));
 
 	ST norm;
@@ -177,10 +177,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, InfNorm, FType) {
 	}
 
 	// one test with infty-norm
-	int rank = space->rankST();
+	int rank = grid->rankST();
 	ST init;
 	int size;
-	MPI_Comm_size(space->commST(), &size);
+	MPI_Comm_size(grid->commST(), &size);
 	for(ST i = 0.; i<200.1; i+=10.5) {
 		init = (size-1)*i-1.;
 		init = std::abs(init);
@@ -212,9 +212,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, InitTwoNorm, FType) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto field = Pimpact::createMultiHarmonic<FType>(space,
+	auto field = Pimpact::createMultiHarmonic<FType>(grid,
       static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global));
 
 	int N = field->getLength();
@@ -247,9 +247,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, dot, FType) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto field1 = Pimpact::createMultiHarmonic<FType>(space,
+	auto field1 = Pimpact::createMultiHarmonic<FType>(grid,
       static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global));
 
 	auto field2 = field1->clone();
@@ -303,9 +303,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, scale, FType) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto field = Pimpact::createMultiHarmonic<FType>(space,
+	auto field = Pimpact::createMultiHarmonic<FType>(grid,
       static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global));
 
 	int N = field->getLength();
@@ -339,9 +339,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, random, FType) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto field = Pimpact::createMultiHarmonic<FType>(space,
+	auto field = Pimpact::createMultiHarmonic<FType>(grid,
       static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global));
 
 	int N = field->getLength();
@@ -375,9 +375,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, add, FType) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto field1 = Pimpact::createMultiHarmonic<FType>(space,
+	auto field1 = Pimpact::createMultiHarmonic<FType>(grid,
       static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global));
 	auto field2 = field1->clone();
 	auto field3 = field1->clone();
@@ -436,14 +436,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonic, exchange, FType) {
 	pl->set("npf", npf);
 
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto field = Pimpact::createMultiHarmonic<FType>(space, Pimpact::MultiHarmonicField<FType>::Global::Y);
+	auto field = Pimpact::createMultiHarmonic<FType>(grid, Pimpact::MultiHarmonicField<FType>::Global::Y);
 
-	if(space->si(Pimpact::F::U, 3)<=0)
+	if(grid->si(Pimpact::F::U, 3)<=0)
 		field->get0Field().init(1.);
 
-	for(OT i=std::max(space->si(Pimpact::F::U, 3), 1); i<=space->ei(Pimpact::F::U, 3); ++i)
+	for(OT i=std::max(grid->si(Pimpact::F::U, 3), 1); i<=grid->ei(Pimpact::F::U, 3); ++i)
 		field->getField(i).init(i+1.);
 
 	field->changed();
@@ -451,7 +451,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonic, exchange, FType) {
 
 	TEST_FLOATING_EQUALITY(field->get0Field().normLoc(Pimpact::ENorm::Inf), 1., eps);
 
-	for(OT i=1; i<=space->nGlo(3); ++i)
+	for(OT i=1; i<=grid->nGlo(3); ++i)
 		TEST_FLOATING_EQUALITY(field->getField(i).normLoc(Pimpact::ENorm::Inf), static_cast<ST>(i)+1., eps);
 
 }
@@ -478,9 +478,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicField, write, FType) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	auto space = Pimpact::create<SpaceT>(pl);
+	auto grid = Pimpact::create<GridT>(pl);
 
-	auto field = Pimpact::createMultiHarmonic<FType>(space,
+	auto field = Pimpact::createMultiHarmonic<FType>(grid,
       static_cast<typename Pimpact::MultiHarmonicField<FType>::Global>(global));
 
 	field->init(1.);

@@ -28,20 +28,20 @@ namespace Pimpact {
 /// \todo use attributes methods in vectorspace functions???
 /// \todo rm RCP, therefore make move constructor
 template<class VField, class SField>
-class CompoundField : private AbstractField<typename VField::SpaceT> {
+class CompoundField : private AbstractField<typename VField::GridT> {
 
 public:
 
-  using SpaceT = typename VField::SpaceT;
+  using GridT = typename VField::GridT;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT =typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT =typename GridT::Ordinal;
 
   using ScalarArray =  ST*;
 
-  using AF = AbstractField<SpaceT>;
+  using AF = AbstractField<GridT>;
 
   const Owning owning_;
 
@@ -75,11 +75,11 @@ public:
   }
 
 
-  CompoundField(const Teuchos::RCP<const SpaceT>& space, const Owning owning=Owning::Y):
-    AF(space),
+  CompoundField(const Teuchos::RCP<const GridT>& grid, const Owning owning=Owning::Y):
+    AF(grid),
     owning_(owning),
-    vfield_(space, Owning::N),
-    sfield_(space, Owning::N) {
+    vfield_(grid, Owning::N),
+    sfield_(grid, Owning::N) {
 
     if(owning_==Owning::Y) allocate();
   };
@@ -91,7 +91,7 @@ public:
   /// \param field
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
   CompoundField(const CompoundField& field, const ECopy copyType=ECopy::Deep):
-    AF(field.space()),
+    AF(field.grid()),
     owning_(field.owning_),
     vfield_(field.vfield_, copyType),
     sfield_(field.sfield_, copyType) {
@@ -117,7 +117,7 @@ public:
   
   Teuchos::RCP<CompoundField> clone(const ECopy ctype=ECopy::Deep) const {
 
-    Teuchos::RCP<CompoundField> mv = Teuchos::rcp(new CompoundField(space()));
+    Teuchos::RCP<CompoundField> mv = Teuchos::rcp(new CompoundField(grid()));
 
     switch(ctype) {
       case ECopy::Shallow:
@@ -147,8 +147,8 @@ public:
     return sfield_;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return AF::space_;
+  constexpr const Teuchos::RCP<const GridT>& grid() {
+    return AF::grid_;
   }
 
   constexpr const MPI_Comm& comm() {
@@ -175,7 +175,7 @@ public:
   void add(const ST alpha, const CompoundField& a, const ST beta, const CompoundField& b,
       const B wb=B::Y) {
 
-    // add test for consistent VectorSpaces in debug mode
+    // add test for consistent Grids in debug mode
     vfield_.add(alpha, a.vfield_, beta, b.vfield_, wb);
     sfield_.add(alpha, a.sfield_, beta, b.sfield_, wb);
   }

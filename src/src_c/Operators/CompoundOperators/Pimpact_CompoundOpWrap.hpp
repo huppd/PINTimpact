@@ -31,7 +31,7 @@ public:
   using DomainFieldT = CompoundField<VF, SF>;
   using RangeFieldT = CompoundField<VF, SF>;
 
-  using SpaceT = typename VF::SpaceT;
+  using GridT = typename VF::GridT;
 
 protected:
 
@@ -41,10 +41,10 @@ protected:
 
 public:
 
-  CompoundOpWrap(const Teuchos::RCP<const SpaceT>& space):
-    opV2V_(create<OpV2V>(space)),
-    opS2V_(create<OpS2V>(space)),
-    opV2S_(create<OpV2S>(space)) {};
+  CompoundOpWrap(const Teuchos::RCP<const GridT>& grid):
+    opV2V_(create<OpV2V>(grid)),
+    opS2V_(create<OpS2V>(grid)),
+    opV2S_(create<OpV2S>(grid)) {};
 
   CompoundOpWrap(
     const Teuchos::RCP<OpV2V>& opV2V,
@@ -77,8 +77,8 @@ public:
   };
 
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return opV2V_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return opV2V_->grid();
   };
 
 

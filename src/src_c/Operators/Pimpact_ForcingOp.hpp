@@ -23,11 +23,11 @@ public:
   using DomainFieldT = Field;
   using RangeFieldT = Field;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
+  using Scalar = typename GridT::Scalar;
 
   Teuchos::RCP<DomainFieldT> forcing_;
   Scalar mul_;
@@ -54,8 +54,8 @@ public:
     y.scale(*forcing_);
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return forcing_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return forcing_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
@@ -81,7 +81,7 @@ public:
 /// \relates ForcingOp
 template<class F>
 Teuchos::RCP<ForcingOp<F> > createForcingOp(
-    const Teuchos::RCP<F>& forcing, typename F::SpaceT::Scalar mul=1.) {
+    const Teuchos::RCP<F>& forcing, typename F::GridT::Scalar mul=1.) {
 
   return Teuchos::rcp(new ForcingOp<F>(forcing, mul));
 }

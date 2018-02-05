@@ -29,21 +29,21 @@ namespace Pimpact {
 /// \brief important basic Vector class  it wraps three ScalarFields.
 /// \ingroup Field
 /// \relates ScalarField
-template<class SpaceType>
-class VectorField : protected AbstractField<SpaceType> {
+template<class GridType>
+class VectorField : protected AbstractField<GridType> {
 
 public:
 
-  using SpaceT = SpaceType;
+  using GridT = GridType;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
   using ScalarArray = ST*;
 
-  using SF = ScalarField<SpaceT>;
+  using SF = ScalarField<GridT>;
 
   ScalarArray s_;
 
@@ -59,13 +59,13 @@ protected:
 
 public:
 
-  VectorField(const Teuchos::RCP<const SpaceT>& space, const Owning owning=Owning::Y):
-    AbstractField<SpaceT>(space),
+  VectorField(const Teuchos::RCP<const GridT>& grid, const Owning owning=Owning::Y):
+    AbstractField<GridT>(grid),
     owning_(owning),
     sFields_{
-      {space, Owning::N, F::U},
-      {space, Owning::N, F::V},
-      {space, Owning::N, F::W} } {
+      {grid, Owning::N, F::U},
+      {grid, Owning::N, F::V},
+      {grid, Owning::N, F::W} } {
 
     if(owning_==Owning::Y) allocate();
   };
@@ -77,7 +77,7 @@ public:
   /// \param vF
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
   VectorField(const VectorField& vF, const ECopy copyType=ECopy::Deep):
-    AbstractField<SpaceT>(vF.space()),
+    AbstractField<GridT>(vF.grid()),
     owning_(vF.owning_),
     sFields_{ {vF(F::U), copyType}, {vF(F::V), copyType}, {vF(F::W), copyType} } {
 
@@ -102,7 +102,7 @@ public:
 
   Teuchos::RCP<VectorField> clone(const ECopy copyType=ECopy::Deep) const {
 
-    Teuchos::RCP<VectorField> vf = Teuchos::rcp(new VectorField(space()));
+    Teuchos::RCP<VectorField> vf = Teuchos::rcp(new VectorField(grid()));
 
     switch(copyType) {
       case ECopy::Shallow:
@@ -128,7 +128,7 @@ public:
   /// \return vect length \f[= N_u+N_v+N_w\f]
   constexpr OT getLength() {
     OT n = 0;
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       n += at(i).getLength();
 
     return n;
@@ -145,8 +145,8 @@ public:
   void add(const ST alpha, const VectorField& a, const ST beta, const
             VectorField& b, const B wB=B::Y) {
 
-    // add test for consistent VectorSpaces in debug mode
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    // add test for consistent VectorGrids in debug mode
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).add(alpha, a(i), beta, b(i), wB);
 
     changed();
@@ -160,7 +160,7 @@ public:
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void abs(const VectorField& y, const B bcYes=B::Y) {
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).abs(y(i), bcYes);
     changed();
   }
@@ -172,8 +172,8 @@ public:
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1, \dots, n  \f]
   /// \return Reference to this object
   void reciprocal(const VectorField& y, const B bcYes=B::Y) {
-    // add test for consistent VectorSpaces in debug mode
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    // add test for consistent VectorGrids in debug mode
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).reciprocal(y(i), bcYes);
     changed();
   }
@@ -181,7 +181,7 @@ public:
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
   void scale(const ST alpha, const B bcYes=B::Y) {
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).scale(alpha, bcYes);
     changed();
   }
@@ -193,8 +193,8 @@ public:
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1, \dots, n \f]
   /// \return Reference to this object
   void scale(const VectorField& a, const B bcYes=B::Y) {
-    // add test for consistent VectorSpaces in debug mode
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    // add test for consistent VectorGrids in debug mode
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).scale(a(i), bcYes);
     changed();
   }
@@ -204,7 +204,7 @@ public:
   constexpr ST dotLoc (const VectorField& a, const B bcYes=B::Y) const {
     ST b = 0.;
 
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       b += at(i).dotLoc(a(i), bcYes);
 
     return b;
@@ -226,7 +226,7 @@ public:
 
     ST normvec = 0.;
 
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       normvec =
         (type==ENorm::Inf)?
         std::max(at(i).normLoc(type, bcYes), normvec):
@@ -259,7 +259,7 @@ public:
   constexpr ST normLoc(const VectorField& weights, const B bcYes=B::Y) const {
     ST normvec = 0.;
 
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       normvec += at(i).normLoc(weights(i), bcYes);
 
     return normvec;
@@ -287,7 +287,7 @@ public:
   /// Assign (deep copy) a into mv.
   VectorField& operator=(const VectorField& a) {
 
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i) = a(i);
 
     return *this;
@@ -300,7 +300,7 @@ public:
   /// seed => not save, if good randomness is required
   void random(bool useSeed=false, const B bcYes=B::Y, int seed=1) {
 
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).random(useSeed, bcYes, seed);
 
     changed();
@@ -308,7 +308,7 @@ public:
 
   /// \brief Replace each element of the vector  with \c alpha.
   void init(const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B bcYes=B::Y) {
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).init(alpha, bcYes);
     changed();
   }
@@ -404,7 +404,7 @@ public:
 
     switch(type) {
       case ZeroFlow : {
-        for(F i=F::U; i<SpaceT::sdim; ++i)
+        for(F i=F::U; i<GridT::sdim; ++i)
           if(Add::N==add) at(i).init();
         break;
       }
@@ -425,7 +425,7 @@ public:
         break;
       }
       case PoiseuilleFlow2D_inX : {
-        for(F i=F::U; i<SpaceT::sdim; ++i)
+        for(F i=F::U; i<GridT::sdim; ++i)
           if(F::U==i)
             at(i).initFromFunction(
                 [] (ST x, ST y, ST z)->ST { return 4.*y*(1.-y); },
@@ -434,7 +434,7 @@ public:
         break;
       }
       case PoiseuilleFlow2D_inY : {
-        for(F i=F::U; i<SpaceT::sdim; ++i)
+        for(F i=F::U; i<GridT::sdim; ++i)
           if(F::V==i)
             at(i).initFromFunction(
                 [] (ST x, ST y, ST z)->ST { return 4.*x*(1.-x); },
@@ -443,7 +443,7 @@ public:
         break;
       }
       case PoiseuilleFlow2D_inZ : {
-        for(F i=F::U; i<SpaceT::sdim; ++i)
+        for(F i=F::U; i<GridT::sdim; ++i)
           if(F::W==i)
             at(i).initFromFunction(
                 [] (ST x, ST y, ST z)->ST { return 4.*x*(1.-x); },
@@ -453,19 +453,19 @@ public:
       }
       case Pulsatile2D_inXC : {
         VF_init_2DPulsatileXC(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(1),
-            space()->getCoordinatesLocal()->getX(F::S, Y),
-            space()->getDomainSize()->getRe(),     // TODO: verify
-            space()->getDomainSize()->getAlpha2(), // TODO: verify
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(1),
+            grid()->getCoordinatesLocal()->getX(F::S, Y),
+            grid()->getDomainSize()->getRe(),     // TODO: verify
+            grid()->getDomainSize()->getAlpha2(), // TODO: verify
             para.get<ST>("px", 1.),          // TODO: verify
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
@@ -474,19 +474,19 @@ public:
       }
       case Pulsatile2D_inYC : {
         VF_init_2DPulsatileYC(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(0),
-            space()->getCoordinatesLocal()->getX(F::S, X),
-            space()->getDomainSize()->getRe(),     // TODO: verify
-            space()->getDomainSize()->getAlpha2(), // TODO: verify
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(0),
+            grid()->getCoordinatesLocal()->getX(F::S, X),
+            grid()->getDomainSize()->getRe(),     // TODO: verify
+            grid()->getDomainSize()->getAlpha2(), // TODO: verify
             para.get<ST>("px", 1.),          // TODO: verify
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
@@ -495,19 +495,19 @@ public:
       }
       case Pulsatile2D_inXS : {
         VF_init_2DPulsatileXS(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(1),
-            space()->getCoordinatesLocal()->getX(F::S, Y),
-            space()->getDomainSize()->getRe(),     // TODO: verify
-            space()->getDomainSize()->getAlpha2(), // TODO: verify
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(1),
+            grid()->getCoordinatesLocal()->getX(F::S, Y),
+            grid()->getDomainSize()->getRe(),     // TODO: verify
+            grid()->getDomainSize()->getAlpha2(), // TODO: verify
             para.get<ST>("px", 1.),          // TODO: verify
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
@@ -516,19 +516,19 @@ public:
       }
       case Pulsatile2D_inYS : {
         VF_init_2DPulsatileYS(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(0),
-            space()->getCoordinatesLocal()->getX(F::S, X),
-            space()->getDomainSize()->getRe(),     // TODO: verify
-            space()->getDomainSize()->getAlpha2(), // TODO: verify
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(0),
+            grid()->getCoordinatesLocal()->getX(F::S, X),
+            grid()->getDomainSize()->getRe(),     // TODO: verify
+            grid()->getDomainSize()->getAlpha2(), // TODO: verify
             para.get<ST>("px", 1.),          // TODO: verify
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
@@ -536,9 +536,9 @@ public:
         break;
       }
       case Streaming2DC : {
-        ST amp = space()->getDomainSize()->getRe();
+        ST amp = grid()->getDomainSize()->getRe();
         ST pi = 4.*std::atan(1.);
-        //ST L1 = space()->getDomainSize()->getSize(X);
+        //ST L1 = grid()->getDomainSize()->getSize(X);
         ST om = 2.*pi;
 
         if(Add::N==add) at(F::U).init();
@@ -550,10 +550,10 @@ public:
         break;
       }
       case Streaming2DS: {
-        //ST amp = space()->getDomainSize()->getRe();
+        //ST amp = grid()->getDomainSize()->getRe();
         ST amp = 1.;
         ST pi = 4.*std::atan(1.);
-        //ST L1 = space()->getDomainSize()->getSize(X);
+        //ST L1 = grid()->getDomainSize()->getSize(X);
         ST om = 2.*pi;
 
         if(Add::N==add) at(F::U).init();
@@ -578,20 +578,20 @@ public:
       }
       case RankineVortex2D : {
         VF_init_RankineVortex(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(),
-            space()->getCoordinatesLocal()->getX(F::S, X),
-            space()->getCoordinatesLocal()->getX(F::S, Y),
-            space()->getCoordinatesLocal()->getX(F::U, X),
-            space()->getCoordinatesLocal()->getX(F::V, Y),
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(),
+            grid()->getCoordinatesLocal()->getX(F::S, X),
+            grid()->getCoordinatesLocal()->getX(F::S, Y),
+            grid()->getCoordinatesLocal()->getX(F::U, X),
+            grid()->getCoordinatesLocal()->getX(F::V, Y),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -599,17 +599,17 @@ public:
       }
       case GaussianForcing1D : {
         VF_init_GaussianForcing1D(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(0),
-            space()->getCoordinatesLocal()->getX(F::U, X),
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(0),
+            grid()->getCoordinatesLocal()->getX(F::U, X),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -617,17 +617,17 @@ public:
       }
       case BoundaryFilter1D : {
         VF_init_BoundaryFilter1D(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(0),
-            space()->getCoordinatesLocal()->getX(F::U, X),
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(0),
+            grid()->getCoordinatesLocal()->getX(F::U, X),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -635,20 +635,20 @@ public:
       }
       case GaussianForcing2D : {
         VF_init_GaussianForcing2D(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(),
-            space()->getCoordinatesLocal()->getX(F::S, X),
-            space()->getCoordinatesLocal()->getX(F::S, Y),
-            space()->getCoordinatesLocal()->getX(F::U, X),
-            space()->getCoordinatesLocal()->getX(F::V, Y),
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(),
+            grid()->getCoordinatesLocal()->getX(F::S, X),
+            grid()->getCoordinatesLocal()->getX(F::S, Y),
+            grid()->getCoordinatesLocal()->getX(F::U, X),
+            grid()->getCoordinatesLocal()->getX(F::V, Y),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -656,20 +656,20 @@ public:
       }
       case BoundaryFilter2D : {
         VF_init_BoundaryFilter2D(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(),
-            space()->getCoordinatesLocal()->getX(F::S, X),
-            space()->getCoordinatesLocal()->getX(F::S, Y),
-            space()->getCoordinatesLocal()->getX(F::U, X),
-            space()->getCoordinatesLocal()->getX(F::V, Y),
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(),
+            grid()->getCoordinatesLocal()->getX(F::S, X),
+            grid()->getCoordinatesLocal()->getX(F::S, Y),
+            grid()->getCoordinatesLocal()->getX(F::U, X),
+            grid()->getCoordinatesLocal()->getX(F::V, Y),
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -677,19 +677,19 @@ public:
       }
       case VPoint2D : {
         VF_init_Vpoint(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getDomainSize()->getSize(),
-            space()->getCoordinatesLocal()->getX(F::U, X),
-            space()->getCoordinatesLocal()->getX(F::S, Y),
-            space()->getDomainSize()->getRe(),     // TODO: verify
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getDomainSize()->getSize(),
+            grid()->getCoordinatesLocal()->getX(F::U, X),
+            grid()->getCoordinatesLocal()->getX(F::S, Y),
+            grid()->getDomainSize()->getRe(),     // TODO: verify
             at(F::U).getRawPtr(),
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
@@ -697,20 +697,20 @@ public:
       }
       case Disc2D : {
         VF_init_Disc(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getCoordinatesLocal()->getX(F::S, X),
-            space()->getCoordinatesLocal()->getX(F::S, Y),
-            space()->getCoordinatesLocal()->getX(F::S, Z),
-            space()->getCoordinatesLocal()->getX(F::U, X),
-            space()->getCoordinatesLocal()->getX(F::V, Y),
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getCoordinatesLocal()->getX(F::S, X),
+            grid()->getCoordinatesLocal()->getX(F::S, Y),
+            grid()->getCoordinatesLocal()->getX(F::S, Z),
+            grid()->getCoordinatesLocal()->getX(F::U, X),
+            grid()->getCoordinatesLocal()->getX(F::V, Y),
             //re, om, px, sca,
             para.get<ST>("center x", 1.),
             para.get<ST>("center y", 1.),
@@ -723,17 +723,17 @@ public:
       }
       case RotationDisc2D : {
         VF_init_RotatingDisc(
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getCoordinatesLocal()->getX(F::S, X),
-            space()->getCoordinatesLocal()->getX(F::S, Y),
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getCoordinatesLocal()->getX(F::S, X),
+            grid()->getCoordinatesLocal()->getX(F::S, Y),
             para.get<ST>("center x", 1.),
             para.get<ST>("center y", 1.),
             para.get<ST>("omega", 1.),
@@ -745,20 +745,20 @@ public:
       case SweptHiemenzFlow : {
         ST pi = 4.*std::atan(1.);
 
-        OT nTemp = space()->gu(X) - space()->gl(X) + 1;
-        //for(OT i=0; i<=space()->nLoc(X); ++i) {
+        OT nTemp = grid()->gu(X) - grid()->gl(X) + 1;
+        //for(OT i=0; i<=grid()->nLoc(X); ++i) {
         //std::cout <<"i: " <<i<<" (\t";
         //for(OT ii=0; ii<nTemp; ++ii)
-        //std::cout <<space()->getInterpolateV2S()->getC(X)[ i*nTemp + ii ] <<", \t";
+        //std::cout <<grid()->getInterpolateV2S()->getC(X)[ i*nTemp + ii ] <<", \t";
         //std::cout <<")\n";
         //}
         //ST c[6] = {
-        //space()->getInterpolateV2S()->getC(X)[ nTemp + 0 ],
-        //space()->getInterpolateV2S()->getC(X)[ nTemp + 1 ],
-        //space()->getInterpolateV2S()->getC(X)[ nTemp + 2 ],
-        //space()->getInterpolateV2S()->getC(X)[ nTemp + 3 ],
-        //space()->getInterpolateV2S()->getC(X)[ nTemp + 4 ],
-        //space()->getInterpolateV2S()->getC(X)[ nTemp + 5 ] };
+        //grid()->getInterpolateV2S()->getC(X)[ nTemp + 0 ],
+        //grid()->getInterpolateV2S()->getC(X)[ nTemp + 1 ],
+        //grid()->getInterpolateV2S()->getC(X)[ nTemp + 2 ],
+        //grid()->getInterpolateV2S()->getC(X)[ nTemp + 3 ],
+        //grid()->getInterpolateV2S()->getC(X)[ nTemp + 4 ],
+        //grid()->getInterpolateV2S()->getC(X)[ nTemp + 5 ] };
         //std::cout <<"c\n";
         //for(OT ii=0; ii<nTemp; ++ii)
         //std::cout <<c[  ii ] <<", \t";
@@ -766,26 +766,26 @@ public:
 
         VF_init_SHBF(
             //1,
-            space()->rankST(),
-            space()->getShift(0),
-            space()->getProcGrid()->getIB(0),
-            space()->nGlo(),
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->dl(),
-            space()->du(),
-            space()->sIndB(F::U),
-            space()->eIndB(F::U),
-            space()->sIndB(F::V),
-            space()->eIndB(F::V),
-            space()->sIndB(F::W),
-            space()->eIndB(F::W),
-            space()->getCoordinatesGlobal()->getX(F::S, X),
-            space()->getCoordinatesGlobal()->getX(F::U, X),
-            space()->getCoordinatesLocal()->getX(F::W, Z),
-            space()->getInterpolateV2S()->getC(X)+2*nTemp-1, /// \todo rm dirty hack
-            space()->getDomainSize()->getRe(),
+            grid()->rankST(),
+            grid()->getShift(0),
+            grid()->getProcGrid()->getIB(0),
+            grid()->nGlo(),
+            grid()->nLoc(),
+            grid()->bl(),
+            grid()->bu(),
+            grid()->dl(),
+            grid()->du(),
+            grid()->sIndB(F::U),
+            grid()->eIndB(F::U),
+            grid()->sIndB(F::V),
+            grid()->eIndB(F::V),
+            grid()->sIndB(F::W),
+            grid()->eIndB(F::W),
+            grid()->getCoordinatesGlobal()->getX(F::S, X),
+            grid()->getCoordinatesGlobal()->getX(F::U, X),
+            grid()->getCoordinatesLocal()->getX(F::W, Z),
+            grid()->getInterpolateV2S()->getC(X)+2*nTemp-1, /// \todo rm dirty hack
+            grid()->getDomainSize()->getRe(),
             para.get<int>("nonDim", 0),
             para.get<ST>("kappa", 0.),
             para.get<ST>("sweep angle", 0.),
@@ -793,7 +793,7 @@ public:
             at(F::V).getRawPtr(),
             at(F::W).getRawPtr());
 
-        //std::cout <<"hello\n" <<space()->getInterpolateV2S()->getC(X)[9] <<
+        //std::cout <<"hello\n" <<grid()->getInterpolateV2S()->getC(X)[9] <<
         //"\n";
 
         break;
@@ -805,15 +805,15 @@ public:
         ST b  = para.get<ST>("b",  3.);
         ST A  = para.get<ST>("A",  0.1);
 
-        Teuchos::RCP<const DomainSize<ST, SpaceT::sdim> > domain = space()->getDomainSize();
-        Teuchos::RCP<const CoordinatesLocal<ST, OT, SpaceT::dimension, SpaceT::dimNC> > coord =
-          space()->getCoordinatesLocal();
+        Teuchos::RCP<const DomainSize<ST, GridT::sdim> > domain = grid()->getDomainSize();
+        Teuchos::RCP<const CoordinatesLocal<ST, OT, GridT::dimension, GridT::dimNC> > coord =
+          grid()->getCoordinatesLocal();
 
         const B bY = B::Y;
-        if(0<space()->bcl(Y)) {
-          OT j=space()->si(F::U, Y, bY);
-          for(OT k=space()->si(F::U, Z, bY); k<=space()->ei(F::U, Z, bY); ++k)
-            for(OT i=space()->si(F::U, X, bY); i<=space()->ei(F::U, X, bY); ++i) {
+        if(0<grid()->bcl(Y)) {
+          OT j=grid()->si(F::U, Y, bY);
+          for(OT k=grid()->si(F::U, Z, bY); k<=grid()->ei(F::U, Z, bY); ++k)
+            for(OT i=grid()->si(F::U, X, bY); i<=grid()->ei(F::U, X, bY); ++i) {
               ST x = coord->getX(F::U, X, i);
               ST z = coord->getX(F::U, Z, k);
 
@@ -830,10 +830,10 @@ public:
         }
         at(F::U).changed();
 
-        if(0<space()->bcl(Y)) {
-          OT j=space()->si(F::W, Y, bY);
-          for(OT k=space()->si(F::W, Z, bY); k<=space()->ei(F::W, Z, bY); ++k)
-            for(OT i=space()->si(F::W, X, bY); i<=space()->ei(F::W, X, bY); ++i) {
+        if(0<grid()->bcl(Y)) {
+          OT j=grid()->si(F::W, Y, bY);
+          for(OT k=grid()->si(F::W, Z, bY); k<=grid()->ei(F::W, Z, bY); ++k)
+            for(OT i=grid()->si(F::W, X, bY); i<=grid()->ei(F::W, X, bY); ++i) {
               ST x = coord->getX(F::W, X, i);
               ST z = coord->getX(F::W, Z, k);
 
@@ -916,7 +916,7 @@ public:
   /// \brief extrapolates on the boundaries such that it is zero
   /// \note dirty hack(necessary for TripleCompostion)
   void extrapolateBC(const Belos::ETrans trans=Belos::NOTRANS) {
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).extrapolateBC(trans);
   }
 
@@ -929,7 +929,7 @@ public:
 
   /// \brief Print the vector.  To be used for debugging only.
   void print(std::ostream& out=std::cout) const {
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).print(out);
   }
 
@@ -941,11 +941,11 @@ public:
   /// \todo implement/test restart and read
   void write(const int count=0, const bool restart=false) const {
 
-    if(0==space()->rankS()) {
+    if(0==grid()->rankS()) {
       Teuchos::Tuple<OT, 3> N;
       for(int i=0; i<3; ++i) {
-        N[i] = space()->nGlo(i);
-        if(space()->getBCGlobal()->getBCL(i)==Pimpact::BC::Periodic)
+        N[i] = grid()->nGlo(i);
+        if(grid()->getBCGlobal()->getBCL(i)==Pimpact::BC::Periodic)
           N[i] = N[i]-1;
       }
       if(!restart) {
@@ -1002,12 +1002,12 @@ public:
         xfile.close();
       }
     }
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).write(count, restart);
   }
 
   void read(const int count=0) {
-    for(F i=F::U; i<SpaceT::sdim; ++i)
+    for(F i=F::U; i<GridT::sdim; ++i)
       at(i).read(count);
   }
 
@@ -1073,12 +1073,12 @@ protected:
 
 public:
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return AbstractField<SpaceT>::space_;
+  constexpr const Teuchos::RCP<const GridT>& grid() {
+    return AbstractField<GridT>::grid_;
   }
 
   constexpr const MPI_Comm& comm() {
-    return space()->comm();
+    return grid()->comm();
   }
 
 
@@ -1096,8 +1096,8 @@ public:
   }
 
   void changed() const {
-    for(int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir)
-      for(int dir=0; dir<SpaceT::sdim; ++dir) {
+    for(int vel_dir=0; vel_dir<GridT::sdim; ++vel_dir)
+      for(int dir=0; dir<GridT::sdim; ++dir) {
         changed(vel_dir, dir);
       }
   }
@@ -1107,8 +1107,8 @@ public:
   }
 
   void exchange() const {
-    for(int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir)
-      for(int dir=0; dir<SpaceT::sdim; ++dir)
+    for(int vel_dir=0; vel_dir<GridT::sdim; ++vel_dir)
+      for(int dir=0; dir<GridT::sdim; ++dir)
         exchange(vel_dir, dir);
   }
 
@@ -1117,8 +1117,8 @@ public:
   }
 
   void setExchanged() const {
-    for(int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir)
-      for(int dir=0; dir<SpaceT::sdim; ++dir) {
+    for(int vel_dir=0; vel_dir<GridT::sdim; ++vel_dir)
+      for(int dir=0; dir<GridT::sdim; ++dir) {
         setExchanged(vel_dir, dir);
       }
   }

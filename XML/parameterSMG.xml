@@ -1,5 +1,5 @@
 <ParameterList name="ANONYMOUS">
-    <ParameterList id="17" name="Space">
+    <ParameterList id="17" name="Grid">
         <Parameter docString="Reynolds number" id="0" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+02"/>
         <Parameter docString="Womersley square alpha^2" id="1" isDefault="false" isUsed="true" name="alpha2" type="double" value="1.31932e+02"/>
         <Parameter docString="length in x-direction" id="4" isDefault="false" isUsed="true" name="lx" type="double" value="8.00000000000000000e+00"/>

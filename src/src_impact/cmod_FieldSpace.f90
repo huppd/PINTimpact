@@ -1,8 +1,8 @@
-!>  Modul: cmod_FieldSpace
+!>  Modul: cmod_FieldGrid
 !!
 !! transition module will become unnecessary in future
-!! helps \c Pimpact::FieldSpace to extract varibales from impact
-module cmod_FieldSpace
+!! helps \c Pimpact::FieldGrid to extract varibales from impact
+module cmod_FieldGrid
 
     use mpi
     use iso_c_binding
@@ -677,4 +677,4 @@ contains
     end subroutine set_PGS
 
 
-end module cmod_FieldSpace
+end module cmod_FieldGrid

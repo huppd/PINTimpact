@@ -23,23 +23,23 @@ class ConvectionField {
 
 public:
 
-  using SpaceT = ST;
+  using GridT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
-  static const int sdim = SpaceT::sdim;
-  static const int dimension = SpaceT::dimension;
+  static const int sdim = GridT::sdim;
+  static const int dimension = GridT::dimension;
 
-  static const int dimNC = SpaceT::dimNC;
+  static const int dimNC = GridT::dimNC;
 
-  using DomainFieldT = VectorField<SpaceT>;
+  using DomainFieldT = VectorField<GridT>;
 
-  using FieldTensor = ScalarField<SpaceT>[3][3];
+  using FieldTensor = ScalarField<GridT>[3][3];
 
 protected:
 
-  const Teuchos::RCP<const InterpolateS2V<SpaceT> > interpolateS2V_;
+  const Teuchos::RCP<const InterpolateS2V<GridT> > interpolateS2V_;
   const Teuchos::RCP<const InterpolateV2S<Scalar, Ordinal, sdim, dimension, dimNC> > interpolateV2S_;
 
   FieldTensor u_;
@@ -47,47 +47,47 @@ protected:
 public:
 
 
-  ConvectionField(const Teuchos::RCP<const SpaceT>& space):
-    interpolateS2V_(create<InterpolateS2V>(space)),
-    interpolateV2S_(createInterpolateV2S(space)),
+  ConvectionField(const Teuchos::RCP<const GridT>& grid):
+    interpolateS2V_(create<InterpolateS2V>(grid)),
+    interpolateV2S_(createInterpolateV2S(grid)),
     u_{
-    { { space, Owning::Y, F::U } ,
-      { space, Owning::Y, F::U } ,
-      { space, Owning::Y, F::U } }, {
-      { space, Owning::Y, F::V } ,
-      { space, Owning::Y, F::V } ,
-      { space, Owning::Y, F::V } }, {
-      { space, Owning::Y, F::W } ,
-      { space, Owning::Y, F::W } ,
-      { space, Owning::Y, F::W } }
+    { { grid, Owning::Y, F::U } ,
+      { grid, Owning::Y, F::U } ,
+      { grid, Owning::Y, F::U } }, {
+      { grid, Owning::Y, F::V } ,
+      { grid, Owning::Y, F::V } ,
+      { grid, Owning::Y, F::V } }, {
+      { grid, Owning::Y, F::W } ,
+      { grid, Owning::Y, F::W } ,
+      { grid, Owning::Y, F::W } }
   } {};
 
   ConvectionField(
-    const Teuchos::RCP<const SpaceT>& space,
-    const Teuchos::RCP<InterpolateS2V<SpaceT> >& interpolateS2V,
+    const Teuchos::RCP<const GridT>& grid,
+    const Teuchos::RCP<InterpolateS2V<GridT> >& interpolateS2V,
     const Teuchos::RCP<InterpolateV2S<Scalar, Ordinal, sdim, dimension, dimNC> >& interpolateV2S):
     interpolateS2V_(interpolateS2V),
     interpolateV2S_(interpolateV2S),
     u_{
-    { space, true, F::U } ,
-    { space, true, F::U } ,
-    { space, true, F::U } ,
-    { space, true, F::V } ,
-    { space, true, F::V } ,
-    { space, true, F::V } ,
-    { space, true, F::W } ,
-    { space, true, F::W } ,
-    { space, true, F::W }
+    { grid, true, F::U } ,
+    { grid, true, F::U } ,
+    { grid, true, F::U } ,
+    { grid, true, F::V } ,
+    { grid, true, F::V } ,
+    { grid, true, F::V } ,
+    { grid, true, F::W } ,
+    { grid, true, F::W } ,
+    { grid, true, F::W }
   } {};
 
 
-  void assignField(const VectorField<SpaceT>& mv) {
+  void assignField(const VectorField<GridT>& mv) {
 
-    ScalarField<SpaceT> temp(mv.space());
+    ScalarField<GridT> temp(mv.grid());
 
-    for(int i=0; i<SpaceT::sdim; ++i) {
+    for(int i=0; i<GridT::sdim; ++i) {
       interpolateV2S_->apply(mv(static_cast<F>(i)), temp);
-      for(int j=0; j<SpaceT::sdim; ++j) {
+      for(int j=0; j<GridT::sdim; ++j) {
         interpolateS2V_->apply(temp, u_[j][i]);
       }
     }

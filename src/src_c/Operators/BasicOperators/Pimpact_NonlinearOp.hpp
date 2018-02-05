@@ -24,28 +24,28 @@ public:
 
   using ConvSOpT = CSOPT;
 
-  using SpaceT = typename ConvSOpT::SpaceT;
+  using GridT = typename ConvSOpT::GridT;
 
-  using DomainFieldT = VectorField<SpaceT>;
-  using RangeFieldT = VectorField<SpaceT>;
+  using DomainFieldT = VectorField<GridT>;
+  using RangeFieldT = VectorField<GridT>;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
+  using Scalar = typename GridT::Scalar;
 
   Teuchos::RCP<NonlinearWrap<ConvSOpT> > convVWrap_;
 
-  Teuchos::RCP<ConvectionField<SpaceT> > convField_;
+  Teuchos::RCP<ConvectionField<GridT> > convField_;
 
 public:
 
-  NonlinearOp(const Teuchos::RCP<const SpaceT>& space):
-    convVWrap_(create<NonlinearWrap<ConvSOpT> >(create<ConvSOpT>(space))),
-    convField_(create<ConvectionField>(space)) {};
+  NonlinearOp(const Teuchos::RCP<const GridT>& grid):
+    convVWrap_(create<NonlinearWrap<ConvSOpT> >(create<ConvSOpT>(grid))),
+    convField_(create<ConvectionField>(grid)) {};
 
   template<class ConvSOpTT >
   NonlinearOp(const Teuchos::RCP<ConvSOpTT>& op):
-    convVWrap_(create<NonlinearWrap<ConvSOpT> >(create<ConvSOpT>(op->space()))),
+    convVWrap_(create<NonlinearWrap<ConvSOpT> >(create<ConvSOpT>(op->grid()))),
     convField_(op->getConvField()) {}
 
   void assignField(const DomainFieldT& mv) const {
@@ -63,16 +63,16 @@ public:
     res.add(1., b, -1., res);
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return convVWrap_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return convVWrap_->grid();
   }
 
-  Teuchos::RCP<ConvectionField<SpaceT> >
+  Teuchos::RCP<ConvectionField<GridT> >
   getConvField() const {
     return convField_;
   }
 
-  const ScalarField<SpaceT>* getConvField(F f) const {
+  const ScalarField<GridT>* getConvField(F f) const {
     return convField_->get()[static_cast<int>(f)];
   }
 
@@ -109,15 +109,15 @@ public:
 
 
 /// \relates NonlinearOp
-template<class SpaceT>
-Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > >
+template<class GridT>
+Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<GridT> > > >
 createNonlinearOp(
-    const Teuchos::RCP<const SpaceT>& space) {
+    const Teuchos::RCP<const GridT>& grid) {
 
-  Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > > sop =
-    Pimpact::create<Pimpact::ConvectionSOp>(space) ;
+  Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<GridT> > > > sop =
+    Pimpact::create<Pimpact::ConvectionSOp>(grid) ;
 
-  return Teuchos::rcp(new NonlinearOp<ConvectionSOp<SpaceT> >(sop));
+  return Teuchos::rcp(new NonlinearOp<ConvectionSOp<GridT> >(sop));
 }
 
 

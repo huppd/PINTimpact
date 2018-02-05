@@ -13,7 +13,7 @@
 #include "BelosTypes.hpp"
 
 #include "Pimpact_AbstractField.hpp"
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 #include "Pimpact_Utils.hpp"
 
 
@@ -33,22 +33,22 @@ namespace Pimpact {
 /// \note continous memory is not necessarily desirable because also views are used
 /// \ingroup Field
 template<class IFT>
-class MultiField : private AbstractField<typename IFT::SpaceT> {
+class MultiField : private AbstractField<typename IFT::GridT> {
 
 public:
 
   using InnerFieldT = IFT;
 
-  using SpaceT = typename InnerFieldT::SpaceT;
+  using GridT = typename InnerFieldT::GridT;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
   using FieldT = Pimpact::MultiField<InnerFieldT>;
 
-  using AF = AbstractField<SpaceT>;
+  using AF = AbstractField<GridT>;
 
   const Owning owning_;
 
@@ -87,7 +87,7 @@ public:
   ///
   /// creates simple wrapper from field(no coppying).
   MultiField(const Teuchos::RCP<InnerFieldT>& field):
-    AF(field->space()),
+    AF(field->grid()),
     owning_(Owning::N),
     mfs_(1, Teuchos::null),
     s_(1) {
@@ -99,13 +99,13 @@ public:
 
   /// \note dangerous to use, if not Owning s_ has to be set
   MultiField(const FieldT& mv, const ECopy ctype):
-    AF(mv.space()),
+    AF(mv.grid()),
     owning_(mv.owning_),
     mfs_(mv.getNumberVecs()),
     s_(mv.getNumberVecs()){
 
     for(int i=0; i<getNumberVecs(); ++i)
-      mfs_[i] = Teuchos::rcp(new InnerFieldT(space(), Owning::N));
+      mfs_[i] = Teuchos::rcp(new InnerFieldT(grid(), Owning::N));
 
     if(owning_==Owning::Y) {
       allocate();
@@ -121,18 +121,18 @@ public:
 
   /// \brief  constructor, creates \c numvecs  empty fields
   ///
-  /// \param space
+  /// \param grid
   /// \param numvecs
   /// \return
   /// \note danger if Owning::N, the s_ is no set 
-  MultiField(const Teuchos::RCP<const SpaceT>& space, const Owning owning):
-    AF(space),
+  MultiField(const Teuchos::RCP<const GridT>& grid, const Owning owning):
+    AF(grid),
     owning_(owning),
     mfs_(1),
     s_(1) {
 
     for(int i=0; i<1; ++i)
-      mfs_[i] = Teuchos::rcp(new InnerFieldT(space, Owning::N));
+      mfs_[i] = Teuchos::rcp(new InnerFieldT(grid, Owning::N));
 
     if(owning_==Owning::Y)
       allocate();
@@ -140,19 +140,19 @@ public:
 
   /// \brief  constructor, creates \c numvecs  empty fields
   ///
-  /// \param space
+  /// \param grid
   /// \param numvecs
   /// \return
   /// \note danger if Owning::N, the s_ is no set 
-  MultiField(const Teuchos::RCP<const SpaceT>& space, const int numvecs=1,
+  MultiField(const Teuchos::RCP<const GridT>& grid, const int numvecs=1,
       const Owning owning=Owning::Y):
-    AF(space),
+    AF(grid),
     owning_(owning),
     mfs_(numvecs),
     s_(numvecs) {
 
     for(int i=0; i<numvecs; ++i)
-      mfs_[i] = Teuchos::rcp(new InnerFieldT(space, Owning::N));
+      mfs_[i] = Teuchos::rcp(new InnerFieldT(grid, Owning::N));
 
     if(owning_==Owning::Y)
       allocate();
@@ -170,7 +170,7 @@ public:
   /// values.
   Teuchos::RCP<MultiField> clone(const int numvecs) const {
 
-    Teuchos::RCP<MultiField> mv = Teuchos::rcp(new MultiField(space(), numvecs));
+    Teuchos::RCP<MultiField> mv = Teuchos::rcp(new MultiField(grid(), numvecs));
 
     return mv;
   }
@@ -183,7 +183,7 @@ public:
   /// values.
   Teuchos::RCP<MultiField> clone(const ECopy ctype = ECopy::Deep) const {
 
-    Teuchos::RCP<MultiField> mv = Teuchos::rcp(new MultiField(space(), getNumberVecs()));
+    Teuchos::RCP<MultiField> mv = Teuchos::rcp(new MultiField(grid(), getNumberVecs()));
 
     switch(ctype) {
     case ECopy::Shallow:
@@ -210,7 +210,7 @@ public:
   /// \return
   Teuchos::RCP<MultiField> CloneCopy(const std::vector<int>& index) const {
 
-    Teuchos::RCP<MultiField> mv_ = Teuchos::rcp(new MultiField(space(), index.size()));
+    Teuchos::RCP<MultiField> mv_ = Teuchos::rcp(new MultiField(grid(), index.size()));
 
     for(unsigned int i=0; i<index.size(); ++i) {
       (*mv_->mfs_[i]) = (*mfs_[index[i]]);
@@ -224,7 +224,7 @@ public:
   /// \return
   Teuchos::RCP<MultiField> CloneCopy(const Teuchos::Range1D& range) const {
 
-    Teuchos::RCP<MultiField> mv_ = Teuchos::rcp(new MultiField(space(), range.size()));
+    Teuchos::RCP<MultiField> mv_ = Teuchos::rcp(new MultiField(grid(), range.size()));
 
     int j = 0;
     for(int i=range.lbound(); i<=range.ubound(); ++i) {
@@ -241,7 +241,7 @@ public:
   Teuchos::RCP<MultiField> CloneViewNonConst(const std::vector<int>& index) {
 
     Teuchos::RCP<MultiField> mv_ =
-      Teuchos::rcp(new MultiField(space(), index.size(), Owning::N));
+      Teuchos::rcp(new MultiField(grid(), index.size(), Owning::N));
 
     for(unsigned int i=0; i<index.size(); ++i) {
       mv_->mfs_[i] = mfs_[index[i]];
@@ -255,7 +255,7 @@ public:
   Teuchos::RCP<MultiField> CloneViewNonConst(const Teuchos::Range1D& range) {
 
     Teuchos::RCP<MultiField> mv_ =
-      Teuchos::rcp(new MultiField(space(), range.size(), Owning::N));
+      Teuchos::rcp(new MultiField(grid(), range.size(), Owning::N));
 
     int j=0;
     for(int i=range.lbound(); i<=range.ubound(); ++i) {
@@ -271,7 +271,7 @@ public:
   Teuchos::RCP<const MultiField> CloneView(const std::vector<int>& index) const {
 
     Teuchos::RCP<MultiField> mv_ =
-      Teuchos::rcp(new MultiField(space(), index.size(), Owning::N));
+      Teuchos::rcp(new MultiField(grid(), index.size(), Owning::N));
 
     for(unsigned int i=0; i<index.size(); ++i) {
       mv_->mfs_[i] = mfs_[index[i]];
@@ -285,7 +285,7 @@ public:
   Teuchos::RCP<const MultiField> CloneView(const Teuchos::Range1D& range) const {
 
     Teuchos::RCP<MultiField> mv_ =
-      Teuchos::rcp(new MultiField(space(), range.size(), Owning::N));
+      Teuchos::rcp(new MultiField(grid(), range.size(), Owning::N));
 
     int j=0;
     for(int i=range.lbound(); i<=range.ubound(); ++i) {
@@ -684,8 +684,8 @@ public:
     return *mfs_[i];
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return AF::space_;
+  constexpr const Teuchos::RCP<const GridT>& grid() {
+    return AF::grid_;
   }
 
   constexpr const MPI_Comm& comm() {

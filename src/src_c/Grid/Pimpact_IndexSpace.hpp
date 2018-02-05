@@ -49,7 +49,7 @@ namespace Pimpact {
 /// \note if one would remove ls_ one could decouple with \c StencilWidths
 /// \tparam OrdinalT
 /// \tparam dimension as soon as Time is own class ->spatial dimension
-/// \ingroup SpaceObject
+/// \ingroup GridObject
 template<class OrdinalT, int dimension>
 class IndexSpace {
 

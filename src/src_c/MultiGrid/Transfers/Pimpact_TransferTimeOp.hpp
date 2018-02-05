@@ -19,10 +19,10 @@ class TransferTimeOp {
 
 public:
 
-  using FSpaceT = typename TransVT::FSpaceT;
-  using CSpaceT = typename TransVT::CSpaceT;
+  using FGridT = typename TransVT::FGridT;
+  using CGridT = typename TransVT::CGridT;
 
-  using SpaceT = typename TransVT::SpaceT;
+  using GridT = typename TransVT::GridT;
 
   using DomainFieldT = TimeField<typename TransVT::DomainFieldT>;
   using RangeFieldT = TimeField<typename TransVT::RangeFieldT>;
@@ -34,15 +34,15 @@ protected:
 public:
 
   TransferTimeOp(
-    const Teuchos::RCP<const FSpaceT>& spaceC,
-    const Teuchos::RCP<const CSpaceT>& spaceF):
-    opV_(Teuchos::rcp(new TransVT(spaceC, spaceF))) {}
+    const Teuchos::RCP<const FGridT>& gridC,
+    const Teuchos::RCP<const CGridT>& gridF):
+    opV_(Teuchos::rcp(new TransVT(gridC, gridF))) {}
 
 
   template<class DT, class RT>
   void apply(const DT& x, RT& y) const {
 
-    for (int i=x.space()->si(F::S, 3); i<x.space()->ei(F::S, 3); ++i)
+    for (int i=x.grid()->si(F::S, 3); i<x.grid()->ei(F::S, 3); ++i)
       opV_->apply(x(i), y(i));
 
     y.changed();

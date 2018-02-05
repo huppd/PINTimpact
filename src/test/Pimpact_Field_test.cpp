@@ -36,13 +36,13 @@ using CMF3D = typename Pimpact::CompoundField<MVF3D, MSF3D>;
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, print, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid = Pimpact::create<typename FType::GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
-	p->init(space->rankST());
+	p->init(grid->rankST());
 	p->print();
 }
 
@@ -65,11 +65,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, print, CMF3D)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, InfNormAndInit, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid = Pimpact::create<typename FType::GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   ST norm;
 
@@ -85,8 +85,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, InfNormAndInit, FType) {
   int rank;
   int size;
   ST init;
-  MPI_Comm_rank(space->commST(), &rank);
-  MPI_Comm_size(space->commST(), &size);
+  MPI_Comm_rank(grid->commST(), &rank);
+  MPI_Comm_size(grid->commST(), &size);
   for(ST i = 0.; i<10.1; ++i) {
     init = (size-1)*i-1.;
     init = std::abs(init);
@@ -115,11 +115,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, InfNormAndInit, CMF3D)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, OneNormAndInit, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid = Pimpact::create<typename FType::GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   // test different float values, assures that initial and norm work smoothly
   for(ST i=0.; i<10.1; ++i) {
@@ -148,11 +148,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, OneNormAndInit, CMF3D)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, TwoNormAndInit, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid = Pimpact::create<typename FType::GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   // test different float values, assures that initial and norm work smoothly
   for(ST i=0.; i<10.1; ++i) {
@@ -180,12 +180,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, TwoNormAndInit, CMF3D)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, dot, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid = Pimpact::create<typename FType::GridT>(pl);
 
-  auto vel1 = Pimpact::create<FType>(space);
-  auto vel2 = Pimpact::create<FType>(space);
+  auto vel1 = Pimpact::create<FType>(grid);
+  auto vel2 = Pimpact::create<FType>(grid);
 
   int Np = vel1->getLength();
   int Nq = vel2->getLength();
@@ -233,11 +233,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, dot, CMF3D)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, scale, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid = Pimpact::create<typename FType::GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   ST norm;
   int N = p->getLength();
@@ -268,11 +268,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, scale, CMF3D)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, random, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid = Pimpact::create<typename FType::GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   ST norm;
   int N = p->getLength();
@@ -303,13 +303,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, random, CMF3D)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TemplateField, add, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid = Pimpact::create<typename FType::GridT>(pl);
 
-  auto vel1 = Pimpact::create<FType>(space);
-  auto vel2 = Pimpact::create<FType>(space);
-  auto vel3 = Pimpact::create<FType>(space);
+  auto vel1 = Pimpact::create<FType>(grid);
+  auto vel2 = Pimpact::create<FType>(grid);
+  auto vel3 = Pimpact::create<FType>(grid);
 
   TEST_EQUALITY(vel1->getLength(), vel2->getLength())
   TEST_EQUALITY(vel2->getLength(), vel3->getLength())
@@ -362,11 +362,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TemplateField, add, CMF3D)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, write, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid = Pimpact::create<typename FType::GridT>(pl);
 
-  auto p = Pimpact::create<FType>(space);
+  auto p = Pimpact::create<FType>(grid);
 
   p->init(1.);
   p->write();
@@ -396,14 +396,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, write, CMF3D)
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, writeRestart, FType) {
 
-	setParameter(FType::SpaceT::sdim);
+	setParameter(FType::GridT::sdim);
 
-  Teuchos::RCP<const typename FType::SpaceT> space =
-    Pimpact::create<typename FType::SpaceT>(pl);
+  Teuchos::RCP<const typename FType::GridT> grid =
+    Pimpact::create<typename FType::GridT>(pl);
 
-  FType write(space);
-  FType read (space);
-  FType err(space);
+  FType write(grid);
+  FType read (grid);
+  FType err(grid);
 
   write.init(1.);
   write.write(1, true);
@@ -411,7 +411,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, writeRestart, FType) {
 
   err.add(1., read, -1., write);
   ST error = err.norm();
-  if(0==space->rankST()) std::cout <<"\nerror: " <<error <<"\n";
+  if(0==grid->rankST()) std::cout <<"\nerror: " <<error <<"\n";
   TEST_EQUALITY(std::abs(error)<eps, true);
 
   write.random();
@@ -420,7 +420,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(TempField, writeRestart, FType) {
 
   err.add(1., read, -1., write);
   error = err.norm();
-  if(0==space->rankST()) std::cout <<"\nerror: " <<error <<"\n";
+  if(0==grid->rankST()) std::cout <<"\nerror: " <<error <<"\n";
   TEST_EQUALITY(std::abs(error)<eps, true);
 }
 
@@ -439,11 +439,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, writeRestart, CF3D)
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(TempField, writeRestart, CMF3D)
 	
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ScalarField, ReadWrite, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ScalarField, ReadWrite, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+  Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
   std::vector<Pimpact::F> types;
   types.push_back(Pimpact::F::S);
@@ -452,9 +452,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ScalarField, ReadWrite, SpaceT) {
   types.push_back(Pimpact::F::W);
 
   for(auto type: types) {
-    Pimpact::ScalarField<SpaceT> write(space, Pimpact::Owning::Y, type);
-    Pimpact::ScalarField<SpaceT> read(space, Pimpact::Owning::Y, type);
-    Pimpact::ScalarField<SpaceT> err( space, Pimpact::Owning::Y, type);
+    Pimpact::ScalarField<GridT> write(grid, Pimpact::Owning::Y, type);
+    Pimpact::ScalarField<GridT> read(grid, Pimpact::Owning::Y, type);
+    Pimpact::ScalarField<GridT> err( grid, Pimpact::Owning::Y, type);
 
     for(int i=1; i<=6; ++i) {
       write.initField(static_cast<Pimpact::EScalarField>(i));
@@ -463,7 +463,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ScalarField, ReadWrite, SpaceT) {
 
       err.add(1., read, -1., write);
       ST error = err.norm();
-      if(0==space->rankST()) std::cout <<"\nerror(" <<type <<"): " <<error <<"\n";
+      if(0==grid->rankST()) std::cout <<"\nerror(" <<type <<"): " <<error <<"\n";
       TEST_EQUALITY(std::abs(error)<eps, true);
       if(std::abs(error)>eps)
         err.print();
@@ -475,19 +475,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(ScalarField, ReadWrite, D2)
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(ScalarField, ReadWrite, D3)
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ScalarField, level, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ScalarField, level, GridT) {
 
-	setParameter(SpaceT::sdim);
+	setParameter(GridT::sdim);
 
-  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+  Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-	Pimpact::ScalarField<SpaceT> x(space);
+	Pimpact::ScalarField<GridT> x(grid);
 
 	x.init(1.);
 	x.level();
 
 	ST level = x.norm();
-	if(0==space()->rankST())
+	if(0==grid()->rankST())
 		std::cout <<"\nlevel: " <<level <<"\n";
   TEST_EQUALITY(level<eps , true);
 

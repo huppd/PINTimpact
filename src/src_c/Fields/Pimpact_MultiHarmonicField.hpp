@@ -28,25 +28,25 @@ namespace Pimpact {
 /// \ingroup Field
 /// \todo rm std::vector<RCP<...>>
 template<class IFT>
-class MultiHarmonicField : private AbstractField<typename IFT::SpaceT> {
+class MultiHarmonicField : private AbstractField<typename IFT::GridT> {
 
 public:
 
-  using SpaceT = typename IFT::SpaceT;
+  using GridT = typename IFT::GridT;
   using InnerFieldT = IFT;
 
   enum class Global : bool { Y=true, N=false };
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
   using ScalarArray =  ST*;
 
   using FieldT = MultiHarmonicField<IFT>;
 
-  using AF = AbstractField<SpaceT>;
+  using AF = AbstractField<GridT>;
 
   const Owning owning_;
 
@@ -73,8 +73,8 @@ public:
   constexpr OT getStorageSize() {
 
     return (global_==Global::Y)?
-      ((1 + 2*space()->nGlo(3))*field0_.getStorageSize()):
-      ((1 + 2*(space()->ei(F::U, 3) - std::max(space()->si(F::U, 3), 1) +
+      ((1 + 2*grid()->nGlo(3))*field0_.getStorageSize()):
+      ((1 + 2*(grid()->ei(F::U, 3) - std::max(grid()->si(F::U, 3), 1) +
                   1))*field0_.getStorageSize());
   }
 
@@ -92,39 +92,39 @@ public:
 
     if(global_==Global::Y) {
 
-      for(OT i=0; i<space()->nGlo(3); ++i)
+      for(OT i=0; i<grid()->nGlo(3); ++i)
         fields_[i]->setStoragePtr(s_ + nx + 2*nx*i);
 
     } else {
 
-      for(OT i=0; i<=space()->ei(F::U, 3) - std::max(space()->si(F::U, 3), 1); ++i)
+      for(OT i=0; i<=grid()->ei(F::U, 3) - std::max(grid()->si(F::U, 3), 1); ++i)
         fields_[i]->setStoragePtr(s_ + nx + 2*nx*i);
     }
   }
 
 
-  MultiHarmonicField(const Teuchos::RCP<const SpaceT>& space,
+  MultiHarmonicField(const Teuchos::RCP<const GridT>& grid,
       const Owning owning=Owning::Y):
-    MultiHarmonicField(space, static_cast<Global>(space->np(3)==1), owning) {};
+    MultiHarmonicField(grid, static_cast<Global>(grid->np(3)==1), owning) {};
 
-  MultiHarmonicField(const Teuchos::RCP<const SpaceT>& space, const Global global,
+  MultiHarmonicField(const Teuchos::RCP<const GridT>& grid, const Global global,
       const Owning owning=Owning::Y):
-    AF(space),
+    AF(grid),
     owning_(owning),
     global_(global),
-    field0_(space, Owning::N),
-    fields_(space->nGlo(3)),
+    field0_(grid, Owning::N),
+    fields_(grid->nGlo(3)),
     exchangedState_(true) {
 
-    assert(4 == SpaceT::dimension);
-    assert(true == space()->getStencilWidths()->spectralT());
+    assert(4 == GridT::dimension);
+    assert(true == grid()->getStencilWidths()->spectralT());
 
     if(global_==Global::Y) {
-      for(OT i=0; i<space->nGlo(3); ++i)
-        fields_[i] = Teuchos::rcp(new ModeField<IFT>(space, Owning::N));
+      for(OT i=0; i<grid->nGlo(3); ++i)
+        fields_[i] = Teuchos::rcp(new ModeField<IFT>(grid, Owning::N));
     } else {
-      for(OT i=0; i<space()->ei(F::U, 3) - std::max(space()->si(F::U, 3), 1) + 1; ++i)
-        fields_[i] = Teuchos::rcp(new ModeField<IFT>(space, Owning::N));
+      for(OT i=0; i<grid()->ei(F::U, 3) - std::max(grid()->si(F::U, 3), 1) + 1; ++i)
+        fields_[i] = Teuchos::rcp(new ModeField<IFT>(grid, Owning::N));
     }
 
     if(owning_==Owning::Y) allocate();
@@ -137,19 +137,19 @@ public:
   /// \param vF
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
   MultiHarmonicField(const MultiHarmonicField& vF, const ECopy copyType=ECopy::Deep):
-    AF(vF.space()),
+    AF(vF.grid()),
     owning_(vF.owning_),
-    global_(static_cast<Global>(vF.space()->np(3)==1)),
+    global_(static_cast<Global>(vF.grid()->np(3)==1)),
     field0_(vF.field0_, copyType),
-    fields_(vF.space()->nGlo(3)),
+    fields_(vF.grid()->nGlo(3)),
     exchangedState_(vF.exchangedState_) {
 
     if(global_==Global::Y) {
-      for(OT i=1; i<=space()->nGlo(3); ++i)
+      for(OT i=1; i<=grid()->nGlo(3); ++i)
         fields_[i-1] = Teuchos::rcp(new ModeField<IFT>(vF.getField(i), copyType));
     } else {
-      for(OT i=0; i<space()->ei(F::U, 3) - std::max(space()->si(F::U, 3), 1) + 1; ++i)
-        fields_[i] = Teuchos::rcp(new ModeField<IFT>(vF.getField(i+std::max(space()->si(F::U, 3), 1)), copyType));
+      for(OT i=0; i<grid()->ei(F::U, 3) - std::max(grid()->si(F::U, 3), 1) + 1; ++i)
+        fields_[i] = Teuchos::rcp(new ModeField<IFT>(vF.getField(i+std::max(grid()->si(F::U, 3), 1)), copyType));
     }
 
     if(owning_==Owning::Y) {
@@ -170,7 +170,7 @@ public:
   }
 
   Teuchos::RCP<FieldT> clone(const ECopy ctype=ECopy::Deep) const {
-    Teuchos::RCP<FieldT> mv = Teuchos::rcp(new FieldT(space()));
+    Teuchos::RCP<FieldT> mv = Teuchos::rcp(new FieldT(grid()));
 
     switch(ctype) {
       case ECopy::Shallow:
@@ -190,8 +190,8 @@ public:
 protected:
 
   constexpr OT index(const OT i) {
-    return i - 1 + ((global_==Global::Y||0==space()->si(F::U, 3))?
-             0: (-space()->si(F::U, 3)+1));
+    return i - 1 + ((global_==Global::Y||0==grid()->si(F::U, 3))?
+             0: (-grid()->si(F::U, 3)+1));
   };
 
 public:
@@ -232,12 +232,12 @@ public:
     return fields_[index(i)]->getSField();
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return AF::space_;
+  constexpr const Teuchos::RCP<const GridT>& grid() {
+    return AF::grid_;
   }
 
   constexpr const MPI_Comm& comm() {
-    return space()->getProcGrid()->getCommWorld();
+    return grid()->getProcGrid()->getCommWorld();
   }
 
 
@@ -249,8 +249,8 @@ public:
     OT len = 0;
 
     //len += get0Field().getLength();
-    //len += 2*space()->nGlo(3)*get0Field().getLength();
-    len = 2*(1 + space()->nGlo(3))*get0Field().getLength();
+    //len += 2*grid()->nGlo(3)*get0Field().getLength();
+    len = 2*(1 + grid()->nGlo(3))*get0Field().getLength();
 
     return len;
   }
@@ -261,13 +261,13 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
-  /// \todo add test for consistent VectorSpaces in debug mode
+  /// \todo add test for consistent VectorGrids in debug mode
   void add(const ST alpha, const FieldT& a, const ST beta, const FieldT& b, const B wb=B::Y) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.add(alpha, a.get0Field(), beta, b.get0Field(), wb);
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).add(alpha, a.getField(i), beta, b.getField(i), wb);
 
     changed();
@@ -282,10 +282,10 @@ public:
   /// \return Reference to this object
   void abs(const FieldT& y) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.abs(y.get0Field());
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).abs(y.getField(i));
 
     changed();
@@ -299,10 +299,10 @@ public:
   /// \return Reference to this object
   void reciprocal(const FieldT& y) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.reciprocal(y.get0Field());
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).reciprocal(y.getField(i));
 
     changed();
@@ -312,10 +312,10 @@ public:
   /// \brief Scale each element of the vectors in \c this with \c alpha.
   void scale(const ST alpha, const B wB=B::Y) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.scale(alpha, wB);
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).scale(alpha, wB);
 
     changed();
@@ -329,10 +329,10 @@ public:
   /// \return Reference to this object
   void scale(const FieldT& a) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.scale(a.get0Field());
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).scale(a.getField(i));
 
     changed();
@@ -349,9 +349,9 @@ public:
 
     ST b = 0.;
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       b += 2.*get0Field().dotLoc(a.get0Field());
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       b += getField(i).dotLoc(a.getField(i));
 
     return b;
@@ -369,13 +369,13 @@ public:
 
     ST normvec = 0.;
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       normvec =
         (ENorm::Inf==type)?
         std::max(get0Field().normLoc(type), normvec):
         (2.*get0Field().normLoc(type));
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       normvec =
         (ENorm::Inf==type)?
         std::max(getField(i).normLoc(type), normvec):
@@ -409,10 +409,10 @@ public:
 
     ST normvec= Teuchos::ScalarTraits<ST>::zero();
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       normvec += get0Field().normLoc(weights.get0Field());
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       normvec += getField(i).normLoc(weights.getField(i));
 
     return normvec;
@@ -441,16 +441,16 @@ public:
     if(global_==Global::Y and a.global_==Global::Y and a.exchangedState_) {
       field0_ = a.get0Field();
 
-      for(OT i=1; i<=space()->nGlo(3); ++i)
+      for(OT i=1; i<=grid()->nGlo(3); ++i)
         getField(i) = a.getField(i);
       exchangedState_ = a.exchangedState_;
     }
     else {
 
-      if(0==space()->si(F::U, 3))
+      if(0==grid()->si(F::U, 3))
         field0_ = a.get0Field();
 
-      for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+      for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
         getField(i) = a.getField(i);
 
       changed();
@@ -463,10 +463,10 @@ public:
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed=false, const B bcYes=B::Y, int seed=1) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.random(useSeed, bcYes, seed);
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).random(useSeed, bcYes, seed);
 
     changed();
@@ -476,10 +476,10 @@ public:
   /// \brief Replace each element of the vector  with \c alpha.
   void init(const ST alpha = Teuchos::ScalarTraits<ST>::zero(), const B wB=B::Y) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.init(alpha, wB);
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).init(alpha, wB);
 
     changed();
@@ -489,10 +489,10 @@ public:
   ///  \brief initializes including boundaries to zero
   void initField(Teuchos::ParameterList& para, const Add add=Add::N) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.initField(para.sublist("0 mode"), add);
 
-    if(space()->si(F::U, 3)<=1 && 1<=space()->ei(F::U, 3)) {
+    if(grid()->si(F::U, 3)<=1 && 1<=grid()->ei(F::U, 3)) {
       getCField(1).initField(para.sublist("cos mode"), add);
       getSField(1).initField(para.sublist("sin mode"), add);
     }
@@ -502,10 +502,10 @@ public:
 
   void extrapolateBC(const Belos::ETrans trans=Belos::NOTRANS) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.extrapolateBC(trans);
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).extrapolateBC(trans);
 
     changed();
@@ -513,10 +513,10 @@ public:
 
   void level() const {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.level();
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).level();
 
     changed();
@@ -527,10 +527,10 @@ public:
   /// Print the vector.  To be used for debugging only.
   void print(std::ostream& os=std::cout) const {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       get0Field().print(os);
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).print(os);
   }
 
@@ -539,9 +539,9 @@ public:
 
     exchange();
 
-    if(space()->getProcGrid()->getIB(3)==1) {
+    if(grid()->getProcGrid()->getIB(3)==1) {
       ST pi = 4.*std::atan(1.);
-      OT nf = space()->nGlo(3);
+      OT nf = grid()->nGlo(3);
       OT nt = 4*nf;
       Teuchos::RCP<IFT> temp = get0Field().clone(Pimpact::ECopy::Shallow);
       for(OT i=0; i<nt;  ++i) {
@@ -562,10 +562,10 @@ public:
 
   void write(const int count=0, const bool restart=false) const {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       get0Field().write(count, restart);
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i) {
       getCField(i).write(count+2*i-1, restart);
       getSField(i).write(count+2*i, restart);
     }
@@ -574,15 +574,15 @@ public:
 
   void read(const int count=0, OT nf_restart=-1) {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       get0Field().read(count);
 
     if(-1==nf_restart)
-      nf_restart = space()->ei(F::U, 3);
-    else if(nf_restart>space()->ei(F::U, 3)) 
-      nf_restart = space()->ei(F::U, 3);
+      nf_restart = grid()->ei(F::U, 3);
+    else if(nf_restart>grid()->ei(F::U, 3)) 
+      nf_restart = grid()->ei(F::U, 3);
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=nf_restart; ++i) {
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=nf_restart; ++i) {
       getCField(i).read(count+2*i-1);
       getSField(i).read(count+2*i);
     }
@@ -598,10 +598,10 @@ public:
   void changed() const {
     exchangedState_ = false;
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       field0_.changed();
 
-    for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+    for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
       getField(i).changed();
   }
 
@@ -614,10 +614,10 @@ public:
     if(exchangedState_==false) {
 
       // exchange spatial
-      if(0==space()->si(F::U, 3))
+      if(0==grid()->si(F::U, 3))
         field0_.exchange();
 
-      for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+      for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
         getField(i).exchange();
 
       // mpi stuff
@@ -625,21 +625,21 @@ public:
 
       // --- sendcount ---
       int sendcount = 0;
-      if(0==space()->si(F::U, 3))
+      if(0==grid()->si(F::U, 3))
         sendcount += nx;
-      for(OT i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i)
+      for(OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i)
         sendcount += 2*nx;
 
       // --- recvcount, displacement ---
-      int np = space()->getProcGrid()->getNP(3);
+      int np = grid()->getProcGrid()->getNP(3);
 
       int* recvcounts = new int[np];
       int* displs     = new int[np];
 
-      OT nfl  = (space()->getGridSizeLocal()->get(3)+1)/np;
-      OT rem  = (space()->getGridSizeLocal()->get(3)+1)%np;
+      OT nfl  = (grid()->getGridSizeLocal()->get(3)+1)/np;
+      OT rem  = (grid()->getGridSizeLocal()->get(3)+1)%np;
 
-      //MPI_Barrier(space()->getProcGrid()->getCommBar(3));
+      //MPI_Barrier(grid()->getProcGrid()->getCommBar(3));
 
       for(int rank=0; rank<np; ++rank) {
         if(0==rank)
@@ -650,7 +650,7 @@ public:
           displs[rank] = 0;
         else
           displs[rank] = displs[rank-1] + recvcounts[rank-1];
-//				if(0==space()->rankST())
+//				if(0==grid()->rankST())
 //					std::cout <<"\trank: " <<rank
 //						<<"\trecevcount: " <<recvcounts[rank]
 //						<<"\tdispl: " <<displs[rank] <<"\n";
@@ -665,20 +665,20 @@ public:
           recvcounts,                             // recvcounts
           displs,                                 // displs
           MPI_REAL8,                              // recvtype
-          space()->getProcGrid()->getCommBar(3)); // comm
+          grid()->getProcGrid()->getCommBar(3)); // comm
          
 
       delete[] recvcounts;
       delete[] displs;
 
       // set non owning spatial block as exchanged
-      if(0!=space()->si(F::U, 3))
+      if(0!=grid()->si(F::U, 3))
         get0Field().setExchanged();
 
-      for(OT i=1; i<space()->si(F::U, 3); ++i)
+      for(OT i=1; i<grid()->si(F::U, 3); ++i)
         getField(i).setExchanged();
 
-      for(OT i=space()->ei(F::U, 3)+1; i<=space()->nGlo(3); ++i)
+      for(OT i=grid()->ei(F::U, 3)+1; i<=grid()->nGlo(3); ++i)
         getField(i).setExchanged();
     }
   }
@@ -692,12 +692,12 @@ public:
 /// \brief creates a multi-harmonic scalar field.
 ///
 /// \relates MultiHarmonicField
-/// \param space scalar Vector Space to which returned vector belongs
+/// \param grid scalar Vector Grid to which returned vector belongs
 template<class FieldT>
 Teuchos::RCP<MultiHarmonicField<FieldT > > createMultiHarmonic(
-  const Teuchos::RCP<const typename FieldT::SpaceT >& space) {
+  const Teuchos::RCP<const typename FieldT::GridT >& grid) {
 
-  return create<MultiHarmonicField<FieldT> >(space);
+  return create<MultiHarmonicField<FieldT> >(grid);
 }
 
 
@@ -705,13 +705,13 @@ Teuchos::RCP<MultiHarmonicField<FieldT > > createMultiHarmonic(
 /// \brief creates a multi-harmonic scalar field.
 ///
 /// \relates MultiHarmonicField
-/// \param space scalar Vector Space to which returned vector belongs
+/// \param grid scalar Vector Grid to which returned vector belongs
 /// \param global
 template<class FieldT>
 Teuchos::RCP<MultiHarmonicField<FieldT> > createMultiHarmonic(
-  const Teuchos::RCP<const typename FieldT::SpaceT >& space, const typename MultiHarmonicField<FieldT>::Global global) {
+  const Teuchos::RCP<const typename FieldT::GridT >& grid, const typename MultiHarmonicField<FieldT>::Global global) {
 
-  return Teuchos::rcp(new  MultiHarmonicField<FieldT>(space, global));
+  return Teuchos::rcp(new  MultiHarmonicField<FieldT>(grid, global));
 }
 
 

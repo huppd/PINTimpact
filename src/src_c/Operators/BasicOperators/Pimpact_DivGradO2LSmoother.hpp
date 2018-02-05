@@ -27,13 +27,13 @@ class DivGradO2LSmoother {
 
 public:
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
 protected:
 
@@ -86,7 +86,7 @@ public:
 
     for(int dir=0; dir<3; ++dir) {
 
-      n_[dir] = space()->ei(F::S, dir) - space()->si(F::S, dir) + 1 ;
+      n_[dir] = grid()->ei(F::S, dir) - grid()->si(F::S, dir) + 1 ;
 
       if(true==lineDirection_[dir]) {
 
@@ -98,27 +98,27 @@ public:
         ipiv_[dir] = Teuchos::rcp(new OVectorT(n_[dir], true));
 
         // --- diagonal ---
-        for(int j=0; j<SpaceT::sdim; ++j) {
+        for(int j=0; j<GridT::sdim; ++j) {
           if(j==dir)
-            (*d_[dir])[space()->si(F::S, dir)-space()->si(F::S, dir)] += op_->getC(j, space()->si(F::S, dir),  0);
+            (*d_[dir])[grid()->si(F::S, dir)-grid()->si(F::S, dir)] += op_->getC(j, grid()->si(F::S, dir),  0);
           else
-            (*d_[dir])[space()->si(F::S, dir)-space()->si(F::S, dir)] += 0.1*op_->getC(j, space()->si(F::S, dir),  0);
+            (*d_[dir])[grid()->si(F::S, dir)-grid()->si(F::S, dir)] += 0.1*op_->getC(j, grid()->si(F::S, dir),  0);
         }
-        for(Ordinal i=space()->si(F::S, dir)+1; i<=space()->ei(F::S, dir)-1; ++i) {
-          for(int j=0; j<SpaceT::sdim; ++j)
-            (*d_[dir])[i-space()->si(F::S, dir)] += op_->getC(j, i,  0);
+        for(Ordinal i=grid()->si(F::S, dir)+1; i<=grid()->ei(F::S, dir)-1; ++i) {
+          for(int j=0; j<GridT::sdim; ++j)
+            (*d_[dir])[i-grid()->si(F::S, dir)] += op_->getC(j, i,  0);
         }
-        for(int j=0; j<SpaceT::sdim; ++j) {
+        for(int j=0; j<GridT::sdim; ++j) {
           if(j==dir)
-            (*d_[dir])[space()->ei(F::S, dir)-space()->si(F::S, dir)] += op_->getC(j, space()->ei(F::S, dir), 0);
+            (*d_[dir])[grid()->ei(F::S, dir)-grid()->si(F::S, dir)] += op_->getC(j, grid()->ei(F::S, dir), 0);
           else
-            (*d_[dir])[space()->ei(F::S, dir)-space()->si(F::S, dir)] += 0.1*op_->getC(j, space()->ei(F::S, dir), 0);
+            (*d_[dir])[grid()->ei(F::S, dir)-grid()->si(F::S, dir)] += 0.1*op_->getC(j, grid()->ei(F::S, dir), 0);
         }
 
         // --- off diagonal
-        for(Ordinal i=space()->si(F::S, dir); i<space()->ei(F::S, dir); ++i) {
-          (*du_[dir])[i-space()->si(F::S, dir)] = op_->getC(dir, i+1, +1);
-          (*dl_[dir])[i-space()->si(F::S, dir)] = op_->getC(dir, i  , -1);
+        for(Ordinal i=grid()->si(F::S, dir); i<grid()->ei(F::S, dir); ++i) {
+          (*du_[dir])[i-grid()->si(F::S, dir)] = op_->getC(dir, i+1, +1);
+          (*dl_[dir])[i-grid()->si(F::S, dir)] = op_->getC(dir, i  , -1);
         }
 
         Ordinal lu_factorization_sucess;
@@ -142,7 +142,7 @@ public:
   void apply(const DomainFieldT& b, RangeFieldT& y, const Belos::ETrans
       trans=Belos::NOTRANS) const {
 
-    DomainFieldT temp(space());
+    DomainFieldT temp(grid());
 
     for(int i=0; i<nIter_; ++i) {
 
@@ -162,13 +162,13 @@ public:
 
           Teuchos::RCP<VectorT> b = Teuchos::rcp(new VectorT(n_[dir], false));
 
-          //for(i[d1]=space()->si(F::S, d1)+1; i[d1]<=space()->ei(F::S, d1)-1; ++i[d1])
-          //for(i[d2]=space()->si(F::S, d2)+1; i[d2]<=space()->ei(F::S, d2)-1; ++i[d2]) {
-          for(i[d1]=space()->si(F::S, d1)+1; i[d1]<=space()->ei(F::S, d1)-1; ++i[d1])
-            for(i[d2]=space()->si(F::S, d2)+1; i[d2]<=space()->ei(F::S, d2)-1; ++i[d2]) {
+          //for(i[d1]=grid()->si(F::S, d1)+1; i[d1]<=grid()->ei(F::S, d1)-1; ++i[d1])
+          //for(i[d2]=grid()->si(F::S, d2)+1; i[d2]<=grid()->ei(F::S, d2)-1; ++i[d2]) {
+          for(i[d1]=grid()->si(F::S, d1)+1; i[d1]<=grid()->ei(F::S, d1)-1; ++i[d1])
+            for(i[d2]=grid()->si(F::S, d2)+1; i[d2]<=grid()->ei(F::S, d2)-1; ++i[d2]) {
 
               // transfer
-              for(i[dir]=space()->si(F::S, dir); i[dir]<=space()->ei(F::S, dir); ++i[dir])
+              for(i[dir]=grid()->si(F::S, dir); i[dir]<=grid()->ei(F::S, dir); ++i[dir])
                 (*b)[ i[dir]-1 ] = temp(i);
 
               Ordinal lu_solve_sucess;
@@ -189,7 +189,7 @@ public:
               assert(!lu_solve_sucess);
 
               // transfer back
-              for(i[dir]=space()->si(F::S, dir); i[dir]<=space()->ei(F::S, dir); ++i[dir])
+              for(i[dir]=grid()->si(F::S, dir); i[dir]<=grid()->ei(F::S, dir); ++i[dir])
                 y(i) = y(i) + omega_*(*b)[ i[dir]-1 ];
             }
 
@@ -208,8 +208,8 @@ public:
     return false;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}

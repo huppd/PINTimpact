@@ -8,7 +8,7 @@
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_Space.hpp" // just for create<>
+#include "Pimpact_Grid.hpp" // just for create<>
 
 
 
@@ -29,7 +29,7 @@ public:
   using DomainFieldT = typename OP1::DomainFieldT;
   using RangeFieldT = typename OP2::RangeFieldT;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
@@ -48,7 +48,7 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
       trans=Belos::NOTRANS) const {
 
-    typename OP1::RangeFieldT temp(space());
+    typename OP1::RangeFieldT temp(grid());
 
     op1_->apply(x, temp);
     op2_->apply(x, y);
@@ -60,8 +60,8 @@ public:
     op2_->assignField(mv);
   };
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op1_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op1_->grid();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

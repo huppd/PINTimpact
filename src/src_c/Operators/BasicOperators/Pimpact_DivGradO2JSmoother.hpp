@@ -20,21 +20,21 @@ namespace Pimpact {
 ///
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator
-/// \note todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3, 2>
+/// \note todo instead of hardcode 2nd Order it would be pretty to use new grid with StencilWidth<3, 2>
 template<class OperatorT>
 class DivGradO2JSmoother {
 
 public:
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+  using DomainFieldT = ScalarField<GridT>;
+  using RangeFieldT = ScalarField<GridT>;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
   using SolverT = TeuchosSolver<OperatorT>;
 
@@ -62,7 +62,7 @@ public:
   DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList()):
-    omega_(pl->get<ST>("omega", (2==SpaceT::sdim)?0.8:6./7.)),
+    omega_(pl->get<ST>("omega", (2==GridT::sdim)?0.8:6./7.)),
     nIter_(pl->get<int>("numIters", 2)),
     levelYes_(pl->get<bool>("level", false)),
     jacobi_(pl->get<bool>("Jacobi", true)),
@@ -86,38 +86,38 @@ protected:
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}(x - A y_k) \f]
   void applyJ(const DomainFieldT& b, RangeFieldT& y, const Add add=Add::N) const {
 
-    DomainFieldT temp(space());
+    DomainFieldT temp(grid());
 
     for(int i=0; i<nIter_; ++i) {
 
       y.exchange();
 
-      if(3==SpaceT::sdim)
-        for(OT k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-          for(OT j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-            for(OT i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+      if(3==GridT::sdim)
+        for(OT k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+          for(OT j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+            for(OT i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
               temp(i, j, k) = innerStenc3D(b, y, i, j, k);
             }
       else
-        for(OT k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-          for(OT j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-            for(OT i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+        for(OT k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+          for(OT j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+            for(OT i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
               temp(i, j, k) = innerStenc2D(b, y, i, j, k);
             }
 
       temp.changed();
       temp.exchange();
 
-      if(3==SpaceT::sdim)
-        for(OT k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-          for(OT j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-            for(OT i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+      if(3==GridT::sdim)
+        for(OT k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+          for(OT j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+            for(OT i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
               y(i, j, k) = innerStenc3D(b, temp, i, j, k);
             }
       else
-        for(OT k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-          for(OT j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-            for(OT i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+        for(OT k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+          for(OT j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+            for(OT i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
               y(i, j, k) = innerStenc2D(b, temp, i, j, k);
             }
 
@@ -135,16 +135,16 @@ protected:
 
       y.exchange();
 
-      if(3==SpaceT::sdim)
-        for(OT k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-          for(OT j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-            for(OT i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+      if(3==GridT::sdim)
+        for(OT k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+          for(OT j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+            for(OT i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
               y(i, j, k) = innerStenc3D(b, y, i, j, k);
             }
       else
-        for(OT k=space()->si(F::S, Z); k<=space()->ei(F::S, Z); ++k)
-          for(OT j=space()->si(F::S, Y); j<=space()->ei(F::S, Y); ++j)
-            for(OT i=space()->si(F::S, X); i<=space()->ei(F::S, X); ++i) {
+        for(OT k=grid()->si(F::S, Z); k<=grid()->ei(F::S, Z); ++k)
+          for(OT j=grid()->si(F::S, Y); j<=grid()->ei(F::S, Y); ++j)
+            for(OT i=grid()->si(F::S, X); i<=grid()->ei(F::S, X); ++i) {
               y(i, j, k) = innerStenc2D(b, y, i, j, k);
             }
 
@@ -162,8 +162,8 @@ public:
     return false;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
@@ -184,12 +184,12 @@ protected:
   constexpr ST innerStenc3D(const DomainFieldT& b, const DomainFieldT& x,
                              const OT i, const OT j, const OT k) const {
 
-    const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S, X)) ||
-                     (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S, X)) ;
-    const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S, Y)) ||
-                     (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S, Y)) ;
-    const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->si(F::S, Z)) ||
-                     (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->ei(F::S, Z)) ;
+    const bool bcX = (grid()->getBCLocal()->getBCL(X) > 0 && i==grid()->si(F::S, X)) ||
+                     (grid()->getBCLocal()->getBCU(X) > 0 && i==grid()->ei(F::S, X)) ;
+    const bool bcY = (grid()->getBCLocal()->getBCL(Y) > 0 && j==grid()->si(F::S, Y)) ||
+                     (grid()->getBCLocal()->getBCU(Y) > 0 && j==grid()->ei(F::S, Y)) ;
+    const bool bcZ = (grid()->getBCLocal()->getBCL(Z) > 0 && k==grid()->si(F::S, Z)) ||
+                     (grid()->getBCLocal()->getBCU(Z) > 0 && k==grid()->ei(F::S, Z)) ;
 
     //const ST eps = 0.1;
     const ST eps = 1./static_cast<ST>(OperatorT::epsI);
@@ -212,10 +212,10 @@ protected:
   constexpr ST innerStenc2D(const DomainFieldT& b, const DomainFieldT& x, const OT i,
       const OT j, const OT k) const {
 
-    const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->si(F::S, X)) ||
-                     (space()->getBCLocal()->getBCU(X) > 0 && i==space()->ei(F::S, X)) ;
-    const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->si(F::S, Y)) ||
-                     (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->ei(F::S, Y)) ;
+    const bool bcX = (grid()->getBCLocal()->getBCL(X) > 0 && i==grid()->si(F::S, X)) ||
+                     (grid()->getBCLocal()->getBCU(X) > 0 && i==grid()->ei(F::S, X)) ;
+    const bool bcY = (grid()->getBCLocal()->getBCL(Y) > 0 && j==grid()->si(F::S, Y)) ||
+                     (grid()->getBCLocal()->getBCU(Y) > 0 && j==grid()->ei(F::S, Y)) ;
 
     //const ST eps = 0.1;
     const ST eps = 1./static_cast<ST>(OperatorT::epsI);

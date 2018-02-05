@@ -51,10 +51,10 @@ const int d = 3;
 const int dNC = 4;
 //const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, d, dNC>;
+using GridT = Pimpact::Grid<ST, OT, sd, d, dNC>;
 
-using SF = typename Pimpact::ScalarField<SpaceT>;
-using VF = typename Pimpact::VectorField<SpaceT>;
+using SF = typename Pimpact::ScalarField<GridT>;
+using VF = typename Pimpact::VectorField<GridT>;
 using MSF = typename Pimpact::ModeField<SF>;
 using MVF = typename Pimpact::ModeField<VF>;
 
@@ -188,16 +188,16 @@ TEUCHOS_UNIT_TEST(BasicOperator, HelmholtzOp) {
   pl->set<ST>("alpha2", mulI);
   pl->set<ST>("Re", 1./mulL);
 
-  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+  Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
 
-  auto op = Pimpact::create<Pimpact::HelmholtzOp>(space);
+  auto op = Pimpact::create<Pimpact::HelmholtzOp>(grid);
 
-	Teuchos::RCP<Pimpact::SimpleVectorIteration<Pimpact::HelmholtzOp<SpaceT> > >
+	Teuchos::RCP<Pimpact::SimpleVectorIteration<Pimpact::HelmholtzOp<GridT> > >
 		svi = Teuchos::rcp(new
-				Pimpact::SimpleVectorIteration<Pimpact::HelmholtzOp<SpaceT> >(op));
+				Pimpact::SimpleVectorIteration<Pimpact::HelmholtzOp<GridT> >(op));
 
-	if(0==space->rankST())
+	if(0==grid->rankST())
 		std::cout <<"\n" <<op->getLabel() <<":\tmax EV:\t" <<svi->getMaxEV() <<"\n";
 }
 
@@ -242,9 +242,9 @@ TEUCHOS_UNIT_TEST(BasicOperator, DivGradO2Inv) {
 
 	//const int dNC=2;
 
-  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+  Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
-  auto op = Pimpact::create<Pimpact::DivGradO2Op>(space);
+  auto op = Pimpact::create<Pimpact::DivGradO2Op>(grid);
 
 	op->print2Mat();
 
@@ -254,16 +254,16 @@ TEUCHOS_UNIT_TEST(BasicOperator, DivGradO2Inv) {
 
 	{
 		auto svi = Teuchos::rcp(new
-				Pimpact::SimpleVectorIteration<Pimpact::DivGradO2Op<SpaceT> >(op));
+				Pimpact::SimpleVectorIteration<Pimpact::DivGradO2Op<GridT> >(op));
 
-		if(0==space->rankST())
+		if(0==grid->rankST())
 			std::cout <<"\n" <<op->getLabel() <<":\tmax EV:\t" <<svi->getMaxEV() <<"\n";
 	}
 	{
 		auto svi = Teuchos::rcp(new
-				Pimpact::SimpleVectorIteration<Pimpact::DivGradO2Inv<Pimpact::DivGradO2Op<SpaceT> > >(solver));
+				Pimpact::SimpleVectorIteration<Pimpact::DivGradO2Inv<Pimpact::DivGradO2Op<GridT> > >(solver));
 
-		if(0==space->rankST())
+		if(0==grid->rankST())
 			std::cout <<"\n" <<op->getLabel() <<":\tmax EV:\t" <<svi->getMaxEV() <<"\n";
 	}
 

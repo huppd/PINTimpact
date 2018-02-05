@@ -25,14 +25,14 @@ public:
   using DomainFieldT = DomainField;
   using RangeFieldT = RangeField;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
   virtual void apply(const DomainField& x, RangeField& y, const Belos::ETrans
       trans=Belos::NOTRANS) const {} ;
 
   virtual void assignField(const DomainField& mv) {};
 
-  virtual const Teuchos::RCP<const SpaceT>& space() const =0;
+  virtual const Teuchos::RCP<const GridT>& grid() const =0;
 
   virtual void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {}
 
@@ -58,7 +58,7 @@ public:
   using DomainFieldT = typename Op::DomainFieldT;
   using  RangeFieldT = typename Op::RangeFieldT;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
@@ -86,8 +86,8 @@ public:
     return opm_->hasApplyTranspose();
   };
 
-  virtual const Teuchos::RCP<const SpaceT>& space() const {
-    return opm_->space();
+  virtual const Teuchos::RCP<const GridT>& grid() const {
+    return opm_->grid();
   };
 
   virtual void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

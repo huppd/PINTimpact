@@ -5,7 +5,7 @@
 
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 
 
 
@@ -29,7 +29,7 @@ public:
 
   using TempFieldT = typename OP2::RangeFieldT;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
@@ -47,7 +47,7 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans
       trans=Belos::NOTRANS) const {
 
-    TempFieldT temp(space());
+    TempFieldT temp(grid());
 
     if(op1_.is_null()) {
 //      op2_->apply(x, y);
@@ -64,8 +64,8 @@ public:
         op2_->assignField(field);
   };
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op1_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op1_->grid();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

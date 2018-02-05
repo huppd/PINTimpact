@@ -18,7 +18,7 @@ namespace Pimpact {
 
 
 /// \brief Domain or physical set up would be better names
-/// \ingroup SpaceObject
+/// \ingroup GridObject
 template<class ScalarT, int sd>
 class DomainSize {
 

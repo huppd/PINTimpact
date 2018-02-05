@@ -12,44 +12,44 @@
 namespace Pimpact {
 
 
-/// \brief Transfers fields from "coarse" to "fine" spaces, necessary when \c Space::dimNC is  different.
+/// \brief Transfers fields from "coarse" to "fine" grids, necessary when \c Grid::dimNC is  different.
 ///
 /// Goes in both direction. If this is used a lot, it could be beneficial, to
 /// seperate StencilWidths with data layout, so having same datalayout for all
 /// stencile. Coping could be beneficial because Cash effects are bether
 ///
-/// \tparam FSpaceT fine space type in the sense of stencil order.
-/// \tparam CSpaceT coase space type
+/// \tparam FGridT fine grid type in the sense of stencil order.
+/// \tparam CGridT coase grid type
 /// \ingroup BaseOperator
-template<class FST, class CST>
+template<class FGT, class CGT>
 class TransferOp {
 
 public:
 
-  using SpaceT = FST;
+  using GridT = FGT;
 
-  using FSpaceT = FST;
-  using CSpaceT = CST;
+  using FGridT = FGT;
+  using CGridT = CGT;
 
-  using Scalar = typename FSpaceT::Scalar;
-  using Ordinal = typename FSpaceT::Ordinal;
+  using Scalar = typename FGridT::Scalar;
+  using Ordinal = typename FGridT::Ordinal;
 
-  using DomainFieldT = ScalarField<FSpaceT>;
-  using RangeFieldT = ScalarField<CSpaceT>;
+  using DomainFieldT = ScalarField<FGridT>;
+  using RangeFieldT = ScalarField<CGridT>;
 
 protected:
 
   using TO = const Teuchos::Tuple<Scalar*, 3>;
 
-  Teuchos::RCP<const FSpaceT> fSpace_;
-  Teuchos::RCP<const CSpaceT> cSpace_;
+  Teuchos::RCP<const FGridT> fGrid_;
+  Teuchos::RCP<const CGridT> cGrid_;
 
 public:
 
   TransferOp(
-    const Teuchos::RCP<const FSpaceT>& fSpace,
-    const Teuchos::RCP<const CSpaceT>& cSpace):
-    fSpace_(fSpace), cSpace_(cSpace) {}
+    const Teuchos::RCP<const FGridT>& fGrid,
+    const Teuchos::RCP<const CGridT>& cGrid):
+    fGrid_(fGrid), cGrid_(cGrid) {}
 
 
   template<class SP1T, class SP2T>
@@ -59,12 +59,12 @@ public:
 
     assert(fType == y.getType());
 
-    for(int i=0; i<SpaceT::sdim; ++i)
-      assert(x.space()->nLoc(i) == y.space()->nLoc(i));
+    for(int i=0; i<GridT::sdim; ++i)
+      assert(x.grid()->nLoc(i) == y.grid()->nLoc(i));
 
-    for(Ordinal k=x.space()->si(fType, Z, B::Y); k<=x.space()->ei(fType, Z, B::Y); ++k)
-      for(Ordinal j=x.space()->si(fType, Y, B::Y); j<=x.space()->ei(fType, Y, B::Y); ++j)
-        for(Ordinal i=x.space()->si(fType, X, B::Y); i<=x.space()->ei(fType, X, B::Y); ++i)
+    for(Ordinal k=x.grid()->si(fType, Z, B::Y); k<=x.grid()->ei(fType, Z, B::Y); ++k)
+      for(Ordinal j=x.grid()->si(fType, Y, B::Y); j<=x.grid()->ei(fType, Y, B::Y); ++j)
+        for(Ordinal i=x.grid()->si(fType, X, B::Y); i<=x.grid()->ei(fType, X, B::Y); ++i)
           y(i, j, k) = x(i, j, k);
 
     y.changed();

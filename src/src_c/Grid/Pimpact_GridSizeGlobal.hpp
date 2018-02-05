@@ -19,7 +19,7 @@ namespace Pimpact {
 /// \brief global grid size(independent of FieldType)
 ///
 /// \todo remove tpara dimension and rm getters
-/// \ingroup SpaceObject
+/// \ingroup GridObject
 template<class OrdinalT, int sdim >
 class GridSizeGlobal : public Teuchos::Tuple<OrdinalT, 4> {
 

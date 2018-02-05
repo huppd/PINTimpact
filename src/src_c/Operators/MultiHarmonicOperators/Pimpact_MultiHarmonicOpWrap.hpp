@@ -28,7 +28,7 @@ public:
   using DomainFieldT = MultiHarmonicField<typename OpT::DomainFieldT>;
   using RangeFieldT  = MultiHarmonicField<typename OpT::RangeFieldT>;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
@@ -36,18 +36,18 @@ protected:
 
 public:
 
-  MultiHarmonicOpWrap(const Teuchos::RCP<const SpaceT>& space):
-    op_(Teuchos::rcp(new OpT(space))) {};
+  MultiHarmonicOpWrap(const Teuchos::RCP<const GridT>& grid):
+    op_(Teuchos::rcp(new OpT(grid))) {};
 
   MultiHarmonicOpWrap(const Teuchos::RCP<OpT>& op): op_(op) {};
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N) const {
 
-    if(0==space()->si(F::U, 3))
+    if(0==grid()->si(F::U, 3))
       op_->apply(x.get0Field(), y.get0Field(), add);
 
-    for(typename SpaceT::Ordinal i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
+    for(typename GridT::Ordinal i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i) {
       op_->apply(x.getCField(i), y.getCField(i), add);
       op_->apply(x.getSField(i), y.getSField(i), add);
     }
@@ -64,8 +64,8 @@ public:
     return op_->hasApplyTranspose();
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

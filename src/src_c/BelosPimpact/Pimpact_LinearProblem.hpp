@@ -20,16 +20,16 @@ namespace Pimpact {
 /// \tparam MultiFieldT has to be of type \c Pimpact::MultiField
 ///
 /// \deprecated
-template<class MultiFieldT >
+template<class MultiFieldT>
 class LinearProblem {
 
   using MF = MultiFieldT;
 
   using Op = OperatorBase<MF>;
 
-  using SpaceT = typename Op::SpaceT;
+  using GridT = typename Op::GridT;
 
-  using Scalar = typename SpaceT::Scalar;
+  using Scalar = typename GridT::Scalar;
 
   Teuchos::RCP<Belos::SolverManager<Scalar, MF, Op> >	solver_;
   Teuchos::RCP<Belos::LinearProblem<Scalar, MF, Op> > problem_;
@@ -67,8 +67,8 @@ public:
     return problem_;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return problem_->getOperator()->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() {
+    return problem_->getOperator()->grid();
   };
 
   constexpr Teuchos::RCP<const Op> getOperatorPtr() {
@@ -114,7 +114,7 @@ Teuchos::RCP<LinearProblem<MF> > createLinearProblem(
   const Teuchos::RCP<Teuchos::ParameterList>& param,
   const std::string& solvername="GMRES") {
 
-  using S = typename MF::SpaceT::Scalar;
+  using S = typename MF::GridT::Scalar;
   using Op = OperatorBase<MF>;
 
   Belos::SolverFactory<S, MF, Op> factory;

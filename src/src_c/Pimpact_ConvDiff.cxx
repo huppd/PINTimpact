@@ -8,7 +8,7 @@ const int sd = 2;
 const int d = 3;
 const int dNC = 2;
 
-using SpaceT = Pimpact::Space<S, O, sd, d, dNC>;
+using GridT = Pimpact::Grid<S, O, sd, d, dNC>;
 
 template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
@@ -31,15 +31,15 @@ int main(int argi, char** argv) {
   pl->set<O>("ny", 129);
 
 
-  auto space = Pimpact::create<SpaceT >(pl);
+  auto grid = Pimpact::create<GridT >(pl);
 
-  Pimpact::VectorField<SpaceT> wind(space);
-  Pimpact::VectorField<SpaceT> y   (space);
-  Pimpact::VectorField<SpaceT> z   (space);
-  Pimpact::VectorField<SpaceT> z2  (space);
+  Pimpact::VectorField<GridT> wind(grid);
+  Pimpact::VectorField<GridT> y   (grid);
+  Pimpact::VectorField<GridT> z   (grid);
+  Pimpact::VectorField<GridT> z2  (grid);
 
 
-  auto op = Pimpact::create<ConvDiffOpT>(space);
+  auto op = Pimpact::create<ConvDiffOpT>(grid);
 
   for(short int dirx=-1; dirx<4; dirx+=2) {
     for(short int diry=-1; diry<2; diry+=2) {
@@ -57,14 +57,14 @@ int main(int argi, char** argv) {
       auto smoother =
         Pimpact::create<
         Pimpact::NonlinearSmoother<
-        ConvDiffOpT<SpaceT> ,
+        ConvDiffOpT<GridT> ,
         Pimpact::ConvectionDiffusionSORSmoother > > (
           op,
           pls);
 
       std::ofstream phifile;
 
-      if(space()->rankST()==0) {
+      if(grid()->rankST()==0) {
         std::string fname = "phin.txt";
         if(3==dirx)
           fname.insert(4, std::to_string(static_cast<long long>(8)));
@@ -77,7 +77,7 @@ int main(int argi, char** argv) {
 
         S phi = phii*2.*pi/(nwinds);
 
-        if(space()->rankST()==0)
+        if(grid()->rankST()==0)
           phifile <<phi <<"\t";
 
         // init solution
@@ -102,7 +102,7 @@ int main(int argi, char** argv) {
         std::string filename = "GS.txt";
         filename.insert(2, std::to_string(static_cast<long long>(phii)));
 
-        if(space()->rankST()==0)
+        if(grid()->rankST()==0)
           ofs.open(filename, std::ofstream::out);
 
         S error;
@@ -117,21 +117,21 @@ int main(int argi, char** argv) {
 
           if(iter>1000) error=-1;
 
-          if(space()->rankST()==0) ofs <<error <<"\n";
-          if(space()->rankST()==0) std::cout <<error <<"\n";
+          if(grid()->rankST()==0) ofs <<error <<"\n";
+          if(grid()->rankST()==0) std::cout <<error <<"\n";
 
           iter++;
 
         } while(error>1.e-6);
 
-        if(space()->rankST()==0)
+        if(grid()->rankST()==0)
           phifile <<iter <<"\n";
 
 
-        if(space()->rankST()==0)
+        if(grid()->rankST()==0)
           ofs.close();
       }
-      if(space()->rankST()==0)
+      if(grid()->rankST()==0)
         phifile.close();
     }
   }

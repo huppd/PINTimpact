@@ -44,7 +44,7 @@
 #include "Pimpact_TransferCompoundOp.hpp"
 #include "Pimpact_TransferMultiHarmonicOp.hpp"
 #include "Pimpact_Utils.hpp"
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 
 #include "Pimpact_DivGradNullSpace.hpp"
 
@@ -59,11 +59,11 @@ const int dNC = 4;
 //const int dNC = 3;
 //const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, 4, dNC>;
+using GridT = Pimpact::Grid<ST, OT, sd, 4, dNC>;
 
 
-using VF = Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> >;
-using SF = Pimpact::MultiHarmonicField<Pimpact::ScalarField<SpaceT> >;
+using VF = Pimpact::MultiHarmonicField<Pimpact::VectorField<GridT> >;
+using SF = Pimpact::MultiHarmonicField<Pimpact::ScalarField<GridT> >;
 
 using MVF = Pimpact::MultiField<VF>;
 using MSF = Pimpact::MultiField<SF>;
@@ -98,15 +98,15 @@ int main(int argi, char** argv) {
 
 
     ////////////////////////////////////////// set up initial stuff ////////////////////////////
-    Teuchos::RCP<const SpaceT> space =
-      Pimpact::create<SpaceT>(Teuchos::sublist(pl, "Space", true));
+    Teuchos::RCP<const GridT> grid =
+      Pimpact::create<GridT>(Teuchos::sublist(pl, "Grid", true));
 
 
-    if(0 == space->rankST())
+    if(0 == grid->rankST())
       std::cout <<"initial field\n";
 
     // init vectors
-    Teuchos::RCP<CF> x = Teuchos::rcp(new CF(space));
+    Teuchos::RCP<CF> x = Teuchos::rcp(new CF(grid));
 
     // init Fields
     x->getVField().initField(pl->sublist("Base flow"));
@@ -120,27 +120,27 @@ int main(int argi, char** argv) {
     std::string prefix = "energy_";
 
     // compute glob energy in y-dir
-    if(0 == space->si(::Pimpact::F::U, 3)) {
+    if(0 == grid->si(::Pimpact::F::U, 3)) {
       auto vel = x->getVField().get0Field().clone(::Pimpact::ECopy::Deep);
       vel->add(1., *vel, -1., *base);
 
       auto out = Pimpact::createOstream(prefix + "0.txt",
-          space->getProcGrid()->getRankBar(dir));
+          grid->getProcGrid()->getRankBar(dir));
 
       Pimpact::computeHEEnergyDir(*vel, *out, gamma);
     }
 
-    for(OT i=std::max(space->si(::Pimpact::F::U, 3), 1); i<=space->ei(::Pimpact::F::U, 3); ++i) {
+    for(OT i=std::max(grid->si(::Pimpact::F::U, 3), 1); i<=grid->ei(::Pimpact::F::U, 3); ++i) {
       {
         auto out = Pimpact::createOstream(prefix + "C"+std::to_string(i) + ".txt",
-            space->getProcGrid()->getRankBar(dir));
+            grid->getProcGrid()->getRankBar(dir));
 
         Pimpact::computeHEEnergyDir(
             x->getVField().getCField(i), *out, gamma);
       }
       {
         auto out = Pimpact::createOstream(prefix + "S"+std::to_string(i) + ".txt",
-            space->getProcGrid()->getRankBar(dir));
+            grid->getProcGrid()->getRankBar(dir));
 
         Pimpact::computeHEEnergyDir(
             x->getVField().getSField(i), *out, gamma);

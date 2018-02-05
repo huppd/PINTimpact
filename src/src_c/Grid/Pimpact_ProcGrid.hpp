@@ -22,7 +22,7 @@ namespace Pimpact {
 
 /// \brief ProcGrid, needs ProcGridSize, globalBoundaryConditions
 /// provides information about neighboring mpi processes
-/// \ingroup SpaceObject
+/// \ingroup GridObject
 /// \tparam dim  3 or 4 as soon as time is own class ->sd
 template<class OrdinalT, int dim>
 class ProcGrid {

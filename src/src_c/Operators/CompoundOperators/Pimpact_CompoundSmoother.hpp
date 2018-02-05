@@ -31,7 +31,7 @@ public:
   using DomainFieldT = typename CompoundOpT::DomainFieldT;
   using RangeFieldT = typename CompoundOpT::RangeFieldT;
 
-  using SpaceT = typename CompoundOpT::SpaceT;
+  using GridT = typename CompoundOpT::GridT;
 
 protected:
 
@@ -59,14 +59,14 @@ public:
       createTripleCompositionOp(op->getOpV2S(), op->getOpV2V(),
                                  op->getOpS2V());
 
-    Teuchos::RCP<sSmoother> opDGi = Teuchos::rcp(new sSmoother(space()));
+    Teuchos::RCP<sSmoother> opDGi = Teuchos::rcp(new sSmoother(grid()));
 
     opSSmoother_ = createTripleCompositionOp(opDGi, opDHG, opDGi);
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    Teuchos::RCP<VF> tempv =  create<VF>(space());
+    Teuchos::RCP<VF> tempv =  create<VF>(grid());
 
     opSSmoother_->apply(x.getSField() ,  y.getSField());
 
@@ -80,8 +80,8 @@ public:
 
   void assignField(const DomainFieldT& mv) { };
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return opS2V_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return opS2V_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}

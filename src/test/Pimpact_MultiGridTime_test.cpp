@@ -31,19 +31,19 @@ using ST = double;
 using OT = int;
 const int sd = 3;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, 4, 4>; 
+using GridT = Pimpact::Grid<ST, OT, sd, 4, 4>; 
 
-using FSpace3T = Pimpact::Space<ST, OT, sd, 3, 4>;
-using FSpace4T = Pimpact::Space<ST, OT, sd, 4, 4>; 
+using FGrid3T = Pimpact::Grid<ST, OT, sd, 3, 4>;
+using FGrid4T = Pimpact::Grid<ST, OT, sd, 4, 4>; 
 
-using CSpace3T = Pimpact::Space<ST, OT, sd, 3, 2>;
-using CSpace4T = Pimpact::Space<ST, OT, sd, 4, 2>; 
+using CGrid3T = Pimpact::Grid<ST, OT, sd, 3, 2>;
+using CGrid4T = Pimpact::Grid<ST, OT, sd, 4, 2>; 
 
-using CS3L = Pimpact::CoarsenStrategy<FSpace3T, CSpace3T>;
-using CS3G = Pimpact::CoarsenStrategyGlobal<FSpace3T, CSpace3T, 5>;
+using CS3L = Pimpact::CoarsenStrategy<FGrid3T, CGrid3T>;
+using CS3G = Pimpact::CoarsenStrategyGlobal<FGrid3T, CGrid3T, 5>;
 
-using CS4L = Pimpact::CoarsenStrategy<FSpace4T, CSpace4T>;
-using CS4G = Pimpact::CoarsenStrategyGlobal<FSpace4T, CSpace4T, 5>;
+using CS4L = Pimpact::CoarsenStrategy<FGrid4T, CGrid4T>;
+using CS4G = Pimpact::CoarsenStrategyGlobal<FGrid4T, CGrid4T, 5>;
 
 template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
 //template<class T> using BVF = Pimpact::MultiField< Pimpact::VectorField<T> >;
@@ -139,21 +139,21 @@ TEUCHOS_STATIC_SETUP() {
 }
 
 
-template<class SpaceT> using CF = Pimpact::CompoundField<
-    Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
-    Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
+template<class GridT> using CF = Pimpact::CompoundField<
+    Pimpact::TimeField<Pimpact::VectorField<GridT> >,
+    Pimpact::TimeField<Pimpact::ScalarField<GridT> > >;
 
-template<class SpaceT> using INT = Pimpact::IntResCompoundOp<
-	Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
-	Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<SpaceT> > >;
+template<class GridT> using INT = Pimpact::IntResCompoundOp<
+	Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<GridT> > >,
+	Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<GridT> > >;
 
-template<class SpaceT> using RES = Pimpact::IntResCompoundOp<
-Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<SpaceT> > >,
-	Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionSFOp<SpaceT> > >;
+template<class GridT> using RES = Pimpact::IntResCompoundOp<
+Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<GridT> > >,
+	Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionSFOp<GridT> > >;
 
-template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
-Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
-	Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >; 
+template<class GridT1, class GridT2> using TCO = Pimpact::TransferCompoundOp<
+Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<GridT1, GridT2> > >,
+	Pimpact::TransferTimeOp<                           Pimpact::TransferOp<GridT1, GridT2> > >; 
 
 template<class T> using MOP = Pimpact::InverseOp< T >;
 
@@ -169,9 +169,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiGrid, MG, CS) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl); 
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl); 
 
-	auto mgSpaces = Pimpact::createMGSpaces<CS>(space, maxGrids);
+	auto mgGrids = Pimpact::createMGGrids<CS>(grid, maxGrids);
 
 
 	auto mgPL = Teuchos::parameterList();
@@ -186,7 +186,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiGrid, MG, CS) {
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver");
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance" , 1.e-1);
 
-	auto op = Pimpact::create<Pimpact::TimeNSOp>(space);
+	auto op = Pimpact::create<Pimpact::TimeNSOp>(grid);
 
 	auto mg = Pimpact::createMultiGrid<
 		CF,
@@ -198,15 +198,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiGrid, MG, CS) {
 		Pimpact::TimeNS4DBSmoother,
 		//									Pimpact::TimeStokesBSmoother
 		MOP
-			> (mgSpaces, op, mgPL);
+			> (mgGrids, op, mgPL);
 
 	//	mg->print();
 
-  auto x = Pimpact::create<CF>(space);
+  auto x = Pimpact::create<CF>(grid);
 
-	using OpT = Pimpact::TimeStokesOp<FSpace4T>;
+	using OpT = Pimpact::TimeStokesOp<FGrid4T>;
 
-	auto op_true = Pimpact::create<OpT>(space);
+	auto op_true = Pimpact::create<OpT>(grid);
 
 	double p = 1;
 	double alpha = std::sqrt(pl->get<double>("alpha2"));

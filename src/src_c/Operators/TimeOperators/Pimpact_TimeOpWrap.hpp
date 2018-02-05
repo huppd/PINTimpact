@@ -27,18 +27,18 @@ public:
   using DomainFieldT = TimeField<typename OperatorT::DomainFieldT>;
   using RangeFieldT = TimeField<typename OperatorT::RangeFieldT>;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
 protected:
 
-  using Ordinal = typename SpaceT::Ordinal;
+  using Ordinal = typename GridT::Ordinal;
 
   Teuchos::RCP<OperatorT> op_;
 
 public:
 
-  TimeOpWrap(const Teuchos::RCP<const SpaceT>& space):
-    op_(create<OperatorT>(space)) {};
+  TimeOpWrap(const Teuchos::RCP<const GridT>& grid):
+    op_(create<OperatorT>(grid)) {};
 
   TimeOpWrap(const Teuchos::RCP<OperatorT>& op): op_(op) {};
 
@@ -47,21 +47,21 @@ public:
 
     if(true==CNyes) {
 
-      typename OperatorT::RangeFieldT temp(space());
+      typename OperatorT::RangeFieldT temp(grid());
 
       x.exchange();
-      for(int i=0; i <=space()->ei(F::S, 3); ++i) {
+      for(int i=0; i <=grid()->ei(F::S, 3); ++i) {
 
         op_->apply(x(i), temp);
 
-        if(i>=space()->si(F::S, 3))
+        if(i>=grid()->si(F::S, 3))
           y(i).add(1., y(i), 0.5, temp);
 
-        if(i+1<=space()->ei(F::S, 3))
+        if(i+1<=grid()->ei(F::S, 3))
           y(i+1).add(0., y(i+1), 0.5, temp);
       }
     } else {
-      for(Ordinal i=space()->si(F::S, 3); i<=space()->ei(F::S, 3); ++i)
+      for(Ordinal i=grid()->si(F::S, 3); i<=grid()->ei(F::S, 3); ++i)
         op_->apply(x(i) , y(i), add);
     }
     y.changed();
@@ -73,8 +73,8 @@ public:
     return op_->hasApplyTranspose();
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   Teuchos::RCP<OperatorT> getOperatorPtr() {

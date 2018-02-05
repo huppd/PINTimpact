@@ -71,7 +71,7 @@ public:
 		eStream_(Teuchos::null) {
 
 			if(sol_!=Teuchos::null) {
-				int world_rank = sol->space()->rankST();
+				int world_rank = sol->grid()->rankST();
         if(0==world_rank) 
           eStream_ = Teuchos::rcp(new std::ofstream("errorIter.txt"));
         else

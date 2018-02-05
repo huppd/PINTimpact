@@ -29,11 +29,11 @@ const int sd = 3;
 
 const ST pi2 = std::atan(1.)*8.;
 
-using SpaceT = Pimpact::Space<ST, OT, sd, d, dNC>;
+using GridT = Pimpact::Grid<ST, OT, sd, d, dNC>;
 
 
-using SF = typename Pimpact::ScalarField<SpaceT>;
-using VF = typename Pimpact::VectorField<SpaceT>;
+using SF = typename Pimpact::ScalarField<GridT>;
+using VF = typename Pimpact::VectorField<GridT>;
 using MSF = typename Pimpact::ModeField<SF>;
 using MVF = typename Pimpact::ModeField<VF>;
 
@@ -66,7 +66,7 @@ template<class T> using POP2  = Pimpact::PrecInverseOp<T, ConvDiffJT >;
 template<class T> using MOP = Pimpact::InverseOp<T >;
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ModeSolver, ModeNonlinearOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ModeSolver, ModeNonlinearOp, GridT) {
 
 	pl->set<bool>("spectral in time", true);
 
@@ -78,15 +78,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ModeSolver, ModeNonlinearOp, SpaceT) {
 
 	nf = 4;
 
-	setParameter(SpaceT::sdim);
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	setParameter(GridT::sdim);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
 
-	Pimpact::ModeField<Pimpact::VectorField<SpaceT> > x(space);
-	Pimpact::ModeField<Pimpact::VectorField<SpaceT> > y(space);
-	Pimpact::ModeField<Pimpact::VectorField<SpaceT> > rhs(space);
-	Pimpact::ModeField<Pimpact::VectorField<SpaceT> > sol(space);
-	Pimpact::ModeField<Pimpact::VectorField<SpaceT> > err(space);
+	Pimpact::ModeField<Pimpact::VectorField<GridT> > x(grid);
+	Pimpact::ModeField<Pimpact::VectorField<GridT> > y(grid);
+	Pimpact::ModeField<Pimpact::VectorField<GridT> > rhs(grid);
+	Pimpact::ModeField<Pimpact::VectorField<GridT> > sol(grid);
+	Pimpact::ModeField<Pimpact::VectorField<GridT> > err(grid);
 
 	Teuchos::RCP<Teuchos::ParameterList > param = Teuchos::parameterList();// = Pimpact::createLinSolverParameter(solvName, 1.e-6);
 
@@ -109,20 +109,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ModeSolver, ModeNonlinearOp, SpaceT) {
 	param->sublist("Solver").set("Convergence Tolerance", 1.e-6);
 	//param->set("Flexible Gmres", false);
 	
-	auto zeroOp = Pimpact::create<ConvDiffOpT>(space);
+	auto zeroOp = Pimpact::create<ConvDiffOpT>(grid);
 	
-	//Teuchos::RCP<const Pimpact::ModeNonlinearOp<ConvDiffOpT<SpaceT> > modeOp =
+	//Teuchos::RCP<const Pimpact::ModeNonlinearOp<ConvDiffOpT<GridT> > modeOp =
 	auto modeOp =
-		Teuchos::rcp(new Pimpact::ModeNonlinearOp<ConvDiffOpT<SpaceT> >(zeroOp));
+		Teuchos::rcp(new Pimpact::ModeNonlinearOp<ConvDiffOpT<GridT> >(zeroOp));
 
 	auto modeInv = Pimpact::createInverseOp(modeOp, param);
 
 
-	using FSpaceT = SpaceT;
-	using CSpaceT = Pimpact::Space<ST, OT, SpaceT::sdim, SpaceT::dimension, 2>;
+	using FGridT = GridT;
+	using CGridT = Pimpact::Grid<ST, OT, GridT::sdim, GridT::dimension, 2>;
 
-	using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT, CSpaceT>;
-	auto mgSpaces = Pimpact::createMGSpaces<CS>(space, maxGrids);
+	using CS = Pimpact::CoarsenStrategyGlobal<FGridT, CGridT>;
+	auto mgGrids = Pimpact::createMGGrids<CS>(grid, maxGrids);
 
 	auto zeroInv = Pimpact::createInverseOp(zeroOp, param);
 
@@ -140,17 +140,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ModeSolver, ModeNonlinearOp, SpaceT) {
 		//POP2
 		//POP3
 		MOP
-			> (mgSpaces, zeroOp, Teuchos::parameterList()) ;
+			> (mgGrids, zeroOp, Teuchos::parameterList()) ;
 
-	//if(0==space->rankST())
+	//if(0==grid->rankST())
 	//mgConvDiff->print();
 
 	//zeroInv->setRightPrec(Pimpact::createMultiOperatorBase(mgConvDiff));
 	//modeInv->setRightPrec(Pimpact::createMultiOperatorBase(Pimpact::create<Pimpact::ModePrec>(zeroInv)));
 	//modeInv->setLeftPrec(Pimpact::createMultiOperatorBase(Pimpact::create<Pimpact::ModePrec>(zeroInv)));
 
-	ST iRe = 1./space->getDomainSize()->getRe();
-	ST a2 = space->getDomainSize()->getAlpha2()*iRe;
+	ST iRe = 1./grid->getDomainSize()->getRe();
+	ST a2 = grid->getDomainSize()->getAlpha2()*iRe;
 
 	//std::cout <<"a2: " <<a2 <<"\n";
 	//std::cout <<"iRe: " <<iRe <<"\n";
@@ -165,7 +165,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ModeSolver, ModeNonlinearOp, SpaceT) {
 
 	// initializtion
 	{
-		Pimpact::VectorField<SpaceT> wind(space);
+		Pimpact::VectorField<GridT> wind(grid);
 		wind(Pimpact::F::U).init(1.);
 		wind(Pimpact::F::V).init(1.);
 		////wind(Pimpact::F::W).init(1.);
@@ -194,48 +194,48 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(ModeSolver, ModeNonlinearOp, SpaceT) {
 	// solution init
 	rhs.getCField()(Pimpact::F::U).initFromFunction(
 	    	[=](ST x, ST y, ST z) ->ST {
-					if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-						( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-						( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-						( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-						( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-						( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+					if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+						( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+						( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+						( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+						( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+						( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 						return(initFunC(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 					else
 						return(a2*initFunS(x, y) + deriFunC(y)); });
 
 	rhs.getCField()(Pimpact::F::V).initFromFunction(
 	    	[=](ST x, ST y, ST z) ->ST {
-					if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-						( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-						( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-						( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-						( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-						( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+					if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+						( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+						( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+						( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+						( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+						( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 						return(initFunC(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 					else
 						return(a2*initFunS(x, y) + deriFunC(y)); });
 
 	rhs.getSField()(Pimpact::F::U).initFromFunction(
 				[=](ST x, ST y, ST z) ->ST {
-					if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-						( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-						( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-						( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-						( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-						( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+					if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+						( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+						( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+						( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+						( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+						( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 						return(initFunS(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 					else
 						return(-a2*initFunC(x, y) +deriFunS(x)); });
 
 	rhs.getSField()(Pimpact::F::V).initFromFunction(
 				[=](ST x, ST y, ST z) ->ST {
-					if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-						( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-						( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-						( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-						( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-						( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+					if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+						( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+						( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+						( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+						( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+						( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 						return(initFunS(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 					else
 						return(-a2*initFunC(x, y) + deriFunS(x)); });
@@ -277,7 +277,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(ModeSolver, ModeNonlinearOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, GridT) {
 
 	pl->set<bool>("spectral in time", true);
 
@@ -289,15 +289,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, Spac
 
 	nf = 4;
 
-	setParameter(SpaceT::sdim);
-	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(pl);
+	setParameter(GridT::sdim);
+	Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
 
-	Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > x(space);
-	Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > y(space);
-	Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > rhs(space);
-	Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > sol(space);
-	Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > err(space);
+	Pimpact::MultiHarmonicField<Pimpact::VectorField<GridT> > x(grid);
+	Pimpact::MultiHarmonicField<Pimpact::VectorField<GridT> > y(grid);
+	Pimpact::MultiHarmonicField<Pimpact::VectorField<GridT> > rhs(grid);
+	Pimpact::MultiHarmonicField<Pimpact::VectorField<GridT> > sol(grid);
+	Pimpact::MultiHarmonicField<Pimpact::VectorField<GridT> > err(grid);
 
 	Teuchos::RCP<Teuchos::ParameterList > param = Teuchos::parameterList();// = Pimpact::createLinSolverParameter(solvName, 1.e-6);
 
@@ -309,12 +309,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, Spac
 	param->sublist("Solver").set("Convergence Tolerance", 1.e-6);
 	//param->set("Flexible Gmres", false);
 	
-	auto zeroOp = Pimpact::create<ConvDiffOpT>(space);
+	auto zeroOp = Pimpact::create<ConvDiffOpT>(grid);
 	
 	auto zeroInv = Pimpact::createInverseOp(zeroOp, param);
 
 	auto modeOp =
-		Teuchos::rcp(new Pimpact::ModeNonlinearOp<ConvDiffOpT<SpaceT> >(zeroOp));
+		Teuchos::rcp(new Pimpact::ModeNonlinearOp<ConvDiffOpT<GridT> >(zeroOp));
 
 	param->get<std::string>("Solver name", "GMRES");
 	param->sublist("Solver").set("Output Style", Belos::Brief);
@@ -332,11 +332,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, Spac
 	auto modeInv = Pimpact::createInverseOp(modeOp, param);
 
 
-	using FSpaceT = SpaceT;
-	using CSpaceT = Pimpact::Space<ST, OT, SpaceT::sdim, SpaceT::dimension, 2>;
+	using FGridT = GridT;
+	using CGridT = Pimpact::Grid<ST, OT, GridT::sdim, GridT::dimension, 2>;
 
-	using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT, CSpaceT>;
-	auto mgSpaces = Pimpact::createMGSpaces<CS>(space, maxGrids);
+	using CS = Pimpact::CoarsenStrategyGlobal<FGridT, CGridT>;
+	auto mgGrids = Pimpact::createMGGrids<CS>(grid, maxGrids);
 
   auto mgConvDiff = Pimpact::createMultiGrid<
     Pimpact::VectorField,
@@ -351,9 +351,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, Spac
     //POP2
     //POP3
     MOP
-      > (mgSpaces, zeroOp, Teuchos::parameterList()) ;
+      > (mgGrids, zeroOp, Teuchos::parameterList()) ;
 
-	//if(0==space->rankST())
+	//if(0==grid->rankST())
 	//mgConvDiff->print();
 
 	zeroInv->setRightPrec(Pimpact::createMultiOperatorBase(mgConvDiff));
@@ -370,7 +370,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, Spac
 
 	// initializtion
 	{
-		Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > wind(space);
+		Pimpact::MultiHarmonicField<Pimpact::VectorField<GridT> > wind(grid);
 		wind.get0Field()(Pimpact::F::U).init(1.);
 		wind.get0Field()(Pimpact::F::V).init(1.);
 		////wind(Pimpact::F::W).init(1.);
@@ -378,8 +378,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, Spac
 		opV2Vprec->assignField(wind);
 	}
 
-	if(0==space()->si(Pimpact::F::U, 3)) {
-		ST iRe = 1./space->getDomainSize()->getRe();
+	if(0==grid()->si(Pimpact::F::U, 3)) {
+		ST iRe = 1./grid->getDomainSize()->getRe();
 
 		auto initFunC = [](ST x, ST y) ->ST { return(std::pow((y-0.5), 2)); };
 		auto initFunS = [](ST x, ST y) ->ST { return(std::pow((x-0.5), 1)); };
@@ -392,32 +392,32 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, Spac
 				[=](ST x, ST y, ST z) ->ST { return(initFunS(x, y)); });
 		rhs.get0Field()(Pimpact::F::U).initFromFunction(
 				[=](ST x, ST y, ST z) ->ST {
-				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 				return(initFunC(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 				else
 				return(deriFunC(y)); });
 
 		rhs.get0Field()(Pimpact::F::V).initFromFunction(
 				[=](ST x, ST y, ST z) ->ST {
-				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 				return(initFunS(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 				else
 				return(deriFunS(y)); });
 	}
 
-	for(OT i=std::max(space()->si(Pimpact::F::U, 3), 1); i<=space()->ei(Pimpact::F::U, 3); ++i) {
-		ST iRe = 1./space->getDomainSize()->getRe();
-		ST a2 = space->getDomainSize()->getAlpha2()*iRe*i;
+	for(OT i=std::max(grid()->si(Pimpact::F::U, 3), 1); i<=grid()->ei(Pimpact::F::U, 3); ++i) {
+		ST iRe = 1./grid->getDomainSize()->getRe();
+		ST a2 = grid->getDomainSize()->getAlpha2()*iRe*i;
 
 		auto initFunC = [](ST x, ST y) ->ST { return(std::pow((y-0.5), 2)); };
 		auto initFunS = [](ST x, ST y) ->ST { return(std::pow((x-0.5), 1)); };
@@ -435,48 +435,48 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiHarmonicSolver, MultiHarmonicDiagOp, Spac
 
 		rhs.getCField(i)(Pimpact::F::U).initFromFunction(
 				[=](ST x, ST y, ST z) ->ST {
-				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 				return(initFunC(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 				else
 				return(a2*initFunS(x, y) + deriFunC(y)); });
 
 		rhs.getCField(i)(Pimpact::F::V).initFromFunction(
 				[=](ST x, ST y, ST z) ->ST {
-				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 				return(initFunC(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 				else
 				return(a2*initFunS(x, y) + deriFunC(y)); });
 
 		rhs.getSField(i)(Pimpact::F::U).initFromFunction(
 				[=](ST x, ST y, ST z) ->ST {
-				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 				return(initFunS(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 				else
 				return(-a2*initFunC(x, y) +deriFunS(x)); });
 
 		rhs.getSField(i)(Pimpact::F::V).initFromFunction(
 				[=](ST x, ST y, ST z) ->ST {
-				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0) ||
-					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0) ||
-					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0) ||
-					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0) ||
-					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0) ||
-					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0))
+				if(((x  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(0)>0) ||
+					( (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(0)>0) ||
+					( (y  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(1)>0) ||
+					( (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(1)>0) ||
+					( (z  )<= Teuchos::ScalarTraits<ST>::eps() && grid->bcl(2)>0) ||
+					( (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && grid->bcu(2)>0))
 				return(initFunS(std::min(std::max(x, 0.), 1.), std::min(std::max(y, 0.), 1.)));
 				else
 				return(-a2*initFunC(x, y) + deriFunS(x)); });

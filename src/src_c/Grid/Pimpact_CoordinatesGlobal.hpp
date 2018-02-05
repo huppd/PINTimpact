@@ -48,7 +48,7 @@ namespace Pimpact {
 ///
 /// \todo make nice interface for getter
 /// \relates CoordinatesGlobal
-/// \ingroup SpaceObject
+/// \ingroup GridObject
 template<class ScalarT, class OrdinalT, int dim>
 class CoordinatesGlobal {
 
@@ -181,7 +181,7 @@ protected:
       xU = std::cos(wU*i0U)/wU;
     }
 
-    //--- coordinates in the physical space
+    //--- coordinates in the physical grid
     if(i<iML && wL!= 0.) {
       if((i + i0L - 1.) <0.)
         // mirroring of the function

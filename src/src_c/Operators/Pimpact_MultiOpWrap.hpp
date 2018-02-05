@@ -24,7 +24,7 @@ public:
 
   using OperatorT = OT;
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
   using DomainFieldT = MultiField<typename OperatorT::DomainFieldT>;
   using RangeFieldT = MultiField<typename OperatorT::RangeFieldT>;
@@ -35,8 +35,8 @@ protected:
 
 public:
 
-  MultiOpWrap(const Teuchos::RCP<const SpaceT>& space):
-    op_(Teuchos::rcp(new OperatorT(space))) {}
+  MultiOpWrap(const Teuchos::RCP<const GridT>& grid):
+    op_(Teuchos::rcp(new OperatorT(grid))) {}
 
   MultiOpWrap(const Teuchos::RCP<OperatorT>& op):op_(op) {}
 
@@ -69,8 +69,8 @@ public:
     return op_;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
   void setParameter(const Teuchos::RCP<Teuchos::ParameterList>& para) {

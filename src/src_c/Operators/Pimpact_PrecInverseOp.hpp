@@ -27,7 +27,7 @@ public:
   using OperatorT = OpT;
   using PreconditionerT = PT<OpT>;
 
-  using SpaceT = typename OperatorT::SpaceT;
+  using GridT = typename OperatorT::GridT;
 
   using DomainFieldT = typename OperatorT::DomainFieldT;
   using RangeFieldT = typename OperatorT::RangeFieldT;
@@ -49,8 +49,8 @@ public:
 
     linprob_ = createLinearProblem<MF>(
                  createMultiOperatorBase(op),
-                 create<MF>(op->space()),
-                 create<MF>(op->space()),
+                 create<MF>(op->grid()),
+                 create<MF>(op->grid()),
                  para,
                  "GMRES");
 
@@ -64,8 +64,8 @@ public:
                  const Teuchos::RCP<Teuchos::ParameterList>& pl):
     linprob_(createLinearProblem<MF>(
                 createMultiOperatorBase(op),
-                create<MF>(op->space()),
-                create<MF>(op->space()),
+                create<MF>(op->grid()),
+                create<MF>(op->grid()),
                 Teuchos::sublist(pl, "Solver"),
                 pl->get<std::string>("Solver name", "GMRES"))) {
 
@@ -109,8 +109,8 @@ public:
   };
 
 
-  Teuchos::RCP<const SpaceT> space() const {
-    return linprob_->space();
+  Teuchos::RCP<const GridT> grid() const {
+    return linprob_->grid();
   };
 
   Teuchos::RCP<LinearProblem<MF> > getLinearProblem() {

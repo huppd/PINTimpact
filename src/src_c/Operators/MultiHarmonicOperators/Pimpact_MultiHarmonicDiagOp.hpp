@@ -18,15 +18,15 @@ class MultiHarmonicDiagOp {
 
 public:
 
-  using SpaceT = typename ZeroOpT::SpaceT;
+  using GridT = typename ZeroOpT::GridT;
 
   using DomainFieldT = MultiHarmonicField<typename ZeroOpT::DomainFieldT>;
   using RangeFieldT = MultiHarmonicField<typename ZeroOpT::RangeFieldT>;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
   Teuchos::RCP<ZeroOpT> zeroOp_;
   Teuchos::RCP<ModeOpT> modeOp_;
@@ -46,7 +46,7 @@ public:
     if(y_ref.global()==DomainFieldT::Global::Y)
       y = Teuchos::rcpFromRef(y_ref);
     else {
-      Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp(new DomainFieldT(space(), DomainFieldT::Global::Y));
+      Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp(new DomainFieldT(grid(), DomainFieldT::Global::Y));
       *temp = y_ref;
       y = temp;
       //std::cout <<"prec: y->global(): " <<y->global() <<"\n";
@@ -60,14 +60,14 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    Scalar iRe = 1./space()->getDomainSize()->getRe();
-    Scalar a2 = space()->getDomainSize()->getAlpha2()*iRe;
+    Scalar iRe = 1./grid()->getDomainSize()->getRe();
+    Scalar a2 = grid()->getDomainSize()->getAlpha2()*iRe;
 
     Scalar mulI;
 
     // computing zero mode of z
     // set paramteters
-    if(0==space()->si(F::U, 3)) {
+    if(0==grid()->si(F::U, 3)) {
 
       // set parameters
       //
@@ -80,7 +80,7 @@ public:
       zeroOp_->apply(x.get0Field(), y.get0Field());
     }
 
-    for(Ordinal i=std::max(space()->si(F::U, 3), 1); i<=space()->ei(F::U, 3); ++i) {
+    for(Ordinal i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i) {
 
       // set parameters
       auto para = Teuchos::parameterList();
@@ -94,8 +94,8 @@ public:
     y.changed();
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return zeroOp_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return zeroOp_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {

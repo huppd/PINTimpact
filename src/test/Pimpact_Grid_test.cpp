@@ -6,7 +6,7 @@
 #include "Teuchos_Tuple.hpp"
 #include "Teuchos_UnitTestHarness.hpp"
 
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 
 
 
@@ -20,8 +20,8 @@ const int sd = 3;
 const int d = 3;
 const int dNC = 4;
 
-using Space2DT = Pimpact::Space<ST, OT, 2, d, dNC>;
-using Space3DT = Pimpact::Space<ST, OT, 3, d, dNC>;
+using Grid2DT = Pimpact::Grid<ST, OT, 2, d, dNC>;
+using Grid3DT = Pimpact::Grid<ST, OT, 3, d, dNC>;
 
 bool testMpi = true;
 double eps = 1e+1;
@@ -304,7 +304,7 @@ TEUCHOS_UNIT_TEST(ProcGrid, test) {
 }
 
 
-TEUCHOS_UNIT_TEST(Space, CoordinatesGlobal) {
+TEUCHOS_UNIT_TEST(Grid, CoordinatesGlobal) {
 
 	Pimpact::setBoundaryConditions(pl, domain);
 
@@ -343,18 +343,18 @@ TEUCHOS_UNIT_TEST(Space, CoordinatesGlobal) {
   pl->set("npz", npz);
   pl->set("npf", npf);
 
-	Teuchos::RCP<const Pimpact::Space<ST, OT, sd, 4, dNC> > space =
-		Pimpact::create<Pimpact::Space<ST, OT, sd, 4, dNC> >(pl);
+	Teuchos::RCP<const Pimpact::Grid<ST, OT, sd, 4, dNC> > grid =
+		Pimpact::create<Pimpact::Grid<ST, OT, sd, 4, dNC> >(pl);
 
-	//space->print();
+	//grid->print();
 
-	auto coord = space->getCoordinatesGlobal();
+	auto coord = grid->getCoordinatesGlobal();
 
-	if(space->rankST()==0)
+	if(grid->rankST()==0)
 		coord->print();
 
-	//space->getInterpolateV2S()->print();
-	auto gsg = space->getGridSizeGlobal();
+	//grid->getInterpolateV2S()->print();
+	auto gsg = grid->getGridSizeGlobal();
 
 	auto gridSizeGlobal =
 		Pimpact::createGridSizeGlobal<OT, sd>(
@@ -368,13 +368,13 @@ TEUCHOS_UNIT_TEST(Space, CoordinatesGlobal) {
 				gridSizeGlobal,
 				coord);
 
-	//if(space->rankST()==0)
+	//if(grid->rankST()==0)
 		//cordc->print();
 }
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Space, CoordinatesLocal, SpaceT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Grid, CoordinatesLocal, GridT) {
 
 	Pimpact::setBoundaryConditions(pl, domain);
 
@@ -413,25 +413,25 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Space, CoordinatesLocal, SpaceT) {
 	pl->set("npz", npz);
 	pl->set("npf", npf);
 
-	Teuchos::RCP<const SpaceT > space =
-		Pimpact::create<SpaceT>(pl);
+	Teuchos::RCP<const GridT > grid =
+		Pimpact::create<GridT>(pl);
 
 	auto coord = Pimpact::createCoordinatesLocal(
-			space->getStencilWidths(),
-			space->getDomainSize(),
-			space->getGridSizeGlobal(),
-			space->getGridSizeLocal(),
-			space->getBCGlobal(),
-			space->getBCLocal(),
-			space->getProcGrid(),
-			space->getCoordinatesGlobal());
+			grid->getStencilWidths(),
+			grid->getDomainSize(),
+			grid->getGridSizeGlobal(),
+			grid->getGridSizeLocal(),
+			grid->getBCGlobal(),
+			grid->getBCLocal(),
+			grid->getProcGrid(),
+			grid->getCoordinatesGlobal());
 
 
-	if(space->getProcGrid()->getRank()==rank)
+	if(grid->getProcGrid()->getRank()==rank)
 		coord->print();
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Space, CoordinatesLocal, Space2DT)
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Space, CoordinatesLocal, Space3DT)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Grid, CoordinatesLocal, Grid2DT)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Grid, CoordinatesLocal, Grid3DT)
 
 } // end of namespace

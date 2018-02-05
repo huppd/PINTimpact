@@ -7,7 +7,7 @@
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ParameterList.hpp"
 
-#include "Pimpact_Space.hpp"
+#include "Pimpact_Grid.hpp"
 
 
 template<typename ScalarT>
@@ -40,8 +40,8 @@ const int d = 4;
 const int dNC = 4;
 //const int dNC = 3;
 
-using D2 = Pimpact::Space<ST, OT, 2, d, dNC>;
-using D3 = Pimpact::Space<ST, OT, 3, d, dNC>;
+using D2 = Pimpact::Grid<ST, OT, 2, d, dNC>;
+using D3 = Pimpact::Grid<ST, OT, 3, d, dNC>;
 
 int print = 0;
 int write = 0;

@@ -28,20 +28,20 @@ namespace Pimpact {
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
 template<class IFT>
-class ModeField : private AbstractField<typename IFT::SpaceT> {
+class ModeField : private AbstractField<typename IFT::GridT> {
 
 public:
 
- using SpaceT = typename IFT::SpaceT;
+ using GridT = typename IFT::GridT;
 
 protected:
 
-  using ST = typename SpaceT::Scalar;
-  using OT = typename SpaceT::Ordinal;
+  using ST = typename GridT::Scalar;
+  using OT = typename GridT::Ordinal;
 
   using ScalarArray = ST*;
 
-  using AF = AbstractField<SpaceT>;
+  using AF = AbstractField<GridT>;
 
   const Owning owning_;
 
@@ -75,11 +75,11 @@ public:
   }
 
 
-  ModeField(const Teuchos::RCP<const SpaceT>& space, const Owning owning=Owning::Y):
-    AF(space),
+  ModeField(const Teuchos::RCP<const GridT>& grid, const Owning owning=Owning::Y):
+    AF(grid),
     owning_(owning),
-    fieldc_(space, Owning::N),
-    fields_(space, Owning::N) {
+    fieldc_(grid, Owning::N),
+    fields_(grid, Owning::N) {
 
     if(owning_==Owning::Y) allocate();
   };
@@ -91,7 +91,7 @@ public:
   /// \param vF
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
   ModeField(const ModeField& vF, const ECopy copyType=ECopy::Deep):
-    AF(vF.space()),
+    AF(vF.grid()),
     owning_(vF.owning_),
     fieldc_(vF.fieldc_, copyType),
     fields_(vF.fields_, copyType) {
@@ -116,7 +116,7 @@ public:
 
   Teuchos::RCP<ModeField> clone(const ECopy cType=ECopy::Deep) const {
 
-    Teuchos::RCP<ModeField> mv = Teuchos::rcp(new ModeField(space()));
+    Teuchos::RCP<ModeField> mv = Teuchos::rcp(new ModeField(grid()));
 
     switch(cType) {
     case ECopy::Shallow:
@@ -146,8 +146,8 @@ public:
     return fields_;
   }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() {
-    return AF::space_;
+  constexpr const Teuchos::RCP<const GridT>& grid() {
+    return AF::grid_;
   }
 
   constexpr const MPI_Comm& comm() {

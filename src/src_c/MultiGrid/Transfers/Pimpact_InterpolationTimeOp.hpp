@@ -26,42 +26,42 @@ public:
   using DomainFieldT = TimeField<typename OperatorT::DomainFieldT>;
   using RangeFieldT = TimeField<typename OperatorT::RangeFieldT>;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using GridT = typename DomainFieldT::GridT;
 
-  using FSpaceT = SpaceT;
-  using CSpaceT = SpaceT;
+  using FGridT = GridT;
+  using CGridT = GridT;
 
-  using Ordinal = typename SpaceT::Ordinal;
+  using Ordinal = typename GridT::Ordinal;
 
 protected:
 
-  Teuchos::RCP<OperatorT> op_; //  interpolation operator in space
+  Teuchos::RCP<OperatorT> op_; //  interpolation operator in grid
 
 public:
 
   InterpolationTimeOp(
-    const Teuchos::RCP<const SpaceT>& spaceC,
-    const Teuchos::RCP<const SpaceT>& spaceF):
-    op_(Teuchos::rcp(new OperatorT(spaceC, spaceF))) {
+    const Teuchos::RCP<const GridT>& gridC,
+    const Teuchos::RCP<const GridT>& gridF):
+    op_(Teuchos::rcp(new OperatorT(gridC, gridF))) {
   };
 
   /// \brief default apply
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    Ordinal d = (spaceF()->nLoc(3)) / (spaceC()->nLoc(3));
+    Ordinal d = (gridF()->nLoc(3)) / (gridC()->nLoc(3));
 
     x.exchange();
 
-    for(Ordinal i=spaceC()->si(F::S, 3); i <= spaceC()->ei(F::S, 3); ++i) {
-      Ordinal iF = d*(i-spaceC()->si(F::S, 3)) + spaceF()->si(F::S, 3);
+    for(Ordinal i=gridC()->si(F::S, 3); i <= gridC()->ei(F::S, 3); ++i) {
+      Ordinal iF = d*(i-gridC()->si(F::S, 3)) + gridF()->si(F::S, 3);
       op_->apply(x(i), y(iF));
-      if (spaceC()->nLoc(3)==1 && d>1)
+      if (gridC()->nLoc(3)==1 && d>1)
         op_->apply(x(1), y(2));
     }
 
-    if (d > 1 && spaceC()->nLoc(3)>1) {
+    if (d > 1 && gridC()->nLoc(3)>1) {
 
-      for(int i=spaceF()->si(F::S, 3) + 1; i <spaceF()->ei(F::S, 3); i=i+d) {
+      for(int i=gridF()->si(F::S, 3) + 1; i <gridF()->ei(F::S, 3); i=i+d) {
         y(i).add(0.5, y(i-1), 0.5, y(i+1));
       }
     }
@@ -69,11 +69,11 @@ public:
     y.changed();
   }
 
-  Teuchos::RCP<const SpaceT> spaceC() const {
-    return op_->spaceC();
+  Teuchos::RCP<const GridT> gridC() const {
+    return op_->gridC();
   };
-  Teuchos::RCP<const SpaceT> spaceF() const {
-    return op_->spaceF();
+  Teuchos::RCP<const GridT> gridF() const {
+    return op_->gridF();
   };
 
   Teuchos::RCP<OperatorT> getOperatorPtr() {
@@ -88,10 +88,10 @@ public:
 /// \relates
 template<class OpT >
 Teuchos::RCP<InterpolationTimeOp<OpT> > createInterpolationTimeOp(
-  const Teuchos::RCP<const typename OpT::CSpaceT>& spaceC,
-  const Teuchos::RCP<const typename OpT::FSpaceT>& spaceF) {
+  const Teuchos::RCP<const typename OpT::CGridT>& gridC,
+  const Teuchos::RCP<const typename OpT::FGridT>& gridF) {
 
-  return Teuchos::rcp(new InterpolationTimeOp<OpT>(spaceC, spaceF));
+  return Teuchos::rcp(new InterpolationTimeOp<OpT>(gridC, gridF));
 }
 
 

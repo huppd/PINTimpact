@@ -23,8 +23,8 @@ class PrePostSpectrum : public NOX::Abstract::PrePostOperator {
 
   using FieldT = typename NV::FieldT;
 
-  using ST = typename FieldT::SpaceT::Scalar;
-  using OT = typename FieldT::SpaceT::Ordinal;
+  using ST = typename FieldT::GridT::Scalar;
+  using OT = typename FieldT::GridT::Ordinal;
 
   bool sol_;
   bool res_;
@@ -52,14 +52,14 @@ class PrePostSpectrum : public NOX::Abstract::PrePostOperator {
       {
         auto out = ::Pimpact::createOstream(
             "xv_"+std::to_string(refinement_)+"_"+std::to_string(nIter)+".txt",
-            x.space()->rankST());
+            x.grid()->rankST());
         ::Pimpact::writeSpectrum(x.getField(0).getVField(), *out);
       }
 
       {
         auto out = ::Pimpact::createOstream(
             "xp_"+std::to_string(refinement_)+"_"+std::to_string(nIter)+".txt",
-            x.space()->rankST());
+            x.grid()->rankST());
         ::Pimpact::writeSpectrum(x.getField(0).getSField(), *out);
       }
     }
@@ -70,13 +70,13 @@ class PrePostSpectrum : public NOX::Abstract::PrePostOperator {
       {
         auto out = ::Pimpact::createOstream(
             "resv_"+std::to_string(refinement_)+"_"+std::to_string(nIter)+".txt",
-            x.space()->rankST());
+            x.grid()->rankST());
         ::Pimpact::writeSpectrum(x.getField(0).getVField(), *out);
       }
       {
         auto out = ::Pimpact::createOstream(
             "resp_"+std::to_string(refinement_)+"_"+std::to_string(nIter)+".txt",
-            x.space()->rankST());
+            x.grid()->rankST());
         ::Pimpact::writeSpectrum(x.getField(0).getSField(), *out);
       }
     }
@@ -87,13 +87,13 @@ class PrePostSpectrum : public NOX::Abstract::PrePostOperator {
       {
         auto out = ::Pimpact::createOstream(
             "corv_"+std::to_string(refinement_)+"_"+std::to_string(nIter)+".txt",
-            x.space()->rankST());
+            x.grid()->rankST());
         ::Pimpact::writeSpectrum(x.getField(0).getVField(), *out);
       }
       {
         auto out = ::Pimpact::createOstream(
             "corp_"+std::to_string(refinement_)+"_"+std::to_string(nIter)+".txt",
-            x.space()->rankST());
+            x.grid()->rankST());
         ::Pimpact::writeSpectrum(x.getField(0).getSField(), *out);
       }
     }

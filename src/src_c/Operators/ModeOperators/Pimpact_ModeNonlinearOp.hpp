@@ -18,7 +18,7 @@ class ModeNonlinearOp {
 
 public:
 
-  using SpaceT = typename OpT::SpaceT;
+  using GridT = typename OpT::GridT;
 
   using InnerOpT = OpT;
 
@@ -27,8 +27,8 @@ public:
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
   Scalar mulI_;
   Scalar mulC_;
@@ -38,16 +38,16 @@ protected:
 
 public:
 
-  ModeNonlinearOp(const Teuchos::RCP<const SpaceT>& space):
+  ModeNonlinearOp(const Teuchos::RCP<const GridT>& grid):
     mulI_(0.),
     mulC_(1.),
-    mulL_(1./space->getDomainSize()->getRe()),
-    op_(create<OpT>(space)) { };
+    mulL_(1./grid->getDomainSize()->getRe()),
+    op_(create<OpT>(grid)) { };
 
   ModeNonlinearOp(const Teuchos::RCP<OpT>& op):
     mulI_(0.),
     mulC_(1.),
-    mulL_(1./op->space()->getDomainSize()->getRe()),
+    mulL_(1./op->grid()->getDomainSize()->getRe()),
     op_(op) { };
 
 
@@ -61,11 +61,11 @@ public:
     op_->setParameter(pl);
 
     //std::cout <<*pl;
-    //typename OpT::RangeFieldT temp(space());
+    //typename OpT::RangeFieldT temp(grid());
 
     const B wnB = B::N;
 
-    for(F m=F::U; m<SpaceT::sdim; ++m) {
+    for(F m=F::U; m<GridT::sdim; ++m) {
       x.getCField()(m).exchange();
       x.getSField()(m).exchange();
 
@@ -73,10 +73,10 @@ public:
       //std::cout <<"wind1: "  <<op_->getConvField()->get()[static_cast<int>(m)][1].norm() <<"\n";
       //std::cout <<"wind2: "  <<op_->getConvField()->get()[static_cast<int>(m)][2].norm() <<"\n";
 
-      for(Ordinal k=space()->si(m, Z, wnB); k<=space()->ei(m, Z, wnB); ++k)
-        for(Ordinal j=space()->si(m, Y, wnB); j<=space()->ei(m, Y, wnB); ++j)
-          for(Ordinal i=space()->si(m, X, wnB); i<=space()->ei(m, X, wnB); ++i) {
-            if(3==SpaceT::sdim) {
+      for(Ordinal k=grid()->si(m, Z, wnB); k<=grid()->ei(m, Z, wnB); ++k)
+        for(Ordinal j=grid()->si(m, Y, wnB); j<=grid()->ei(m, Y, wnB); ++j)
+          for(Ordinal i=grid()->si(m, X, wnB); i<=grid()->ei(m, X, wnB); ++i) {
+            if(3==GridT::sdim) {
               y.getCField()(m)(i, j, k) = 
                 mulI_*x.getSField()(m)(i, j, k)
                 +mulC_*op_->getSOp()->getConvSOp()->innerStenc3D(
@@ -136,8 +136,8 @@ public:
   };
 
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return op_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return op_->grid();
   };
 
 

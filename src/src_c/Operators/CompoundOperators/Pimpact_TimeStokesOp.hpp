@@ -66,10 +66,10 @@ class TimeStokesOp {
 
 public:
 
-  using SpaceT = ST;
+  using GridT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+  using Scalar = typename GridT::Scalar;
+  using Ordinal = typename GridT::Ordinal;
 
   using DomainFieldT = CompoundField<TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >;
   using RangeFieldT = CompoundField<TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > > ;
@@ -83,17 +83,17 @@ protected:
 
 public:
 
-  TimeStokesOp(const Teuchos::RCP<const SpaceT>& space):
-    helm_(create<HelmholtzOp<ST> >(space)),
-    grad_(create<GradOp<ST> >(space)),
-    div_(create<DivOp<ST> >(space)) {};
+  TimeStokesOp(const Teuchos::RCP<const GridT>& grid):
+    helm_(create<HelmholtzOp<ST> >(grid)),
+    grad_(create<GradOp<ST> >(grid)),
+    div_(create<DivOp<ST> >(grid)) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
     Scalar pi = 4.*std::atan(1.);
-    Scalar idt = ((Scalar)space()->nGlo(3))/2./pi;
-    Scalar re = space()->getDomainSize()->getRe();
-    Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
+    Scalar idt = ((Scalar)grid()->nGlo(3))/2./pi;
+    Scalar re = grid()->getDomainSize()->getRe();
+    Scalar mulI = grid()->getDomainSize()->getAlpha2()*idt/re;
 
     auto& xu = x.getVField();
     auto& xp = x.getSField();
@@ -102,31 +102,31 @@ public:
 
     xu.exchange();
 
-    for(Ordinal i=space()->si(F::S, 3)-1; i<space()->ei(F::S, 3); ++i) {
+    for(Ordinal i=grid()->si(F::S, 3)-1; i<grid()->ei(F::S, 3); ++i) {
       //xu(i-1).exchange();
       xu(i).exchange();
       xp(i).exchange();
     }
 
-    int dimens = SpaceT::sdim;
+    int dimens = GridT::sdim;
 
     OP_TimeStokes(
       dimens,
-      space()->nLoc(),
-      space()->bl(),
-      space()->bu(),
-      space()->dl(),
-      space()->du(),
-      space()->gl(),
-      space()->gu(),
-      space()->sInd(F::S),
-      space()->eInd(F::S),
-      space()->sInd(F::U),
-      space()->eInd(F::U),
-      space()->sInd(F::V),
-      space()->eInd(F::V),
-      space()->sInd(F::W),
-      space()->eInd(F::W),
+      grid()->nLoc(),
+      grid()->bl(),
+      grid()->bu(),
+      grid()->dl(),
+      grid()->du(),
+      grid()->gl(),
+      grid()->gu(),
+      grid()->sInd(F::S),
+      grid()->eInd(F::S),
+      grid()->sInd(F::U),
+      grid()->eInd(F::U),
+      grid()->sInd(F::V),
+      grid()->eInd(F::V),
+      grid()->sInd(F::W),
+      grid()->eInd(F::W),
       helm_->getC(X, F::S),
       helm_->getC(Y, F::S),
       helm_->getC(Z, F::S),
@@ -146,7 +146,7 @@ public:
       yu.getRawPtr(),
       yp.getRawPtr());
 
-    for(Ordinal i=space()->si(F::S, 3)-1; i<space()->ei(F::S, 3); ++i) {
+    for(Ordinal i=grid()->si(F::S, 3)-1; i<grid()->ei(F::S, 3); ++i) {
       yu(i).changed();
       yp(i).changed();
     }
@@ -157,8 +157,8 @@ public:
 
   void assignField(const DomainFieldT& mv) { };
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const {
-    return helm_->space();
+  constexpr const Teuchos::RCP<const GridT>& grid() const {
+    return helm_->grid();
   };
 
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
