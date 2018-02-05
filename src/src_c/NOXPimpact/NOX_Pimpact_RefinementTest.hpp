@@ -73,8 +73,11 @@ public:
     Teuchos::RCP<const NOX::Abstract::Vector> x =
       problem.getSolutionGroup().getXPtr();
 
-    int nf = Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
-      InterfaceT::FieldT> >(x)->getConstFieldPtr()->grid()->nGlo(3) + 1;
+    int nGlo =
+      Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename InterfaceT::FieldT>
+      >(x)->getConstFieldPtr()->grid()->nGlo(3);
+
+    int nf = 2*nGlo + 1;
 
     nfr_ = 0;
     if(checkType == NOX::StatusTest::None) {
@@ -94,7 +97,7 @@ public:
       if(nfr_==0)
         status_ = NOX::StatusTest::Unconverged;
       else
-        status_ = (normF_/nf <tolerance_*normRF_/nfr_) ?
+        status_ = (normF_/nf <tolerance_*normRF_/nfr_/2.) ?
           NOX::StatusTest::Converged :
           NOX::StatusTest::Unconverged;
     }
