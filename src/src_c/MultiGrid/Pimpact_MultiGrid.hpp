@@ -190,7 +190,7 @@ public:
         try {
           cGridSolver_->apply(b.get(i), x.get(i));
         } catch(std::logic_error& e) {
-          std::cout <<"error in MG on coarse grid:\n";
+          std::cout << "error in MG on coarse grid:\n";
           cGridSolver_->print();
           b.get(i).print();
           b.get(i).write(111);
@@ -235,7 +235,7 @@ public:
       try {
         cGridSolver_->apply(b.get(i), x.get(i));
       } catch(std::logic_error& e) {
-        std::cout <<"error in MG on coarse grid:\n";
+        std::cout << "error in MG on coarse grid:\n";
         cGridSolver_->print();
         b.get(i).print();
         b.get(i).write(111);
@@ -283,7 +283,7 @@ public:
           try {
             cGridSolver_->apply(b.get(i), x.get(i));
           } catch(std::logic_error& e) {
-            std::cout <<"error in MG on coarse grid:\n";
+            std::cout << "error in MG on coarse grid:\n";
             cGridSolver_->print();
             b.get(i).print();
             b.get(i).write(111);
@@ -310,7 +310,7 @@ public:
 
   /// \todo smoother that have to be updated should be "assigned" as well
   void assignField(const DomainFieldT& mv) {
-    //std::cout <<getLabel() <<"assignField\n";
+    //std::cout << getLabel() << "assignField\n";
 
     MGFieldsT temp(mgGrids_);
 
@@ -321,7 +321,7 @@ public:
       if(mgGrids_->participating(i)) {
         mgOps_->get(i)->assignField(temp.get(i));
         mgTrans_->getRestrictionOp(i)->apply(temp.get(i), temp.get(i+1));
-        //std::cout <<temp.get(i).norm()<<"\n";
+        //std::cout << temp.get(i).norm()<< "\n";
       }
     }
 
@@ -352,15 +352,15 @@ public:
   }
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- " <<getLabel() <<" ---\n";
-    out <<"#grids: " <<numGrids_ <<" numCycles: " <<numCycles_ <<"\n";
-    out <<"FOperator: " <<mgOps_->get()->getLabel() <<" d" <<FGridT::dimNC <<"\n";
+    out << "--- " << getLabel() << " ---\n";
+    out << "#grids: " << numGrids_ << " numCycles: " << numCycles_ << "\n";
+    out << "FOperator: " << mgOps_->get()->getLabel() << " d" << FGridT::dimNC << "\n";
     if(mgGrids_->participating(0))
-      out <<"COperator: " <<mgOps_->get(0)->getLabel()  <<" d" <<CGridT::dimNC <<"\n";
+      out << "COperator: " << mgOps_->get(0)->getLabel()  << " d" << CGridT::dimNC << "\n";
     if(mgGrids_->participating(0))
-      out <<"Smoother: " <<mgSms_->get(0)->getLabel() <<"\n";
+      out << "Smoother: " << mgSms_->get(0)->getLabel() << "\n";
     if(mgGrids_->participating(-1))
-      out <<"Coarse Grid Solver: " <<cGridSolver_->getLabel() <<"\n";
+      out << "Coarse Grid Solver: " << cGridSolver_->getLabel() << "\n";
   }
 
 

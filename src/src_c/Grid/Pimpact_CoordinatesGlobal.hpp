@@ -453,12 +453,12 @@ public:
   void print(std::ostream& out=std::cout) const {
 
     for(int i=0; i<dim; ++i) {
-      out <<"Global coordinates of scalars in dir: " <<static_cast<ECoord>(i) <<"\n";
+      out << "Global coordinates of scalars in dir: " << static_cast<ECoord>(i) << "\n";
       xS_[i].print(out);
     }
 
     for(int i=0; i<dim; ++i) {
-      out <<"Global coordinates of velocity in dir: " <<static_cast<ECoord>(i) <<"\n";
+      out << "Global coordinates of velocity in dir: " << static_cast<ECoord>(i) << "\n";
       xV_[i].print(out);
     }
   };

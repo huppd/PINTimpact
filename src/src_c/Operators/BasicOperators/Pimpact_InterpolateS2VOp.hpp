@@ -125,11 +125,11 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<"\n--- " <<getLabel() <<" ---\n";
-    out <<"--- stencil: ---";
+    out << "\n--- " << getLabel() << " ---\n";
+    out << "--- stencil: ---";
 
     for(int dir=0; dir<GridT::sdim; ++dir) {
-      out <<"\ncoord: " <<static_cast<ECoord>(dir) <<"\n";
+      out << "\ncoord: " << static_cast<ECoord>(dir) << "\n";
       c_[dir].print(out);
     }
   }

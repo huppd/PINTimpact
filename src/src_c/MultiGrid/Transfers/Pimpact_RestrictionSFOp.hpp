@@ -122,14 +122,14 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<"=== Restriction OP ===\n";
-    out <<"nGather:\t" <<this->nGather_ <<"\n";
-    out <<"rankc2:\t" <<this->rankc2_ <<"\n";
-    out <<"comm2:\t" <<this->comm2_ <<"\n";
+    out << "=== Restriction OP ===\n";
+    out << "nGather:\t" << this->nGather_ << "\n";
+    out << "rankc2:\t" << this->rankc2_ << "\n";
+    out << "comm2:\t" << this->comm2_ << "\n";
 
-    out <<" --- scalar stencil: ---";
+    out << " --- scalar stencil: ---";
     for(int j=0; j<3; ++j) {
-      out <<"\ndir: " <<j <<"\n";
+      out << "\ndir: " << j << "\n";
       cRS_[j].print(out);
     }
   }

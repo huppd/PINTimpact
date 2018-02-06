@@ -509,20 +509,20 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<"--- " <<getLabel() <<" ---\n";
-    out <<" --- scalar stencil: ---";
+    out << "--- " << getLabel() << " ---\n";
+    out << " --- scalar stencil: ---";
 
     for(int dir=0; dir<GridT::sdim; ++dir) {
 
-      out <<"\ncoord: " <<static_cast<ECoord>(dir) <<"\n";
+      out << "\ncoord: " << static_cast<ECoord>(dir) << "\n";
 
       cS_[dir].print(out);
     }
-    out <<" --- velocity stencil: ---";
+    out << " --- velocity stencil: ---";
 
     for(int dir=0; dir<GridT::sdim; ++dir) {
 
-      out <<"\ncoord: " <<static_cast<ECoord>(dir) <<"\n";
+      out << "\ncoord: " << static_cast<ECoord>(dir) << "\n";
 
       cV_[dir].print(out);
     }

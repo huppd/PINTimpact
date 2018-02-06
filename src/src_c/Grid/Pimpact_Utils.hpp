@@ -35,9 +35,9 @@ enum class Owning : bool { Y=true, N=false };
 
 std::ostream& operator<<(std::ostream& out, Owning o) {
   if(o==Owning::Y) 
-    return out <<"Yes";
+    return out << "Yes";
   else
-    return out <<"No";
+    return out << "No";
 }
 
 /// \todo change T->3, consistently
@@ -61,7 +61,7 @@ std::string toString(ECoord type) {
 }
 
 std::ostream& operator<<(std::ostream& out, ECoord c) {
-  return out <<toString(c);
+  return out << toString(c);
 }
 
 // Special behavior for ++
@@ -87,8 +87,8 @@ std::string toString(F type) {
   return ""; // prevent compiler warning
 }
 
-std::ostream& operator<<(std::ostream& out, F f) {
-  return out <<toString(f);
+std::ostream& operator<< (std::ostream& out, F f) {
+  return out << toString(f);
 }
 
 F& operator++(F& c) {
@@ -242,8 +242,8 @@ std::string toString(EScalarField type) {
   return ""; // prevent compiler warning
 }
 
-std::ostream& operator<<(std::ostream& out, const EScalarField& c) {
-  return out <<toString(c);
+std::ostream& operator<< (std::ostream& out, const EScalarField& c) {
+  return out << toString(c);
 }
 
 
@@ -326,7 +326,7 @@ void setBoundaryConditions(const Teuchos::RCP<Teuchos::ParameterList>& pl , int 
     pl->sublist("boundary conditions").set<int>("upper Z", static_cast<int>(BC::Periodic ));
     break;
   default:
-    std::cout <<"!!!Warning: unkown EDomainType:\t" <<dtype<<"\t!!!\n";
+    std::cout << "!!!Warning: unkown EDomainType:\t" << dtype<< "\t!!!\n";
   }
 }
 

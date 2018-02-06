@@ -64,7 +64,7 @@ public:
     }
 
     x->exchange();
-    //std::cout <<y.grid()->si(F::U, 3) <<"\n";
+    //std::cout << y.grid()->si(F::U, 3) << "\n";
 
     if(0==y.grid()->si(F::U, 3))
       y.get0Field() = x->get0Field();
@@ -92,7 +92,7 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<"=== TransferMultiHarmonicOP ===\n";
+    out << "=== TransferMultiHarmonicOP ===\n";
     op_->print(out);
   }
 

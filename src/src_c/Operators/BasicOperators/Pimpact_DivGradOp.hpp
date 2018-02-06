@@ -123,7 +123,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out <<"---" <<getLabel() <<"---\n";
+    out << "---" << getLabel() << "---\n";
     div_->print(out);
     grad_->print(out);
     grid()->getInterpolateV2S()->print();

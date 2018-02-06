@@ -96,9 +96,9 @@ public:
   ///
   /// \param out output stream
   void print(std::ostream& out=std::cout) const {
-    out <<"\t--- local BoundaryConditions: ---\n";
-    out <<"\tlower: " <<BCL_int_ <<"\n";
-    out <<"\tupper: " <<BCU_int_ <<"\n";
+    out << "\t--- local BoundaryConditions: ---\n";
+    out << "\tlower: " << BCL_int_ << "\n";
+    out << "\tupper: " << BCU_int_ << "\n";
   }
 
 }; // end of class BoundaryConditionsLocal

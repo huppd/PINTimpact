@@ -109,7 +109,7 @@ public:
           //std::string fname = "mgs.txt";
           //fname.insert(3, std::to_string((long long)grid->rankST()));
           //file.open(fname, std::ofstream::out | std::ofstream::app);
-          //file <<"\n\ngrid: " << -1 <<"\n\n";
+          //file << "\n\ngrid: " << -1 << "\n\n";
           //multiGrid.back()->print(file);
           //file.close();
 
@@ -139,7 +139,7 @@ public:
 
 
           //// coarsen gridSizeGlobal
-////		std::cout <<"rank: " <<grid->rankST()<<"\t gridSizGLobal: " <<gridSizeGlobalTup <<"\n";
+////		std::cout << "rank: " << grid->rankST()<< "\t gridSizGLobal: " << gridSizeGlobalTup << "\n";
           //auto gridSizeGlobal = createGridSizeGlobal<Ordinal, dimension>(gridSizeGlobalTup);
 
           //auto procGridSize = grid->getProcGridSize();
@@ -147,7 +147,7 @@ public:
 
           //TO np = grid->getProcGridSize()->getTuple();
           //TO npNew = np;
-////		std::cout <<"rank: " <<grid->rankST()<<"\t procGridSizOld: " <<npNew <<"\n";
+////		std::cout << "rank: " << grid->rankST()<< "\t procGridSizOld: " << npNew << "\n";
 ////    for(int i=0; i<dimension; ++i) {
           //for(int i=0; i<3; ++i) {
           //if(i<3) {
@@ -172,13 +172,13 @@ public:
 
       }
 
-//			std::cout <<"grid: " <<i <<"\n";
-//			std::cout <<"corasen_yes: " <<coarsen_yes <<"\n";
-//			std::cout <<"procGridChanged: " <<procGridChanged <<"\n";
-//			std::cout <<"nGlo: " <<nGlo <<"\n";
-//			std::cout <<"npWorld: " <<npWorld <<"\n";
-//			std::cout <<"np: " <<np <<"\n";
-//			std::cout <<"npNew: " <<npNew <<"\n";
+//			std::cout << "grid: " << i << "\n";
+//			std::cout << "corasen_yes: " << coarsen_yes << "\n";
+//			std::cout << "procGridChanged: " << procGridChanged << "\n";
+//			std::cout << "nGlo: " << nGlo << "\n";
+//			std::cout << "npWorld: " << npWorld << "\n";
+//			std::cout << "np: " << np << "\n";
+//			std::cout << "npNew: " << npNew << "\n";
 
       if(coarsen_yes) {
         if(procGridChanged)

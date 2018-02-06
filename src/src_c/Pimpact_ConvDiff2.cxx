@@ -110,8 +110,8 @@ int main(int argi, char** argv) {
           iter++;
 
         if(grid()->rankST()==0) {
-          phifile <<iter <<"\t" <<error <<"\n";
-          std::cout <<iter <<"\t" <<error <<"\n";
+          phifile << iter << "\t" << error << "\n";
+          std::cout << iter << "\t" << error << "\n";
         }
 
       } while(error>1.e-6);

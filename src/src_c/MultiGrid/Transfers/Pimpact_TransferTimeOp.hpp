@@ -50,7 +50,7 @@ public:
 
 
   void print(std::ostream& out=std::cout) const {
-    out <<"=== TransferTimeOP ===\n";
+    out << "=== TransferTimeOP ===\n";
     opV_->print(out);
   }
 

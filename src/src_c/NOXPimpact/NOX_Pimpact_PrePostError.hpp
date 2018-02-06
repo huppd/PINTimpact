@@ -46,7 +46,7 @@ class PrePostErrorCompute : public NOX::Abstract::PrePostOperator {
       temp->add(1., sol_->getField(0).getVField(), -1., x.getField(0).getVField());
 
       if(solNorm!=0.)
-        *eStream_ <<solver.getNumIterations() <<"\t" <<temp->norm()/solNorm <<"\n";
+        *eStream_ << solver.getNumIterations() << "\t" << temp->norm()/solNorm << "\n";
 		}
 	};
 

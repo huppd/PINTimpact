@@ -98,7 +98,7 @@ int main(int argi, char** argv) {
         S phi = 2.*pi*phii/(nwinds);
 
         if(grid()->rankST()==0)
-          phifile <<phi <<"\t";
+          phifile << phi << "\t";
 
         // init solution
         y(Pimpact::F::U).initField(Pimpact::Grad2D_inX);
@@ -138,8 +138,8 @@ int main(int argi, char** argv) {
           error = z2.norm()/sol->norm();
 
 
-          if(grid()->rankST()==0) ofs <<error <<"\n";
-          if(grid()->rankST()==0) std::cout <<"iter: " <<iter <<" " <<error <<"\n";
+          if(grid()->rankST()==0) ofs << error << "\n";
+          if(grid()->rankST()==0) std::cout << "iter: " << iter << " " << error << "\n";
 
           iter++;
           if(iter>1000) error=-1;
@@ -147,8 +147,8 @@ int main(int argi, char** argv) {
         } while(error>1.e-6);
 
         if(grid()->rankST()==0)
-          //					phifile <<error <<"\n";
-          phifile <<iter <<"\n";
+          //					phifile << error << "\n";
+          phifile << iter << "\n";
 
 
         if(grid()->rankST()==0)

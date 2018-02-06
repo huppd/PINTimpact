@@ -154,7 +154,7 @@ private:
     if(debug_) {
       x->write();
       rhs->write(100);
-      std::cout <<getLabel() <<": succes? " <<succes <<"\n";
+      std::cout << getLabel() << ": succes? " << succes << "\n";
       assert(Belos::ReturnType::Converged==succes);
     }
 
@@ -231,7 +231,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out <<"Inverse:\n";
+    out << "Inverse:\n";
     problem_->getOperator()->print(out);
   }
 

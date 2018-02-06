@@ -536,26 +536,26 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<"=== Interpolation OP ===\n";
-    out <<"nGather:\t" <<nGather_ <<"\n";
-    out <<"dd:\t" <<dd_ <<"\n";
-    out <<"iimax:\t" <<iimax_ <<"\n";
-    out <<"rankc2:\t" <<rankc2_ <<"\n";
-    out <<"comm2:\t" <<comm2_ <<"\n";
-    //		out <<"offs:\t" <<offs_ <<"\n";
-    //		out <<"dispI:\t" <<disp_ <<"\n";
-    out <<"\n";
+    out << "=== Interpolation OP ===\n";
+    out << "nGather:\t" << nGather_ << "\n";
+    out << "dd:\t" << dd_ << "\n";
+    out << "iimax:\t" << iimax_ << "\n";
+    out << "rankc2:\t" << rankc2_ << "\n";
+    out << "comm2:\t" << comm2_ << "\n";
+    //		out << "offs:\t" << offs_ << "\n";
+    //		out << "dispI:\t" << disp_ << "\n";
+    out << "\n";
     for(int j=0; j<3; ++j) {
-      out <<"\n Scalar dir: " <<j <<":\n";
+      out << "\n Scalar dir: " << j << ":\n";
       cIS_[j].print(out);
     }
-    out <<"\n";
+    out << "\n";
 
     for(int j=0; j<3; ++j) {
-      out <<"\n Vector dir: " <<j <<":\n";
+      out << "\n Vector dir: " << j << ":\n";
       cIV_[j].print(out);
     }
-    out <<"\n";
+    out << "\n";
   }
 
   Teuchos::RCP<const GridT> gridC() const {

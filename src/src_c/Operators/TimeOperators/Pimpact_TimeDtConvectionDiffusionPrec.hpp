@@ -121,7 +121,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out <<getLabel() <<":\n";
+    out << getLabel() << ":\n";
     op_->print(out);
   }
 

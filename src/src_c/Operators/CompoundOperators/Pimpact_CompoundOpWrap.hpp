@@ -107,7 +107,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out <<getLabel() <<":\n";
+    out << getLabel() << ":\n";
     opV2V_->print(out);
     opS2V_->print(out);
     opV2S_->print(out);

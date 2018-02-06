@@ -45,7 +45,7 @@ public:
   }
 
   void print(std::ostream& out=std::cout) const {
-    out <<" --- GridSizeGlobal: " <<*this <<" ---\n";
+    out << " --- GridSizeGlobal: " << *this << " ---\n";
   };
 
 

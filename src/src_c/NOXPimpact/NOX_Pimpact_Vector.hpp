@@ -262,7 +262,7 @@ public:
       case MaxNorm:
         return field_->norm(::Pimpact::ENorm::Inf);
       default:
-        std::cout <<"!!! Warning unknown NOX::Pimpact::Vector::NormType:\t" <<type <<"\n";
+        std::cout << "!!! Warning unknown NOX::Pimpact::Vector::NormType:\t" << type << "\n";
         return 0.; // unnecssary but surpresses compiler warning
     }
   }

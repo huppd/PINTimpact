@@ -103,8 +103,8 @@ public:
     }
 
     if(!out_.is_null()) {
-      *out_ <<problem.getNumIterations() <<"\t" <<nf <<"\t" <<normF_ <<"\t" <<
-        normRF_ <<"\t" <<std::max(nfr_, 1) <<std::endl;
+      *out_ << problem.getNumIterations() << "\t" << nf << "\t" << normF_ << "\t" <<
+        normRF_ << "\t" << std::max(nfr_, 1) << std::endl;
     }
     if(nf!=0)
       normF_ /=nf;
@@ -120,22 +120,22 @@ public:
   virtual std::ostream& print(std::ostream& stream, int indent = 0) const {
 
     for (int j = 0; j <indent; j ++)
-      stream <<' ';
+      stream << ' ';
 
-    stream <<status_;
-    stream <<"Number of additional modes = " <<nfr_ <<" > 0" ;
-    stream <<"\n";
+    stream << status_;
+    stream << "Number of additional modes = " << nfr_ << " > 0" ;
+    stream << "\n";
 
     for (int j = 0; j <indent; j ++)
-      stream <<' ';
-    stream <<std::setw(13) <<" ";
+      stream << ' ';
+    stream << std::setw(13) << " ";
 
     if(nfr_>0)
-      stream <<"F-Norm/FR-Norm <tol = " <<Utils::sciformat(normF_*nfr_/normRF_, 3);
+      stream << "F-Norm/FR-Norm <tol = " << Utils::sciformat(normF_*nfr_/normRF_, 3);
     else
-      stream <<"F-Norm/FR-Norm <tol = Infty";
-    stream <<" <" <<Utils::sciformat(tolerance_, 3);
-    stream <<std::endl;
+      stream << "F-Norm/FR-Norm <tol = Infty";
+    stream << " <" << Utils::sciformat(tolerance_, 3);
+    stream << std::endl;
 
     return stream;
   }

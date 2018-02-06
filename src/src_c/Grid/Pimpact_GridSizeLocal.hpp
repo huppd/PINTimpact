@@ -85,7 +85,7 @@ public:
   }
 
   void print(std::ostream& out=std::cout) const {
-    out <<" \tlocal grid size= " <<(*this) <<"\n";
+    out << " \tlocal grid size= " << (*this) << "\n";
   };
 
 

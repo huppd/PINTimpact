@@ -275,17 +275,17 @@ public:
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
 
   void print(std::ostream& out=std::cout) const {
-    out <<"\n--- " <<getLabel() <<" ---\n";
-    out <<" --- stencil: ---";
+    out << "\n--- " << getLabel() << " ---\n";
+    out << " --- stencil: ---";
     for(int dir=0; dir<ST::sdim; ++dir) {
-      out <<"\ndir: " <<toString(static_cast<ECoord>(dir)) <<"\n";
+      out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
       c_[dir].print(out);
     }
 
-    //out <<"--- " <<getLabel() <<"^T ---\n";
-    //out <<" --- stencil: ---";
+    //out << "--- " << getLabel() << "^T ---\n";
+    //out << " --- stencil: ---";
     //for(int dir=0; dir<ST::sdim; ++dir) {
-    //out <<"\ndir: " <<toString(static_cast<ECoord>(dir)) <<"\n\n";
+    //out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n\n";
     //cT_[dir].print(out);
     //}
   }

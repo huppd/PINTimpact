@@ -76,9 +76,9 @@ public:
   void print(std::ostream& out=std::cout) const {
 
     for(int i=0; i<getNGrids(); ++i) {
-      out <<"-------------------------\n";
-      out <<"-------- grid : "<<i <<"--------\n";
-      out <<"-------------------------\n";
+      out << "-------------------------\n";
+      out << "-------- grid : "<< i << "--------\n";
+      out << "-------------------------\n";
       get(i)->print(out);
     }
   }

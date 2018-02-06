@@ -109,9 +109,9 @@ public:
   ///
   /// \param out output stream
   void print(std::ostream& out=std::cout) const {
-    out <<"---BoundaryConditionsGlobal: ---\n";
-    out <<" BCL_global: " <<BCL_int_ <<"\n";
-    out <<" BCU_global: " <<BCU_int_ <<"\n";
+    out << "---BoundaryConditionsGlobal: ---\n";
+    out << " BCL_global: " << BCL_int_ << "\n";
+    out << " BCU_global: " << BCU_int_ << "\n";
   }
 
 }; // end of class BoundaryConditionsGlobal

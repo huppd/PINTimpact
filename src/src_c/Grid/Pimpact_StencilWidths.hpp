@@ -231,20 +231,20 @@ public:
 
   /// prints to \c std::cout, only for debuging purpose
   void print(std::ostream& out=std::cout) const {
-    out <<"\t---StencilWidths: ---\n";
-    out <<"\tcomput dim: " <<dim <<"\n";
-    out <<"\tncbC: " <<ncbC_ <<"\n";
-    out <<"\tncbD: " <<ncbD_ <<"\n";
-    out <<"\tncbG: " <<ncbG_ <<"\n";
-    out <<"\tbl: " <<bl_ <<"\n";
-    out <<"\tbu: " <<bu_ <<"\n";
-    out <<"\tdl: " <<dl_ <<"\n";
-    out <<"\tdu: " <<du_ <<"\n";
-    out <<"\tgl: " <<gl_ <<"\n";
-    out <<"\tgu: " <<gu_ <<"\n";
-    out <<"\tnl: " <<nl_ <<"\n";
-    out <<"\tnu: " <<nu_ <<"\n";
-    out <<"\tls: " <<ls_ <<"\n";
+    out << "\t---StencilWidths: ---\n";
+    out << "\tcomput dim: " << dim << "\n";
+    out << "\tncbC: " << ncbC_ << "\n";
+    out << "\tncbD: " << ncbD_ << "\n";
+    out << "\tncbG: " << ncbG_ << "\n";
+    out << "\tbl: " << bl_ << "\n";
+    out << "\tbu: " << bu_ << "\n";
+    out << "\tdl: " << dl_ << "\n";
+    out << "\tdu: " << du_ << "\n";
+    out << "\tgl: " << gl_ << "\n";
+    out << "\tgu: " << gu_ << "\n";
+    out << "\tnl: " << nl_ << "\n";
+    out << "\tnu: " << nu_ << "\n";
+    out << "\tls: " << ls_ << "\n";
   }
 
   static constexpr

@@ -67,7 +67,7 @@ public:
   }
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- NonlinearWrap(" <<getLabel() <<") ---\n";
+    out << "--- NonlinearWrap(" << getLabel() << ") ---\n";
     convectionSOp_->print(out);
   }
 

@@ -156,9 +156,9 @@ public:
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- " <<getLabel() <<" ---\n";
+    out << "--- " << getLabel() << " ---\n";
     for(int dir=0; dir<sdim; ++dir) {
-      out <<"\ndir: " <<toString(static_cast<ECoord>(dir)) <<"\n";
+      out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
       c_[dir].print(out);
     }
   }

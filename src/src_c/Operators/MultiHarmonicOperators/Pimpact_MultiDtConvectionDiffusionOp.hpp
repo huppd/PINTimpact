@@ -68,7 +68,7 @@ public:
         Teuchos::rcp(new DomainFieldT(grid(), DomainFieldT::Global::Y));
       *temp = y_ref;
       y = temp;
-      //std::cout <<"assign op: y->global(): " <<y->global() <<"\n";
+      //std::cout << "assign op: y->global(): " << y->global() << "\n";
     }
 
     y->exchange();
@@ -254,7 +254,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out << getLabel() <<":\n";
+    out << getLabel() << ":\n";
     op_->print(out);
   }
 

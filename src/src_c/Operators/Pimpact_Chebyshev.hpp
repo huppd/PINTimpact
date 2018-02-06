@@ -69,7 +69,7 @@ public:
       for(int i=0; i<500; ++i) {
         op_->apply(*x, *r);
         Scalar lam = r->dot(*x)/x->dot(*x);
-        //std::cout <<"lambda: " <<lam <<"\t" <<std::abs(lamp-lam)/std::abs(lam) <<"\n";
+        //std::cout << "lambda: " << lam << "\t" << std::abs(lamp-lam)/std::abs(lam) << "\n";
         r->scale(1./r->norm());
         x.swap(r);
         if(std::fabs(lamp-lam)/std::fabs(lam) <1.e-3)
@@ -86,7 +86,7 @@ public:
       lamMax_ *= 1.1;
       lamMin_ = lamMax_*eigRatio_;
       if(0==grid()->rankST()) {
-        std::cout <<"lamMax: (" <<lamMax_ <<", \t" <<lamMin_ <<")\n";
+        std::cout << "lamMax: (" << lamMax_ << ", \t" << lamMin_ << ")\n";
       }
     }
   }
@@ -105,8 +105,8 @@ protected:
 //#ifdef HAVE_TEUCHOS_DEBUG
   //using std::cerr;
   //using std::endl;
-  //cerr <<"\\|B\\|_{\\infty} = " <<b.norm(Pimpact::ENorm::Inf) <<endl;
-  //cerr <<"\\|X\\|_{\\infty} = " <<x.norm(Pimpact::ENorm::Inf) <<endl;
+  //cerr << "\\|B\\|_{\\infty} = " << b.norm(Pimpact::ENorm::Inf) << endl;
+  //cerr << "\\|X\\|_{\\infty} = " << x.norm(Pimpact::ENorm::Inf) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //if(numIters_<=0) {
@@ -126,11 +126,11 @@ protected:
 
 //#ifdef HAVE_TEUCHOS_DEBUG
 //#ifdef IFPACK_DETAILS_CHEBYSHEV_DEBUG
-  //cerr <<"alpha = " <<alpha <<endl
-  //<<"beta = " <<beta <<endl
-  //<<"delta = " <<delta <<endl
-  //<<"theta = " <<theta <<endl
-  //<<"s1 = " <<s1 <<endl;
+  //cerr << "alpha = " << alpha << endl
+  //<< "beta = " << beta << endl
+  //<< "delta = " << delta << endl
+  //<< "theta = " << theta << endl
+  //<< "s1 = " << s1 << endl;
 //#endif // IFPACK_DETAILS_CHEBYSHEV_DEBUG
 //#endif // HAVE_TEUCHOS_DEBUG
 
@@ -146,8 +146,8 @@ protected:
   //DomainFieldT& W = *W_ptr;
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr <<"Iteration " <<1 <<":" <<endl
-  //<<"- \\|D\\|_{\\infty} = " <<D_->norm(Pimpact::ENorm::Inf) <<endl;
+  //cerr << "Iteration " << 1 << ":" << endl
+  //<< "- \\|D\\|_{\\infty} = " << D_->norm(Pimpact::ENorm::Inf) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //// Special case for the first iteration.
@@ -155,7 +155,7 @@ protected:
   //op_->computeResidual(b, x, V1); // V1 = B - A*X
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr <<"- \\|B - A*X\\|_{\\infty} = " <<V1.norm(Pimpact::ENorm::Inf) <<endl;
+  //cerr << "- \\|B - A*X\\|_{\\infty} = " << V1.norm(Pimpact::ENorm::Inf) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   ////solve (W, one/theta, D_inv, V1); // W = (1/theta)*D_inv*(B-A*X)
@@ -164,7 +164,7 @@ protected:
   //W.scale(one/theta);
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr <<"- \\|W\\|_{\\infty} = " <<W.norm(Pimpact::ENorm::Inf) <<endl;
+  //cerr << "- \\|W\\|_{\\infty} = " << W.norm(Pimpact::ENorm::Inf) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //x.add(one, x, one, W); // X = X + W
@@ -175,14 +175,14 @@ protected:
   //W.scale(one/theta);
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr <<"- \\|W\\|_{\\infty} = " <<W.norm(Pimpact::ENorm::Inf) <<endl;
+  //cerr << "- \\|W\\|_{\\infty} = " << W.norm(Pimpact::ENorm::Inf) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   ////Tpetra::deep_copy(X, W); // X = 0 + W
   //x = W;
   //}
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr <<"- \\|X\\|_{\\infty} = " <<x.norm(Pimpact::ENorm::Inf) <<endl;
+  //cerr << "- \\|X\\|_{\\infty} = " << x.norm(Pimpact::ENorm::Inf) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //// The rest of the iterations.
@@ -191,11 +191,11 @@ protected:
   //for(int deg=1; deg<numIters_; ++deg) {
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr <<"Iteration " <<deg+1 <<":" <<endl;
-  //cerr <<"- \\|D\\|_{\\infty} = " <<D_->norm(Pimpact::ENorm::Inf) <<endl;
-  //cerr <<"- \\|B\\|_{\\infty} = " <<b.norm(Pimpact::ENorm::Inf) <<endl;
-  ////cerr <<"- \\|A\\|_{\\text{frob}} = " <<A_->getFrobeniusNorm () <<endl;
-  //cerr <<"- rhok = " <<rhok <<endl;
+  //cerr << "Iteration " << deg+1 << ":" << endl;
+  //cerr << "- \\|D\\|_{\\infty} = " << D_->norm(Pimpact::ENorm::Inf) << endl;
+  //cerr << "- \\|B\\|_{\\infty} = " << b.norm(Pimpact::ENorm::Inf) << endl;
+  ////cerr << "- \\|A\\|_{\\text{frob}} = " << A_->getFrobeniusNorm () << endl;
+  //cerr << "- rhok = " << rhok << endl;
   //V1.init(zero);
 //#endif // HAVE_TEUCHOS_DEBUG
 
@@ -203,7 +203,7 @@ protected:
   //op_->computeResidual(b, x, V1); // V1 = B - A*X
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr <<"- \\|B - A*X\\|_{\\infty} = " <<V1.norm(Pimpact::ENorm::Inf) <<endl;
+  //cerr << "- \\|B - A*X\\|_{\\infty} = " << V1.norm(Pimpact::ENorm::Inf) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //rhokp1 = one / (two * s1 - rhok);
@@ -212,8 +212,8 @@ protected:
   //rhok = rhokp1;
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr <<"- dtemp1 = " <<dtemp1 <<endl
-  //<<"- dtemp2 = " <<dtemp2 <<endl;
+  //cerr << "- dtemp1 = " << dtemp1 << endl
+  //<< "- dtemp2 = " << dtemp2 << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   ////W.scale(dtemp1);
@@ -229,8 +229,8 @@ protected:
   //x.add(one, x, one, W); // X = X + W
 
 //#ifdef HAVE_TEUCHOS_DEBUG
-  //cerr <<"- \\|W\\|_{\\infty} = " <<W.norm(Pimpact::ENorm::Inf) <<endl;
-  //cerr <<"- \\|X\\|_{\\infty} = " <<x.norm(Pimpact::ENorm::Inf) <<endl;
+  //cerr << "- \\|W\\|_{\\infty} = " << W.norm(Pimpact::ENorm::Inf) << endl;
+  //cerr << "- \\|X\\|_{\\infty} = " << x.norm(Pimpact::ENorm::Inf) << endl;
 //#endif // HAVE_TEUCHOS_DEBUG
 
   //}
@@ -255,7 +255,7 @@ protected:
     op_->computeResidual(b, *x, *r);
 
     if(!out_.is_null())
-      *out_ <<r->norm() <<"\n";
+      *out_ << r->norm() << "\n";
 
     for(int n=0; n<numIters_; ++n) {
 
@@ -271,7 +271,7 @@ protected:
       x->add(1., *x, alpha, *p);
       op_->computeResidual(b, *x, *r);
       if(!out_.is_null())
-        *out_ <<r->norm() <<"\n";
+        *out_ << r->norm() << "\n";
     }
 
     x0 = *x;
@@ -301,7 +301,7 @@ protected:
     op_->computeResidual(b, *x, *r);
 
     if(!out_.is_null())
-      *out_ <<r->norm() <<"\n";
+      *out_ << r->norm() << "\n";
 
     Scalar beta = 0.;
     Scalar gamma = -alpha;
@@ -329,7 +329,7 @@ protected:
       p.swap(x);
 
       if(!out_.is_null())
-        *out_ <<r->norm() <<"\n";
+        *out_ << r->norm() << "\n";
     }
     x0 = *x;
   }
@@ -357,7 +357,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out <<getLabel() <<":\n";
+    out << getLabel() << ":\n";
     //op_->print(out);
   }
 

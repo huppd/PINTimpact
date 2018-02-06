@@ -57,9 +57,9 @@ public:
   /// \f[ y =   (wind\cdot\nabla) x - \frac{1}{Re} \Delta x \f]
   void apply(const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, const Add add=Add::N) const {
 
-    //std::cout <<"mulI: " <<mulI_ <<"\n";
-    //std::cout <<"mulC: " <<mulC_ <<"\n";
-    //std::cout <<"mulL: " <<mulL_ <<"\n";
+    //std::cout << "mulI: " << mulI_ << "\n";
+    //std::cout << "mulC: " << mulC_ << "\n";
+    //std::cout << "mulL: " << mulL_ << "\n";
     apply(wind, x, y, mulI_, mulC_, mulL_, add);
   }
 
@@ -84,7 +84,7 @@ public:
     y.exchange();
 
 
-    //std::cout <<"mulI: " <<mulI <<"\tmulC: " <<mulC <<"\tmulL: " <<mulL <<"\tsize: " <<wind[0].getLength() <<"\tnorm: " <<wind[0].norm() <<"\n";
+    //std::cout << "mulI: " << mulI << "\tmulC: " << mulC << "\tmulL: " << mulL << "\tsize: " << wind[0].getLength() << "\tnorm: " << wind[0].norm() << "\n";
 
     if(3==GridT::sdim) {
       for(Ordinal k=grid()->si(m, Z, wnB); k<=grid()->ei(m, Z, wnB); ++k)
@@ -142,10 +142,10 @@ public:
   }
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- " <<getLabel() <<" ---\n";
-    out <<"mulI: " <<mulI_ <<"\n";
-    out <<"mulC: " <<mulC_ <<"\n";
-    out <<"mulL: " <<mulL_ <<"\n";
+    out << "--- " << getLabel() << " ---\n";
+    out << "mulI: " << mulI_ << "\n";
+    out << "mulC: " << mulC_ << "\n";
+    out << "mulL: " << mulL_ << "\n";
     convSOp_->print(out);
     helmOp_->print(out);
   }

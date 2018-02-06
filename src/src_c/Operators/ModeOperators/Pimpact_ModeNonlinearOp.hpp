@@ -60,7 +60,7 @@ public:
     pl->set<Scalar>("mulL", mulL_);
     op_->setParameter(pl);
 
-    //std::cout <<*pl;
+    //std::cout << *pl;
     //typename OpT::RangeFieldT temp(grid());
 
     const B wnB = B::N;
@@ -69,9 +69,9 @@ public:
       x.getCField()(m).exchange();
       x.getSField()(m).exchange();
 
-      //std::cout <<"wind0: "  <<op_->getConvField()->get()[static_cast<int>(m)][0].norm() <<"\n";
-      //std::cout <<"wind1: "  <<op_->getConvField()->get()[static_cast<int>(m)][1].norm() <<"\n";
-      //std::cout <<"wind2: "  <<op_->getConvField()->get()[static_cast<int>(m)][2].norm() <<"\n";
+      //std::cout << "wind0: "  << op_->getConvField()->get()[static_cast<int>(m)][0].norm() << "\n";
+      //std::cout << "wind1: "  << op_->getConvField()->get()[static_cast<int>(m)][1].norm() << "\n";
+      //std::cout << "wind2: "  << op_->getConvField()->get()[static_cast<int>(m)][2].norm() << "\n";
 
       for(Ordinal k=grid()->si(m, Z, wnB); k<=grid()->ei(m, Z, wnB); ++k)
         for(Ordinal j=grid()->si(m, Y, wnB); j<=grid()->ei(m, Y, wnB); ++j)
@@ -166,7 +166,7 @@ public:
 
 
   void print(std::ostream& out=std::cout) const {
-    out <<getLabel() <<":\n";
+    out << getLabel() << ":\n";
     op_->print(out);
   }
 

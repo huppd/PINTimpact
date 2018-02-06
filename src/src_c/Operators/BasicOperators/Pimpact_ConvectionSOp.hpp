@@ -248,16 +248,16 @@ public:
   }
 
   void print(std::ostream& out=std::cout) const {
-    out <<" --- ConvectioSOp ---\n";
+    out << " --- ConvectioSOp ---\n";
     for(int i=0; i<GridT::sdim; ++i) {
-      out <<"dir: " <<static_cast<ECoord>(i) <<"\n ";
-      out <<"cSD:\n";
+      out << "dir: " << static_cast<ECoord>(i) << "\n ";
+      out << "cSD:\n";
       cSD_[i].print(out);
-      out <<"cSU:\n";
+      out << "cSU:\n";
       cSU_[i].print(out);
-      out <<"cVD:\n";
+      out << "cVD:\n";
       cVD_[i].print(out);
-      out <<"cVU:\n";
+      out << "cVU:\n";
       cVU_[i].print(out);
     }
   }

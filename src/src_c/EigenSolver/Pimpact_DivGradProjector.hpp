@@ -129,7 +129,7 @@ public:
     //ST bla = -nullspace_.dot(rhs);
 
     //if(0==grid->rankST())
-      //std::cout <<"DivGrad^-1"<<": nullspace contributtion: " <<std::abs(bla)  <<"\n";
+      //std::cout << "DivGrad^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
 
     //if(std::abs(bla)>0.)
       //rhs.add(1., rhs, bla, nullspace_);

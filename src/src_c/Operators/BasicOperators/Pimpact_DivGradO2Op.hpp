@@ -233,10 +233,10 @@ public:
   ///  @}
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- " <<getLabel() <<" ---\n";
-    out <<" --- stencil: ---";
+    out << "--- " << getLabel() << " ---\n";
+    out << " --- stencil: ---";
     for(int dir=0; dir<SpT::sdim; ++dir) {
-      out <<"\ndir: " <<dir <<"\n";
+      out << "\ndir: " << dir << "\n";
       c_[dir].print(out);
     }
   }
@@ -249,9 +249,9 @@ public:
       Teuchos::RCP<std::ostream> out = Pimpact::createOstream(fn);
       for(int i=1; i<=grid_->nLoc(dir); ++i) {
         for(int k=-1; k<=1; ++k) {
-          *out <<getC(dir, i, k) <<"\t" ;
+          *out << getC(dir, i, k) << "\t" ;
         }
-        *out <<"\n";
+        *out << "\n";
       }
     }
   }
