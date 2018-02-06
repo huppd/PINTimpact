@@ -443,14 +443,14 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<"\t---Grid: ---\n";
+    out << "\t---Grid: ---\n";
 
     stencilWidths_->print(out);
 
-    out <<"\t---GridSizeGlobal: ---\n";
+    out << "\t---GridSizeGlobal: ---\n";
     gridSizeGlobal_->print(out);
 
-    out <<"\t---GridSizeLocal: ---\n";
+    out << "\t---GridSizeLocal: ---\n";
     gridSizeLocal_->print(out);
 
     indexSpace_->print(out);
@@ -753,7 +753,7 @@ static Teuchos::RCP<const GridT > createGrid(
   bool participating = false;
   MPI_Comm commWorld = grid->getProcGrid()->getCommWorld();
   MPI_Comm commSub ;//= grid->getProcGrid()->getCommS();
-  //std::cout <<"rank: " <<grid->rankST() <<"\tcomm: " <<commWorld<<"\n";
+  //std::cout << "rank: " << grid->rankST() << "\tcomm: " << commWorld<< "\n";
 
   int rankWorld = grid->getProcGrid()->getRank();
   int rankSub = grid->getProcGrid()->getRank(); // necessary?
@@ -865,7 +865,7 @@ static Teuchos::RCP<const GridT > createGrid(
           rankU));
   //procGrid->print();
 
-  //std::cout <<"rank: " <<grid->rankST() <<"\tcomm: " <<commWorld<<"\n";
+  //std::cout << "rank: " << grid->rankST() << "\tcomm: " << commWorld<< "\n";
 
   Teuchos::RCP<const GridSizeLocal<Ordinal, sdim, dimension> > gridSizeLocal =
     Pimpact::createGridSizeLocal<Ordinal, sdim, dimension, dimNC>(

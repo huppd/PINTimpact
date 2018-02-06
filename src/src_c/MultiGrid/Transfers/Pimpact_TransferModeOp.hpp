@@ -61,7 +61,7 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<"=== TransferModeOP ===\n";
+    out << "=== TransferModeOP ===\n";
     op_->print(out);
   }
 

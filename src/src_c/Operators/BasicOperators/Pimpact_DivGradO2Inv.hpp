@@ -73,9 +73,9 @@ public:
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- " <<getLabel() <<" ---\n";
+    out << "--- " << getLabel() << " ---\n";
     solver_.getOperator()->print(out);
-    //out <<"\n" <<*A_ <<"\n";
+    //out << "\n" << *A_ << "\n";
   }
 
   const std::string getLabel() const {

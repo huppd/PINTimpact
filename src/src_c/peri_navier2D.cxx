@@ -153,7 +153,7 @@ int main(int argi, char** argv) {
       Pimpact::create<GridT>(Teuchos::sublist(pl, "Grid", true));
 
 
-    if(0==grid->rankST()) std::cout <<"initial field\n";
+    if(0==grid->rankST()) std::cout << "initial field\n";
 
     // init vectors
     Teuchos::RCP<MF> x = Pimpact::wrapMultiField(Pimpact::create<CF>(grid));
@@ -165,7 +165,7 @@ int main(int argi, char** argv) {
     /*********************************************************************************/
     for(int refine=0; refine<maxRefinement; ++refine) {
 
-      if(0==grid->rankST()) std::cout <<"create operator\n";
+      if(0==grid->rankST()) std::cout << "create operator\n";
 
       Teuchos::RCP<OpV2VT> opV2V = Pimpact::createMultiDtConvectionDiffusionOp(grid);
 
@@ -178,25 +178,25 @@ int main(int argi, char** argv) {
       Teuchos::RCP<OpT> op = Pimpact::createCompoundOpWrap(opV2V, opS2V, opV2S);
 
 
-      if(0==grid->rankST()) std::cout <<"\tdiv test\n";
+      if(0==grid->rankST()) std::cout << "\tdiv test\n";
       {
         auto tempField = x->getField(0).getSField().clone();
         opV2S->apply(x->getField(0).getVField(), *tempField);
         ST divergence = tempField->norm(Pimpact::ENorm::L2);
         if(0==grid->rankST())
-          std::cout <<"\n\tdiv(Base Flow): " <<divergence <<"\n\n";
+          std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
       }
 
       std::string rl = "";
       if(maxRefinement>1)
         rl = std::to_string(static_cast<long long>(refine)); // long long needed on brutus(intel)
 
-      if(0==grid->rankST()) std::cout <<"create RHS:\n";
+      if(0==grid->rankST()) std::cout << "create RHS:\n";
       Teuchos::RCP<MF> fu = x->clone(Pimpact::ECopy::Shallow);
       auto sol = fu->clone(Pimpact::ECopy::Shallow);
 
       {
-        if(0==grid->rankST()) std::cout <<"\tBC interpolation\n";
+        if(0==grid->rankST()) std::cout << "\tBC interpolation\n";
         {
           auto temp = x->getField(0).getVField().clone(Pimpact::ECopy::Shallow);
           temp->initField(pl->sublist("Base flow"));
@@ -206,7 +206,7 @@ int main(int argi, char** argv) {
           fu->init(0., Pimpact::B::N);
         }
 
-        if(0==grid->rankST()) std::cout <<"\tforcing\n";
+        if(0==grid->rankST()) std::cout << "\tforcing\n";
         // Taylor-Green Vortex
         std::string forceType = pl->sublist("Force").get<std::string>("force type", "Dirichlet");
         if("force"== forceType)
@@ -257,7 +257,7 @@ int main(int argi, char** argv) {
           }
         }
 
-        if(0==grid->rankST()) std::cout <<"set initial conditions\n";
+        if(0==grid->rankST()) std::cout << "set initial conditions\n";
         if(0==refine) {
           if("zero"==initGuess)
             x->init(0.);
@@ -489,7 +489,7 @@ int main(int argi, char** argv) {
             divGradInv);
 
         //if(grid->rankST()==0)
-        //std::cout <<opS2Sinv->getLabel() <<"\n";
+        //std::cout << opS2Sinv->getLabel() << "\n";
 
         auto invTriangOp =
           Pimpact::createInverseTriangularOp(
@@ -567,7 +567,7 @@ int main(int argi, char** argv) {
 
 
       if(0==grid->rankST())
-        std::cout <<"\n\t--- Nf: "<<grid->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
+        std::cout << "\n\t--- Nf: "<< grid->nGlo(3) << "\tdof: "<< x->getLength()<< "\t---\n";
 
       // Solve the nonlinear system
       NOX::StatusTest::StatusType status = NOX::StatusTest::StatusType::Failed;
@@ -576,7 +576,7 @@ int main(int argi, char** argv) {
         try {
           solver->solve();
         } catch(std::logic_error & e) {
-          std::cout <<e.what() <<"\n";
+          std::cout << e.what() << "\n";
         }
       }
 
@@ -595,10 +595,10 @@ int main(int argi, char** argv) {
 
         if(NOX::StatusTest::StatusType::Converged == status && truncError <refinementTol) {
           if(0==grid->rankST())
-            std::cout <<"\n||u[nf]||/||u[1]|| = " <<truncError <<" <" <<refinementTol <<"\n\n";
+            std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " <" << refinementTol << "\n\n";
           break;
         } else if(0==grid->rankST())
-          std::cout <<"\n||u[nf]||/||u[1]|| = " <<truncError <<" >= " <<refinementTol <<"\n\n";
+          std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " >= " << refinementTol << "\n\n";
 
         auto gridF =
           Pimpact::RefinementStrategy<GridT>::createRefinedGrid(

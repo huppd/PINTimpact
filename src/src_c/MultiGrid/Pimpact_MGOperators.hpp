@@ -94,7 +94,7 @@ public:
 
     fOperator_->print();
     for(int i=0; i<mgGrids_->getNGrids(); ++i) {
-      std::cout <<"\n\n --- level: " <<i <<" ---\n\n";
+      std::cout << "\n\n --- level: " << i << " ---\n\n";
       get(i)->print();
     }
   }

@@ -61,7 +61,7 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<"=== IntResCompoundOP ===\n";
+    out << "=== IntResCompoundOP ===\n";
     opV_->print(out);
     opS_->print(out);
   }

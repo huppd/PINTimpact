@@ -51,8 +51,8 @@ public:
     omega_(pl->get<ST>("mode omega", 1.)),
     type_(pl->get<int>("type", -1)),
     op_(op) {
-      //std::cout <<"type: " <<type_ <<"\n";
-      //std::cout <<"omega: " <<omega_ <<"\n";
+      //std::cout << "type: " << type_ << "\n";
+      //std::cout << "omega: " << omega_ << "\n";
     };
 
 
@@ -112,14 +112,14 @@ public:
   /// \todo fix BC
   /// \deprecated
   void applyDTinv(const DomainFieldT& x, RangeFieldT& y) const {
-    //std::cout <<"applyDTinv\n";
+    //std::cout << "applyDTinv\n";
     y = x;
     y.getCField().add(0.0,      x.getCField(), -1.0/mulI_, x.getSField(), B::N);
     y.getSField().add(1.0/mulI_, x.getCField(), 0.0,      x.getSField(), B::N);
   }
 
   void applyCDinv(const DomainFieldT& x, RangeFieldT& y) const {
-    //std::cout <<"applyCDinv\n";
+    //std::cout << "applyCDinv\n";
 
     //set paramters
     auto pl = Teuchos::parameterList();
@@ -134,7 +134,7 @@ public:
 
   void applyELinv(const DomainFieldT& x, RangeFieldT& y) const {
 
-    //std::cout <<"applyELinv\n";
+    //std::cout << "applyELinv\n";
     DomainFieldT temp(grid());
 
     // left
@@ -160,7 +160,7 @@ public:
 
   void applyERinv(const DomainFieldT& x, RangeFieldT& y) const {
 
-    //std::cout <<"applyERinv\n";
+    //std::cout << "applyERinv\n";
     // right
     // set paramters
     auto pl = Teuchos::parameterList();
@@ -193,7 +193,7 @@ public:
 
   void applyER2inv(const DomainFieldT& x, RangeFieldT& y) const {
 
-    //std::cout <<"applyERinv\n";
+    //std::cout << "applyERinv\n";
     // right
     // set paramters
     auto pl = Teuchos::parameterList();
@@ -320,7 +320,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out <<getLabel() <<":\n";
+    out << getLabel() << ":\n";
     op_->print(out);
   }
 

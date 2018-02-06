@@ -93,7 +93,7 @@
     <Parameter docString="" id="58" isDefault="false" isUsed="true" name="Number of Tests" type="int" value="5" />
     <ParameterList id="233" name="Test 0">
       <Parameter docString="" id="59" isDefault="false" isUsed="true" name="Test Type" type="string" value="NormF" />
-      <Parameter docString="" id="60" isDefault="false" isUsed="true" name="Tolerance" type="double" value="2.0e-06" />
+      <Parameter docString="" id="60" isDefault="false" isUsed="true" name="Tolerance" type="double" value="3.0e-06" />
       <Parameter docString="" id="61" isDefault="false" isUsed="true" name="Norm Type" type="string" value="Two Norm" />
       <Parameter docString="" id="62" isDefault="false" isUsed="true" name="Scale Type" type="string" value="Unscaled" />
     </ParameterList>
@@ -156,7 +156,7 @@
       <Parameter docString="" id="92" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
       <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
       <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="20" />
-      <Parameter docString="" id="95" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-03" />
+      <Parameter docString="" id="95" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
       <Parameter docString="" id="96" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="97" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
       <Parameter docString="" id="98" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />

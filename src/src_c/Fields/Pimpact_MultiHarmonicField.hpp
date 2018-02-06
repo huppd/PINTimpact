@@ -651,9 +651,9 @@ public:
         else
           displs[rank] = displs[rank-1] + recvcounts[rank-1];
 //				if(0==grid()->rankST())
-//					std::cout <<"\trank: " <<rank
-//						<<"\trecevcount: " <<recvcounts[rank]
-//						<<"\tdispl: " <<displs[rank] <<"\n";
+//					std::cout << "\trank: " << rank
+//						<< "\trecevcount: " << recvcounts[rank]
+//						<< "\tdispl: " << displs[rank] << "\n";
       }
 
       // exchange modes

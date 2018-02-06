@@ -92,10 +92,10 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<std::scientific;
-    out <<std::setw(3) <<"i" <<std::setw(14) <<"x" <<"\n";
+    out << std::scientific;
+    out << std::setw(3) << "i" << std::setw(14) << "x" << "\n";
     for(Ordinal i=ss; i<=nn_; ++i) {
-      out <<std::setw(3) <<i <<std::setw(14) <<(*this)[i] <<"\n";
+      out << std::setw(3) << i << std::setw(14) << (*this)[i] << "\n";
     }
   }
 
@@ -202,22 +202,22 @@ public:
   }
 
   void print(std::ostream& out=std::cout) const {
-    out <<std::setw(8) <<"bl: ";
-    out <<std::scientific;
-    out <<std::setprecision(3);
+    out << std::setw(8) << "bl: ";
+    out << std::scientific;
+    out << std::setprecision(3);
     for(int k=lb; k<=ub; ++k)
-      out <<std::setw(12) <<k ;
-    out <<" :bu\n";
+      out << std::setw(12) << k ;
+    out << " :bu\n";
 
     for(int bla=0; bla<12*w_+5; bla++)
-      out <<"-";
-    out <<"\n";
+      out << "-";
+    out << "\n";
 
     for(Ordinal i=ss; i<=nn_; ++i) {
-      out <<"i: " <<std::setw(3) <<i <<" (";
+      out << "i: " << std::setw(3) << i << " (";
       for(int ii=lb; ii<=ub; ++ii)
-        out <<std::setw(12) <<(*this)(i, ii);
-      out <<")\n";
+        out << std::setw(12) << (*this)(i, ii);
+      out << ")\n";
     }
   }
 

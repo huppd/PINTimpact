@@ -333,14 +333,14 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- " <<getLabel() <<" ---\n";
-    out <<"N: " <<N_ <<"\n";
-    out <<"cw: " <<cw_ <<"\n";
-    out <<"SS: \t";
-    out <<SS_ <<"\n";
-    out <<"NN: \t";
-    out <<NN_ <<"\n";
-    out <<"\n";
+    out << "--- " << getLabel() << " ---\n";
+    out << "N: " << N_ << "\n";
+    out << "cw: " << cw_ << "\n";
+    out << "SS: \t";
+    out << SS_ << "\n";
+    out << "NN: \t";
+    out << NN_ << "\n";
+    out << "\n";
   }
 
 }; // end of class TeuchosTransfer
@@ -577,14 +577,14 @@ public:
       bwork.getRawPtr(),
       &info);
 
-    //std::cout <<"info: " <<info <<"\n";
-    //std::cout <<"opti work: " <<(*work)[0]/N_ <<"\n";
+    //std::cout << "info: " << info << "\n";
+    //std::cout << "opti work: " << (*work)[0]/N_ << "\n";
 
     ST eps = 1.e-10;
 
     Teuchos::RCP<std::ostream> out = Pimpact::createOstream("ev_"+toString(dir)+".txt");
     for(OT i=0; i<n; ++i) {
-      *out <<(*evr)[i] <<"\n";
+      *out << (*evr)[i] << "\n";
       if(0==i) {
         for(OT j=0; j<n; ++ j) {
           if(std::fabs((*evr)[j])>eps) {
@@ -654,7 +654,7 @@ public:
     trans->apply(op_, A);
     {
       Teuchos::RCP<std::ostream> out = Pimpact::createOstream("divGrad.txt");
-      *out <<*A;
+      *out << *A;
     }
 
 
@@ -686,12 +686,12 @@ public:
       bwork.getRawPtr(),
       &info);
 
-    std::cout <<"info: " <<info <<"\n";
-    //std::cout <<"opti work: " <<(*work)[0]/N <<"\n";
+    std::cout << "info: " << info << "\n";
+    //std::cout << "opti work: " << (*work)[0]/N << "\n";
 
     Teuchos::RCP<std::ostream> out = Pimpact::createOstream("evfull.txt");
     for(OT i=0; i<N; ++i) {
-      *out <<(*evr)[i] <<"\t" <<(*evi)[i] <<"\n";
+      *out << (*evr)[i] << "\t" << (*evi)[i] << "\n";
       if(0==i) {
         evMax = (*evr)[i] ;
         evMin = (*evr)[i] ;

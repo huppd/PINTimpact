@@ -60,7 +60,7 @@ public:
 
   void print(std::ostream& out=std::cout) const {
 
-    out <<"=== TransferCompoundOP ===\n";
+    out << "=== TransferCompoundOP ===\n";
     opV_->print(out);
     opS_->print(out);
   }

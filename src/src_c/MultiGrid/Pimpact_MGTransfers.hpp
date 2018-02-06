@@ -121,13 +121,13 @@ public:
 
     for(int i = 0; i<restrictionOps_.size(); ++i) {
       if(mgGrids_->participating(i)) {
-        out <<"-------- restrictor: "<<i <<"--------\n";
+        out << "-------- restrictor: "<< i << "--------\n";
         restrictionOps_[i]->print(out);
       }
     }
     for(int i = 0; i<interpolationOps_.size(); ++i) {
       if(mgGrids_->participating(i)) {
-        out <<"-------- interpolator: "<<i <<"--------\n";
+        out << "-------- interpolator: "<< i << "--------\n";
         interpolationOps_[i]->print(out);
       }
     }

@@ -86,15 +86,15 @@ public:
   ///  @}
 
   void print(std::ostream& out=std::cout) const {
-    out <<"\tspatial dim: " <<sd <<"\n"
-        <<"\tRe= "      <<re_ <<"\n"
-        <<"\talpha^2= " <<alpha2_ <<"\n"
-        <<"\tlx= "      <<domainSize_[0]
-        <<"\tly= "      <<domainSize_[1]
-        <<"\tlz= "      <<domainSize_[2] <<"\n"
-        <<"\tox= "      <<origin_[0]
-        <<"\toy= "      <<origin_[1]
-        <<"\toz= "      <<origin_[2] <<"\n";
+    out << "\tspatial dim: " << sd << "\n"
+        << "\tRe= "      << re_ << "\n"
+        << "\talpha^2= " << alpha2_ << "\n"
+        << "\tlx= "      << domainSize_[0]
+        << "\tly= "      << domainSize_[1]
+        << "\tlz= "      << domainSize_[2] << "\n"
+        << "\tox= "      << origin_[0]
+        << "\toy= "      << origin_[1]
+        << "\toz= "      << origin_[2] << "\n";
   };
 
 }; // end of DomainSize

@@ -60,8 +60,8 @@ public:
     type_(pl->get<int>("type", -1)),
     op_(op),
     innerOp_(op->getInnerOpPtr()) {
-      //std::cout <<"type: " <<type_ <<"\n";
-      //std::cout <<"omega: " <<omega_ <<"\n";
+      //std::cout << "type: " << type_ << "\n";
+      //std::cout << "omega: " << omega_ << "\n";
     };
 
 
@@ -269,7 +269,7 @@ public:
               downwinding[3] = l;
 
               //if(0==grid()->rankST())
-                //std::cout <<downwinding <<"\n";
+                //std::cout << downwinding << "\n";
 
               applyGS(x, y, downwinding) ;
             }
@@ -278,7 +278,7 @@ public:
       }
     }
     //if(0==grid()->rankST())
-      //std::cout <<"\n";
+      //std::cout << "\n";
   }
 
 
@@ -330,7 +330,7 @@ public:
   };
 
   void print(std::ostream& out=std::cout) const {
-    out <<getLabel() <<":\n";
+    out << getLabel() << ":\n";
     op_->print(out);
   }
 

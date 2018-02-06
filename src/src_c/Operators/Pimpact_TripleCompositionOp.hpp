@@ -85,7 +85,7 @@ public:
 
 
   void print(std::ostream& out=std::cout) const {
-    out <<"TripleComposition: " <<getLabel() <<"\n";
+    out << "TripleComposition: " << getLabel() << "\n";
     op1_->print(out);
     op2_->print(out);
     op3_->print(out);

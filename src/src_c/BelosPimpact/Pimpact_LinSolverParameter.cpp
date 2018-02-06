@@ -73,7 +73,7 @@ Teuchos::RCP<Teuchos::ParameterList > Pimpact::createLinSolverParameter(
   } else if(solver_name=="Pseudo Block TFQMR") {
     parameter_->set("Block Size", 2);
   } else {
-    std::cout <<"!!!Warning!!! solver_name:\t" <<solver_name <<"\tnot known in Pimpact!";
+    std::cout << "!!!Warning!!! solver_name:\t" << solver_name << "\tnot known in Pimpact!";
   }
   parameter_->set("Maximum Iterations",	  maxIters);
   parameter_->set("Convergence Tolerance",	tol);

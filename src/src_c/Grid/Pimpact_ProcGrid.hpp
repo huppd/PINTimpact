@@ -103,7 +103,7 @@ protected:
     for(int i=0; i<dim; ++i)
       procSize *= procGridSize_[i];
 
-    TEUCHOS_TEST_FOR_EXCEPTION(procSize!=commSize, std::logic_error, "procSize: " <<procSize <<" != commSize: " <<commSize);
+    TEUCHOS_TEST_FOR_EXCEPTION(procSize!=commSize, std::logic_error, "procSize: " << procSize << " != commSize: " << commSize);
 
     Teuchos::Tuple<int, dim> ijkB;                        // mpi grid coordinates
 
@@ -260,13 +260,13 @@ public:
     iB_(ib),
     rankL_(rankL),
     rankU_(rankU)	{
-    //std::cout <<"rank: " <<rankWorld_ <<"\tcomm: " <<commWorld_ <<"\n";
+    //std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
   }
 
   /// \todo figure out why freeing is not working, desirable for many Utest, destructor called twice?
   ~ProcGrid() {
     if(commWorld_!=MPI_COMM_NULL)
-      //std::cout <<"rank: " <<rankWorld_ <<"\tcomm: " <<commWorld_ <<"\n";
+      //std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
       //MPI_Comm_free(&commWorld_);
       if(commSub_!=MPI_COMM_NULL)
         MPI_Comm_free(&commSub_);
@@ -276,16 +276,16 @@ public:
   }
 
   void print(std::ostream& out=std::cout) const {
-    out <<"\t---ProcessorGrid ---\n";
-    out <<"\tProcGridSize: " <<procGridSize_ <<" ---\n";
-    out <<"\tparticipating: " <<participating_<<"\n";
-    out <<"\trankSub: " <<rankSub_<<"\n";
-    out <<"\trankWorld: " <<rankWorld_<<"\n";
-    out <<"\trankL: " <<rankL_<<"\n";
-    out <<"\trankU: " <<rankU_<<"\n";
-    out <<"\tproc coordinate: " <<iB_ <<"\n";
-    out <<"\trankBar: " <<rankBar_ <<"\n";
-    out <<"\trankSlice: " <<rankSlice_ <<"\n";
+    out << "\t---ProcessorGrid ---\n";
+    out << "\tProcGridSize: " << procGridSize_ << " ---\n";
+    out << "\tparticipating: " << participating_<< "\n";
+    out << "\trankSub: " << rankSub_<< "\n";
+    out << "\trankWorld: " << rankWorld_<< "\n";
+    out << "\trankL: " << rankL_<< "\n";
+    out << "\trankU: " << rankU_<< "\n";
+    out << "\tproc coordinate: " << iB_ << "\n";
+    out << "\trankBar: " << rankBar_ << "\n";
+    out << "\trankSlice: " << rankSlice_ << "\n";
   }
 
   constexpr const bool& participating() {

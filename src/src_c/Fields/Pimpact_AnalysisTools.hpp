@@ -303,9 +303,9 @@ void writeSpectrum(const MultiHarmonicFieldT& field,
   y->exchange();
 
 
-  out <<0 <<"\t" <<y->get0Field().norm(ENorm::L2)*std::sqrt(2.) <<"\n";
+  out << 0 << "\t" << y->get0Field().norm(ENorm::L2)*std::sqrt(2.) << "\n";
   for(OT i=1; i<=grid->nGlo(3); ++i)
-    out <<i <<"\t" <<y->getField(i).norm(ENorm::L2) <<"\n";
+    out << i << "\t" << y->getField(i).norm(ENorm::L2) << "\n";
 }
 
 
@@ -357,7 +357,7 @@ void computeEnergyDir(const VectorField<GridT>& vel, std::ostream& out=std::cout
               break;
             }
             case T: {
-              std::cout <<"Warning: not implemented!!!\n";
+              std::cout << "Warning: not implemented!!!\n";
               break;
             }
           }
@@ -374,9 +374,9 @@ void computeEnergyDir(const VectorField<GridT>& vel, std::ostream& out=std::cout
       0,                                          // int root,
       grid->getProcGrid()->getCommSlice(dir));  // MPI_Comm communicator);
 
-  //std::cout <<grid->nGlo(dir) <<"\n";
-  //std::cout <<grid->nLoc(dir) <<"\n";
-  //std::cout <<grid->getProcGrid()->getNP(dir) <<"\n";
+  //std::cout << grid->nGlo(dir) << "\n";
+  //std::cout << grid->nLoc(dir) << "\n";
+  //std::cout << grid->getProcGrid()->getNP(dir) << "\n";
 
   std::vector<ST> energyGlobal(grid->nGlo(dir), Teuchos::ScalarTraits<ST>::zero());
 
@@ -393,7 +393,7 @@ void computeEnergyDir(const VectorField<GridT>& vel, std::ostream& out=std::cout
 
     if(0 == grid->getProcGrid()->getRankBar(dir))
       for(OT j=0; j<grid->nGlo(dir); ++j)
-        out <<grid->getCoordinatesGlobal()->getX(F::S, dir, j+1) <<"\t" <<energyGlobal[j] <<"\n";
+        out << grid->getCoordinatesGlobal()->getX(F::S, dir, j+1) << "\t" << energyGlobal[j] << "\n";
   }
 }
 
@@ -420,10 +420,10 @@ void computeHEEnergyDir(
 
   //----- obristd 310510: initialization of spatial modal analysis
   if(0 == grid->rankST()) {
-    std::cout <<"\nFourier-Hermite modal analysis\n";
-    std::cout <<"==============================\n";
-    std::cout <<" gamma     = " <<gamma <<"\n";
-    std::cout <<" n_Hermite = " <<n_Hermitemodes <<"\n";
+    std::cout << "\nFourier-Hermite modal analysis\n";
+    std::cout << "==============================\n";
+    std::cout << " gamma     = " << gamma << "\n";
+    std::cout << " n_Hermite = " << n_Hermitemodes << "\n";
   }
 
   OT S1p = grid->si(F::S, X);
@@ -454,13 +454,13 @@ void computeHEEnergyDir(
     for(int n=2; n<n_Hermitemodes; ++n)
       sweight(k-S3p, n) = (x3p/gamma*sweight(k-S3p, n-1) - std::sqrt(static_cast<ST>(n-1))*sweight(k-S3p, n-2))/sqrt(static_cast<ST>(n));
 
-    //if(0 == grid->rankST()) std::cout <<"k: " <<k <<" x3p: " <<x3p <<"\t";
+    //if(0 == grid->rankST()) std::cout << "k: " << k << " x3p: " << x3p << "\t";
     for(int n=0; n<n_Hermitemodes; ++n) {
       sweight(k-S3p, n) *= std::exp(-std::pow(x3p/gamma, 2)/2.)*dx3p/std::sqrt(gamma*std::sqrt(2*pi)); // dh: don't know where it is coming from: normalization factor for exp(...)
       //sweight(k-S3p, n) *= std::exp(-std::pow(x3p/gamma, 2)/2.)*dx3p;
-      //if(0 == grid->rankST()) std::cout <<sweight(k-S3p, n) <<"\t";
+      //if(0 == grid->rankST()) std::cout << sweight(k-S3p, n) << "\t";
     }
-    //std::cout <<"\n";
+    //std::cout << "\n";
   }
 
 
@@ -537,9 +537,9 @@ void computeHEEnergyDir(
 
     if(0 == grid->getProcGrid()->getRankBar(dir))
       for(OT j=0; j<grid->nGlo(dir); ++j) {
-        out <<grid->getCoordinatesGlobal()->getX(F::S, dir, j+1) <<"\t" ;
-        for(OT n=0; n<n_Hermitemodes; ++n) out <<energyGlobal(n, j) <<"\t";
-        out <<"\n";
+        out << grid->getCoordinatesGlobal()->getX(F::S, dir, j+1) << "\t" ;
+        for(OT n=0; n<n_Hermitemodes; ++n) out << energyGlobal(n, j) << "\t";
+        out << "\n";
       }
   }
 }

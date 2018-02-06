@@ -69,7 +69,7 @@ public:
 
     if(4==GridT::dimNC)
       if(0==op->grid()->rankST())
-        std::cout <<"Warning!!! ConvectionDiffusionSORSmoother strange behavior for dimNC=4, problems at outflow\n";
+        std::cout << "Warning!!! ConvectionDiffusionSORSmoother strange behavior for dimNC=4, problems at outflow\n";
 
     if(0==ordering_) {
       dirs_[0] = pl->get<short int>("dir X", 1);
@@ -81,7 +81,7 @@ public:
 
 
   void apply(const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const ST mulI, const ST mulC, const ST mulL, const Add add=Add::N) const {
-    std::cout <<"not implmented\n";
+    std::cout << "not implmented\n";
   }
 
   void apply(const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Add add=Add::N) const {
@@ -265,7 +265,7 @@ protected:
         for(OT k=grid()->si(f, Z, B::Y); k<=grid()->ei(f, Z, B::Y); ++k)
           for(OT i=grid()->si(f, X, B::N); i<=grid()->ei(f, X, B::N); ++i) {
             ST temp = 0.;
-            //std::cout <<"f: " <<f <<"i: " <<i <<"j: " <<"k: " <<k <<"y: " <<y(i, j, k) <<"\n";
+            //std::cout << "f: " << f << "i: " << i << "j: " << "k: " << k << "y: " << y(i, j, k) << "\n";
             for(OT jj=0; jj<=SW::BU(Y); ++jj)
               temp += getHC(Y, f, j, jj)*y(i, j+jj, k);
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(Y, f, j, 0);
@@ -313,7 +313,7 @@ protected:
             for(OT ii=0; ii<=SW::BU(X); ++ii)
               temp += getHC(X, f, i, ii)*y(i+ii, j, k);
             y(i, j, k) += omegaBC*(b(i, j, k) - temp)/getHC(X, f, i, 0);
-            //std::cout <<"f: " <<f <<"i: " <<i <<"j: " <<"k: " <<k <<"y: " <<y(i, j, k) <<"\n\n";
+            //std::cout << "f: " << f << "i: " << i << "j: " << "k: " << k << "y: " << y(i, j, k) << "\n\n";
           }
       }
       if(0<grid()->bcu(X)) {
@@ -472,7 +472,7 @@ protected:
 public:
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- " <<getLabel() <<"---\n";
+    out << "--- " << getLabel() << "---\n";
     op_->print();
   }
 

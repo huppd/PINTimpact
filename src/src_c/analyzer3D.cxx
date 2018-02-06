@@ -103,7 +103,7 @@ int main(int argi, char** argv) {
 
 
     if(0 == grid->rankST())
-      std::cout <<"initial field\n";
+      std::cout << "initial field\n";
 
     // init vectors
     Teuchos::RCP<CF> x = Teuchos::rcp(new CF(grid));

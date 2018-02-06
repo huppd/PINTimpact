@@ -197,6 +197,6 @@ void Pimpact::setBoundaryConditions(
       pl->sublist("boundary conditions").set<int>("upper Z", Pimpact::BC::Periodic );
       break;
     default:
-      std::cout <<"!!!Warning: unkown EDomainType:\t" <<dtype<<"\t!!!\n";
+      std::cout << "!!!Warning: unkown EDomainType:\t" << dtype<< "\t!!!\n";
   }
 }

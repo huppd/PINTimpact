@@ -60,7 +60,7 @@ public:
 
 
   void apply(const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, ST mul, ST mulI, ST mulC, ST mulL) const {
-    std::cout <<"not implmented\n";
+    std::cout << "not implmented\n";
   }
 
 
@@ -371,7 +371,7 @@ public:
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- " <<getLabel() <<" ---\n";
+    out << "--- " << getLabel() << " ---\n";
     op_->print();
   }
 

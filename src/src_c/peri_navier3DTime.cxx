@@ -167,7 +167,7 @@ int main(int argi, char** argv) {
                                          Teuchos::sublist(pl, "Grid", true));
 
 
-    if(0==grid->rankST()) std::cout <<"initial field\n";
+    if(0==grid->rankST()) std::cout << "initial field\n";
 
     // init vectors
     Teuchos::RCP<MF> x = Pimpact::wrapMultiField(
@@ -178,7 +178,7 @@ int main(int argi, char** argv) {
 
     /*********************************************************************************/
 
-    if(0==grid->rankST()) std::cout <<"create operator\n";
+    if(0==grid->rankST()) std::cout << "create operator\n";
     //auto opV2V = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<GridT, method> >(grid);
     //auto opS2V = Pimpact::createTimeOpWrap(Pimpact::create<Pimpact::GradOp>(grid));
     //auto opV2S = Pimpact::createTimeOpWrap(Pimpact::create<Pimpact::DivOp>(grid));
@@ -189,23 +189,23 @@ int main(int argi, char** argv) {
                 //opV2S);
     auto op = Pimpact::create<Pimpact::TimeNSOp<GridT>>(grid);
 
-    if(0==grid->rankST()) std::cout <<"create RHS:\n";
-    if(0==grid->rankST()) std::cout <<"\tdiv test\n";
+    if(0==grid->rankST()) std::cout << "create RHS:\n";
+    if(0==grid->rankST()) std::cout << "\tdiv test\n";
     //{
       //opV2S->apply(x->getField(0).getVField(), x->getField(0).getSField() );
       //ST divergence = x->getField(0).getSField().norm();
       //if(0==grid->rankST())
-        //std::cout <<"\n\tdiv(Base Flow): " <<divergence <<"\n\n";
+        //std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
       //x->getField(0).getSField().init(0.);
     //}
 
     std::string rl = "";
 
-    if(0==grid->rankST()) std::cout <<"\tcreate RHS\n";
+    if(0==grid->rankST()) std::cout << "\tcreate RHS\n";
     auto fu = x->clone(Pimpact::ECopy::Shallow);
     auto sol = fu->clone(Pimpact::ECopy::Shallow);
 
-    if(0==grid->rankST()) std::cout <<"\tBC interpolation\n";
+    if(0==grid->rankST()) std::cout << "\tBC interpolation\n";
     {
       // to get the Dirichlet for the RHS (necessary interpolation) ugly
       // super ugly hack for BC::Dirichlet
@@ -213,7 +213,7 @@ int main(int argi, char** argv) {
       fu->init(0., Pimpact::B::N);
     }
 
-    if(0==grid->rankST()) std::cout <<"\tforcing\n";
+    if(0==grid->rankST()) std::cout << "\tforcing\n";
     // Taylor Green Vortex
     std::string forceType = pl->sublist("Force").get<std::string>("force type", "Dirichlet");
     if("force"== forceType)
@@ -236,7 +236,7 @@ int main(int argi, char** argv) {
           // init RHS
           ST timei = grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
           ST timeim =grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i-1);
-          //std::cout <<time <<"\n";
+          //std::cout << time << "\n";
           //ST ctime = (std::cos(timei)+std::cos(timeim))/2.;
           ST ctime = std::cos((timei+timeim)/2.);
           ST stime = (std::sin(timei)+std::sin(timeim))/2.;
@@ -255,7 +255,7 @@ int main(int argi, char** argv) {
         // init sol
         {
           ST time = grid->getCoordinatesLocal()->getX(Pimpact::F::U, 3, i);
-          //std::cout<<time <<"\n";
+          //std::cout<< time << "\n";
           ST stime = std::sin(time);
           sol->getField(0).getVField()(i)(Pimpact::F::U).initFromFunction(
               [=](ST x, ST y, ST z) ->ST {
@@ -270,7 +270,7 @@ int main(int argi, char** argv) {
     }
 
 
-    if(0==grid->rankST()) std::cout <<"set initial conditions\n";
+    if(0==grid->rankST()) std::cout << "set initial conditions\n";
     if("zero"==initGuess)
       x->init(0.);
     else if("almost zero"==initGuess) {
@@ -482,7 +482,7 @@ int main(int argi, char** argv) {
           //divGradInv);
 
       ////if(grid->rankST()==0)
-      ////std::cout <<opS2Sinv->getLabel() <<"\n";
+      ////std::cout << opS2Sinv->getLabel() << "\n";
 
       //auto invTriangOp =
         //Pimpact::createInverseTriangularOp(
@@ -566,7 +566,7 @@ int main(int argi, char** argv) {
 
 
     if(0==grid->rankST())
-      std::cout <<"\n\t--- Nf: "<<grid->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
+      std::cout << "\n\t--- Nf: "<< grid->nGlo(3) << "\tdof: "<< x->getLength()<< "\t---\n";
 
     // Solve the nonlinear system
     {
@@ -574,7 +574,7 @@ int main(int argi, char** argv) {
       try {
         solver->solve();
       } catch(std::logic_error & e) {
-        std::cout <<e.what() <<"\n";
+        std::cout << e.what() << "\n";
       }
     }
 
@@ -593,9 +593,9 @@ int main(int argi, char** argv) {
     ST solNorm = sol->getField(0).getVField().norm();
     sol->getField(0).getVField().add(1., sol->getField(0).getVField(), -1., x->getField(0).getVField());
     ST error = sol->getField(0).getVField().norm()/solNorm;
-    if(0==grid->rankST()) std::cout <<"error: " <<error <<"\n";
+    if(0==grid->rankST()) std::cout << "error: " << error << "\n";
     auto eStream = Pimpact::createOstream("error.txt", grid->rankST());
-    *eStream <<error <<"\n";
+    *eStream << error << "\n";
 
     /******************************************************************************************/
 

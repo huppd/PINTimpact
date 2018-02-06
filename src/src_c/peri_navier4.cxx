@@ -275,11 +275,11 @@ int main(int argi, char** argv) {
     outPar = Teuchos::rcp(new Teuchos::oblackholestream()) ;
 
 
-  *outPar <<" \tCrankNicolson=" <<cny <<"\n";
-  *outPar <<" \tNewton=" <<isNewton <<"\n";
-  *outPar <<" \tflow=" <<flow <<"\n";
-  *outPar <<" \tforce=" <<forcing <<"\n";
-  *outPar <<" \tdomain=" <<domain <<"\n";
+  *outPar << " \tCrankNicolson=" << cny << "\n";
+  *outPar << " \tNewton=" << isNewton << "\n";
+  *outPar << " \tflow=" << flow << "\n";
+  *outPar << " \tforce=" << forcing << "\n";
+  *outPar << " \tdomain=" << domain << "\n";
 
   // init grid
 
@@ -404,7 +404,7 @@ int main(int argi, char** argv) {
   Teuchos::RCP<NOX::Solver::Generic> solver =
     NOX::Solver::buildSolver(group, statusTest, noxSolverPara);
 
-  if(0==rank) std::cout <<"\n\t--- Nf: 0\tdof: "<<x->getLength()<<"\t---\n";
+  if(0==rank) std::cout << "\n\t--- Nf: 0\tdof: "<< x->getLength()<< "\t---\n";
 // Solve the nonlinear system
   {
     Teuchos::TimeMonitor LocalTimer(*Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time"));
@@ -414,8 +414,8 @@ int main(int argi, char** argv) {
 
 //    // Print the parameter list
 //    //    if(nt==nfs) {
-//    //      if(rank==0) std::cout <<"\n" <<"-- Parameter List From Solver --" <<"\n";
-//    //      if(rank==0) std::cout <<"\n" <<status <<"\n";
+//    //      if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
+//    //      if(rank==0) std::cout << "\n" << status << "\n";
 //    //      if(rank==0) solver->getList().print(std::cout);
 //    //    }
 
@@ -425,7 +425,7 @@ int main(int argi, char** argv) {
 // Get a summary from the time monitor.
   Teuchos::TimeMonitor::summarize();
 
-//    // Print the answer if(rank==0) std::cout <<"\n" <<"-- Final Solution From Solver --" <<"\n";
+//    // Print the answer if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
 //
   Teuchos::rcp_dynamic_cast<const NV>(group->getXPtr())->getConstFieldPtr()->write();
   Teuchos::rcp_dynamic_cast<const NV>(group->getFPtr())->getConstFieldPtr()->write(1000);

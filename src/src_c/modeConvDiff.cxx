@@ -210,11 +210,11 @@ int main(int argi, char** argv) {
     ST lx = grid->getDomainSize()->getSize(Pimpact::X) ;
     ST ly = grid->getDomainSize()->getSize(Pimpact::Y) ;
     ST lz = grid->getDomainSize()->getSize(Pimpact::Z) ;
-    std::cout <<"a2: " <<a2 <<"\n";
-    std::cout <<"iRe: " <<iRe <<"\n";
-    std::cout <<"lx: " <<lx <<"\n";
-    std::cout <<"ly: " <<ly <<"\n";
-    std::cout <<"lz: " <<lz <<"\n";
+    std::cout << "a2: " << a2 << "\n";
+    std::cout << "iRe: " << iRe << "\n";
+    std::cout << "lx: " << lx << "\n";
+    std::cout << "ly: " << ly << "\n";
+    std::cout << "lz: " << lz << "\n";
     //
     // computing zero mode of z
     // set paramteters
@@ -247,7 +247,7 @@ int main(int argi, char** argv) {
     if(realCase) {
       rhs.getCField().initField(pl->sublist("Force").sublist("cos mode"));
       rhs.getSField().initField(pl->sublist("Force").sublist("sin mode"));
-      std::cout <<"||rhs||_L2: " <<rhs.norm(Pimpact::ENorm::L2) <<"\n";
+      std::cout << "||rhs||_L2: " << rhs.norm(Pimpact::ENorm::L2) << "\n";
       //if(withoutput) rhs.write(100);
     }
     else{
@@ -329,7 +329,7 @@ int main(int argi, char** argv) {
       //if(1==print) err.print();
 
       error = err.norm(Pimpact::ENorm::Inf)/rhs.norm(Pimpact::ENorm::Inf);
-      std::cout <<"\nresidual: " <<error <<"\n";
+      std::cout << "\nresidual: " << error << "\n";
 
       x.init();
     }
@@ -363,7 +363,7 @@ int main(int argi, char** argv) {
       err.add(1., sol, -1., x);
 
       error = err.norm(Pimpact::ENorm::Inf);
-      std::cout <<"\nerror: " <<error <<"\n";
+      std::cout << "\nerror: " << error << "\n";
     }
     else {
       modeOp->apply(x, sol);
@@ -371,7 +371,7 @@ int main(int argi, char** argv) {
       if(withoutput) err.write(0);
 
       error = err.norm(Pimpact::ENorm::Inf);
-      std::cout <<"\nresidual: " <<error <<"\n";
+      std::cout << "\nresidual: " << error << "\n";
     }
 
     if(0==grid->rankST()) {

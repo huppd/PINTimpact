@@ -215,8 +215,8 @@ public:
   void setParameter(Teuchos::RCP<Teuchos::ParameterList> para) {}
 
   void print(std::ostream& out=std::cout) const {
-    out <<"--- " <<getLabel() <<" ---\n";
-    out <<"\t numIter: " <<nIter_ <<"\n";
+    out << "--- " << getLabel() << " ---\n";
+    out << "\t numIter: " << nIter_ << "\n";
     op_->print(out);
   }
 

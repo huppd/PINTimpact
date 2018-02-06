@@ -1,4 +1,4 @@
-//#pragma once
+#pragma once
 #ifndef PIMPACT_PICARDPROJECTOR_HPP
 #define PIMPACT_PICARDPROJECTOR_HPP
 
@@ -123,7 +123,7 @@ class PicardProjector {
        )/dotNP_;
 
     if(0==grid->rankST())
-      std::cout <<"Picard^-1"<<": nullspace contributtion: " <<std::abs(bla)  <<"\n";
+      std::cout << "Picard^-1"<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
 
     if(std::abs(bla) >= Teuchos::ScalarTraits<ST>::eps()) {
       rhs_v.add(1., rhs_v, bla, projection_.getVField());
@@ -227,7 +227,7 @@ public:
 
     dotNP_ = nullspace_.dot(projection_);
 
-    if(grid->rankST()==0) std::cout <<"dotNP: " <<dotNP_ <<"\n";
+    if(grid->rankST()==0) std::cout << "dotNP: " << dotNP_ << "\n";
     assert(dotNP_!=0.);
   }
 

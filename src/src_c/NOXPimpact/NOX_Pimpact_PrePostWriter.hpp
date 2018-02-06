@@ -82,7 +82,7 @@ public:
 
       //if((sol_<0 or res_<0 or cor_<0) and (!writeIterPre_ and !writeIterPost_ and
             //!writeSolvePre_ and !writeSolvePost_)) 
-        //std::cout <<"Warning!!! no write happening!\n";
+        //std::cout << "Warning!!! no write happening!\n";
     };
 
 

@@ -391,8 +391,8 @@ public:
         int transL = std::abs(grid()->bl(3));
         int transU = std::abs(grid()->bu(3));
 
-        // std::cout <<"transL: " << transL <<"\n";
-        // std::cout <<"transU: " << transU <<"\n";
+        // std::cout << "transL: " << transL << "\n";
+        // std::cout << "transU: " << transU << "\n";
 
         int rankU = grid()->getProcGrid()->getRankU(3);
         int rankL = grid()->getProcGrid()->getRankL(3);
@@ -524,7 +524,7 @@ initVectorTimeField(
   //break;
   //}
   //case OscilatingDisc2D: {
-  ////			std::cout <<"\ti: " <<i <<"\tt: " <<2.*pi*((F::S)i+offset)/nt <<"\tt: " <<grid->getCoordinatesLocal()->getX(F::S, ECoord::T)[i] <<"\n";
+  ////			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((F::S)i+offset)/nt << "\tt: " << grid->getCoordinatesLocal()->getX(F::S, ECoord::T)[i] << "\n";
   //S ymt = ym+amp*std::sin(grid->getCoordinatesLocal()->getX(F::S, ECoord::T)[i]);
   //S xmt = xm;
   //field(i)->initField(Disc2D, xmt, ymt, rad);

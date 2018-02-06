@@ -163,7 +163,7 @@ public:
           resetIsValid();
           break;
         default:
-          std::cerr <<"ERROR: Invalid ConstructorType for group copy constructor." <<std::endl;
+          std::cerr << "ERROR: Invalid ConstructorType for group copy constructor." << std::endl;
           throw "NOX Error";
       }
   }
@@ -268,8 +268,8 @@ public:
     status = sharedInterfacePtr_->getObject(this)->computeF(xVector_.getField(), RHSVector.getField());
 
     if (status != Abstract::Group::Ok) {
-      std::cout <<"ERROR: Pimpact::Group::computeF() - fill failed!!!"
-                <<std::endl;
+      std::cout << "ERROR: Pimpact::Group::computeF() - fill failed!!!"
+                << std::endl;
       throw "NOX Error: Fill Failed";
     }
 
@@ -299,8 +299,8 @@ public:
     status = sharedInterfacePtr_->getObject(this)->computeJacobian(xVector_.getField());
 
     if (status != NOX::Abstract::Group::Ok) {
-      std::cout <<"ERROR: NOX::Pimpact::Group::computeJacobian() - fill failed!!!"
-                <<std::endl;
+      std::cout << "ERROR: NOX::Pimpact::Group::computeJacobian() - fill failed!!!"
+                << std::endl;
       throw "NOX Error: Fill Failed";
     }
     // Update status of Jacobian wrt solution vector
@@ -324,12 +324,12 @@ public:
       return Abstract::Group::Ok;
 
     if (!isF()) {
-      std::cerr <<"ERROR: NOX::Pimpact::Group::computeNewton() - invalid RHS" <<std::endl;
+      std::cerr << "ERROR: NOX::Pimpact::Group::computeNewton() - invalid RHS" << std::endl;
       throw "NOX Error";
     }
 
     if (!isJacobian()) {
-      std::cerr <<"ERROR: NOX::Pimpact::Group::computeNewton() - invalid Jacobian" <<std::endl;
+      std::cerr << "ERROR: NOX::Pimpact::Group::computeNewton() - invalid Jacobian" << std::endl;
       throw "NOX Error";
     }
 
@@ -479,7 +479,7 @@ public:
     VectorT& result) const {
 
     //    params.print();
-    //    std::cout <<"Call applyRightPrecon.... !!!!!!\n";
+    //    std::cout << "Call applyRightPrecon.... !!!!!!\n";
 
     return sharedInterfacePtr_->getObject(this)->applyPreconditioner(xVector_.getField(), RHSVector.getField());
   }
@@ -552,7 +552,7 @@ public:
 
   virtual const NOX::Abstract::Vector& getF() const {
     if (!isF()) {
-      std::cerr <<"ERROR: NOX::Pimpact::Group::getF() - invalid RHS" <<std::endl;
+      std::cerr << "ERROR: NOX::Pimpact::Group::getF() - invalid RHS" << std::endl;
       throw "NOX Error";
     }
 
@@ -563,7 +563,7 @@ public:
   /// return pre computed 2-Norm of RHS F
   virtual double getNormF() const {
     if (!isF()) {
-      std::cerr <<"ERROR: NOX::Pimpact::Group::getNormF() - invalid RHS" <<std::endl;
+      std::cerr << "ERROR: NOX::Pimpact::Group::getNormF() - invalid RHS" << std::endl;
       throw "NOX Error";
     }
 
@@ -572,14 +572,14 @@ public:
 
 
   virtual const NOX::Abstract::Vector& getGradient() const {
-    std::cerr <<"ERROR: NOX::Pimpact::Group::getGradient() - gradient not implemented" <<std::endl;
+    std::cerr << "ERROR: NOX::Pimpact::Group::getGradient() - gradient not implemented" << std::endl;
     throw "NOX Error";
   }
 
 
   virtual const NOX::Abstract::Vector& getNewton() const {
     if (!isNewton()) {
-      std::cerr <<"ERROR: NOX::Pimpact::Group::getNewton() - invalid Newton vector" <<std::endl;
+      std::cerr << "ERROR: NOX::Pimpact::Group::getNewton() - invalid Newton vector" << std::endl;
       throw "NOX Error";
     }
 
@@ -594,7 +594,7 @@ public:
     return RHSVectorPtr_;
   };
   inline virtual Teuchos::RCP<const NOX::Abstract::Vector > getGradientPtr() const {
-    std::cerr <<"ERROR: NOX::Pimpact::Group::getGradient() - gradient not implemented" <<std::endl;
+    std::cerr << "ERROR: NOX::Pimpact::Group::getGradient() - gradient not implemented" << std::endl;
     throw "NOX Error";
   };
 
@@ -617,9 +617,9 @@ public:
     // Otherwise give warning since a Newton direction has not been calculated
     // wrt this solution group
     if(utils_.isPrintType(Utils::Warning)) {
-      std::cout <<"ERROR: NOX::Epetra::Group::getNormLastLinearSolveResidual() - "
-                <<"Group has not performed a Newton solve corresponding to this "
-                <<"solution vector, or disableLinearSolveResidual(true) was set!" <<std::endl;
+      std::cout << "ERROR: NOX::Epetra::Group::getNormLastLinearSolveResidual() - "
+                << "Group has not performed a Newton solve corresponding to this "
+                << "solution vector, or disableLinearSolveResidual(true) was set!" << std::endl;
     }
     return NOX::Abstract::Group::BadDependency;
   }
@@ -652,8 +652,8 @@ public:
   //         bool printOutput=false) {
   //    if (!isConditionNumber()) {
   //      if (!isJacobian()) {
-  //        std::cerr <<"ERROR: NOX::Epetra::Group::computeJacobianConditionNumber()"
-  //            <<" - Jacobian is invalid wrt the solution." <<std::endl;
+  //        std::cerr << "ERROR: NOX::Epetra::Group::computeJacobianConditionNumber()"
+  //            << " - Jacobian is invalid wrt the solution." << std::endl;
   //        throw "NOX Error";
   //      }
   //    }
@@ -664,8 +664,8 @@ public:
   //  /// Returns the condition number of the Jacobian matrix.
   //  virtual double getJacobianConditionNumber() const {
   //    if(!isConditionNumber()) {
-  //      std::cerr <<"ERROR: NOX::Epetra::Group::getJacobianConditionNumber()"
-  //          <<" - condition number has not yet been computed!" <<std::endl;
+  //      std::cerr << "ERROR: NOX::Epetra::Group::getJacobianConditionNumber()"
+  //          << " - condition number has not yet been computed!" << std::endl;
   //      throw "NOX Error";
   //    }
   //    return normF_;
@@ -703,13 +703,13 @@ protected:
     //    // Make sure NewtonVector and RHSVector are valid
     //    // We could return false, but for now we will throw errors
     //    if (!isValidRHS_) {
-    //      std::cerr <<"ERROR: NOX::Pimpact::Group::computeNormNewtonSolveResidual() - invalid RHS"
-    //          <<std::endl;
+    //      std::cerr << "ERROR: NOX::Pimpact::Group::computeNormNewtonSolveResidual() - invalid RHS"
+    //          << std::endl;
     //      throw "NOX Error";
     //    }
     //    if (!isValidNewton) {
-    //      std::cerr <<"ERROR: NOX::Pimpact::Group::computeNormNewtonSolveResidual() - invalid "
-    //          <<"Newton direction" <<std::endl;
+    //      std::cerr << "ERROR: NOX::Pimpact::Group::computeNormNewtonSolveResidual() - invalid "
+    //          << "Newton direction" << std::endl;
     //      throw "NOX Error";
     //    }
     //
