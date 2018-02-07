@@ -61,7 +61,7 @@ public:
 
     Teuchos::RCP<const DomainFieldT> y;
 
-    if(y_ref.global()==DomainFieldT::Global::Y)
+    if(y_ref.global() == DomainFieldT::Global::Y)
       y = Teuchos::rcpFromRef(y_ref);
     else {
       Teuchos::RCP<DomainFieldT> temp =
@@ -85,7 +85,7 @@ public:
   void apply(const DomainFieldT& y_ref, RangeFieldT& z, bool init_yes=true) const {
 
     Teuchos::RCP<const DomainFieldT> y;
-    if(y_ref.global()==DomainFieldT::Global::Y)
+    if(y_ref.global() == DomainFieldT::Global::Y)
       y = Teuchos::rcpFromRef(y_ref);
     else {
       Teuchos::RCP<DomainFieldT> temp =
@@ -103,7 +103,7 @@ public:
     ST mulI;
 
     // computing zero mode of z
-    if(0==grid()->si(F::U, 3)) {
+    if(0 == grid()->si(F::U, 3)) {
 
       op_->apply(get0Wind(), y->get0Field(), z.get0Field(), 0., 1., iRe, Add::N);
 
@@ -121,7 +121,7 @@ public:
 
       for(OT k=1; k+i<=Nf; ++k) { // thats fine
 
-        mulI = (k==i)?(a2*i):0;
+        mulI = (k == i)?(a2*i):0;
 
         op_->apply(getCWind(k+i), y->getCField(k), z.getCField(i),   0., 0.5, 0., Add::Y);
         op_->apply(getCWind(k), y->getCField(k+i), z.getCField(i),   0., 0.5, 0., Add::Y);
@@ -138,7 +138,7 @@ public:
 
       for(OT k=1; k+i<=Nf; ++k) { // that is fine
 
-        mulI = (k==i)?(a2*i):0;
+        mulI = (k == i)?(a2*i):0;
 
         op_->apply(getCWind(k+i), y->getSField(k), z.getSField(i),    0., -0.5, 0., Add::Y);
         op_->apply(getCWind(k), y->getSField(k+i), z.getSField(i),    0.,  0.5, 0., Add::Y);
@@ -181,8 +181,10 @@ public:
   /// modes that are bigger than the cutoff
   std::pair<ST, OT> compRefRes(const DomainFieldT& y_ref, ST cutoff=1.e-6) const {
 
+    // echanging y field
     Teuchos::RCP<const DomainFieldT> y;
-    if(y_ref.global()==DomainFieldT::Global::Y)
+
+    if(y_ref.global() == DomainFieldT::Global::Y)
       y = Teuchos::rcpFromRef(y_ref);
     else {
       Teuchos::RCP<DomainFieldT> temp =
@@ -216,7 +218,7 @@ public:
     z.norm(norms, ENorm::L2);
 
     OT NfR = Nf-1;
-    while(NfR>=0 && norms[NfR]<cutoff)
+    while(NfR>=0 && norms[NfR]/2.<cutoff)
       --NfR;
 
     ST res = 0.;
@@ -229,7 +231,7 @@ public:
 
   void applyBC(const DomainFieldT& x, RangeFieldT& y) const {
 
-    if(0==grid()->si(F::U, 3))
+    if(0 == grid()->si(F::U, 3))
       op_->getSOp()->getHelmholtzOp()->applyBC(x.get0Field(), y.get0Field());
 
     for(typename GridT::OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i) {

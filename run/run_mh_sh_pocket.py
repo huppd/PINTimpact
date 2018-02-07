@@ -32,14 +32,14 @@ NF = 1
 CASE_PATH = ['']*3
 
 
-NPX = 1
+NPX = 2
 
 NPY = 2
 # NPY = 4
 NPY = 8
 
 # NPZ = 10
-NPZ = 12
+NPZ = 8
 
 NPF = 1
 #

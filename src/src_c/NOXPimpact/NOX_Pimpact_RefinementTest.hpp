@@ -94,19 +94,19 @@ public:
       nfr_ = resF.second;
 
 
-      if(nfr_==0)
+      if(nfr_ == 0)
         status_ = NOX::StatusTest::Unconverged;
       else
-        status_ = (normF_/nf <tolerance_*normRF_/nfr_/2.) ?
+        status_ = (normF_/nf < tolerance_*normRF_/nfr_/2.) ?
           NOX::StatusTest::Converged :
           NOX::StatusTest::Unconverged;
     }
 
     if(!out_.is_null()) {
-      *out_ << problem.getNumIterations() << "\t" << nf << "\t" << normF_ << "\t" <<
+      *out_ << problem.getNumIterations() << "\t" << (nf-1)/2 << "\t" << normF_ << "\t" <<
         normRF_ << "\t" << std::max(nfr_, 1) << std::endl;
     }
-    if(nf!=0)
+    if(nf != 0)
       normF_ /=nf;
 
     return status_;
@@ -119,14 +119,14 @@ public:
 
   virtual std::ostream& print(std::ostream& stream, int indent = 0) const {
 
-    for (int j = 0; j <indent; j ++)
+    for (int j = 0; j<indent; j ++)
       stream << ' ';
 
     stream << status_;
     stream << "Number of additional modes = " << nfr_ << " > 0" ;
     stream << "\n";
 
-    for (int j = 0; j <indent; j ++)
+    for (int j = 0; j<indent; j ++)
       stream << ' ';
     stream << std::setw(13) << " ";
 
@@ -194,19 +194,23 @@ private:
 
     Teuchos::RCP<const NOX::Abstract::Vector> x = grp.getXPtr();
 
-    if(Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename InterfaceT::FieldT>
-      >(x)->getConstFieldPtr()->grid()->nGlo(3)>0)
-      return op->getOperatorPtr()->getOpV2V()->compRefRes(Teuchos::rcp_dynamic_cast<const
-          NOX::Pimpact::Vector<typename InterfaceT::FieldT>
-          >(x)->getConstFieldPtr()->getField(0).getVField(), cutoff);
+    int nf =
+      Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename InterfaceT::FieldT>
+        >(x)->getConstFieldPtr()->grid()->nGlo(3);
+
+    if(nf > 0)
+      return op->getOperatorPtr()->getOpV2V()->compRefRes(
+          Teuchos::rcp_dynamic_cast<const NOX::Pimpact::Vector<typename
+          InterfaceT::FieldT> >(x)->getConstFieldPtr()->getField(0).getVField(), cutoff);
     else
       return std::pair<double, int>(0., 0);
   }
-};
+
+}; // end of class RefinementTest
 
 
-} // namespace Pimpact
-} // namespace NOX
+} // end of namespace Pimpact
+} // end of namespace NOX
 
 
 #endif // end of #ifndef NOX_PIMPACT_STATUSTEST_HPP
