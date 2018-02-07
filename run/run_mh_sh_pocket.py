@@ -38,7 +38,7 @@ NPY = 2
 # NPY = 4
 NPY = 8
 
-# NPZ = 10
+# NPZ = 6 
 NPZ = 8
 
 NPF = 1
@@ -53,18 +53,16 @@ NZO = 513
 # #
 NX = 65
 
-NY = 129
-NY = 257
+# NY = 129
+# NY = 257
 NY = 513
 
-NZ = 321 
+# NZ =  289
 NZ = 385 
 #
-# LX = LXO
 LX = round(LXO*1.5/(NXO-1)*(NX-1), 1)
 LY = round(LYO*1.5/(NYO-1)*(NY-1), 1)
 LZ = round(LZO*1.5/(NZO-1)*(NZ-1), 1)
-# LZ = LZO 
 #
 print('NX', NX)
 print('NY', NY)
@@ -114,4 +112,4 @@ EXE_STRING = pp.exe_pre(NPTOT, ' -N -W 24:00 ' +
                         '-R "rusage[mem=' + str(MEMTOT) +
                         ']" ') + pp.EXE_PATH + '/'+EXE
 print(EXE_STRING)
-os.system(EXE_STRING)
+# os.system(EXE_STRING)
