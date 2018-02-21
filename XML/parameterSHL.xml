@@ -41,7 +41,7 @@
     <Parameter docString="" id="28" isDefault="false" isUsed="true" name="max refinement" type="int" value="2" />
     <Parameter docString="" id="29" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.00000000000000005e-04" />
     <Parameter docString="" id="30" isDefault="false" isUsed="true" name="refinement step" type="int" value="2" />
-    <Parameter docString="" id="31" isDefault="true" isUsed="true" name="refinement residual tol" type="double" value="1.00000000000000000e+02" />
+    <Parameter docString="" id="31" isDefault="true" isUsed="true" name="refinement residual tol" type="double" value="2.00000000000000000e+00" />
     <Parameter docString="" id="32" isDefault="false" isUsed="true" name="initial guess" type="string" value="base" />
   </ParameterList>
   <ParameterList id="222" name="NOX write restart">
@@ -153,8 +153,8 @@
     <Parameter docString="" id="90" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
     <Parameter docString="" id="91" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="247" name="Solver">
-      <Parameter docString="" id="92" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
-      <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="40" />
+      <Parameter docString="" id="92" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="180" />
+      <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="60" />
       <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="20" />
       <Parameter docString="" id="95" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-02" />
       <Parameter docString="" id="96" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
@@ -175,7 +175,7 @@
     <Parameter docString="" id="108" isDefault="true" isUsed="true" name="debug" type="bool" value="false" />
     <ParameterList id="249" name="Solver">
       <Parameter docString="" id="109" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
-      <Parameter docString="" id="110" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="8" />
+      <Parameter docString="" id="110" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="12" />
       <Parameter docString="" id="111" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-12" />
       <Parameter docString="" id="112" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="113" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
@@ -185,7 +185,7 @@
       <Parameter docString="" id="117" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of Initial Residual" />
     </ParameterList>
     <ParameterList id="250" name="Multi Grid">
-      <Parameter docString="" id="118" isDefault="false" isUsed="true" name="numCycles" type="int" value="4" />
+      <Parameter docString="" id="118" isDefault="false" isUsed="true" name="numCycles" type="int" value="8" />
       <Parameter docString="" id="119" isDefault="false" isUsed="true" name="init zero" type="bool" value="false" />
       <Parameter docString="" id="120" isDefault="true" isUsed="true" name="defect correction" type="bool" value="true" />
       <Parameter docString="" id="121" isDefault="true" isUsed="true" name="cycle type" type="int" value="0" />

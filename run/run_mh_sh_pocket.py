@@ -38,8 +38,8 @@ NPY = 2
 # NPY = 4
 NPY = 8
 
-# NPZ = 6 
-NPZ = 8
+NPZ = 6 
+# NPZ = 8
 
 NPF = 1
 #
@@ -53,8 +53,8 @@ NZO = 513
 # #
 NX = 65
 
-# NY = 129
-# NY = 257
+NY = 129
+NY = 257
 NY = 513
 
 # NZ =  289
@@ -105,11 +105,11 @@ pp.chdir(CASE_PATH, 0)
 
 TREE.write('parameter3D.xml')
 NPTOT = NPX*NPY*NPZ*NPF
-MEMTOT = int(1024.*2)
+MEMTOT = int(1024.*3)
 print()
 print(CASE_PATH)
 EXE_STRING = pp.exe_pre(NPTOT, ' -N -W 24:00 ' +
                         '-R "rusage[mem=' + str(MEMTOT) +
                         ']" ') + pp.EXE_PATH + '/'+EXE
 print(EXE_STRING)
-# os.system(EXE_STRING)
+os.system(EXE_STRING)
