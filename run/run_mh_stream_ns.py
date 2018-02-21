@@ -15,23 +15,23 @@ ROOT = TREE.getroot()
 
 ma.set_parameter(ROOT, 'withoutput', 1)
 ma.set_parameter(ROOT, 'refinement step', 1)
-ma.set_parameter(ROOT, 'max refinement', 10)
+ma.set_parameter(ROOT, 'max refinement', 1)
 ma.set_parameter(ROOT, 'refinement tol', 1.e-6)
 
 NP = 2
 
 ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
-# ma.set_parameter(ROOT, 'nf', 12)
-ma.set_parameter(ROOT, 'nf', 1)
+ma.set_parameter(ROOT, 'nf', 14)
+# ma.set_parameter(ROOT, 'nf', 1)
 
 ma.set_parameter(ROOT, 'npx', NP)
 ma.set_parameter(ROOT, 'npy', NP)
 # ma.set_parameter(ROOT, 'npf', 3)
 
 
-# NXS = [33, 65, 129]
-NXS = [33]
+NXS = [33, 65, 129, 257]
+# NXS = [33]
 # NXS = [129]
 # NXS = [257]
 
@@ -51,7 +51,7 @@ for tol in [2]:
     CASE_PATH = ['']*4
     CASE_PATH[0] = pp.DATA_PATH + '/streaming_' + str(tol)
     pp.mkdir(CASE_PATH, 0)
-    ma.set_parameter(ROOT, 'Convergence Tolerance', 10**(-tol))
+    # ma.set_parameter(ROOT, 'Convergence Tolerance', 10**(-tol))
     for nx in NXS:
         CASE_PATH[1] = '/nx_'+str(nx)
         pp.mkdir(CASE_PATH, 1)

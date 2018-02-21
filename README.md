@@ -7,9 +7,8 @@ folder structure:
 - src: scr code
   - src_c: c++ code 
   - src_f: Fortran code
-  - src_impact: legacy impact code, should be removed soon
   - test: collection of many unit tests
- - XML: colection of different parameters and cases
+- XML: colection of different parameters and cases
 
  files types
  - f90: fortran code
@@ -19,3 +18,11 @@ folder structure:
  - xml: parameter xml files
  - py: python scripts
  - txt: text files for cmake
+
+
+ installation:
+
+ - needed tools: cmake + compilers
+ - needed libraries: blas/lapack, mpi, hdf5
+ - trilinos needed packages(Teuchos, Belos, NOX)
+

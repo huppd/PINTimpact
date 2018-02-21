@@ -21,7 +21,7 @@ ma.set_parameter(ROOT, 'refinement tol', 1.e-4)
 
 ma.set_parameter(ROOT, 'lx', 2.)
 ma.set_parameter(ROOT, 'ly', 2.)
-ma.set_parameter(ROOT, 'nf', 12)
+ma.set_parameter(ROOT, 'nf', 14)
 
 NP = 2
 
@@ -29,10 +29,10 @@ ma.set_parameter(ROOT, 'npx', NP)
 ma.set_parameter(ROOT, 'npy', NP)
 
 
-NXS = [65]
+NXS = [129]
 
-RES = 10**np.linspace(0, 2, 9)[-1:]
-STS = 10**np.linspace(-2, 0, 9)[2:3]
+RES = 10**np.linspace(0, 2, 9)
+STS = 10**np.linspace(-2, 0, 9)
 STS = STS[::-1]
 # STS = [1.]
 # RES = [10.]
@@ -79,4 +79,4 @@ for tol in [2]:
                 # EXE_STRING = pp.exe_pre(
                     # nptot, ' -N -W 6:00 ') + pp.EXE_PATH + '/'+EXE
                 print(EXE_STRING)
-                os.system(EXE_STRING)
+                # os.system(EXE_STRING)

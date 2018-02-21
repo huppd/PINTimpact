@@ -119,7 +119,7 @@ int main(int argi, char** argv) {
     ST gamma = 10.;
     std::string prefix = "energy_";
 
-    // compute glob energy in y-dir
+    // compute glob HE energy in y-dir
     if(0 == grid->si(::Pimpact::F::U, 3)) {
       auto vel = x->getVField().get0Field().clone(::Pimpact::ECopy::Deep);
       vel->add(1., *vel, -1., *base);
@@ -148,6 +148,7 @@ int main(int argi, char** argv) {
     }
 
     x->write();
+    x->getVField().get0Field().add(1., x->getVField().get0Field(), -1., *base);
     Pimpact::writeMHLambda2evol(x->getVField(), 10000);
     Pimpact::writeMHLambda2(x->getVField(), 20000);
   }
