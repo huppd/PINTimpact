@@ -31,11 +31,10 @@ ma.set_parameter(ROOT, 'npy', NP)
 
 NXS = [129]
 
-RES = 10**np.linspace(0, 2, 9)
-STS = 10**np.linspace(-2, 0, 9)
-STS = STS[::-1]
-# STS = [1.]
-# RES = [10.]
+RES = 10**np.linspace(0, 2, 9)[0:6]
+STS = 10**np.linspace(-2, 0, 9)[0:4]
+# STS = STS[::-1]
+
 
 # make executable ready
 EXE = 'peri_navier2D'
@@ -73,10 +72,10 @@ for tol in [2]:
                 print()
                 print(CASE_PATH)
                 EXE_STRING = pp.exe_pre(
-                        nptot, ' -N -W 42:00 ' +
-                        '-R "rusage[mem=' + str(memtot) +
-                        ']" ') + pp.EXE_PATH + '/'+EXE
+                    nptot, ' -N -W 42:00 ' +
+                    '-R "rusage[mem=' + str(memtot) +
+                    ']" ') + pp.EXE_PATH + '/'+EXE
                 # EXE_STRING = pp.exe_pre(
-                    # nptot, ' -N -W 6:00 ') + pp.EXE_PATH + '/'+EXE
+                # nptot, ' -N -W 6:00 ') + pp.EXE_PATH + '/'+EXE
                 print(EXE_STRING)
                 # os.system(EXE_STRING)
