@@ -31,9 +31,9 @@ ma.set_parameter(ROOT, 'npy', NP)
 
 NXS = [129]
 
-RES = 10**np.linspace(0, 2, 9)[0:6]
-STS = 10**np.linspace(-2, 0, 9)[0:4]
-# STS = STS[::-1]
+RES = 10**np.linspace(0, 2, 9)[-1:]
+STS = 10**np.linspace(-2, 0, 9)[2:4]
+STS = STS[::-1]
 
 
 # make executable ready
@@ -78,4 +78,4 @@ for tol in [2]:
                 # EXE_STRING = pp.exe_pre(
                 # nptot, ' -N -W 6:00 ') + pp.EXE_PATH + '/'+EXE
                 print(EXE_STRING)
-                # os.system(EXE_STRING)
+                os.system(EXE_STRING)
