@@ -105,7 +105,7 @@ TEUCHOS_UNIT_TEST(BelosOperatorMV, HelmholtzMV) {
 
 	auto mv = Teuchos::rcp(new Pimpact::MultiField<VF>(grid, 10));
 
-	auto opm = Pimpact::createMultiOpWrap(Pimpact::create<Pimpact::HelmholtzOp>(grid));
+	auto opm = Pimpact::createMultiOpWrap(Pimpact::create<Pimpact::DiffusionOp>(grid));
 
 	auto op = Pimpact::createOperatorBase(opm);
 

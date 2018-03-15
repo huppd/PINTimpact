@@ -3,7 +3,7 @@
 #define PIMPACT_CONVECTIONDIFFUSIONSORSMOOTHER_HPP
 
 #include "Pimpact_ConvectionSOp.hpp"
-#include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_DiffusionOp.hpp"
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Utils.hpp"
 

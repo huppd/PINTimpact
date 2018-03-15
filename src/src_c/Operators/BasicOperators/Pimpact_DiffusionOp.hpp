@@ -19,7 +19,7 @@ namespace Pimpact {
 ///
 /// computes \f$ y = (mulI_ I - mulL_ \Delta) x \f$
 template<class SpT>
-class HelmholtzOp {
+class DiffusionOp {
 
 public:
 
@@ -52,7 +52,7 @@ protected:
 
 public:
 
-  HelmholtzOp(
+  DiffusionOp(
     const Teuchos::RCP<const GridT>& grid):
     grid_(grid),
     mulI_(static_cast<ST>(0.)),
@@ -639,7 +639,7 @@ public:
     return getC(X, fType, i, 0) + getC(Y, fType, j, 0);
   }
 
-}; // end of class HelmholtzOp
+}; // end of class DiffusionOp
 
 
 } // end of namespace Pimpact

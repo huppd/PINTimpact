@@ -10,7 +10,7 @@
 #include "Pimpact_ConvectionSOp.hpp"
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
-#include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_DiffusionOp.hpp"
 #include "Pimpact_InterpolateS2VOp.hpp"
 #include "Pimpact_TimeField.hpp"
 
@@ -86,7 +86,7 @@ protected:
   Teuchos::RCP<const InterpolateS2V<ST>> interpolateS2V_;
   Teuchos::RCP<const InterpolateV2S<Scalar, Ordinal, sdim, dimension, dimNC>> interpolateV2S_;
   Teuchos::RCP<const ConvectionSOp<ST>> conv_;
-  Teuchos::RCP<const HelmholtzOp<ST>> helm_;
+  Teuchos::RCP<const DiffusionOp<ST>> helm_;
   Teuchos::RCP<const GradOp<ST>> grad_;
   Teuchos::RCP<const DivOp<ST>>  div_;
 
@@ -99,7 +99,7 @@ public:
     interpolateS2V_(create<InterpolateS2V>(grid)),
     interpolateV2S_(createInterpolateV2S(grid)),
     conv_(create<ConvectionSOp<ST> >(grid)),
-    helm_(create<HelmholtzOp<ST>   >(grid)),
+    helm_(create<DiffusionOp<ST>   >(grid)),
     grad_(create<GradOp<ST>        >(grid)),
     div_ (create<DivOp<ST>         >(grid)) {};
 
@@ -238,7 +238,7 @@ public:
     return false;
   }
 
-  Teuchos::RCP<const HelmholtzOp<ST> > getHelmholtzOp() const {
+  Teuchos::RCP<const DiffusionOp<ST> > getDiffusionOp() const {
     return helm_;
   }
   Teuchos::RCP<const GradOp<ST> > getGradOp() const {

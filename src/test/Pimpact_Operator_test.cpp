@@ -380,7 +380,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, GradOp, D3)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, HelmholtzOp, GridT) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, DiffusionOp, GridT) {
 
 	if(domain!= 1) {
 
@@ -398,7 +398,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, HelmholtzOp, GridT) {
 		Pimpact::VectorField<GridT> b(grid);
 		Pimpact::VectorField<GridT> bs(grid);
 
-		auto op = Pimpact::create<Pimpact::HelmholtzOp>(grid);
+		auto op = Pimpact::create<Pimpact::DiffusionOp>(grid);
 
 		if(print)
 			op->print();
@@ -519,8 +519,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, HelmholtzOp, GridT) {
 	}
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, HelmholtzOp, D2)
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, HelmholtzOp, D3)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, DiffusionOp, D2)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(BasicOperator, DiffusionOp, D3)
 
 
 
@@ -1422,8 +1422,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiOperator, Add2Op, GridT) {
 	auto op = Pimpact::createOperatorBase(
 			Pimpact::createMultiOpWrap(
 				Pimpact::createAdd2Op(
-					Pimpact::create<Pimpact::HelmholtzOp>(grid),
-					Pimpact::create<Pimpact::HelmholtzOp>(grid)
+					Pimpact::create<Pimpact::DiffusionOp>(grid),
+					Pimpact::create<Pimpact::DiffusionOp>(grid)
 			)
 		)
 	);
@@ -1450,13 +1450,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(MultiOperator, MulitOpUnWrap, GridT) {
 
   auto op = Pimpact::createOperatorBase(
 			Pimpact::createMultiOpWrap(
-				Pimpact::create<Pimpact::HelmholtzOp>(grid)));
+				Pimpact::create<Pimpact::DiffusionOp>(grid)));
 
   auto opUW = Pimpact::create<Pimpact::MultiOpUnWrap>(op);
 
   auto opUW2 =
       Pimpact::create<WUP>(
-          Pimpact::create<Pimpact::HelmholtzOp>(grid)
+          Pimpact::create<Pimpact::DiffusionOp>(grid)
     );
 
 
@@ -1502,8 +1502,8 @@ TEUCHOS_UNIT_TEST(MultiHarmonicOperator, MultiHarmonicOpWrap) {
   auto grid = Pimpact::create<Pimpact::Grid<ST, OT, 3, 4, dNC> >(pl);
 
 
-  auto op = Pimpact::createMultiHarmonicOpWrap<Pimpact::HelmholtzOp<GridT> >(
-      Pimpact::create<Pimpact::HelmholtzOp>(grid));
+  auto op = Pimpact::createMultiHarmonicOpWrap<Pimpact::DiffusionOp<GridT> >(
+      Pimpact::create<Pimpact::DiffusionOp>(grid));
 
   Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Grid<ST, OT, 3, 4, dNC> > > x(grid);
   Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Grid<ST, OT, 3, 4, dNC> > > y(grid);
@@ -2216,7 +2216,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, DivGradOp, DivGradO2OpT3D)
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, HelmholtzOp, GridT) { 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, DiffusionOp, GridT) { 
 
 	int rank = 0;
 
@@ -2403,7 +2403,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, HelmholtzOp, GridT) {
 								return(solfunc(z)); });
 				}
 
-				auto op = Pimpact::create<Pimpact::HelmholtzOp>(grid);
+				auto op = Pimpact::create<Pimpact::DiffusionOp>(grid);
 
 				op->apply(x, y);
 
@@ -2433,8 +2433,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(Convergence, HelmholtzOp, GridT) {
 	}
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, HelmholtzOp, D2)
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, HelmholtzOp, D3)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, DiffusionOp, D2)
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(Convergence, DiffusionOp, D3)
 
 
 

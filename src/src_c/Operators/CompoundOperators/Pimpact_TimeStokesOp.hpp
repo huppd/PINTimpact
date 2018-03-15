@@ -8,7 +8,7 @@
 #include "Pimpact_CompoundField.hpp"
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
-#include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_DiffusionOp.hpp"
 #include "Pimpact_TimeField.hpp"
 
 
@@ -77,14 +77,14 @@ public:
 
 protected:
 
-  Teuchos::RCP<const HelmholtzOp<ST> > helm_;
+  Teuchos::RCP<const DiffusionOp<ST> > helm_;
   Teuchos::RCP<const GradOp<ST> > grad_;
   Teuchos::RCP<const DivOp<ST> > div_;
 
 public:
 
   TimeStokesOp(const Teuchos::RCP<const GridT>& grid):
-    helm_(create<HelmholtzOp<ST> >(grid)),
+    helm_(create<DiffusionOp<ST> >(grid)),
     grad_(create<GradOp<ST> >(grid)),
     div_(create<DivOp<ST> >(grid)) {};
 
@@ -169,7 +169,7 @@ public:
 
 
 
-  Teuchos::RCP<const HelmholtzOp<ST> > getHelmholtzOp() const {
+  Teuchos::RCP<const DiffusionOp<ST> > getDiffusionOp() const {
     return helm_;
   }
   Teuchos::RCP<const GradOp<ST> > getGradOp() const {

@@ -232,11 +232,11 @@ public:
   void applyBC(const DomainFieldT& x, RangeFieldT& y) const {
 
     if(0 == grid()->si(F::U, 3))
-      op_->getSOp()->getHelmholtzOp()->applyBC(x.get0Field(), y.get0Field());
+      op_->getSOp()->getDiffusionOp()->applyBC(x.get0Field(), y.get0Field());
 
     for(typename GridT::OT i=std::max(grid()->si(F::U, 3), 1); i<=grid()->ei(F::U, 3); ++i) {
-      op_->getSOp()->getHelmholtzOp()->applyBC(x.getCField(i), y.getCField(i));
-      op_->getSOp()->getHelmholtzOp()->applyBC(x.getSField(i), y.getSField(i));
+      op_->getSOp()->getDiffusionOp()->applyBC(x.getCField(i), y.getCField(i));
+      op_->getSOp()->getDiffusionOp()->applyBC(x.getSField(i), y.getSField(i));
     }
   }
 

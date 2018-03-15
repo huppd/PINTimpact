@@ -5,7 +5,7 @@
 #include "Teuchos_ScalarTraits.hpp"
 
 #include "Pimpact_ConvectionSOp.hpp"
-#include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_DiffusionOp.hpp"
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Utils.hpp"
 
@@ -35,7 +35,7 @@ public:
 protected:
 
   Teuchos::RCP<const ConvectionSOp<GridT> > convSOp_;
-  Teuchos::RCP<const HelmholtzOp<GridT> > helmOp_;
+  Teuchos::RCP<const DiffusionOp<GridT> > helmOp_;
 
   Scalar mulI_;
   Scalar mulC_;
@@ -45,7 +45,7 @@ public:
 
   ConvectionDiffusionSOp(const Teuchos::RCP<const GridT>& grid ):
     convSOp_(create<ConvectionSOp>(grid)),
-    helmOp_(create<HelmholtzOp>(grid)),
+    helmOp_(create<DiffusionOp>(grid)),
     mulI_(0.),
     mulC_(1.),
     mulL_(1./grid()->getDomainSize()->getRe())	{};
@@ -137,7 +137,7 @@ public:
   constexpr const Teuchos::RCP<const ConvectionSOp<GridT> >& getConvSOp() const {
     return convSOp_;
   }
-  constexpr const Teuchos::RCP<const HelmholtzOp<GridT> >& getHelmOp() const {
+  constexpr const Teuchos::RCP<const DiffusionOp<GridT> >& getHelmOp() const {
     return helmOp_;
   }
 

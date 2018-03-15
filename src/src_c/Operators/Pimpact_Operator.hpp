@@ -27,12 +27,12 @@
 //// Basic Operator that are nonlinear, such that the can be wrapped by \c Pimpact::ConvectionVWrap
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
+#include "Pimpact_DiffusionOp.hpp"
 #include "Pimpact_DivGradOp.hpp"
 #include "Pimpact_DivGradO2Op.hpp"
 #include "Pimpact_DivGradO2Inv.hpp"
 #include "Pimpact_DivGradO2JSmoother.hpp"
 #include "Pimpact_DivGradO2LSmoother.hpp"
-#include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_InterpolateS2VOp.hpp"
 #include "Pimpact_InterpolateV2SOp.hpp"
 #include "Pimpact_ConvectionSOp.hpp"

@@ -49,17 +49,17 @@ contains
   !! \param NW end index for velocity fields in z-direction, can be get from \c
   !!        Grid::eInd(EFieldType::W)
   !! \param c11p stencil coefficients for laplace operator in x-direction on
-  !!        pressure coordinates, can be get from \c HelmholtzOp::getC(X,S)
+  !!        pressure coordinates, can be get from \c DiffusionOp::getC(X,S)
   !! \param c22p stencil coefficients for laplace operator in y-direction on
-  !!        pressure coordinates, can be get from \c HelmholtzOp::getC(Y,S)
+  !!        pressure coordinates, can be get from \c DiffusionOp::getC(Y,S)
   !! \param c33p stencil coefficients for laplace operator in z-direction on
-  !!        pressure coordinates, can be get from \c HelmholtzOp::getC(Z,S)
+  !!        pressure coordinates, can be get from \c DiffusionOp::getC(Z,S)
   !! \param c11u stencil coefficients for laplace operator in x-direction on
-  !!        velocity coordinates, can be get from \c HelmholtzOp::getC(X,U)
+  !!        velocity coordinates, can be get from \c DiffusionOp::getC(X,U)
   !! \param c22v stencil coefficients for laplace operator in y-direction on
-  !!        velocity coordinates, can be get from \c HelmholtzOp::getC(Y,V)
+  !!        velocity coordinates, can be get from \c DiffusionOp::getC(Y,V)
   !! \param c33w stencil coefficients for laplace operator in z-direction on
-  !!        velocity coordinates, can be get from \c HelmholtzOp::getC(Z,W)
+  !!        velocity coordinates, can be get from \c DiffusionOp::getC(Z,W)
   !! \param cD1 stencil coefficients for divergence operator in x-direction, can be get from \c DivOp::getC(X)
   !! \param cD2 stencil coefficients for divergence operator in y-direction, can be get from \c DivOp::getC(Y)
   !! \param cD3 stencil coefficients for divergence operator in z-direction, can be get from \c DivOp::getC(Z)

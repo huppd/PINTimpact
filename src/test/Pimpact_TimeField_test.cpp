@@ -387,8 +387,8 @@ TEUCHOS_UNIT_TEST(TimeOpearotr, TimeOpWrap) {
 	auto mv = Teuchos::rcp(new Pimpact::MultiField<TVF>(grid, 10));
 
 	// op test
-	auto op = Pimpact::createTimeOpWrap<Pimpact::HelmholtzOp<GridT>, true>(
-			Pimpact::create<Pimpact::HelmholtzOp>(grid));
+	auto op = Pimpact::createTimeOpWrap<Pimpact::DiffusionOp<GridT>, true>(
+			Pimpact::create<Pimpact::DiffusionOp>(grid));
 
 	auto bop = Pimpact::createMultiOperatorBase(op);
 
