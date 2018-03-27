@@ -145,7 +145,7 @@ TEUCHOS_STATIC_SETUP() {
 }
 
 
-TEUCHOS_UNIT_TEST(BasicOperator, HelmholtzOp) {
+TEUCHOS_UNIT_TEST(BasicOperator, DiffusionOp) {
 
 	Pimpact::setBoundaryConditions(pl, domain);
 
@@ -191,11 +191,11 @@ TEUCHOS_UNIT_TEST(BasicOperator, HelmholtzOp) {
   Teuchos::RCP<const GridT> grid = Pimpact::create<GridT>(pl);
 
 
-  auto op = Pimpact::create<Pimpact::HelmholtzOp>(grid);
+  auto op = Pimpact::create<Pimpact::DiffusionOp>(grid);
 
-	Teuchos::RCP<Pimpact::SimpleVectorIteration<Pimpact::HelmholtzOp<GridT> > >
+	Teuchos::RCP<Pimpact::SimpleVectorIteration<Pimpact::DiffusionOp<GridT> > >
 		svi = Teuchos::rcp(new
-				Pimpact::SimpleVectorIteration<Pimpact::HelmholtzOp<GridT> >(op));
+				Pimpact::SimpleVectorIteration<Pimpact::DiffusionOp<GridT> >(op));
 
 	if(0==grid->rankST())
 		std::cout <<"\n" <<op->getLabel() <<":\tmax EV:\t" <<svi->getMaxEV() <<"\n";

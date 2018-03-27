@@ -341,7 +341,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL(BasicOperator, ConvectionDiffusionOp, GridT) {
 
   auto op = Pimpact::createAdd2Op(
       Pimpact::create<ConvOpT<GridT> >(grid),
-      Pimpact::create<Pimpact::HelmholtzOp>(grid));
+      Pimpact::create<Pimpact::DiffusionOp>(grid));
 
 	auto op2 = Pimpact::create<ConvDiffOpT<GridT> >(grid);
 
