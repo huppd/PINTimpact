@@ -1,5 +1,57 @@
-PImpact is a Periodic Incompressible navier--stokes solver on Massively PArallel
-CompuTers.
+**Pimpact** is a <b>p</b>eriodic
+**i** ncompressible
+Navier--Stokes solver on
+**m** assively
+**pa** rallel
+**c** ompu**t** ers.
+
+
+
+<!--To get the code, one has to execute-->
+<!--\begin{lstlisting}[language=bash]-->
+<!--git clone https://github.com/huppd/PINTimpact.git-->
+<!--\end{lstlisting}-->
+<!--in a shell.-->
+<!--This will download the folder \texttt{Pimpact} into the folder of execution.-->
+<!--%The folder \texttt{Pimpact}-->
+<!--This folder has the following structure-->
+<!--\vspace{-0.25cm}-->
+<!--\texttt{\begin{itemize} -->
+  <!--\item[] /PINTimpact-->
+    <!--\begin{itemize}-->
+      <!--%\item[] Doxyfile-->
+      <!--\item[] /run-->
+      <!--\item[] /src-->
+        <!--\begin{itemize}-->
+          <!--\item[] /src\_c-->
+          <!--\item[] /src\_f-->
+          <!--\item[] /test-->
+        <!--\end{itemize}-->
+      <!--\item[] /XML-->
+    <!--\end{itemize}-->
+<!--\end{itemize}-->
+<!--\vspace{-0.25cm}-->
+<!--}-->
+<!--%The \texttt{Doxyfile} contains instruction to generate the documentation, explaine-->
+<!--%later.-->
+<!--The \texttt{run} folder contains various python scripts, that can start multiple jobs-->
+<!--and create folder hierarchies for parameter studies or scaling tests.-->
+<!--The \texttt{src} folder contains three subfolders, \texttt{src\_c} for the-->
+<!--\cpp{} part of the code,-->
+<!--\texttt{src\_f} for the \fortran{} part of the code, and \texttt{test} for the unit-tests.-->
+<!--The \texttt{XML} folder contains various \texttt{xml} parameter files.-->
+<!--These are used to set up the parameters and problems for the \textsc{Pimpact} solver.-->
+
+<!--The documentation can be created by executing-->
+<!--\begin{lstlisting}[language=bash]-->
+<!--doxygen Doxyfile-->
+<!--\end{lstlisting}-->
+<!--in the \texttt{PINTimpact} folder.-->
+<!--This will generate the documentation in the \texttt{doc} folder.-->
+<!--The documentation can be read by opening the file \texttt{doc/html/index.html} by a-->
+<!--preferred browser.-->
+<!--Further information about compiling and using the code can be found there.-->
+
 
 folder structure:
 
