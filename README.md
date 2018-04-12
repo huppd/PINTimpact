@@ -1,16 +1,18 @@
 **Pimpact** is a <b>p</b>eriodic
-**i** ncompressible
+<b>i</b>ncompressible
 Navier--Stokes solver on
-**m** assively
-**pa** rallel
-**c** ompu**t** ers.
+<b>m</b>assively
+<b>pa</b>llel
+<b>c</b>ompu<b>t</b>ers.
 
 
 
-<!--To get the code, one has to execute-->
-<!--\begin{lstlisting}[language=bash]-->
-<!--git clone https://github.com/huppd/PINTimpact.git-->
-<!--\end{lstlisting}-->
+To get the code, one has to execute
+
+```
+git clone https://github.com/huppd/PINTimpact.git
+```
+
 <!--in a shell.-->
 <!--This will download the folder \texttt{Pimpact} into the folder of execution.-->
 <!--%The folder \texttt{Pimpact}-->
