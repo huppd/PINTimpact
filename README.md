@@ -9,9 +9,9 @@ Navier--Stokes solver on
 
 To get the code, one has to execute
 
-```
+<code>
 git clone https://github.com/huppd/PINTimpact.git
-```
+</code>
 
 <!--in a shell.-->
 <!--This will download the folder \texttt{Pimpact} into the folder of execution.-->
