@@ -1,4 +1,4 @@
-**Pimpact** is a <b>p</b>eriodic <b>i</b>ncompressible Navier--Stokes solver on
+**Pimpact** stands for  <b>p</b>eriodic <b>i</b>ncompressible Navier--Stokes solvers on
 <b>m</b>assively <b>pa</b>llel <b>c</b>ompu<b>t</b>ers.
 
 
@@ -51,17 +51,33 @@ Further information about compiling and using the code can be found there.
 
 ## 2) Compiling code
 
-### 2a) Installing *Trilinos*
+We recommend to compile the code in two versions: a release version that is optimized, and
+a debug version that provided runtime tests and further debugging informations.  A user,
+that is only running the code without adjustments might, do without a debug version.  A
+developer, who is improving the performance of the code, might even want to use a third
+profiling version.
 
-### 2b) Compiling *Pimpact*
+*Pimpact* is written partly in C++ and Fortran90, so we recommend to use a compiler that
+can compile both and directly link those.  Test have been done with the intel compiler and
+the gcc compiler.
 
-debug/release
+The following libraries are needed:
  - needed tools: cmake + compilers
  - needed libraries: blas/lapack, mpi, hdf5
  - trilinos needed packages(Teuchos, Belos, NOX)
+
+### 2a) Installing *Trilinos*
+
+Depending if your platform already provides 
+
+### 2b) Compiling *Pimpact*
+
+<!--debug/release-->
 
 ## 3) Running tests 
 
 ## 4) Running code
 
 ## 5) Running parameter studies
+
+## 6) Analyzing and Visualizing
