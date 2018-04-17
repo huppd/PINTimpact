@@ -12,12 +12,12 @@ in a shell.
 This will download the folder *PINTimpact* into the folder of execution.
 This folder has the following folder structure
 
-- *run*<!--: collection of running scripts-->
-- *src*<!--: scr code-->
-  - *src_c*<!--: c++ code -->
-  - *src_f*<!--: Fortran code-->
-  - *test*<!--: collection of many unit tests-->
-- *XML*<!--: collection of different parameters and cases-->
+- *run*
+- *src*
+  - *src_c*
+  - *src_f*
+  - *test*
+- *XML*
 
 The *run* folder contains various python scripts, that can start multiple jobs and create
 folder hierarchies for parameter studies or scaling tests.  The *src* folder contains
@@ -48,36 +48,58 @@ preferred browser.
 Further information about compiling and using the code can be found there.
 
 
-
 ## 2) Compiling code
 
 We recommend to compile the code in two versions: a release version that is optimized, and
-a debug version that provided runtime tests and further debugging informations.  A user,
-that is only running the code without adjustments might, do without a debug version.  A
-developer, who is improving the performance of the code, might even want to use a third
-profiling version.
+a debug version that provides runtime tests and further debugging informations.  A user,
+that is only running the code without adjustments might do without a debug version.  A
+developer, who is working on the performance of the code, might even want to use a third
+version for profiling.
 
 *Pimpact* is written partly in C++ and Fortran90, so we recommend to use a compiler that
 can compile both and directly link those.  Test have been done with the intel compiler and
 the gcc compiler.
 
-The following libraries are needed:
- - needed tools: cmake + compilers
- - needed libraries: blas/lapack, mpi, hdf5
- - trilinos needed packages(Teuchos, Belos, NOX)
+Needed libraries are MPI, HDF5, LAPACK, and trilinos.
+
+We are using functionality from 
+
+<!--The following libraries are needed:-->
+ <!--- needed tools: cmake-->
+ <!--- needed libraries: blas/lapack, mpi, hdf5-->
 
 ### 2a) Installing *Trilinos*
 
 Depending if your platform already provides 
 
+ - trilinos needed packages(Teuchos, Belos, NOX)
+
 ### 2b) Compiling *Pimpact*
 
 <!--debug/release-->
 
+
 ## 3) Running tests 
+
+After finishing step **2b)** the implementation can be tested. One has to change into the
+build director and can simply run
+
+<code> ctest .</code>
+``` ctest . ```
+
+This will run all test with multiple parameters.  The source code for the test can be find
+in *PINTImpact/src/test* folder.  They are written with the *Teuchos* package provided by
+*Trilinos*, see
+<https://trilinos.org/docs/dev/packages/teuchos/doc/html/group__Teuchos__UnitTest__grp.html>.
+The according executable can be found in the build director */test*.  If the executable
+are run with a `--help` flag, they print all possible possible parameter for the command
+line.
+
 
 ## 4) Running code
 
+
 ## 5) Running parameter studies
+
 
 ## 6) Analyzing and Visualizing
