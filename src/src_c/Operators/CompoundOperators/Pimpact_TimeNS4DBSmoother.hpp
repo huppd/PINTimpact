@@ -1,3 +1,8 @@
+/// Pimpact 
+/// \author Pietro Benedusi
+/// \date 2016
+
+
 #pragma once
 #ifndef PIMPACT_TIMENS4DBSMOOTHER_HPP
 #define PIMPACT_TIMENS4DBSMOOTHER_HPP

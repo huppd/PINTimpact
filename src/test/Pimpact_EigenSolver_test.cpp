@@ -1,3 +1,8 @@
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
+
 #include <functional>
 #include <iostream>
 #include <cmath>

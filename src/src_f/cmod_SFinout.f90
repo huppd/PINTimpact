@@ -1,10 +1,8 @@
-!********************************************************************************
-!* IMPACT                                                                       *
-!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.*
-!* Mai 2005 - Dec 2011                                                          *
-!* by Michael John, Institute of Fluid Dynamics, ETH Zurich (john@ifd.mavt.ethz.*
-!* Apr 2012                                                                     *
-!********************************************************************************
+!> IMPACT
+!! \author Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ch)
+!! \date  Mai 2005 - Dec 2011
+!! \author Michael John, Institute of Fluid Dynamics, ETH Zurich (john@ifd.mavt.ethz.ch)
+!! \date Apr 2012 
 
 module cmod_SFinout
 

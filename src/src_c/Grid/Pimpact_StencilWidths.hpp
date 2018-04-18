@@ -1,3 +1,8 @@
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
+
 #pragma once
 #ifndef PIMPACT_STENCILWIDTHS_HPP
 #define PIMPACT_STENCILWIDTHS_HPP

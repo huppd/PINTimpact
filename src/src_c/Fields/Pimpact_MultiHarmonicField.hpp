@@ -1,3 +1,8 @@
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
+
 #pragma once
 #ifndef PIMPACT_MULTIHARMONICFIELD_HPP
 #define PIMPACT_MULTIHARMONICFIELD_HPP

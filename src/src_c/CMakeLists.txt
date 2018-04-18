@@ -34,17 +34,17 @@ target_link_libraries( lpimpact cmod )
 #message("cxx compiler:  ${CMAKE_CXX_COMPILER}")
 #message("impactlibs:" ${ALL_f90_SRCS})
 
-add_executable( conv_diff Pimpact_ConvDiff.cxx )
-TARGET_LINK_LIBRARIES( conv_diff ${Pimpact_TPL_LIBRARIES} )
+add_executable( convDiff convDiff.cxx )
+TARGET_LINK_LIBRARIES( convDiff ${Pimpact_TPL_LIBRARIES} )
 
-add_executable( conv_diff_mg Pimpact_ConvDiffMG.cxx )
-TARGET_LINK_LIBRARIES( conv_diff_mg  ${Pimpact_TPL_LIBRARIES} )
+add_executable( convDiff_mg convDiffMG.cxx )
+TARGET_LINK_LIBRARIES( convDiff_mg  ${Pimpact_TPL_LIBRARIES} )
 
-add_executable( conv_diff_mg2 Pimpact_ConvDiffMG2.cxx )
-TARGET_LINK_LIBRARIES( conv_diff_mg2  ${Pimpact_TPL_LIBRARIES} )
+add_executable( convDiff_mg2 convDiffMG2.cxx )
+TARGET_LINK_LIBRARIES( convDiff_mg2  ${Pimpact_TPL_LIBRARIES} )
 
-add_executable( conv_diff2 Pimpact_ConvDiff2.cxx )
-TARGET_LINK_LIBRARIES( conv_diff2  ${Pimpact_TPL_LIBRARIES} )
+add_executable( convDiff2 convDiff2.cxx )
+TARGET_LINK_LIBRARIES( convDiff2  ${Pimpact_TPL_LIBRARIES} )
 
 add_executable( modeConvDiff modeConvDiff.cxx )
 TARGET_LINK_LIBRARIES( modeConvDiff ${Pimpact_TPL_LIBRARIES} )

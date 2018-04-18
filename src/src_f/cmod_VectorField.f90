@@ -1,7 +1,11 @@
+!> Pimpact 
+!! \author huppd
+!! \date 2018
+
+
 !>  Modul: cmod_VectorField
 !!
 !! Impact functions \c Pimpact::VectorField e.g. scales, norms ...
-!! \author huppd
 module cmod_VectorField
 
   use iso_c_binding

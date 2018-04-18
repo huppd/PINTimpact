@@ -1,3 +1,7 @@
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
 #pragma once
 #ifndef BELOSPIMPACTADAPTER_HPP
 #define BELOSPIMPACTADAPTER_HPP

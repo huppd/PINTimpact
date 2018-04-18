@@ -1,3 +1,8 @@
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
+
 #pragma once
 #ifndef PIMPACT_TRANSFERCOMPOUNDOP_HPP
 #define PIMPACT_TRANSFERCOMPOUNDOP_HPP

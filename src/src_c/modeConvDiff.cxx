@@ -1,4 +1,7 @@
-//#include <cmath>
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
 
 #include <mpi.h>
 

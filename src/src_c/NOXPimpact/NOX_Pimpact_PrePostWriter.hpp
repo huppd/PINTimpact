@@ -1,3 +1,8 @@
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
+
 #pragma once
 #ifndef NOX_PIMPACT_PREPOSTWRITER_HPP
 #define NOX_PIMPACT_PREPOSTWRITER_HPP

@@ -1,8 +1,7 @@
-!****************************************************************************************
-!* IMPACT                                                                               *
-!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)*
-!* Mai 2005 - Dec 2011                                                                  *
-!****************************************************************************************
+!> IMPACT
+!! \author Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)
+!! \date Mai 2005 - Dec 2011
+
 
 !> \brief module providing functions to initiliaze stencil arrays
 module cmod_FDcoeff

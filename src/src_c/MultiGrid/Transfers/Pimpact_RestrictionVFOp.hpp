@@ -1,3 +1,8 @@
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
+
 #pragma once
 #ifndef PIMPACT_RESTRICTIONVFOP_HPP
 #define PIMPACT_RESTRICTIONVFOP_HPP

@@ -1,3 +1,8 @@
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
+
 #pragma once
 #ifndef PIMPACT_MULTIOPWRAP_HPP
 #define PIMPACT_MULTIOPWRAP_HPP

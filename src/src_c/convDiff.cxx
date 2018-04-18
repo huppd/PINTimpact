@@ -1,3 +1,8 @@
+/// Pimpact 
+/// \author huppd
+/// \date 2018
+
+
 #include <cmath>
 
 #include "Pimpact_Operator.hpp"
@@ -22,9 +27,11 @@ int main(int argi, char** argv) {
   pl->set("npy", 1);
   pl->set("npx", 1);
 
+  int nwinds = 64;
 
+  S pi = (S)4. * std::atan((S)1.) ;
 
-  pl->set<S>("Re", 10000);
+  pl->set<S>("Re", 1000);
   pl->set<O>("nx", 129);
   pl->set<O>("ny", 129);
 
@@ -38,7 +45,6 @@ int main(int argi, char** argv) {
 
 
   auto op = Pimpact::create<ConvDiffOpT>(grid);
-
 
   for(short int dirx=-1; dirx<4; dirx+=2) {
     for(short int diry=-1; diry<2; diry+=2) {
@@ -64,7 +70,7 @@ int main(int argi, char** argv) {
       std::ofstream phifile;
 
       if(grid()->rankST()==0) {
-        std::string fname = "raki.txt";
+        std::string fname = "phin.txt";
         if(3==dirx)
           fname.insert(4, std::to_string(static_cast<long long>(8)));
         else
@@ -72,57 +78,69 @@ int main(int argi, char** argv) {
         phifile.open(fname, std::ofstream::out);
       }
 
+      for(int phii=0; phii<nwinds; ++phii) {
 
+        S phi = phii*2.*pi/(nwinds);
 
-      // init solution
-      y(Pimpact::F::U).initField(Pimpact::Grad2D_inY);
-      y(Pimpact::F::V).initField(Pimpact::Grad2D_inX);
+        if(grid()->rankST()==0)
+          phifile << phi << "\t";
 
-      auto sol = y.clone(Pimpact::ECopy::Deep);
+        // init solution
+        y(Pimpact::F::U).initField(Pimpact::Grad2D_inY);
+        y(Pimpact::F::V).initField(Pimpact::Grad2D_inX);
 
-      wind(Pimpact::F::U).initField(Pimpact::Grad2D_inY);
-      wind(Pimpact::F::V).initField(Pimpact::Grad2D_inX);
+        auto sol = y.clone(Pimpact::ECopy::Deep);
 
-      z.init();
+        wind(Pimpact::F::U).init(std::cos(phi));
+        wind(Pimpact::F::V).init(std::sin(phi));
 
-      op->assignField(wind);
+        op->assignField(wind);
 
-      // constructing rhs
-      op->apply(y, z);
+        z.init();
 
-      y.init();
+        // constructing rhs
+        op->apply(y, z);
 
-      S error;
-      int iter=0;
-      do {
+        y.init();
 
-        smoother->apply(z, y);
+        std::ofstream ofs;
+        std::string filename = "GS.txt";
+        filename.insert(2, std::to_string(static_cast<long long>(phii)));
 
-        z2.add(-1, *sol, 1, y);
+        if(grid()->rankST()==0)
+          ofs.open(filename, std::ofstream::out);
 
-        error = z2.norm()/sol->norm();
+        S error;
+        int iter=0;
+        do {
 
-        if(iter>2000) error=-1;
+          smoother->apply(z, y);
 
-        if(dirx==3)
-          iter+=4;
-        else
+          z2.add(-1, *sol, 1, y);
+
+          error = z2.norm()/sol->norm();
+
+          if(iter>1000) error=-1;
+
+          if(grid()->rankST()==0) ofs << error << "\n";
+          if(grid()->rankST()==0) std::cout << error << "\n";
+
           iter++;
 
-        if(grid()->rankST()==0) {
-          phifile << iter << "\t" << error << "\n";
-          std::cout << iter << "\t" << error << "\n";
-        }
+        } while(error>1.e-6);
 
-      } while(error>1.e-6);
+        if(grid()->rankST()==0)
+          phifile << iter << "\n";
 
+
+        if(grid()->rankST()==0)
+          ofs.close();
+      }
       if(grid()->rankST()==0)
         phifile.close();
     }
-
   }
 
   MPI_Finalize();
   return 0;
-
 }
