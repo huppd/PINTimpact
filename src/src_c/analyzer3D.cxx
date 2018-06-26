@@ -114,48 +114,50 @@ int main(int argi, char** argv) {
     Teuchos::RCP<CF> x = Teuchos::rcp(new CF(grid));
 
     // init Fields
-    x->getVField().initField(pl->sublist("Base flow"));
+    //x->getVField().initField(pl->sublist("Base flow"));
 
-    auto base = x->getVField().get0Field().clone(Pimpact::ECopy::Deep);
+    //auto base = x->getVField().get0Field().clone(Pimpact::ECopy::Deep);
 
     x->read(restart);
+    x->getVField().writeEvol();
+    x->getSField().writeEvol();
     /*********************************************************************************/
-    Pimpact::ECoord dir = Pimpact::ECoord::Y;
-    ST gamma = 10.;
-    std::string prefix = "energy_";
+    //Pimpact::ECoord dir = Pimpact::ECoord::Y;
+    //ST gamma = 10.;
+    //std::string prefix = "energy_";
 
-    // compute glob HE energy in y-dir
-    if(0 == grid->si(::Pimpact::F::U, 3)) {
-      auto vel = x->getVField().get0Field().clone(::Pimpact::ECopy::Deep);
-      vel->add(1., *vel, -1., *base);
+    //// compute glob HE energy in y-dir
+    //if(0 == grid->si(::Pimpact::F::U, 3)) {
+      //auto vel = x->getVField().get0Field().clone(::Pimpact::ECopy::Deep);
+      //vel->add(1., *vel, -1., *base);
 
-      auto out = Pimpact::createOstream(prefix + "0.txt",
-          grid->getProcGrid()->getRankBar(dir));
+      //auto out = Pimpact::createOstream(prefix + "0.txt",
+          //grid->getProcGrid()->getRankBar(dir));
 
-      Pimpact::computeHEEnergyDir(*vel, *out, gamma);
-    }
+      //Pimpact::computeHEEnergyDir(*vel, *out, gamma);
+    //}
 
-    for(OT i=std::max(grid->si(::Pimpact::F::U, 3), 1); i<=grid->ei(::Pimpact::F::U, 3); ++i) {
-      {
-        auto out = Pimpact::createOstream(prefix + "C"+std::to_string(i) + ".txt",
-            grid->getProcGrid()->getRankBar(dir));
+    //for(OT i=std::max(grid->si(::Pimpact::F::U, 3), 1); i<=grid->ei(::Pimpact::F::U, 3); ++i) {
+      //{
+        //auto out = Pimpact::createOstream(prefix + "C"+std::to_string(i) + ".txt",
+            //grid->getProcGrid()->getRankBar(dir));
 
-        Pimpact::computeHEEnergyDir(
-            x->getVField().getCField(i), *out, gamma);
-      }
-      {
-        auto out = Pimpact::createOstream(prefix + "S"+std::to_string(i) + ".txt",
-            grid->getProcGrid()->getRankBar(dir));
+        //Pimpact::computeHEEnergyDir(
+            //x->getVField().getCField(i), *out, gamma);
+      //}
+      //{
+        //auto out = Pimpact::createOstream(prefix + "S"+std::to_string(i) + ".txt",
+            //grid->getProcGrid()->getRankBar(dir));
 
-        Pimpact::computeHEEnergyDir(
-            x->getVField().getSField(i), *out, gamma);
-      }
-    }
+        //Pimpact::computeHEEnergyDir(
+            //x->getVField().getSField(i), *out, gamma);
+      //}
+    //}
 
-    x->write();
-    x->getVField().get0Field().add(1., x->getVField().get0Field(), -1., *base);
-    Pimpact::writeMHLambda2evol(x->getVField(), 10000);
-    Pimpact::writeMHLambda2(x->getVField(), 20000);
+    //x->write();
+    //x->getVField().get0Field().add(1., x->getVField().get0Field(), -1., *base);
+    //Pimpact::writeMHLambda2evol(x->getVField(), 10000);
+    //Pimpact::writeMHLambda2(x->getVField(), 20000);
   }
 
   MPI_Finalize();
